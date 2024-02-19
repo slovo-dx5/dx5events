@@ -61,6 +61,8 @@ dependencies:
   firebase_storage: ^11.6.0
   flutter_zoom_drawer: ^3.1.2
   sa3_liquid: ^1.0.1
+  table_calendar: ^3.1.0
+  pull_to_refresh: ^2.0.0
 
 dev_dependencies:
   flutter_test:

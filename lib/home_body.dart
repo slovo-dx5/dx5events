@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:dx5veevents/screens/mainScreens/agendaScreen.dart';
+import 'package:dx5veevents/screens/cisoScreens/cisoAgendaScreen.dart';
 import 'package:dx5veevents/widgets/cio_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -139,7 +139,7 @@ class _HomeBodyState extends State<HomeBody> {
                     width: 10,
                     height: 10,
                   ),
-                  screen: AgendaScreen(),
+                  screen: CISOAgendaScreen(),
                   itemName: 'Speakers',
                 ),
                 CIOWidgets().gradientItemWidget(
@@ -151,7 +151,7 @@ class _HomeBodyState extends State<HomeBody> {
                     width: 10,
                     height: 10,
                   ),
-                  screen: AgendaScreen(),
+                  screen: CISOAgendaScreen(),
                   itemName: 'Sponsors',
                 ),
                 CIOWidgets().gradientItemWidget(
@@ -163,7 +163,7 @@ class _HomeBodyState extends State<HomeBody> {
                     width: 10,
                     height: 10,
                   ),
-                  screen: AgendaScreen(),
+                  screen: CISOAgendaScreen(),
                   itemName: 'Agenda',
                 ),
               ],
@@ -180,7 +180,7 @@ class _HomeBodyState extends State<HomeBody> {
                     width: 10,
                     height: 10,
                   ),
-                  screen: AgendaScreen(),
+                  screen: CISOAgendaScreen(),
                   itemName: 'Attendees',
                 ),
                 CIOWidgets().gradientItemWidget(
@@ -192,7 +192,7 @@ class _HomeBodyState extends State<HomeBody> {
                     width: 10,
                     height: 10,
                   ),
-                  screen: AgendaScreen(),
+                  screen: CISOAgendaScreen(),
                   itemName: 'Exhibitors',
                 ),
                 CIOWidgets().gradientItemWidget(
@@ -204,7 +204,7 @@ class _HomeBodyState extends State<HomeBody> {
                     width: 10,
                     height: 10,
                   ),
-                  screen: AgendaScreen(),
+                  screen: CISOAgendaScreen(),
                   itemName: 'My Sessions',
                 ),
               ],

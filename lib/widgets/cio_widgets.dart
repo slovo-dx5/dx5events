@@ -35,31 +35,40 @@ class CIOWidgets {
     required String itemName,}){
       return Column(
         children: [
-          Container(
-            height: MediaQuery.of(context).size.width * 0.22,
-            width: MediaQuery.of(context).size.width * 0.22,
-            margin: EdgeInsets.only(bottom: 5,top: 15), // Adjust the margin as needed
-            decoration: BoxDecoration(
-              gradient:  LinearGradient(
-                colors: [
-                  firstColor,
-                 secondColor // Lighter shade of blue
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(15), // Rounded corners
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(15), // Ensure the child matches the container border radius
-              child: Container(
-                padding: EdgeInsets.all(5), // Adjust padding as needed
-                child:Stack(alignment: Alignment.center,
-                  children: [
-                    SizedBox(height: 50,width: 50,child: editIcon,),verticalSpace( height: 5),
-
-
+          GestureDetector(onTap: (){
+            PersistentNavBarNavigator.pushNewScreen(
+              context,
+              screen: screen,
+              withNavBar: false,
+              pageTransitionAnimation: PageTransitionAnimation.slideRight,
+            );
+          },
+            child: Container(
+              height: MediaQuery.of(context).size.width * 0.22,
+              width: MediaQuery.of(context).size.width * 0.22,
+              margin: EdgeInsets.only(bottom: 5,top: 15), // Adjust the margin as needed
+              decoration: BoxDecoration(
+                gradient:  LinearGradient(
+                  colors: [
+                    firstColor,
+                   secondColor // Lighter shade of blue
                   ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(15), // Rounded corners
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15), // Ensure the child matches the container border radius
+                child: Container(
+                  padding: EdgeInsets.all(5), // Adjust padding as needed
+                  child:Stack(alignment: Alignment.center,
+                    children: [
+                      SizedBox(height: 50,width: 50,child: editIcon,),verticalSpace( height: 5),
+
+
+                    ],
+                  ),
                 ),
               ),
             ),

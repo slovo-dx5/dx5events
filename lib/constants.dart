@@ -12,6 +12,7 @@ const kIconDeepBlue = Color(0xFF2f518e);
 
 ///Primary colors
 const kPrimaryLight = Color(0xFFA3CFCB);
+const kScaffoldColor = Color(0xFFf7f7fc);
 
 ///Dark theme
 //Backgrounds
@@ -39,7 +40,6 @@ const kWhiteText = Color(0xFFffffff);
 
 ///Light Theme
 //Backgrounds
-const kScaffoldColor = Color(0xFFD4D4D4);
 const kToggleLight = Color(0xFFd1cccc);
 const kScreenGray = Color(0xFFededed);
 
@@ -100,6 +100,11 @@ const kCISOBlue = Color(0xFF3cb8ff);
 const kCISOYellow = Color(0xFFefc315);
 const kCISOPurple= Color(0xFF8458ac);
 const kCISOGreenYellow = Color(0xFFd4e001);
+
+
+final kCISOToday = DateTime(2024, 03, 20);
+final kCISOFirstDay = DateTime(kCISOToday.year, kCISOToday.month - 2, kCISOToday.day);
+final kCISOLastDay = DateTime(kCISOToday.year, kCISOToday.month + 2, kCISOToday.day);
 
 
 

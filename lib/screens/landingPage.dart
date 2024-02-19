@@ -19,7 +19,7 @@ class _LandingPageState extends State<LandingPage> {
   Widget build(BuildContext context) {
     return  SafeArea(
       child:  Scaffold(
-        backgroundColor: Colors.grey,
+        backgroundColor: kLightGrayishOrange,
         body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -27,7 +27,7 @@ class _LandingPageState extends State<LandingPage> {
             const Text("Welcome to dx5 EVENTS"),
             const Text("PICK AN EVENT"),
 
-             CurvedImageContainer(imagePath: 'assets/images/themes/ciso.png',  dayMonth: 'WED, MARCH', date: '20th', endDate: '21st', endDayMonth: 'THUR, MARCH', location: 'KENYA', onPressedFunct: (){
+            UpcomingEventWidget(imagePath: 'assets/images/themes/ciso.png',  dayMonth: 'WED, MARCH', date: '20th', endDate: '21st', endDayMonth: 'THUR, MARCH', location: 'KENYA', onPressedFunct: (){
                PersistentNavBarNavigator.pushNewScreen(
                  context,
                  screen: InitialScreen(followingScreen: CISOLogin(),),
@@ -35,8 +35,10 @@ class _LandingPageState extends State<LandingPage> {
                  pageTransitionAnimation: PageTransitionAnimation.slideRight,
                );
              },),
-            verticalSpace(height: 10),
-             CurvedImageContainer(imagePath: 'assets/images/themes/cloudsecurity.png',  dayMonth: 'THUR, APR', date: '25th', endDate: '26th', endDayMonth: 'FRI, APR', location: 'NIGERIA', onPressedFunct: (){
+            verticalSpace(height: 25),
+             Divider(thickness: 5,),            verticalSpace(height: 25),
+
+            CurvedImageContainer(imagePath: 'assets/images/themes/cloudsecurity.png',  dayMonth: 'THUR, APR', date: '25th', endDate: '26th', endDayMonth: 'FRI, APR', location: 'NIGERIA', onPressedFunct: (){
                 defaultScrollableBottomSheet(context,"Cloud and Security Summit",PendingEventBottomSheet(imagePath: 'assets/images/themes/cloudsecurity.png', month: 4, date: 25, onPressedFunction: () {  },));
              },),verticalSpace(height: 10),
               CurvedImageContainer(imagePath: 'assets/images/themes/smartbanking.png',  dayMonth: 'WED, MAY', date: '22nd', endDate: '23rd', endDayMonth: 'THUR, MAY', location: 'KENYA', onPressedFunct: (){

@@ -17,6 +17,7 @@ import '../../constants.dart';
 import 'package:dio/dio.dart';
 
 import '../../dioServices/dioOTPService.dart';
+import '../../splashScreen.dart';
 import '../../testScreen.dart';
 
 class OTPScreen extends StatefulWidget {
@@ -157,7 +158,7 @@ class _OTPScreenState extends State<OTPScreen> {
           PersistentNavBarNavigator.pushNewScreen(
             context,
             //screen: SplashScreen(),
-            screen: TestScreen(),
+            screen: SplashScreen(),
             withNavBar: false,
             pageTransitionAnimation: PageTransitionAnimation.slideRight,
           );
@@ -321,7 +322,7 @@ class _OTPScreenState extends State<OTPScreen> {
                                             PersistentNavBarNavigator.pushNewScreen(
                                               context,
                                              // screen: SplashScreen(),
-                                              screen: TestScreen(),
+                                              screen: SplashScreen(),
                                               withNavBar: false,
                                               pageTransitionAnimation: PageTransitionAnimation.slideRight,
                                             );
