@@ -154,7 +154,7 @@ class UpcomingEventWidget extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
         child: SizedBox(
-          height: 300,
+          height: 220,
           width: MediaQuery.of(context).size.width,
           child: Row(
             children: [
@@ -162,7 +162,7 @@ class UpcomingEventWidget extends StatelessWidget {
               Container(
                 color:kKeyRedBG.withOpacity(0.7),
                 width: MediaQuery.of(context).size.width * 0.25,
-                height: 300,
+                height: 220,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.center,

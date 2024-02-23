@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,7 +13,7 @@ const kIconDeepBlue = Color(0xFF2f518e);
 
 ///Primary colors
 const kPrimaryLight = Color(0xFFA3CFCB);
-const kScaffoldColor = Color(0xFFf7f7fc);
+const kScaffoldColor = Color(0xFFededf5);
 
 ///Dark theme
 //Backgrounds
@@ -256,4 +257,25 @@ Future<void> setDoublePref({required String key, required double value}) async {
 Future<void> clearAllPrefs() async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.clear();
+}
+
+
+
+String convertToAmPm(String time) {
+  // Parse the time string
+  final DateTime parsedTime = DateFormat('HH:mm:ss').parse(time);
+  // Format it to a 12-hour format with AM/PM
+  final String formattedTime = DateFormat('h:mm a').format(parsedTime);
+  return formattedTime;
+}
+///TextStyles
+
+TextStyle kGreyTextStyle({required double fontsiZe}
+
+    ) {
+  return TextStyle(color: kTextColorGrey, fontSize: fontsiZe, fontWeight: FontWeight.w600);
+}TextStyle kNameTextStyle({required double fontsiZe}
+
+    ) {
+  return TextStyle(color: kDarkBold, fontSize: fontsiZe, fontWeight: FontWeight.w500);
 }

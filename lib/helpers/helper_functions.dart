@@ -10,6 +10,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 import '../constants.dart';
+import '../dioServices/dioFetchService.dart';
+import '../models/image_model.dart';
 
 
 greetingFunc({required String firstName}) {
@@ -49,7 +51,7 @@ openLinkedin({required String linkedinURL}) async {
 
 linkedinButton({required BuildContext context,required String linkedinURL}) {
   return ElevatedButton(
-      onPressed: () {openLinkedin(linkedinURL: '');},
+      onPressed: () {openLinkedin(linkedinURL: linkedinURL);},
       child: Container(padding: EdgeInsets.all(8),
         width: MediaQuery.of(context).size.width * 0.6,
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(15),border:
@@ -62,6 +64,18 @@ linkedinButton({required BuildContext context,required String linkedinURL}) {
           Text("Linkedin",style: TextStyle(fontSize: 20),)
         ],),
       ));
+}
+
+getSpeakerImage({required String id}) async {
+  final response = await DioFetchService().fetchImage(id: id);
+  if (response.statusCode == 200) {
+    final Map<String, dynamic> imageData =
+    json.decode(json.encode(response.data));
+
+    return ImageModel.fromJson(imageData).sourceUrl;
+  } else {
+    throw Exception('Failed to load events');
+  }
 }
 
 // createSession(

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 
 import 'dioClient.dart';
+import 'endpoints/endpoint.dart';
 
 class DioFetchService extends DioClient {
   DioClient _client = new DioClient();
@@ -38,6 +39,18 @@ class DioFetchService extends DioClient {
           .get("https://subscriptions.cioafrica.co/items/speakers",
         options: buildCacheOptions(const Duration(minutes: 30)),
            );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> fetchImage({required String id}) async {
+    try {
+      return await _client
+          .init()
+          .get("${ApiEndPoints.MEDIA_URL}/$id",
+        options: buildCacheOptions(const Duration(minutes:30 )),
+      );
     } on DioError catch (ex) {
       throw Exception(ex);
     }

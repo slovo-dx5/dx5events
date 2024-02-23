@@ -1,22 +1,35 @@
 class AgendaModel {
  // final int id;
 
-  final List<Day> day;
+  final List<Day> days;
 
   AgendaModel({
   //  required this.id,
 
-    required this.day,
+    required this.days,
   });
 
   factory AgendaModel.fromJson(Map<String, dynamic> json) {
     return AgendaModel(
      // id: json['data']['id'],
 
-      day: List<Day>.from(json['data']['day'].map((x) => Day.fromJson(x))),
+      days: List<Day>.from(json['data']['day'].map((x) => Day.fromJson(x))),
     );
   }
+
+
+  List<int> fetchSpeakerKeys() {
+    List<int> speakerKeys = [];
+    for (var day in days) {
+      for (var session in day.sessions) {
+        speakerKeys.addAll(session.speakers!.map((s) => s.speaker.key));
+      }
+    }
+    return speakerKeys;
+  }
 }
+
+
 
 class Day {
   final String date;
@@ -50,15 +63,16 @@ class Session {
   });
 
   factory Session.fromJson(Map<String, dynamic> json) {
+    var speakersJson = json['speakers'] as List<dynamic>?; // Cast as List<dynamic>? to handle null
+    List<SpeakerAssignment> speakers = speakersJson != null
+        ? speakersJson.map((x) => SpeakerAssignment.fromJson(x)).toList()
+        : []; // Use an empty list if 'speakers' is null
     return Session(
       startTime: json['start_time'],
       endTime: json['end_time'],
       title: json['title'],
       sessionType: json['session_type'],
-      speakers: json['speakers'] == null
-          ? null
-          : List<SpeakerAssignment>.from(json['speakers'].map((x) => SpeakerAssignment.fromJson(x))),
-
+      speakers: speakers
     );
   }
 }

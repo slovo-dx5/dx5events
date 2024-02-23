@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dx5veevents/screens/cisoScreens/cisoAgendaScreen.dart';
+import 'package:dx5veevents/screens/cisoScreens/cisoSpeakersScreen.dart';
 import 'package:dx5veevents/widgets/cio_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -139,7 +140,7 @@ class _HomeBodyState extends State<HomeBody> {
                     width: 10,
                     height: 10,
                   ),
-                  screen: CISOAgendaScreen(),
+                  screen: CisoSpeakersScreen(),
                   itemName: 'Speakers',
                 ),
                 CIOWidgets().gradientItemWidget(

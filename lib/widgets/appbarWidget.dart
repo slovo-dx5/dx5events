@@ -39,4 +39,44 @@ class AppBarWithGradient extends StatelessWidget implements PreferredSizeWidget 
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight); // Default AppBar height
+}class SearchAppBarWithGradient extends StatelessWidget implements PreferredSizeWidget {
+
+  final String title;
+  final Color gradientBegin;
+  final Color gradientEnd;
+  final IconButton searchIcon;
+
+  const SearchAppBarWithGradient({
+    required this.title,
+    required this.gradientBegin,
+    required this.gradientEnd,required this.searchIcon
+  });
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration:   BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [
+            gradientBegin, // Left side color
+            gradientEnd, // Right side color
+          ],
+        ),
+      ),
+      child: AppBar(
+        backgroundColor: Colors.transparent, // Make the AppBar transparent
+        elevation: 0, // Remove shadow
+        title: Padding(
+          padding: const EdgeInsets.only(top: 40.0),
+          child: Text(title),
+        ),
+        centerTitle: true,
+        actions: [ searchIcon],
+      ),
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight); // Default AppBar height
 }

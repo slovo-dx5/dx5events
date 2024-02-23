@@ -17,6 +17,7 @@ import '../../constants.dart';
 import 'package:dio/dio.dart';
 
 import '../../dioServices/dioOTPService.dart';
+import '../../mainNavigationPage.dart';
 import '../../splashScreen.dart';
 import '../../testScreen.dart';
 
@@ -155,12 +156,15 @@ class _OTPScreenState extends State<OTPScreen> {
         });
 
         if(mounted){
-          PersistentNavBarNavigator.pushNewScreen(
-            context,
-            //screen: SplashScreen(),
-            screen: SplashScreen(),
-            withNavBar: false,
-            pageTransitionAnimation: PageTransitionAnimation.slideRight,
+          // PersistentNavBarNavigator.pushNewScreen(
+          //   context,
+          //   //screen: SplashScreen(),
+          //   screen: SplashScreen(),
+          //   withNavBar: false,
+          //   pageTransitionAnimation: PageTransitionAnimation.slideRight,
+          // );
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => MainNavigationPage()),
           );
         }
 
@@ -319,13 +323,16 @@ class _OTPScreenState extends State<OTPScreen> {
                                           });
 
                                           if(mounted){
-                                            PersistentNavBarNavigator.pushNewScreen(
-                                              context,
-                                             // screen: SplashScreen(),
-                                              screen: SplashScreen(),
-                                              withNavBar: false,
-                                              pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                                            Navigator.of(context).pushReplacement(
+                                              MaterialPageRoute(builder: (_) => MainNavigationPage()),
                                             );
+                                            // PersistentNavBarNavigator.pushNewScreen(
+                                            //   context,
+                                            //  // screen: SplashScreen(),
+                                            //   screen: SplashScreen(),
+                                            //   withNavBar: false,
+                                            //   pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                                            // );
                                           }
 
 
