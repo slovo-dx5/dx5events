@@ -49,7 +49,6 @@ attendeeWidget({
   required String lastName,
   required String role,
   required String company,
-  required String bio,
   required String profileid,
   required int userID,
   required List<String> interests,
@@ -113,7 +112,7 @@ attendeeWidget({
                 lastName: lastName,
                 role: role,
                 company: company,
-                bio: bio,
+
                 profileid: profileid??'', userID: userID, context: context,)
             ],
           ),
@@ -130,7 +129,6 @@ meWidget({
   required String lastName,
   required String role,
   required String company,
-  required String bio,
   required String profileid,
   required int userID,
   required List<String> interests,

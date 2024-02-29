@@ -17,6 +17,9 @@ import '../providers.dart';
 
 import 'package:dio/dio.dart';
 
+import 'dioServices/dioFetchService.dart';
+import 'dioServices/dioPostService.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -49,65 +52,66 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-//   Future<void> uploadImage(ownerName, ownerID) async {
-//     ///1.Upload picture to directus
-//     try {
-//       var pickedImage = await pickImage();
-//       if (pickedImage == null) return; // User canceled image selection
-//       CroppedFile? croppedFile = await ImageCropper().cropImage(
-//         sourcePath: pickedImage.path,
-//         aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),
-//         uiSettings: [AndroidUiSettings(
-//             toolbarTitle: 'Crop Image',
-//             toolbarColor: Colors.blue,
-//             toolbarWidgetColor: Colors.white,
-//             initAspectRatio: CropAspectRatioPreset.square,
-//             lockAspectRatio: true),IOSUiSettings(title: 'Crop Image',)]
-//
-//       );
-//
-//
-//       final imageFile = await convertToMultipartFile(croppedFile!, ownerName);
-//
-//       final formData = FormData.fromMap({
-//         'folder': '4b5625d4-8ff7-4af0-bad2-caa451357e17',
-//         'title': imageFile, // The field name on the server
-//       });
-//
-//       final response = await DioPostService().uploadProfilePic(formData);
-//
-//       // Handle the response as needed
-//       print('Response: ${response.data}');
-//
-//       Map<String, dynamic> jsonResponse =
-//           json.decode(json.encode(response.data));
-//
-// // Extract the 'id' value
-//       setState(() {
-//         imageID = jsonResponse['data']['id'];
-//       });
-//       Map<String, dynamic> imageidDAta = {
-//         "profile_photo": imageID,
-//
-//         // Add other key-value pairs as needed
-//       };
-//
-//       ///Update user data
-//       ///
-//       final patchresponse=await DioFetchService().updateUserData(id: ownerID, body: imageidDAta);
-//       print('Patch Response: ${patchresponse.data}');
-//
-//       print("image ID is $imageID");
-//     } catch (e) {
-//       if (e is DioError) {
-//         if (e.response != null) {
-//           print("image upload error is ${e.response!.data}");
-//         }
-//       }
-//       // Handle errors
-//       print('Error: $e');
-//     }
-//   }
+  Future<void> uploadImage(ownerName, ownerID) async {
+    ///1.Upload picture to directus
+    try {
+      var pickedImage = await pickImage();
+      if (pickedImage == null) return; // User canceled image selection
+      CroppedFile? croppedFile = await ImageCropper().cropImage(
+          sourcePath: pickedImage.path,
+          aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),
+          uiSettings: [AndroidUiSettings(
+              toolbarTitle: 'Crop Image',
+              toolbarColor: Colors.blue,
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.square,
+              lockAspectRatio: true),IOSUiSettings(title: 'Crop Image',)]
+
+      );
+
+
+      final imageFile = await convertToMultipartFile(croppedFile!, ownerName);
+
+      final formData = FormData.fromMap({
+        'folder': '4b5625d4-8ff7-4af0-bad2-caa451357e17',
+        'title': imageFile, // The field name on the server
+      });
+
+      final response = await DioPostService().uploadProfilePic(formData);
+
+      // Handle the response as needed
+      print('Response: ${response.data}');
+
+      Map<String, dynamic> jsonResponse =
+      json.decode(json.encode(response.data));
+
+// Extract the 'id' value
+      setState(() {
+        imageID = jsonResponse['data']['id'];
+      });
+      Map<String, dynamic> imageidDAta = {
+        "profile_photo": imageID,
+
+        // Add other key-value pairs as needed
+      };
+
+      ///Update user data
+      ///
+      print("owner id is $ownerID");
+      final patchresponse=await DioFetchService().updateUserData(id: ownerID, body: imageidDAta);
+      print('Patch Response: ${patchresponse.data}');
+
+      print("image ID is $imageID");
+    } catch (e) {
+      if (e is DioError) {
+        if (e.response != null) {
+          print("image upload error is ${e.response!.data}");
+        }
+      }
+      // Handle errors
+      print('Error: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,9 +141,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         alignment: Alignment.bottomRight,
                         child: IconButton(
                             onPressed: () async {
-                              // await uploadImage(profileProvider.firstName,
-                              //     profileProvider.userID);
-                              // profileProvider.editProfile(newProfileId: imageID!);
+                              await uploadImage(profileProvider.firstName,
+                                  profileProvider.userID);
+                              profileProvider.editProfile(newProfileId: imageID!);
                             },
                             icon: const Icon(
                               Icons.camera_alt,

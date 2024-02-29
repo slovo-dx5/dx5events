@@ -172,7 +172,7 @@ primaryButton(
 
 connectButton({required String assetName,required String firstName, required String lastName,
   required String role, required String company,
-  required String bio, required String profileid, required int userID, required BuildContext context}) {
+  required String profileid, required int userID, required BuildContext context}) {
   return SizedBox(height: 30,
     child: ElevatedButton(
       onPressed: () {

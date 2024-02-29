@@ -57,12 +57,15 @@ class _CISOLoginState extends State<CISOLogin> {
         });
 
         if(mounted){
+          print("login screen attendee id is ${attendee!.id!}");
           PersistentNavBarNavigator.pushNewScreen(
             context,
             screen: OTPScreen(email: email,
               isAdmin:"false",
               company: attendee!.company,
-              role: attendee.role, lastName: attendee.lastName,firstName: attendee.firstName, phone: attendee.phone,id:attendee.id, profileID: attendee.profilePhoto??"",
+              role: attendee.role, lastName: attendee.lastName,
+              firstName: attendee.firstName, phone: attendee.phone,
+              id:attendee.id, profileID: attendee.profilePhoto??"",
 
             ),
             withNavBar: false,

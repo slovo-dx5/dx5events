@@ -29,16 +29,16 @@ class _LandingPageState extends State<LandingPage> {
             const Text("PICK AN EVENT"),
 
             UpcomingEventWidget(imagePath: 'assets/images/themes/ciso.png',  dayMonth: 'WED, MARCH', date: '20th', endDate: '21st', endDayMonth: 'THUR, MARCH', location: 'KENYA', onPressedFunct: (){
-               // PersistentNavBarNavigator.pushNewScreen(
-               //   context,
-               //   screen: InitialScreen(followingScreen: CISOLogin(),),
-               //   withNavBar: false,
-               //   pageTransitionAnimation: PageTransitionAnimation.slideRight,
-               // );
+               PersistentNavBarNavigator.pushNewScreen(
+                 context,
+                 screen: InitialScreen(followingScreen: CISOLogin(),),
+                 withNavBar: false,
+                 pageTransitionAnimation: PageTransitionAnimation.slideRight,
+               );
 
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => MainNavigationPage()),
-              );
+              // Navigator.of(context).pushReplacement(
+              //   MaterialPageRoute(builder: (_) => InitialScreen(followingScreen: MainNavigationPage())),
+              // );
              },),
             verticalSpace(height: 25),
              Divider(thickness: 5,),            verticalSpace(height: 25),

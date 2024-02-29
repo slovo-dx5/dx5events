@@ -10,7 +10,7 @@ speakerWidget({
   required String name,
 
   required String title,
-  required String bio,
+   String? bio,
   required String linkedinurl,
   required String imageURL,
   // required List<String> interests,
@@ -21,7 +21,7 @@ speakerWidget({
         onTap: () {
           PersistentNavBarNavigator.pushNewScreen(
             context,
-            screen: IndividualSpeakerScreen(imageUrl: imageURL!, speakerName: name, title: title, Bio: bio, linkedinurl: linkedinurl,),
+            screen: IndividualSpeakerScreen(imageUrl: imageURL!, speakerName: name, title: title, Bio: bio?? "", linkedinurl: linkedinurl,),
             withNavBar: false,
             pageTransitionAnimation: PageTransitionAnimation.slideRight,
           );

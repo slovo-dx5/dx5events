@@ -7,6 +7,7 @@ import 'package:dx5veevents/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -14,6 +15,7 @@ import '../../dioServices/dioFetchService.dart';
 import '../../helpers/helper_functions.dart';
 import '../../models/agendaModel.dart';
 import '../../models/speakersModel.dart';
+import '../../providers.dart';
 import '../../widgets/agendaWidget.dart';
 import '../../widgets/appbarWidget.dart';
 
@@ -36,6 +38,8 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
   List<IndividualSpeaker> speakers = [];
 
   List<Session> _sessions = [];
+  bool isBookmarking = false;
+
 
   @override
   void initState() {
@@ -128,6 +132,8 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final profileProvider = Provider.of<ProfileProvider>(context);
+
     return Scaffold(
         appBar: const PreferredSize(
           preferredSize: Size.fromHeight(75.0), // Default AppBar height
@@ -337,9 +343,30 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
                                       ),
                                     ),
 
-                                    const Padding(
+                                     Padding(
                                       padding:  EdgeInsets.fromLTRB(10,70,5,70),
-                                      child: Icon(Icons.calendar_month,color: kIconDeepBlue,),
+                                      child: GestureDetector(
+                                          onTap:()async{
+
+                                            setState(() {
+                                              isBookmarking = true;
+                                            });
+
+                                            await createSession(
+                                            currentUserId: profileProvider.userID!,
+                                            startTime: session.startTime,
+                                            endTime: session.endTime,
+                                            sessionTitle: session.title,
+                                            sessionDescription:" widget.description",
+                                            speakers:[],
+                                            sessionType: session.sessionType,
+                                            date: 20,
+                                            );
+                                            setState(() {
+                                              isBookmarking = false;
+                                            });
+                                          },
+                                          child: const Icon(Icons.calendar_month,color: kIconDeepBlue,)),
                                     )
                                   ],
                                 ),
@@ -402,9 +429,28 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
                                       ),
                                     ),
 
-                                    const Padding(
+                                     Padding(
                                       padding:  EdgeInsets.fromLTRB(10,30,5,30),
-                                      child: Icon(Icons.calendar_month,color: kIconDeepBlue,),
+                                      child: GestureDetector(onTap:()async{
+
+                    setState(() {
+                    isBookmarking = true;
+                    });
+
+                    await createSession(
+                    currentUserId: profileProvider.userID!,
+                    startTime: session.startTime,
+                    endTime: session.endTime,
+                    sessionTitle: session.title,
+                    sessionDescription:" widget.description",
+                    speakers:[],
+                    sessionType: session.sessionType,
+                    date: 20,
+                    );
+                    setState(() {
+                    isBookmarking = false;
+                    });
+                    } ,child: Icon(Icons.calendar_month,color: kIconDeepBlue,)),
                                     )
                                   ],
                                 ),

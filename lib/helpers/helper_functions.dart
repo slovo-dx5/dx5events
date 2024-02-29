@@ -11,6 +11,8 @@ import 'package:uuid/uuid.dart';
 
 import '../constants.dart';
 import '../dioServices/dioFetchService.dart';
+import '../dioServices/dioPostService.dart';
+import '../dioServices/dio_delete_service.dart';
 import '../models/image_model.dart';
 
 
@@ -78,57 +80,57 @@ getSpeakerImage({required String id}) async {
   }
 }
 
-// createSession(
-//     {required int currentUserId,
-//     required String startTime,
-//     required String endTime,
-//     required String sessionTitle,
-//     required String sessionType,
-//     required int date,
-//     required String sessionDescription,
-//     required var speakers}) async {
-//   Map<String, dynamic> sessionBodyData = {
-//     "attendee_id": currentUserId,
-//     "sessions": {
-//       "user_id": currentUserId,
-//       "start_time": startTime,
-//       "end_time": endTime,
-//       "title": sessionTitle,
-//       "description": sessionDescription,
-//       "type": sessionType,
-//       "date": date,
-//       "speakers": speakers
-//     }
-//   };
-//   final response =
-//       await DioPostService().createSession(sessionBody: sessionBodyData);
-//   if (response.statusCode == 200) {
-//     log("Session Success:${response.data.toString()}");
-//     Fluttertoast.showToast(msg: "Session bookmarked successfully");
-//     return true;
-//   } else {
-//     log("Session Error:${response.data.toString()}");
-//     Fluttertoast.showToast(msg: "Error:Check your internet");
-//     return false;
-//   }
-// }
+createSession(
+    {required int currentUserId,
+    required String startTime,
+    required String endTime,
+    required String sessionTitle,
+    required String sessionType,
+    required int date,
+    required String sessionDescription,
+    required var speakers}) async {
+  Map<String, dynamic> sessionBodyData = {
+    "attendee_id": currentUserId,
+    "sessions": {
+      "user_id": currentUserId,
+      "start_time": startTime,
+      "end_time": endTime,
+      "title": sessionTitle,
+      "description": sessionDescription,
+      "type": sessionType,
+      "date": date,
+      "speakers": speakers
+    }
+  };
+  final response =
+      await DioPostService().createSession(sessionBody: sessionBodyData);
+  if (response.statusCode == 200) {
+    log("Session Success:${response.data.toString()}");
+    Fluttertoast.showToast(msg: "Session bookmarked successfully");
+    return true;
+  } else {
+    log("Session Error:${response.data.toString()}");
+    Fluttertoast.showToast(msg: "Error:Check your internet");
+    return false;
+  }
+}
 
-// deleteSession({required int sessionID}) async {
-//   try {
-//     final response =
-//         await DioDeleteService().deleteUserSession(sessionID: sessionID);
-//     if (response.statusCode == 200 || response.statusCode == 204) {
-//       Fluttertoast.showToast(
-//           msg: "Session deleted successfully :)",
-//           backgroundColor: kSuccessGreen);
-//     } else {
-//
-//       Fluttertoast.showToast(msg: "Failed :)", backgroundColor: kLogoutRed);
-//     }
-//   } catch (e) {
-//   }
-// }
-//
+deleteSession({required int sessionID}) async {
+  try {
+    final response =
+        await DioDeleteService().deleteUserSession(sessionID: sessionID);
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      Fluttertoast.showToast(
+          msg: "Session deleted successfully :)",
+          backgroundColor: kSuccessGreen);
+    } else {
+
+      Fluttertoast.showToast(msg: "Failed :)", backgroundColor: kLogoutRed);
+    }
+  } catch (e) {
+  }
+}
+
 // getSpeakerImage({required String id}) async {
 //   final response = await DioFetchService().fetchImage(id: id);
 //   if (response.statusCode == 200) {

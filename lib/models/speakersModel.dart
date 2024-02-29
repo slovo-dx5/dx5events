@@ -57,7 +57,7 @@ class IndividualSpeaker {
       personalPhone: json['personal_phone'],
       company: json['company'],
       role: json['role'],
-      bio: json['bio'],
+      bio: json['bio'] ?? "",
       photo: json['photo'],
       linkedinProfile: json['linkedin_profile'],
       website: json['website'],
