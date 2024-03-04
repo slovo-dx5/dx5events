@@ -7,6 +7,7 @@ import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 import '../constants.dart';
 
+import '../screens/cisoScreens/cisoIndividualAttendee.dart';
 import '../widgets/profile_initials_widget.dart';
 
 menuItem(
@@ -58,20 +59,20 @@ attendeeWidget({
     width: MediaQuery.of(context).size.width,
     child: GestureDetector(
       onTap: () {
-        // PersistentNavBarNavigator.pushNewScreen(
-        //   context,
-        //   screen: IndividualAttendeeScreen(
-        //     assetName: assetName,
-        //     FirstName: firstName,
-        //     LastName: lastName,
-        //     Role: role,
-        //     Company: company,
-        //     Bio: bio,
-        //    profileid: profileid??'', id: userID,
-        //   ),
-        //   withNavBar: false,
-        //   pageTransitionAnimation: PageTransitionAnimation.slideRight,
-        // );
+        PersistentNavBarNavigator.pushNewScreen(
+          context,
+          screen: CisoIndividualAttendeeScreen(
+            assetName: assetName,
+            FirstName: firstName,
+            LastName: lastName,
+            Role: role,
+            Company: company,
+            Bio: "bio",
+           profileid: profileid??'', id: userID,
+          ),
+          withNavBar: false,
+          pageTransitionAnimation: PageTransitionAnimation.slideRight,
+        );
       },
       child: Card(
         elevation: 0.2,

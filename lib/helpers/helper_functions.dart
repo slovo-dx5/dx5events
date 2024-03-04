@@ -52,20 +52,20 @@ openLinkedin({required String linkedinURL}) async {
 }
 
 linkedinButton({required BuildContext context,required String linkedinURL}) {
-  return ElevatedButton(
-      onPressed: () {openLinkedin(linkedinURL: linkedinURL);},
-      child: Container(padding: EdgeInsets.all(8),
-        width: MediaQuery.of(context).size.width * 0.6,
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(15),border:
-        Border.all(width: 0.5,color:kCIOPink )),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-          SizedBox(height:25,width:25,child: Image.asset("assets/images/linkedin.png")),
-          horizontalSpace(width: 10),
-          Text("Linkedin",style: TextStyle(fontSize: 20),)
-        ],),
-      ));
+  return GestureDetector(onTap: (){openLinkedin(linkedinURL: linkedinURL);},
+    child: Container(padding: EdgeInsets.all(8),
+      width: MediaQuery.of(context).size.width * 0.6,
+      decoration: BoxDecoration(color:kPrimaryBlueColor,borderRadius: BorderRadius.circular(30),border:
+      Border.all(width: 0.5,color:kPrimaryBlueColor )),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+        SizedBox(height:25,width:25,child: Image.asset("assets/images/linkedin.png")),
+        horizontalSpace(width: 10),
+        Text("LinkedIn",style: TextStyle(fontSize: 20,color: kWhiteColor,fontWeight: FontWeight.w500),)
+      ],),
+    ),
+  );
 }
 
 getSpeakerImage({required String id}) async {

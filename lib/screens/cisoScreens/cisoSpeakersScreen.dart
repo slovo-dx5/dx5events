@@ -203,7 +203,7 @@ class _CisoSpeakersScreenState extends State<CisoSpeakersScreen> {
                   name: "${speaker.firstName!} ${speaker.lastName}",
 
 
-                title: "${speaker.role!} @ ${speaker.company}",
+                title: "${speaker.role!} at ${speaker.company}",
 
                  bio: speaker!.bio! ?? "",
 

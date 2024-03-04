@@ -11,6 +11,7 @@ import '../helpers/helper_functions.dart';
 
 import '../models/sessionModel.dart';
 import '../providers.dart';
+import '../screens/cisoScreens/cisoFullAgenda.dart';
 class SessionWidget extends StatefulWidget {
   String sessionTitle;
   String startTime;
@@ -56,21 +57,24 @@ class _SessionWidgetState extends State<SessionWidget> {
     return  Padding(
       padding: const EdgeInsets.only(left: 8.0,right: 8.0,top: 4,bottom: 4),
       child: GestureDetector(onTap: (){
-        // PersistentNavBarNavigator.pushNewScreen(
-        //   context,
-        //   screen: FullAgendaScreen(
-        //     title: widget.agendaTitle,
-        //     day: widget.date,
-        //     startTime: widget.startTime,
-        //     endTime: widget.endTime,
-        //     isFromSession: true,
-        //     type: widget.type,
-        //     userID: profileProvider.userID!,
-        //     description: widget.description, speakersCollection: widget.speakersCollection, speakers: widget.speakers, sigs: false,
-        //   ),
-        //   withNavBar: false,
-        //   pageTransitionAnimation: PageTransitionAnimation.slideRight,
-        // );
+        PersistentNavBarNavigator.pushNewScreen(
+          context,
+          screen: FullAgendaScreen(
+            title: widget.sessionTitle,
+            day: 20,
+            startTime: widget.startTime,
+            endTime: widget.endTime,
+            isFromSession: false,
+            type:widget.sessionType,
+            userID: profileProvider.userID!,
+            //   sigs:widget.sigs,
+            description: "Cybersecurity threats are constantly changing – think of new viruses, more advanced hacking techniques, and unexpected targets. There is a need for individuals and organisations to stay informed about these shifts in the threat landscape.The goal is to continuously adapt security strategies to maintain protection in this ever-evolving digital world.",
+            //  speakersCollection: widget.speakersCollection,
+            speakers: false,
+          ),
+          withNavBar: false,
+          pageTransitionAnimation: PageTransitionAnimation.slideRight,
+        );
       },
         child: Visibility(visible: !isDeleted,
           child:widget.speakers!=[]?
@@ -120,72 +124,7 @@ class _SessionWidgetState extends State<SessionWidget> {
                                     fontWeight: FontWeight.w700),
                               ),
                               verticalSpace(height: 10),
-                              // FutureBuilder<
-                              //     List<IndividualSpeaker?>>(
-                              //   future: Future.wait(futures),
-                              //   builder: (context, snapshot) {
-                              //     if (snapshot.connectionState ==
-                              //         ConnectionState.done &&
-                              //         snapshot.data != null) {
-                              //       // Join the first names of all speakers
-                              //       final speakerWidgets =
-                              //       snapshot.data!
-                              //           .where((speaker) =>
-                              //       speaker != null)
-                              //           .map((speaker) => Padding(
-                              //         padding: const EdgeInsets.only(top:8.0,bottom: 8.0),
-                              //         child: Row(
-                              //           children: [
-                              //             CachedNetworkImage(
-                              //               fit:
-                              //               BoxFit.cover,
-                              //               imageUrl:
-                              //               "https://subscriptions.cioafrica.co/assets/${speaker!.photo!}",
-                              //               // placeholder: (context, url) => CircularProgressIndicator(), // Optional
-                              //               // errorWidget: (context, url, error) =>  ProfileInitials(),
-                              //               progressIndicatorBuilder: (context, url, downloadProgress) => SizedBox(
-                              //                   height: 20,
-                              //                   width: 20,
-                              //                   child: CircularProgressIndicator(value: downloadProgress.progress)), // Optional
-                              //               imageBuilder: (context, imageProvider) =>
-                              //                   CircleAvatar(
-                              //                     radius: 15,
-                              //                     backgroundImage: imageProvider,
-                              //                   ),
-                              //             ),horizontalSpace(width: 10),
-                              //
-                              //             Expanded(
-                              //               child: Column(mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.start,
-                              //                 children: [
-                              //                   Text(
-                              //                     '${speaker!.firstName} ${speaker.lastName}',style:kGreyTextStyle(fontsiZe: 12) ,),
-                              //                   Text(
-                              //                     '${speaker!.role} at ${speaker.company}',style: kNameTextStyle( fontsiZe: 10),overflow: TextOverflow.ellipsis,maxLines: 2,),
-                              //                 ],
-                              //               ),
-                              //             ),
-                              //           ],
-                              //         ),
-                              //       ))
-                              //           .toList();
-                              //       return Column(
-                              //         crossAxisAlignment:
-                              //         CrossAxisAlignment.start,
-                              //         children: [
-                              //           ...speakerWidgets,
-                              //         ],
-                              //       );
-                              //     } else if (snapshot
-                              //         .connectionState ==
-                              //         ConnectionState.waiting) {
-                              //       return Text(
-                              //           'Loading speakers...');
-                              //     } else {
-                              //       return Text(
-                              //           'Speakers details not available');
-                              //     }
-                              //   },
-                              // ),
+
 
                             ],
                           ),
@@ -196,25 +135,20 @@ class _SessionWidgetState extends State<SessionWidget> {
                           child: GestureDetector(
                               onTap:()async{
 
-                                // setState(() {
-                                //   isBookmarking = true;
-                                // });
-                                //
-                                // await createSession(
-                                //   currentUserId: profileProvider.userID!,
-                                //   startTime: session.startTime,
-                                //   endTime: session.endTime,
-                                //   sessionTitle: session.title,
-                                //   sessionDescription:" widget.description",
-                                //   speakers:[],
-                                //   sessionType: session.sessionType,
-                                //   date: 20,
-                                // );
-                                // setState(() {
-                                //   isBookmarking = false;
-                                // });
+
+                                setState(() {
+                                  isDeleting = true;
+                                });
+
+                                await  deleteSession(sessionID: widget.sessionId);
+                                widget.sessions.removeWhere((event) => event.id == widget.sessionId);
+                                setState(() {
+                                  isDeleted=true;
+
+                                  isDeleting = false;
+                                });
                               },
-                              child: const Icon(Icons.calendar_month,color: kIconDeepBlue,)),
+                              child: const Icon(Icons.delete,color: kIconDeepBlue,)),
                         )
                       ],
                     ),
@@ -223,7 +157,8 @@ class _SessionWidgetState extends State<SessionWidget> {
               ),
               verticalSpace(height: 10)
             ],
-          ):Column(
+          ):
+          Column(
             children: [
               Container(
                 height: 100,
@@ -279,6 +214,8 @@ class _SessionWidgetState extends State<SessionWidget> {
                           child: GestureDetector(onTap:()async{
 
                             setState(() {
+                              isDeleted=true;
+
                               isDeleting = true;
                             });
 
@@ -287,7 +224,7 @@ class _SessionWidgetState extends State<SessionWidget> {
                             setState(() {
                               isDeleting = false;
                             });
-                          } ,child: const Icon(Icons.calendar_month,color: kIconDeepBlue,)),
+                          } ,child: const Icon(Icons.delete,color: kIconDeepBlue,)),
                         )
                       ],
                     ),
@@ -297,46 +234,6 @@ class _SessionWidgetState extends State<SessionWidget> {
               verticalSpace(height: 10)
             ],
           ),
-
-
-          // Container(
-          //   child: Column(
-          //     children: [
-          //       Row(
-          //         children: [
-          //           Column(
-          //             children: [
-          //               Text(widget.startTime),
-          //               Container(
-          //                 height: 80,
-          //                 width: 3,
-          //                 color: kCIOPink,
-          //               ),Text(widget.startTime),
-          //             ],
-          //           )
-          //         ],
-          //       ),horizontalSpace(width: 5),Column(children: [
-          //         Text(widget.sessionType),
-          //         Text(widget.sessionTitle),
-          //         if(widget.speakers!=[])Text("SPEAKERS",style: TextStyle(fontWeight: FontWeight.w600),),
-          //         if(widget.speakers!=[])
-          //           Container(width: MediaQuery.of(context).size.width*0.8,height: 80,
-          //             child: ListView.builder(scrollDirection:Axis.horizontal,itemCount: widget.speakers.length,itemBuilder: (BuildContext context, int index){
-          //               // bool speakerExists = doesSpeakerExist(widget.speakers[index]["field_62ac3eeb577b8"],widget.speakersCollection);
-          //
-          //
-          //               // IndividualSpeaker requiredPeaker=widget.speakersCollection.firstWhere((element) => element.name==widget.speakers[index]["first_name"]);
-          //
-          //               return Text("${widget.speakers[index].firstName}");
-          //
-          //
-          //             },),
-          //           ),
-          //
-          //       ],)
-          //     ],
-          //   ),)
-
 
 
 

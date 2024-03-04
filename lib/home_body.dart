@@ -196,7 +196,7 @@ class _HomeBodyState extends State<HomeBody> {
                     height: 10,
                   ),
                   screen: CISOAgendaScreen(),
-                  itemName: 'Exhibitors',
+                  itemName: 'Partners',
                 ),
                 CIOWidgets().gradientItemWidget(
                   firstColor: kCISOPink.withOpacity(0.9),

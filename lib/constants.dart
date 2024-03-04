@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 const kIconBlue = Color(0xFF2398cd);
 const kIconPurple = Color(0xFF8f3b9d);
 const kIconYellow = Color(0xFFd59a3e);
@@ -99,22 +98,17 @@ const kCISOTeal = Color(0xFF00a592);
 const kCISOPink = Color(0xFFec60b7);
 const kCISOBlue = Color(0xFF3cb8ff);
 const kCISOYellow = Color(0xFFefc315);
-const kCISOPurple= Color(0xFF8458ac);
+const kCISOPurple = Color(0xFF8458ac);
 const kCISOGreenYellow = Color(0xFFd4e001);
 
-
 final kCISOToday = DateTime(2024, 03, 20);
-final kCISOFirstDay = DateTime(kCISOToday.year, kCISOToday.month - 2, kCISOToday.day);
-final kCISOLastDay = DateTime(kCISOToday.year, kCISOToday.month + 2, kCISOToday.day);
-
-
-
-
-
-
+final kCISOFirstDay =
+    DateTime(kCISOToday.year, kCISOToday.month - 2, kCISOToday.day);
+final kCISOLastDay =
+    DateTime(kCISOToday.year, kCISOToday.month + 2, kCISOToday.day);
 
 final RegExp emailValidatorRegExp =
-RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+    RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
 const String kFirstName = "firstName";
 const String kLastName = "lastName";
 const String kEmail = "email";
@@ -128,7 +122,6 @@ const String kDefaultPassword = "DX5iveCIO100";
 
 final usersRef = FirebaseFirestore.instance.collection("users");
 final notificationsRef = FirebaseFirestore.instance.collection("notifications");
-
 
 List<Color> predefinedColors = [
   Colors.red,
@@ -153,8 +146,8 @@ horizontalSpace({required double width}) {
 
 primaryButton(
     {required BuildContext context,
-      required VoidCallback onPressedFunction,
-      required String buttonText}) {
+    required VoidCallback onPressedFunction,
+    required String buttonText}) {
   return SizedBox(
     width: MediaQuery.of(context).size.width * 0.6,
     child: ElevatedButton(
@@ -165,15 +158,25 @@ primaryButton(
         ),
         child: Text(
           buttonText,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14,color: kTextColorBlack),
+          style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              color: kTextColorBlack),
         )),
   );
 }
 
-connectButton({required String assetName,required String firstName, required String lastName,
-  required String role, required String company,
-  required String profileid, required int userID, required BuildContext context}) {
-  return SizedBox(height: 30,
+connectButton(
+    {required String assetName,
+    required String firstName,
+    required String lastName,
+    required String role,
+    required String company,
+    required String profileid,
+    required int userID,
+    required BuildContext context}) {
+  return SizedBox(
+    height: 30,
     child: ElevatedButton(
       onPressed: () {
         // PersistentNavBarNavigator.pushNewScreen(
@@ -193,19 +196,15 @@ connectButton({required String assetName,required String firstName, required Str
       },
       style: ButtonStyle(
           backgroundColor: const MaterialStatePropertyAll<Color>(kCIOPink),
-          textStyle: const MaterialStatePropertyAll<TextStyle>(TextStyle(fontWeight: FontWeight.w200, fontSize: 13,color: Colors.white)),
-
-          shape: MaterialStatePropertyAll<RoundedRectangleBorder>(RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(7.0)
-
-          ))
-      ),
-
+          textStyle: const MaterialStatePropertyAll<TextStyle>(TextStyle(
+              fontWeight: FontWeight.w200, fontSize: 13, color: Colors.white)),
+          shape: MaterialStatePropertyAll<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(7.0)))),
       child: const Text("Connect"),
     ),
   );
 }
-
 
 Future checkContainsKey(key, Function keyFunction) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -216,22 +215,22 @@ Future checkContainsKey(key, Function keyFunction) async {
 
 Future<String> getStringPref(key) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  return  prefs.getString(key) ?? "";
+  return prefs.getString(key) ?? "";
 }
 
 Future<int> getIntPref(key) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  return  prefs.getInt(key) ?? 0;
+  return prefs.getInt(key) ?? 0;
 }
 
 Future<bool> getBoolPref(key) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  return  prefs.getBool(key) ?? false;
+  return prefs.getBool(key) ?? false;
 }
 
 Future<double> getDoublePref(key) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  return  prefs.getDouble(key) ?? 0.0;
+  return prefs.getDouble(key) ?? 0.0;
 }
 
 Future<void> setStringPref({required String key, required String value}) async {
@@ -259,8 +258,6 @@ Future<void> clearAllPrefs() async {
   prefs.clear();
 }
 
-
-
 String convertToAmPm(String time) {
   // Parse the time string
   final DateTime parsedTime = DateFormat('HH:mm:ss').parse(time);
@@ -268,14 +265,24 @@ String convertToAmPm(String time) {
   final String formattedTime = DateFormat('h:mm a').format(parsedTime);
   return formattedTime;
 }
+
 ///TextStyles
 
-TextStyle kGreyTextStyle({required double fontsiZe}
+TextStyle kGreyTextStyle({required double fontsiZe}) {
+  return TextStyle(
+      color: kTextColorGrey, fontSize: fontsiZe, fontWeight: FontWeight.w600);
+}
 
-    ) {
-  return TextStyle(color: kTextColorGrey, fontSize: fontsiZe, fontWeight: FontWeight.w600);
-}TextStyle kNameTextStyle({required double fontsiZe}
+TextStyle kNameTextStyle({required double fontsiZe}) {
+  return TextStyle(
+      color: kDarkBold, fontSize: fontsiZe, fontWeight: FontWeight.w500);
+}
 
-    ) {
-  return TextStyle(color: kDarkBold, fontSize: fontsiZe, fontWeight: FontWeight.w500);
+TextStyle kFullAgendaDayTextStyle({required double fontsiZe}) {
+  return TextStyle(
+      color: kIconDeepBlue, fontSize: fontsiZe, fontWeight: FontWeight.w500);
+}
+TextStyle kFullAgendaDateTextStyle({required double fontsiZe}) {
+  return TextStyle(
+      color: kIconDeepBlue, fontSize: fontsiZe, fontWeight: FontWeight.w700);
 }

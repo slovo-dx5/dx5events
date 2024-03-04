@@ -157,13 +157,13 @@ class _IndividualAttendeeProfileInitialsState extends State<IndividualAttendeePr
 
   @override
   Widget build(BuildContext context) {
-    return  Container(
-        width: MediaQuery.of(context).size.width ,
-        height: MediaQuery.of(context).size.height * 0.3,
-      color:randomBackgroundColor,child: Center(child: Text("${widget.firstName[0].toUpperCase()}${widget.lastName![0].toUpperCase()}", style: const TextStyle(color: Colors.white,fontSize: 80),)),);
+    return  CircleAvatar(
+      radius: 70,
+      backgroundColor:randomBackgroundColor,child: Center(child: Text("${widget.firstName[0].toUpperCase()}${widget.lastName![0].toUpperCase()}", style: const TextStyle(color: Colors.white,fontSize: 80),)),);
 
   }
 }
+
 
 
 class AttendeeProfilePicWidget extends StatefulWidget {

@@ -92,14 +92,14 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
     final profileProvider = Provider.of<ProfileProvider>(context);
 
     return Scaffold(
-        appBar: AppBar(
+        appBar: AppBar(backgroundColor: kCISOPurple,
           centerTitle: true,
           title: isSearching
               ? TextField(
                   controller: _searchController,
                   decoration: const InputDecoration(
                     hintText: 'Search by Name, Role or Company',
-                    hintStyle: TextStyle(fontSize: 12),
+                    hintStyle: TextStyle(fontSize: 12,color: kWhiteText),
                     border: InputBorder.none,
                   ),
                   onChanged: (query) {
@@ -113,10 +113,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                     ),
-                    Text(
-                      "CIO 100 Symposium and awards",
-                      style: TextStyle(fontSize: 9, color: kTextColorGrey),
-                    )
+
                   ],
                 ),
           actions: [
@@ -135,9 +132,9 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
           ],
         ),
         body: Padding(
-          padding: EdgeInsets.all(8),
+          padding: const EdgeInsets.all(8),
           child: filteredattendeesList == null
-              ? Center(
+              ? const Center(
                   child: SpinKitCircle(
                     color: kCIOPink,
                   ),

@@ -1,0 +1,284 @@
+import 'dart:convert';
+
+import 'package:cached_network_image/cached_network_image.dart';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+import '../../constants.dart';
+import '../../helpers/helper_functions.dart';
+import '../../models/image_model.dart';
+import '../../models/speakersModel.dart';
+import '../../widgets/appbarWidget.dart';
+
+class FullAgendaScreen extends StatefulWidget {
+  String title;
+  String startTime;
+  String endTime;
+  String description;
+  String type;
+  int day;
+  int userID;
+  bool isFromSession;
+  int? sessionId;
+  var speakers;
+  //var sigs;
+ // List <Speaker>speakersCollection;
+  FullAgendaScreen(
+      {super.key,
+        required this.title,
+        required this.day,
+        required this.startTime,
+        required this.endTime,
+      //  required this.speakersCollection,
+        this.sessionId,
+        required this.speakers,
+        required this.type,
+        required this.userID,
+       // required this.sigs,
+        required this.description,
+        required this.isFromSession
+
+      });
+
+  @override
+  State<FullAgendaScreen> createState() => _FullAgendaScreenState();
+}
+
+class _FullAgendaScreenState extends State<FullAgendaScreen> {
+  final currentDate = DateTime.now();
+  final DateTime targetDate = DateTime(2024, 3, 21);
+  bool isBookmarking=false;
+  int? expandedIndex;
+  // getSpeakerImage({required String id})async{
+  //
+  //   final response = await DioFetchService().fetchImage(id: id);
+  //   if (response.statusCode == 200) {
+  //     final Map<String, dynamic> imageData = json.decode(json.encode(response.data));
+  //
+  //     return ImageModel.fromJson(imageData).sourceUrl;
+  //   } else {
+  //     throw Exception('Failed to load events');
+  //   }
+  //
+  //
+  //
+  // }
+
+  String replaceUnderscoresWithSpaces(String text) {
+    return text.replaceAll('_', ' ');
+  }
+  @override
+  Widget build(BuildContext context) {
+    print("spesakes are ${widget.speakers}");
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(onPressed: () async{
+        if(widget.isFromSession){
+          setState(() {
+            isBookmarking=true;
+          });
+          await  deleteSession(sessionID: widget.sessionId!);
+          Navigator.of(context).pop();
+
+          setState(() {
+            isBookmarking=false;
+          });
+
+        }else{
+          setState(() {
+            isBookmarking=true;
+          });
+          await createSession(currentUserId: widget.userID!,
+            startTime: widget.startTime, endTime: widget.endTime,
+            sessionTitle: widget.title, sessionDescription: widget.description, speakers: [], sessionType: widget.type, date: widget.day,
+
+          );
+          setState(() {
+            isBookmarking=false;
+          });
+        }
+
+      },
+        child:
+
+        Visibility(
+          replacement: SpinKitCircle(color: Colors.black54,),
+          visible: isBookmarking==false,
+          child: widget.isFromSession? const Icon(Icons.delete):const Icon(Icons.bookmark),),),
+      appBar:  const PreferredSize(
+    preferredSize: Size.fromHeight(75.0), // Default AppBar height
+    child: AppBarWithGradient(
+    title: 'DETAILED AGENDA',
+    gradientBegin: kCIOPurple,
+    gradientEnd: kCIOPink,
+    ),
+    ),
+    backgroundColor: kScaffoldColor,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              verticalSpace(height: 20),
+
+              Container(
+                  padding: EdgeInsets.all(5),
+                  decoration:BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                color: kCISOPurple
+              ),child: Text(replaceUnderscoresWithSpaces(widget.type.toUpperCase()),
+                style: const TextStyle(fontSize: 12,color: kGradientLighterBlue),)),
+              verticalSpace(height: 10),
+
+              Row(crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(children: [
+
+                    if (widget.day==20)Text("WED",style: kFullAgendaDayTextStyle(fontsiZe: 15),),
+                    if (widget.day==20)Text("20",style: kFullAgendaDateTextStyle(fontsiZe: 30),),
+
+                    if (widget.day==21)Text("THUR",style: kFullAgendaDayTextStyle(fontsiZe: 15),),
+                    if (widget.day==21)Text("21",style: kFullAgendaDateTextStyle(fontsiZe: 30),),
+
+
+
+
+                  ],),horizontalSpace(width: 10),
+                  Flexible(
+                    child: Column(mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.title,
+                          style: TextStyle(fontSize: 21, fontWeight: FontWeight.w600),
+                        ),
+                        verticalSpace(height: 5),
+                        Text("${convertToAmPm(widget.startTime)} - ${convertToAmPm(widget.startTime)} ",
+                          style: kFullAgendaDayTextStyle(fontsiZe: 14),),
+                        verticalSpace(height: 3),
+                         Text("Radisson Blu Upperhill, Nairobi",style: kFullAgendaDayTextStyle(fontsiZe: 14),),
+                        if(widget.speakers!=[false])verticalSpace(height:10),
+                        if(widget.speakers!=[false])verticalSpace(height: 5),
+                        if(widget.speakers!=false)Container(width: MediaQuery.of(context).size.width,height: 100,
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            physics: const AlwaysScrollableScrollPhysics(), // new
+                            scrollDirection:Axis.horizontal,itemCount: 1,itemBuilder: (BuildContext context, int index){
+                            // bool speakerExists = doesSpeakerExist(widget.speakers[index]["field_62ac3eeb577b8"],widget.speakersCollection);
+
+
+                            //     Speaker requiredPeaker=widget.speakersCollection.firstWhere((element) => element.name==widget.speakers[index]["field_62ac3eeb577b8"]);
+                            return
+                              FutureBuilder<
+                                  List<IndividualSpeaker?>>(
+                                future: Future.wait(widget.speakers),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.done &&
+                                      snapshot.data != null) {
+                                    // Join the first names of all speakers
+                                    final speakerWidgets =
+                                    snapshot.data!
+                                        .where((speaker) =>
+                                    speaker != null)
+                                        .map((speaker) => Padding(
+                                      padding: const EdgeInsets.only(top:8.0,bottom: 8.0),
+                                      child: Row(
+                                        children: [
+                                          CachedNetworkImage(
+                                            fit:
+                                            BoxFit.cover,
+                                            imageUrl:
+                                            "https://subscriptions.cioafrica.co/assets/${speaker!.photo!}",
+                                            // placeholder: (context, url) => CircularProgressIndicator(), // Optional
+                                            // errorWidget: (context, url, error) =>  ProfileInitials(),
+                                            progressIndicatorBuilder: (context, url, downloadProgress) => SizedBox(
+                                                height: 20,
+                                                width: 20,
+                                                child: CircularProgressIndicator(value: downloadProgress.progress)), // Optional
+                                            imageBuilder: (context, imageProvider) =>
+                                                CircleAvatar(
+                                                  radius: 15,
+                                                  backgroundImage: imageProvider,
+                                                ),
+                                          ),horizontalSpace(width: 10),
+
+                                          Column(mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                '${speaker!.firstName} ${speaker.lastName}',style:kGreyTextStyle(fontsiZe: 12) ,),
+                                              Text(
+                                                '${speaker!.role} at ${speaker.company}',style: kNameTextStyle( fontsiZe: 10),overflow: TextOverflow.ellipsis,maxLines: 2,),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ))
+                                        .toList();
+                                    return Column(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                      children: [
+                                        ...speakerWidgets,
+                                      ],
+                                    );
+                                  } else if (snapshot
+                                      .connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Text(
+                                        'Loading speakers...');
+                                  } else {
+                                    return const Text(
+                                        'Speakers details not available');
+                                  }
+                                },
+                              );
+
+
+                            Text(widget.speakers[index]["field_62ac3eeb577b8"]);
+                          },),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (currentDate.isAfter(targetDate))
+                Text("Session is over",style: TextStyle(fontSize: 15,color: kKeyRedBG),),
+
+
+
+
+              Divider(),
+              verticalSpace(height: 10),
+              if(widget.description.length>0 || widget.description!="")
+                Text("About",style: TextStyle(fontSize: 17,fontWeight: FontWeight.w700),),
+              verticalSpace(height: 5),
+
+              verticalSpace(height: 5),
+              if(widget.description!=null || widget.description!="")Text(widget.description,style: TextStyle(fontSize: 16,color: kTextColorGrey),),
+              Divider(),
+
+              verticalSpace(height: 60)
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+agendaDate({required String date}) {
+  return Row(
+    children: [
+      Icon(Icons.calendar_month),
+      horizontalSpace(width: 5),
+      Text(
+        date,
+        style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+      ),
+    ],
+  );
+}

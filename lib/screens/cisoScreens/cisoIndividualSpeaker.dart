@@ -35,88 +35,52 @@ class _IndividualSpeakerScreenState extends State<IndividualSpeakerScreen> {
   @override
   Widget build(BuildContext context) {
     print("linkedin url is ${widget.linkedinurl}");
-    return SafeArea(
+    return  SafeArea(
         child: Scaffold(
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Material(elevation: 2,
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      height: MediaQuery.of(context).size.width * 0.5,
-
-                      child: Image.network(
-                        widget.imageUrl,
-                        fit: BoxFit.fill,
-                      ),
-                    ),
-                    Container(color: kCIOPink.withOpacity(0.1),
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      height: MediaQuery.of(context).size.width * 0.5,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.speakerName,
-                              style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.w700),
-                            ),
-                            verticalSpace(height: 10),
-                            Flexible(
-                              child: Text(
-                                "${widget.title}",style: TextStyle(fontSize: 15),
-                              ),
-                            ),                      verticalSpace(height: 5),
-
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
+          body: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                verticalSpace(height: 40),
+              CircleAvatar(
+              radius: 75.0, // Specify the radius of the avatar
+              backgroundImage: NetworkImage( widget.imageUrl,),
+              // Use a local asset image
+            ),verticalSpace(height: 5), Text(
+                  widget.speakerName,
+                  style: TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.w700),
                 ),
-              ),
 
-              verticalSpace(height: 10),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start,children: [
-                  const Text("About",style: TextStyle(fontSize: 22,fontWeight: FontWeight.w600),),
-                  Text(widget.Bio,style: TextStyle(fontSize: 14),),
-                  verticalSpace(height: 5),
-                  const Divider(),
-                  verticalSpace(height: 5),
+                Padding(
+                  padding:  EdgeInsets.fromLTRB(30,5,30,10),
+                  child: Text(
+                    "${widget.title}",style: TextStyle(fontSize: 14,fontWeight: FontWeight.w400,color: kTextColorGrey),textAlign: TextAlign.center,
+                  ),
+                ),linkedinButton(context: context,linkedinURL: widget.linkedinurl),
 
 
-                  // SizedBox(height: MediaQuery.of(context).size.height*0.18,
-                  //   child:
-                  //   GridView.builder(
-                  //       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  //         mainAxisSpacing: 2,
-                  //         crossAxisSpacing: 2,
-                  //         crossAxisCount: 2,
-                  //         childAspectRatio:(2 / .5),
-                  //       ),
-                  //       itemCount: widget.Interests.length,
-                  //       itemBuilder: (context,index){
-                  //         final data = widget.Interests[index];
-                  //         return interestWidget(interest: data);
-                  //       }),
-
-                  //
-                  Center(child: linkedinButton(context: context,linkedinURL: widget.linkedinurl),)
+                verticalSpace(height: 10),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start,children: [
+                    Container(padding:EdgeInsets.all(10),decoration:BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),color: kLightAppbar
+                    ),child: Text(widget.Bio,style: TextStyle(fontSize: 14,color: kTextColorGrey),)),
+                    verticalSpace(height: 5),
+                    const Divider(),
+                    verticalSpace(height: 5),
 
 
 
-                ],),
-              )
 
-            ],
+
+                  ],),
+                )
+
+              ],
+            ),
           ),
         ));
   }

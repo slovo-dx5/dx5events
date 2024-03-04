@@ -7,6 +7,7 @@ import '../../constants.dart';
 import '../../dioServices/dioFetchService.dart';
 import '../../models/sessionModel.dart';
 
+import '../../widgets/appbarWidget.dart';
 import '../../widgets/sessionWidget.dart';
 
 class UserSessionsScreen extends StatefulWidget {
@@ -63,7 +64,6 @@ class _UserSessionsScreenState extends State<UserSessionsScreen> {
             .map((sessionJson) => SessionModel.fromJson(sessionJson))
             .where((session) => session.attendeeId == userID)
             .toList();
-         print("sessions are ${sessionListJson.first}");
 
           isFetching=false;
 
@@ -81,18 +81,18 @@ class _UserSessionsScreenState extends State<UserSessionsScreen> {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title:const Text(
-            "SAVED SESSIONS",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        appBar:  const PreferredSize(
+          preferredSize: Size.fromHeight(75.0), // Default AppBar height
+          child: AppBarWithGradient(
+            title: 'MY SESSIONS',
+            gradientBegin: kCIOPurple,
+            gradientEnd: kCIOPink,
           ),
-
         ),
         body:
 
 
-        (isFetching|| sessions==null)?const Center(child: SpinKitCircle(color: kCIOPink,),)
+        (isFetching)?const Center(child: SpinKitCircle(color: kCIOPink,),)
 
     : sessions!.isEmpty?const Center(child: Text("Your bookmarked sessions will appear here."),):
     ListView.builder(
