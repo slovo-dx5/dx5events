@@ -130,9 +130,23 @@ class _CisoIndividualAttendeeScreenState extends State<CisoIndividualAttendeeScr
                                       80),
                                   child:Row(
                                     children: [
-                                      CircleGradientAvatar(actionIcon: Icons.meeting_room, actionText: 'Meet', onPressedF: (){},),
+                                      CircleGradientAvatar(actionIcon: Icons.meeting_room, actionText: 'Meet', onPressedF: (){
+                                        defaultScrollableBottomSheet(context, "Meeting request",
+                                            MeetingRequestBottomSheet(userName: widget.FirstName,
+                                              meetingWith: "${widget.FirstName} ${widget.LastName}",
+                                              otherUSerID: widget.id,));
+                                      },),
                                       Spacer(),
-                                      CircleGradientAvatar(actionIcon: Icons.message, actionText: 'Chat', onPressedF: (){},),
+                                      CircleGradientAvatar(actionIcon: Icons.message, actionText: 'Chat', onPressedF: (){
+                                        if(mounted){
+                                          PersistentNavBarNavigator.pushNewScreen(
+                                            context,
+                                            screen:  CioChatScreen(chattingWithName: widget.FirstName, chattingWithID: widget.id, currentUserID: profileProvider.userID!, currentUserName: profileProvider.firstName,),
+                                            withNavBar: false,
+                                            pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                                          );
+                                        }
+                                      },),
                                     ],
                                   )
                                   ,

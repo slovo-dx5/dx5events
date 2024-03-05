@@ -286,3 +286,5 @@ TextStyle kFullAgendaDateTextStyle({required double fontsiZe}) {
   return TextStyle(
       color: kIconDeepBlue, fontSize: fontsiZe, fontWeight: FontWeight.w700);
 }
+
+
