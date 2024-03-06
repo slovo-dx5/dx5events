@@ -268,8 +268,7 @@ class _OTPScreenState extends State<OTPScreen> {
                                 width: MediaQuery.of(context).size.width * 0.6,
                                 child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      primary: kPrimaryLightGrey, // Background color
-                                      onPrimary: kCIOPink, // Text color
+                                      foregroundColor: kCIOPink, backgroundColor: kPrimaryLightGrey, // Text color
                                     ),
                                     onPressed: ()async{
 

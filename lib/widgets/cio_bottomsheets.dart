@@ -566,8 +566,7 @@ class _PendingEventBottomSheetState extends State<PendingEventBottomSheet> {
               child: ElevatedButton(
                   onPressed: widget.onPressedFunction,
                   style: ElevatedButton.styleFrom(
-                    primary: kPrimaryLightGrey, // Background color
-                    onPrimary: Colors.white, // Text color
+                    foregroundColor: Colors.white, backgroundColor: kPrimaryLightGrey, // Text color
                   ),
                   child: const Text(
                     "Buy Ticket",

@@ -153,8 +153,7 @@ primaryButton(
     child: ElevatedButton(
         onPressed: onPressedFunction,
         style: ElevatedButton.styleFrom(
-          primary: kPrimaryLightGrey, // Background color
-          onPrimary: Colors.white, // Text color
+          foregroundColor: Colors.white, backgroundColor: kPrimaryLightGrey, // Text color
         ),
         child: Text(
           buttonText,
