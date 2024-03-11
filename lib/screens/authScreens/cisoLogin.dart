@@ -162,15 +162,13 @@ class _CISOLoginState extends State<CISOLogin> {
 
     if (response.statusCode == 200) {
 
-      final rawData = response.data['data'];
+      List<dynamic> filteredData = response.data['data'].toList();
 
-      List<dynamic> filteredData = rawData.where((item) => item['event'] == "Africa CISO Summit" && item['status'] == "approved" ).toList();
-      log("raw data is $filteredData");
+
       List<CISOAttendeeModel> userList = List<CISOAttendeeModel>.from(filteredData.map((user) => CISOAttendeeModel.fromJson(user)));
       setState(() {
         attendees=userList;
-        log(attendees!.last.firstName);
-        print("Attendee list length is ${attendees!.length}");
+
       });
 
       // return jsonData.map((userJson) => AttendeeModel.fromJson(userJson)).toList();

@@ -213,10 +213,10 @@ class _HomeBodyState extends State<HomeBody> {
               ],
             ),
             verticalSpace(height: 15),
-            SizedBox(
-                height: 100,
-                width: MediaQuery.of(context).size.width,
-                child: HorizontalCardScroll())
+            // SizedBox(
+            //     height: 100,
+            //     width: MediaQuery.of(context).size.width,
+            //     child: HorizontalCardScroll())
           ],
         ),
       )),

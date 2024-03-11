@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'mainNavigationPage.dart';
+
 
 ///This screen uses shared pref to check if user had previously signed in then redirects them accordingly
 class InitialScreen extends StatefulWidget {
@@ -36,12 +38,10 @@ class _InitialScreenState extends State<InitialScreen> {
 
     if(initialValue==1){
       if(mounted){
-        PersistentNavBarNavigator.pushNewScreen(
-          context,
-          screen: SplashScreen(),
-          withNavBar: false,
-          pageTransitionAnimation: PageTransitionAnimation.slideRight,
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => MainNavigationPage()),
         );
+
       }
     }else if(initialValue==0){
       if(mounted){

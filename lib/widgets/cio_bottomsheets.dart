@@ -457,14 +457,12 @@ class PendingEventBottomSheet extends StatefulWidget {
   String imagePath;
   int month;
   int date;
-  VoidCallback onPressedFunction;
 
 
   PendingEventBottomSheet(
       {required this.imagePath,
       required this.month,
       required this.date,
-        required this.onPressedFunction,
       super.key});
 
   @override
@@ -511,7 +509,8 @@ class _PendingEventBottomSheetState extends State<PendingEventBottomSheet> {
   @override
   Widget build(BuildContext context) {
     // Format the duration to include leading zeros
-    final hours = _duration.inHours.toString().padLeft(2, '0');
+    final days=_duration.inDays.toString().padLeft(2,'0');
+    final hours = _duration.inHours.remainder(24).toString().padLeft(2, '0');
     final minutes =
         _duration.inMinutes.remainder(60).toString().padLeft(2, '0');
     final seconds =
@@ -551,11 +550,11 @@ class _PendingEventBottomSheetState extends State<PendingEventBottomSheet> {
                   color: kLighterGreenAccent),
             ),
             Center(
-              child: Text('$hours:$minutes:$seconds',
+              child: Text('$days Days,$hours Hours,\n$minutes Minutes,\n$seconds Seconds',
                   style: const TextStyle(
-                      fontSize: 35,
+                      fontSize: 25,
                       fontWeight: FontWeight.bold,
-                      color: kLightDisabledColor)),
+                      color: kLightDisabledColor),textAlign: TextAlign.center,),
             ),
             const Padding(
               padding: EdgeInsets.fromLTRB(20.0,10,20,30),
@@ -564,7 +563,7 @@ class _PendingEventBottomSheetState extends State<PendingEventBottomSheet> {
             SizedBox(height: 50,    width: MediaQuery.of(context).size.width * 0.6,
 
               child: ElevatedButton(
-                  onPressed: widget.onPressedFunction,
+                  onPressed:(){openTicketURL();},
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white, backgroundColor: kPrimaryLightGrey, // Text color
                   ),
