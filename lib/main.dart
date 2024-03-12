@@ -1,6 +1,7 @@
 import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/screens/landingPage.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -8,7 +9,14 @@ import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
 import 'homeScreen.dart';
-
+import 'notifications/pushNotifications.dart';
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message ) async {
+  final NotificationSetup _notificationSetup=NotificationSetup();
+  _notificationSetup.configurePushNotifications();
+  // _notificationSetup.eventListenerCallback();
+  print("Handling a background message: $message");
+}
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   Get.put<MyDrawerController>(MyDrawerController());
@@ -17,6 +25,8 @@ void main() async{
     options: DefaultFirebaseOptions.currentPlatform,
 
   );
+  await NotificationSetup().getIOSPermission();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(const MyApp());
 }
 

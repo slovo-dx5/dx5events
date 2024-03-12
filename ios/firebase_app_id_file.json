@@ -1,7 +1,7 @@
 {
   "file_generated_by": "FlutterFire CLI",
   "purpose": "FirebaseAppID & ProjectID for this Firebase app in this directory",
-  "GOOGLE_APP_ID": "1:801819062087:ios:8093f803ba9fc2df08e662",
-  "FIREBASE_PROJECT_ID": "dx5-events",
-  "GCM_SENDER_ID": "801819062087"
+  "GOOGLE_APP_ID": "1:286423894850:ios:1a8e254e7f2bd5ba33d6db",
+  "FIREBASE_PROJECT_ID": "dx5ve-events",
+  "GCM_SENDER_ID": "286423894850"
 }

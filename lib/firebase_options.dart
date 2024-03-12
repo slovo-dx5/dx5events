@@ -50,19 +50,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCjIrDYpuI2qBWpUN6krkoHqHkTM_-MVqg',
-    appId: '1:801819062087:android:f2d391209eaf9f9408e662',
-    messagingSenderId: '801819062087',
-    projectId: 'dx5-events',
-    storageBucket: 'dx5-events.appspot.com',
+    apiKey: 'AIzaSyC7gJUOTiIWW3PgkFxN7sNNJHYcPXiqvnE',
+    appId: '1:286423894850:android:9476ce4f24e1212533d6db',
+    messagingSenderId: '286423894850',
+    projectId: 'dx5ve-events',
+    storageBucket: 'dx5ve-events.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyA_TelsGsL261uDqAoiez3wNlFtZY6H0yA',
-    appId: '1:801819062087:ios:8093f803ba9fc2df08e662',
-    messagingSenderId: '801819062087',
-    projectId: 'dx5-events',
-    storageBucket: 'dx5-events.appspot.com',
+    apiKey: 'AIzaSyB2pxIrErPtuEPBzd-OYWXb8j_TQy65NEI',
+    appId: '1:286423894850:ios:1a8e254e7f2bd5ba33d6db',
+    messagingSenderId: '286423894850',
+    projectId: 'dx5ve-events',
+    storageBucket: 'dx5ve-events.appspot.com',
     iosBundleId: 'com.cioafrica.dx5veevents',
   );
 }

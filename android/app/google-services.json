@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "801819062087",
-    "project_id": "dx5-events",
-    "storage_bucket": "dx5-events.appspot.com"
+    "project_number": "286423894850",
+    "project_id": "dx5ve-events",
+    "storage_bucket": "dx5ve-events.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:801819062087:android:f2d391209eaf9f9408e662",
+        "mobilesdk_app_id": "1:286423894850:android:9476ce4f24e1212533d6db",
         "android_client_info": {
           "package_name": "com.cioafrica.dx5veevents"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCjIrDYpuI2qBWpUN6krkoHqHkTM_-MVqg"
+          "current_key": "AIzaSyC7gJUOTiIWW3PgkFxN7sNNJHYcPXiqvnE"
         }
       ],
       "services": {
