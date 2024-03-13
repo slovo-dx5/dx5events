@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyA_TelsGsL261uDqAoiez3wNlFtZY6H0yA</string>
+	<string>AIzaSyB2pxIrErPtuEPBzd-OYWXb8j_TQy65NEI</string>
 	<key>GCM_SENDER_ID</key>
-	<string>801819062087</string>
+	<string>286423894850</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.cioafrica.dx5veevents</string>
+	<string>com.dxfive.events</string>
 	<key>PROJECT_ID</key>
-	<string>dx5-events</string>
+	<string>dx5ve-events</string>
 	<key>STORAGE_BUCKET</key>
-	<string>dx5-events.appspot.com</string>
+	<string>dx5ve-events.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:801819062087:ios:8093f803ba9fc2df08e662</string>
+	<string>1:286423894850:ios:43508b5dc405b1a533d6db</string>
 </dict>
 </plist>

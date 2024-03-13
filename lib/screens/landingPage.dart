@@ -37,7 +37,7 @@ class _LandingPageState extends State<LandingPage> {
                // );
 
               Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => InitialScreen(followingScreen: MainNavigationPage())),
+                MaterialPageRoute(builder: (_) => InitialScreen(followingScreen: CISOLogin())),
               );
              },),
             verticalSpace(height: 25),

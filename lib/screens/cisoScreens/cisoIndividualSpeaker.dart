@@ -34,9 +34,9 @@ class _IndividualSpeakerScreenState extends State<IndividualSpeakerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("linkedin url is ${widget.linkedinurl}");
     return  SafeArea(
         child: Scaffold(
+          appBar: AppBar(automaticallyImplyLeading: true,),
           body: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
