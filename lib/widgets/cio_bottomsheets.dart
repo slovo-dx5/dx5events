@@ -43,10 +43,10 @@ class _SponsorBottomSheetState extends State<SponsorBottomSheet> {
           children: [
             GestureDetector(
                 onTap: () {
-                  // visitSponsor(url: widget.SponsorURL);
+                  visitSponsor(url: widget.SponsorURL);
                 },
                 child: SizedBox(
-                    height: 150, child: Image.asset(widget.SponsorImage))),
+                    height: 150, child: Image.network(widget.SponsorImage))),
             verticalSpace(height: 30),
             Text(
               widget.SponsorAbout,

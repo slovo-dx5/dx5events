@@ -165,9 +165,12 @@ class _CISOLoginState extends State<CISOLogin> {
       List<dynamic> filteredData = response.data['data'].toList();
 
 
+
       List<CISOAttendeeModel> userList = List<CISOAttendeeModel>.from(filteredData.map((user) => CISOAttendeeModel.fromJson(user)));
       setState(() {
         attendees=userList;
+      //  print(attendees![624].firstName);
+        print(attendees!.length);
 
       });
 

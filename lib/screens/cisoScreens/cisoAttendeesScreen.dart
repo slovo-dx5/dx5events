@@ -60,8 +60,6 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
               item['status'] == "approved")
           .toList();
 
-      final List<dynamic> jsonData =
-          json.decode(json.encode(response.data))['data'];
 
       return filteredData
           .map((userJson) => CISOAttendeeModel.fromJson(userJson))

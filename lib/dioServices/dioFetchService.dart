@@ -11,7 +11,7 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/event_registrations?filter[eventId][_eq]=3&filter[status][_eq]=approved&limit=-1",
+          .get("https://subscriptions.cioafrica.co/items/event_registrations?filter[eventId][_eq]=3&filter[status][_eq]=approved&limit=800",
      //   options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
@@ -26,6 +26,17 @@ class DioFetchService extends DioClient {
           .init()
           .get("https://subscriptions.cioafrica.co/items/agenda/1",
         options: buildCacheOptions(const Duration(minutes: 30)),
+           );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+  Future<Response> fetchCISOSponsors() async {
+    try {
+      return await _client
+          .init()
+          .get("https://subscriptions.cioafrica.co/items/sponsors",
+        //options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
       throw Exception(ex);
