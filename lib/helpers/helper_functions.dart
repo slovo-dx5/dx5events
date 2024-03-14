@@ -51,10 +51,10 @@ openLinkedin({required String linkedinURL}) async {
   await launch(linkedinURL);
 }
 
-openTicketURL() async {
-  Uri parsedURL = Uri.parse("https://tickets.cioafrica.co/");
+openTicketURL({required String slug}) async {
+  // Uri parsedURL = Uri.parse("https://tickets.cioafrica.co/");
 
-  await launch("https://tickets.cioafrica.co/");
+  await launch("https://tickets.cioafrica.co/$slug");
 }
 
 linkedinButton({required BuildContext context,required String linkedinURL}) {

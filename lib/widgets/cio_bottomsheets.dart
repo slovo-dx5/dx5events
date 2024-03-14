@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 import '../constants.dart';
+import '../dioServices/dioPostService.dart';
 import '../helpers/helper_functions.dart';
 import '../helpers/time_dropdown.dart';
 import '../providers.dart';
@@ -226,33 +227,33 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
   }
 
   sendMeetingNotification() async {
-    //get receiver token
-    // String ?receiverToken;
-    // try{
-    //   DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-    //       .collection("users").doc(widget.otherUSerID.toString()).get();
-    //   //.collection("users").doc("158").get();
+   // get receiver token
+    String ?receiverToken;
+    try{
+      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+          .collection("users").doc(widget.otherUSerID.toString()).get();
+      //.collection("users").doc("158").get();
+
+      if (documentSnapshot.exists) {
+        // Replace 'field_name' with the name of the field you want to fetch
+        setState(() {
+          receiverToken=documentSnapshot.get('messaging_token').toString();
+          print("receiver token is $receiverToken");
+        });
+        await DioPostService().sendNotification({"to": receiverToken,
+          "notification":{
+            //"title": sentFromname,
+            "body": "New Meeting request"
+          }
+        });
+        return documentSnapshot.get('messaging_token').toString();
+      } else {
+        return 'Document does not exist';
+      }
+    }catch(e){
+      print("Coul not get user id");
+    }
     //
-    //   if (documentSnapshot.exists) {
-    //     // Replace 'field_name' with the name of the field you want to fetch
-    //     setState(() {
-    //       receiverToken=documentSnapshot.get('messaging_token').toString();
-    //       print("receiver token is $receiverToken");
-    //     });
-    //     await DioPostService().sendNotification({"to": receiverToken,
-    //       "notification":{
-    //         //"title": sentFromname,
-    //         "body": "New Meeting request"
-    //       }
-    //     });
-    //     return documentSnapshot.get('messaging_token').toString();
-    //   } else {
-    //     return 'Document does not exist';
-    //   }
-    // }catch(e){
-    //   print("Coul not get user id");
-    // }
-    // //
   }
   @override
   Widget build(BuildContext context) {
@@ -457,12 +458,14 @@ class PendingEventBottomSheet extends StatefulWidget {
   String imagePath;
   int month;
   int date;
+  String slug;
 
 
   PendingEventBottomSheet(
       {required this.imagePath,
       required this.month,
       required this.date,
+        required this.slug,
       super.key});
 
   @override
@@ -563,7 +566,7 @@ class _PendingEventBottomSheetState extends State<PendingEventBottomSheet> {
             SizedBox(height: 50,    width: MediaQuery.of(context).size.width * 0.6,
 
               child: ElevatedButton(
-                  onPressed:(){openTicketURL();},
+                  onPressed:(){openTicketURL(slug: widget.slug);},
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white, backgroundColor: kPrimaryLightGrey, // Text color
                   ),

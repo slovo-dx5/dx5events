@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../constants.dart';
+import '../../dioServices/dioPostService.dart';
 import '../../helpers/helper_functions.dart';
 import '../../models/contact_model.dart';
 
@@ -85,25 +86,6 @@ class _CioChatScreenState extends State<CioChatScreen> {
 
 
   }
-  // Future getLastMessage() async {
-  //   //String name;
-  //   // var firebaseUser = await FirebaseAuth.instance.currentUser();
-  //   var lastMessageItem = await FirebaseFirestore.instance
-  //       .collection("messages")
-  //       .doc(chatId)
-  //       .collection(chatId!)
-  //   //.orderBy('timeStamp', descending: true)
-  //   //.limit(1)
-  //       .get();
-  //   if (lastMessageItem.docs.length > 0) {
-  //     // LastMessage = lastMessageItem.docs.last.data()['content'];
-  //     setState(() {
-  //       lastMessage = lastMessageItem.docs.last.data()['content'];
-  //
-  //     });
-  //
-  //   }
-  // }
 
   Future getReceiverInfo() async {
     //String name;
@@ -260,12 +242,12 @@ class _CioChatScreenState extends State<CioChatScreen> {
 
       await addtonotifications();
 
-      // await DioPostService().sendNotification({"to": receiverToken,
-      //   "notification":{
-      //     "title": sentFromname,
-      //     "body": messagecontent
-      //   }
-      // });
+      await DioPostService().sendNotification({"to": receiverToken,
+        "notification":{
+          "title": sentFromname,
+          "body": messagecontent
+        }
+      });
       listscrollController.animateTo(0.0,
           duration: Duration(microseconds: 300), curve: Curves.easeOut);
       await getSenderInfo();

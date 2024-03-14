@@ -46,7 +46,7 @@ class DioPostService extends DioClient {
           .post("https://fcm.googleapis.com/fcm/send",
           data: messageData,
           options: Options(headers: {
-            'Authorization': 'Bearer AAAAnHTXDwM:APA91bGGFFFUyU2UgXdieA2MqiZmwvhFFmyUoXM3oKZiiQTES6vWjkAdjOG7x3zTMvLlRDDB9TtJCBchdY7cSTJ5svtrPxWkwfn4BxbcCcHDYF52rOQAf1-3LBw4h4-LblqqyR-Cy-Zo',
+            'Authorization': 'Bearer AAAAQrAxy0I:APA91bGrDqULJNq_hEZtUIgmv-gJfxXcgaDLCHCACiPqWablKBu-vy0qscT_raEr4C3dEtQQX2m1ocAYCjTm9po3mjaPMUeNN21ffeIXAz1afO_XE2k1chbSoe3iUv0Pd0Y3ry2SQDnd',
           })
 
         // Set headers using the 'headers' parameter
