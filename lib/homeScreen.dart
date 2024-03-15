@@ -2,11 +2,13 @@
 import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/widgets/checkin_widget.dart';
 import 'package:dx5veevents/widgets/notifications_widget.dart';
+import 'package:dx5veevents/widgets/qr_scanner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:get/get.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
+import 'package:upgrader/upgrader.dart';
 
 import '../constants.dart';
 import '../helpers/helper_functions.dart';
@@ -14,6 +16,7 @@ import '../helpers/helper_widgets.dart';
 
 import '../widgets/profile_initials_widget.dart';
 import 'home_body.dart';
+import 'dart:io';
 
 
 
@@ -89,67 +92,75 @@ class MenuScreen extends GetView<MyDrawerController> {
   Widget buildMenu(context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
 
-    return Scaffold(backgroundColor: Colors.white54,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          
-          child:  Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(left: 16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // ProfileProvider().previewImage(
-                    //     context: context,
-                    //     radius: 22.0,
-                    //     avatarRadius: 22.0,
-                    //     fontSize: 12.0),
-                    if(profileProvider.profileId==null||profileProvider.profileId=="")ProfileInitials(),
-                    if(profileProvider.profileId!=null&&profileProvider.profileId!="")const ProfilePicWidget(),
-                    SizedBox(height: 16.0),
-                    greetingFunc(firstName: profileProvider.firstName),
-                    Divider(),
-                    // Row(mainAxisAlignment:MainAxisAlignment.spaceBetween,children: [Text("Dark mode",style: settingsTextStyle(),),Switch(
-                    //   inactiveTrackColor: kWhiteText,
-                    //   value: themeProvider.themeMode == ThemeModeOptions.dark,
-                    //   onChanged: (value) {
-                    //     final newTheme = value ? ThemeModeOptions.dark : ThemeModeOptions.light;
-                    //     themeProvider.setThemeMode(newTheme);
-                    //   },
-                    // ),],),
-                    menuItem(menuText: 'Scan QR',
-                        widgetIcon: Icons.qr_code_2, iconColor: kCIOPink, onPressedFunction: () {
+    return UpgradeAlert(
+      upgrader: Upgrader(
+          // dialogStyle: Platform.isAndroid
+          //     ? UpgradeDialogStyle.material
+          //     : UpgradeDialogStyle.cupertino,
+          // showIgnore: false,
+          durationUntilAlertAgain: const Duration(hours: 1)),
+      child: Scaffold(backgroundColor: Colors.white54,
+        body: SafeArea(
+          child: SingleChildScrollView(
 
-                            // PersistentNavBarNavigator.pushNewScreen(
-                            //   context,
-                            //   screen: SponsorScanner(
-                            //     firstName: profileProvider.firstName,
-                            //     phone: profileProvider.phone,
-                            //     lastName: profileProvider.lastName,
-                            //     company: profileProvider.company,
-                            //     position: profileProvider.role,
-                            //     email: profileProvider.email,),
-                            //   withNavBar: false,
-                            //   pageTransitionAnimation: PageTransitionAnimation.slideRight,
-                            // );
+            child:  Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: 16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // ProfileProvider().previewImage(
+                      //     context: context,
+                      //     radius: 22.0,
+                      //     avatarRadius: 22.0,
+                      //     fontSize: 12.0),
+                      if(profileProvider.profileId==null||profileProvider.profileId=="")ProfileInitials(),
+                      if(profileProvider.profileId!=null&&profileProvider.profileId!="")const ProfilePicWidget(),
+                      SizedBox(height: 16.0),
+                      greetingFunc(firstName: profileProvider.firstName),
+                      Divider(),
+                      // Row(mainAxisAlignment:MainAxisAlignment.spaceBetween,children: [Text("Dark mode",style: settingsTextStyle(),),Switch(
+                      //   inactiveTrackColor: kWhiteText,
+                      //   value: themeProvider.themeMode == ThemeModeOptions.dark,
+                      //   onChanged: (value) {
+                      //     final newTheme = value ? ThemeModeOptions.dark : ThemeModeOptions.light;
+                      //     themeProvider.setThemeMode(newTheme);
+                      //   },
+                      // ),],),
+                      menuItem(menuText: 'Scan QR',
+                          widgetIcon: Icons.qr_code_2, iconColor: kCIOPink, onPressedFunction: () {
 
-                        })
-                    ,
+                              PersistentNavBarNavigator.pushNewScreen(
+                                context,
+                                screen: SponsorScanner(
+                                  firstName: profileProvider.firstName,
+                                  phone: profileProvider.phone,
+                                  lastName: profileProvider.lastName,
+                                  company: profileProvider.company,
+                                  position: profileProvider.role,
+                                  email: profileProvider.email,),
+                                withNavBar: false,
+                                pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                              );
 
-                    
-                    // menuItem(menuText: "Logout", widgetIcon: Icons.logout, iconColor: kKeyRedBG, onPressedFunction: (){
-                    //   logOut(context);
-                    // }),
+                          })
+                      ,
 
-                    const CheckInWidget()
-                  ],
+
+                      // menuItem(menuText: "Logout", widgetIcon: Icons.logout, iconColor: kKeyRedBG, onPressedFunction: (){
+                      //   logOut(context);
+                      // }),
+
+                      const CheckInWidget()
+                    ],
+                  ),
                 ),
-              ),
 
-            ],
+              ],
+            ),
           ),
         ),
       ),

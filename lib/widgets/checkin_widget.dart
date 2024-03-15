@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../constants.dart';
+import '../dioServices/dioPostService.dart';
 import '../providers.dart';
 
 
@@ -54,32 +55,32 @@ class _CheckInWidgetState extends State<CheckInWidget> {
             });
 
 
-            // try{
-            //   final response=await DioPostService().sendCheckInOTP(body: {
-            //     "email": profileProvider.email,
-            //
-            //
-            //   },  );
-            //   print("update status is ${response.statusCode}");
-            //   if(response.statusCode==200){
-            //     Fluttertoast.showToast(msg: "Success");
-            //     setState(() {
-            //       returnedOTP=response.data["otp"];
-            //       isSendingOTP=false;
-            //       hasSentOTP=true;
-            //     });
-            //
-            //   }else{
-            //     setState(() {
-            //       isSendingOTP=false ; hasSentOTP=false;
-            //     });
-            //   }
-            // }catch(e){
-            //
-            //   setState(() {
-            //     isSendingOTP=false ; hasSentOTP=false;
-            //   });
-            // }
+            try{
+              final response=await DioPostService().sendCheckInOTP(body: {
+                "email": profileProvider.email,
+
+
+              },  );
+              print("update status is ${response.statusCode}");
+              if(response.statusCode==200){
+                Fluttertoast.showToast(msg: "Success");
+                setState(() {
+                  returnedOTP=response.data["otp"];
+                  isSendingOTP=false;
+                  hasSentOTP=true;
+                });
+
+              }else{
+                setState(() {
+                  isSendingOTP=false ; hasSentOTP=false;
+                });
+              }
+            }catch(e){
+
+              setState(() {
+                isSendingOTP=false ; hasSentOTP=false;
+              });
+            }
 
 
           },

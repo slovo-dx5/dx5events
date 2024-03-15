@@ -17,16 +17,16 @@ class CISOAttendeeModel {
   final String firstName;
   final String lastName;
   final String workEmail;
-  final String? workPhone;
+//  final String? workPhone;
   final String phone;
   final String company;
   final String role;
-  final String industry;
-  final String? interests;
-  final String? modeOfAttendance;
+ // final String industry;
+ // final String? interests;
+ // final String? modeOfAttendance;
 
   final String event;
-  final String? registrantType;
+ //final String? registrantType;
 
   final int eventId;
   final int attendeeId;
@@ -39,16 +39,16 @@ class CISOAttendeeModel {
     required this.firstName,
     required this.lastName,
     required this.workEmail,
-    this.workPhone,
+   // this.workPhone,
     required this.phone,
     required this.company,
     required this.role,
-    required this.industry,
-    this.interests,
-    this.modeOfAttendance,
+    //required this.industry,
+   // this.interests,
+   // this.modeOfAttendance,
 
     required this.event,
-    this.registrantType,
+  ////  this.registrantType,
     required this.eventId,
     required this.attendeeId,
     required this.profilePhoto,
@@ -62,17 +62,17 @@ class CISOAttendeeModel {
       firstName: json['first_name'],
       lastName: json['last_name'],
       workEmail: json['work_email'],
-      workPhone: json['work_phone'],
+      //workPhone: json['work_phone'],
       phone: json['phone'],
       company: json['company'],
       role: json['role'],
-      industry: json['industry'],
-      interests: json['interests'],
-      modeOfAttendance: json['mode_of_attendance'],
+      //industry: json['industry'],
+      //interests: json['interests'],
+      //modeOfAttendance: json['mode_of_attendance'],
 
 
       event: json['event'],
-      registrantType: json['registrant_type'],
+      //registrantType: json['registrant_type'],
 
       eventId: json['eventId'],
       attendeeId: json['attendeeId'],

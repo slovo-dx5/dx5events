@@ -57,13 +57,14 @@ dependencies:
   qr_flutter: ^4.1.0
   image_cropper: ^5.0.1
   cached_network_image: ^3.3.1
-  upgrader: ^8.2.0
+  upgrader: ^9.0.0
   firebase_storage: ^11.6.0
   flutter_zoom_drawer: ^3.1.2
   sa3_liquid: ^1.0.1
   table_calendar: ^3.1.0
   pull_to_refresh: ^2.0.0
   shimmer: ^3.0.0
+  qr_code_scanner: ^1.0.1
 
 dev_dependencies:
   flutter_test:

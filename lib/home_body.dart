@@ -58,10 +58,10 @@ class _HomeBodyState extends State<HomeBody> {
 
     return UpgradeAlert(
       upgrader: Upgrader(
-          dialogStyle: Platform.isAndroid
-              ? UpgradeDialogStyle.material
-              : UpgradeDialogStyle.cupertino,
-          showIgnore: false,
+          // dialogStyle: Platform.isAndroid
+          //     ? UpgradeDialogStyle.material
+          //     : UpgradeDialogStyle.cupertino,
+          // showIgnore: false,
           durationUntilAlertAgain: const Duration(hours: 1)),
       child: Scaffold(
           body: SingleChildScrollView(
