@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
@@ -49,9 +50,9 @@ class _SponsorBottomSheetState extends State<SponsorBottomSheet> {
                 child: SizedBox(
                     height: 150, child: Image.network(widget.SponsorImage))),
             verticalSpace(height: 30),
-            Text(
+            HtmlWidget(
               widget.SponsorAbout,
-              style: TextStyle(color: kTextColorBlack, fontSize: 14),
+             // style: TextStyle(color: kTextColorBlack, fontSize: 14),
             )
           ],
         ),

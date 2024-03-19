@@ -30,17 +30,20 @@ class CISOAgendaScreen extends StatefulWidget {
 
 class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
   // late AgendaModel eventData;
-  List<Session> sessions = [];
+
   bool isLoading = true;
-  CalendarFormat _calendarFormat = CalendarFormat.week;
+  final CalendarFormat _calendarFormat = CalendarFormat.week;
   DateTime _selectedDate = DateTime(2024, 03, 20);
-  RefreshController _refreshController = RefreshController();
+  final RefreshController _refreshController = RefreshController();
   DioCacheManager dioCacheManager = DioCacheManager(CacheConfig());
   List<SpeakersModel> events = [];
   List<IndividualSpeaker> speakers = [];
 
   List<Session> _sessions = [];
+  List<AgendaDay> agendaDays = [];
   bool isBookmarking = false;
+  bool isFetching=true;
+
 
 
   @override
@@ -51,9 +54,14 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
   }
 
   Future<void> _loadSessions() async {
+    setState(() {
+      isFetching=true;
+    });
     final sessions = await fetchSessions();
     setState(() {
       _sessions = sessions;
+      isFetching=false;
+
     });
   }
 
@@ -78,6 +86,9 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
     }
   }
 
+
+
+
   Future fetchCisoAgendaHere() async {
     final response = await DioFetchService().fetchCISOAgenda();
 
@@ -89,7 +100,8 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
       final eventData = AgendaModel.fromJson(response.data);
       print("event data is $eventData");
       setState(() {
-        sessions = eventData.days.first.sessions;
+        _sessions = eventData.days.first.sessions;
+        agendaDays = eventData.days;
         print("Attendee list length is ${eventData.days.first.date}");
         isLoading = false;
       });
@@ -106,6 +118,9 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
     try {
       final response = await DioFetchService().fetchCISOAgenda();
       final agendaModel = AgendaModel.fromJson(response.data);
+      setState(() {
+        agendaDays=agendaModel.days;
+      });
       return agendaModel.days.expand((day) => day.sessions).toList();
     } catch (e) {
       print(e);
@@ -117,7 +132,6 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
     try {
       final response = await DioFetchService().fetchCISOSpeakers();
       final speakerssModel = SpeakersModel.fromJson(response.data);
-      print("speaker dtaa is $speakerssModel");
 
       // Manually find the speaker to allow returning null.
       for (var speaker in speakerssModel.data) {
@@ -153,6 +167,7 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
                 DateTime.sunday,
                 DateTime.monday,
                 DateTime.tuesday,
+                DateTime.friday,
                 DateTime.saturday
               ],
               daysOfWeekStyle: const DaysOfWeekStyle(
@@ -195,7 +210,10 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
               thickness: 2.5,
               color: kIconDeepBlue,
             ),
-            Expanded(
+            Visibility(
+              visible: isFetching==false,
+              replacement: const CircularProgressIndicator(),
+              child: Expanded(
               child: SmartRefresher(
                 controller: _refreshController,
                 enablePullDown: true,
@@ -216,17 +234,19 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
                     _refreshController.loadComplete();
                   });
                 },
-                child: ListView.builder(
-                  itemCount: _sessions.length,
+
+                ///Day 1
+                child: _selectedDate.day==20?ListView.builder(
+                  itemCount: agendaDays[0].sessions.length,
                   itemBuilder: (context, index) {
-                    final session = _sessions[index];
+                    final firstDaySession = agendaDays[0].sessions[index];
 
                     // Check if there are speakers for the session
-                    if (session.speakers!.isNotEmpty) {
+                    if (firstDaySession.speakers!.isNotEmpty) {
                       // Fetch all speakers' details
-                      final futures = session.speakers!
+                      final futures = firstDaySession.speakers!
                           .map((speaker) =>
-                              fetchSpeakerById(speaker.speaker.key))
+                          fetchSpeakerById(speaker.speaker.key))
                           .toList();
 
                       return Column(
@@ -235,24 +255,25 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
                             PersistentNavBarNavigator.pushNewScreen(
                               context,
                               screen: FullAgendaScreen(
-                                title: session.title,
-                                day: 20,
-                                startTime: session.startTime,
-                                endTime: session.endTime,
-                                isFromSession: false,
-                                type:session.sessionType,
-                                userID: profileProvider.userID!,
-                             //   sigs:widget.sigs,
-                                description: "Cybersecurity threats are constantly changing – think of new viruses, more advanced hacking techniques, and unexpected targets. There is a need for individuals and organisations to stay informed about these shifts in the threat landscape.The goal is to continuously adapt security strategies to maintain protection in this ever-evolving digital world.",
-                              //  speakersCollection: widget.speakersCollection,
-                                speakers: futures,
+                                  title: firstDaySession.title,
+                                  day: 20,
+                                  startTime: firstDaySession.startTime,
+                                  endTime: firstDaySession.endTime,
+                                  isFromSession: false,
+                                  type:firstDaySession.sessionType,
+                                  userID: profileProvider.userID!,
+                                  //   sigs:widget.sigs,
+                                  description: firstDaySession.summary,
+                                  //  speakersCollection: widget.speakersCollection,
+                                  speakers: futures,
+                                  breakOuts: firstDaySession.breakoutSessions
                               ),
                               withNavBar: false,
                               pageTransitionAnimation: PageTransitionAnimation.slideRight,
                             );
                           },
-                            child: Container(
-                              height: 180,
+                            child: Container(padding: EdgeInsets.only(top: 20,bottom: 20),
+                              height: firstDaySession.speakers!.length>=2?250:160,
                               color: kRightBubble.withOpacity(0.5),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
@@ -264,16 +285,16 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
                                     children: [
                                       Container(
                                         padding: EdgeInsets.all(10),
-                                        height: 180,
+                                        //height: 180,
                                         color: kRightBubble,
                                         child: Column(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                          MainAxisAlignment.center,
                                           children: [
-                                            Text(convertToAmPm(session.startTime),
+                                            Text(convertToAmPm(firstDaySession.startTime),
                                                 style: kGreyTextStyle(fontsiZe: 12)),
                                             verticalSpace(height: 10),
-                                            Text(convertToAmPm(session.endTime),
+                                            Text(convertToAmPm(firstDaySession.endTime),
                                                 style: kGreyTextStyle(fontsiZe: 12)),
                                           ],
                                         ),
@@ -282,13 +303,13 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
                                       Expanded(
                                         child: Column(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.start,
+                                          MainAxisAlignment.start,
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                           children: [
                                             verticalSpace(height: 10),
                                             Text(
-                                              "${session.title}",
+                                              "${firstDaySession.title}",
                                               style: const TextStyle(
                                                   fontSize: 15,
                                                   fontWeight: FontWeight.w700),
@@ -299,63 +320,63 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
                                               future: Future.wait(futures),
                                               builder: (context, snapshot) {
                                                 if (snapshot.connectionState ==
-                                                        ConnectionState.done &&
+                                                    ConnectionState.done &&
                                                     snapshot.data != null) {
                                                   // Join the first names of all speakers
                                                   final speakerWidgets =
-                                                      snapshot.data!
-                                                          .where((speaker) =>
-                                                              speaker != null)
-                                                          .map((speaker) => Padding(
-                                                            padding: const EdgeInsets.only(top:8.0,bottom: 8.0),
-                                                            child: Row(
-                                                                  children: [
-                                                                    CachedNetworkImage(
-                                                                      fit:
-                                                                      BoxFit.cover,
-                                                                      imageUrl:
-                                                                      "https://subscriptions.cioafrica.co/assets/${speaker!.photo!}",
-                                                                      // placeholder: (context, url) => CircularProgressIndicator(), // Optional
-                                                                      // errorWidget: (context, url, error) =>  ProfileInitials(),
-                                                                      progressIndicatorBuilder: (context, url, downloadProgress) => SizedBox(
-                                                                          height: 20,
-                                                                          width: 20,
-                                                                          child: CircularProgressIndicator(value: downloadProgress.progress)), // Optional
-                                                                      imageBuilder: (context, imageProvider) =>
-                                                                          CircleAvatar(
-                                                                            radius: 15,
-                                                                            backgroundImage: imageProvider,
-                                                                          ),
-                                                                    ),horizontalSpace(width: 10),
+                                                  snapshot.data!
+                                                      .where((speaker) =>
+                                                  speaker != null)
+                                                      .map((speaker) => Padding(
+                                                    padding: const EdgeInsets.only(top:8.0,bottom: 8.0),
+                                                    child: Row(
+                                                      children: [
+                                                        CachedNetworkImage(
+                                                          fit:
+                                                          BoxFit.cover,
+                                                          imageUrl:
+                                                          "https://subscriptions.cioafrica.co/assets/${speaker!.photo!}",
+                                                          // placeholder: (context, url) => CircularProgressIndicator(), // Optional
+                                                          // errorWidget: (context, url, error) =>  ProfileInitials(),
+                                                          progressIndicatorBuilder: (context, url, downloadProgress) => SizedBox(
+                                                              height: 20,
+                                                              width: 20,
+                                                              child: CircularProgressIndicator(value: downloadProgress.progress)), // Optional
+                                                          imageBuilder: (context, imageProvider) =>
+                                                              CircleAvatar(
+                                                                radius: 15,
+                                                                backgroundImage: imageProvider,
+                                                              ),
+                                                        ),horizontalSpace(width: 10),
 
-                                                                    Expanded(
-                                                                      child: Column(mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.start,
-                                                                        children: [
-                                                                          Text(
-                                                                              '${speaker!.firstName} ${speaker.lastName}',style:kGreyTextStyle(fontsiZe: 12) ,),
-                                                                          Text(
-                                                                              '${speaker!.role} at ${speaker.company}',style: kNameTextStyle( fontsiZe: 10),overflow: TextOverflow.ellipsis,maxLines: 2,),
-                                                                        ],
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                          ))
-                                                          .toList();
+                                                        Expanded(
+                                                          child: Column(mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.start,
+                                                            children: [
+                                                              Text(
+                                                                '${speaker!.firstName} ${speaker.lastName}',style:kGreyTextStyle(fontsiZe: 12) ,),
+                                                              Text(
+                                                                '${speaker!.role} at ${speaker.company}',style: kNameTextStyle( fontsiZe: 10),overflow: TextOverflow.ellipsis,maxLines: 2,),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ))
+                                                      .toList();
                                                   return Column(
                                                     crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
+                                                    CrossAxisAlignment.start,
                                                     children: [
                                                       ...speakerWidgets,
                                                     ],
                                                   );
                                                 } else if (snapshot
-                                                        .connectionState ==
+                                                    .connectionState ==
                                                     ConnectionState.waiting) {
-                                                  return Text(
+                                                  return const Text(
                                                       'Loading speakers...');
                                                 } else {
-                                                  return Text(
+                                                  return const Text(
                                                       'Speakers details not available');
                                                 }
                                               },
@@ -365,31 +386,28 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
                                         ),
                                       ),
 
-                                       Padding(
-                                        padding:  EdgeInsets.fromLTRB(10,70,5,70),
-                                        child: GestureDetector(
-                                            onTap:()async{
+                                      GestureDetector(
+                                          onTap:()async{
 
-                                              setState(() {
-                                                isBookmarking = true;
-                                              });
+                                            setState(() {
+                                              isBookmarking = true;
+                                            });
 
-                                              await createSession(
+                                            await createSession(
                                               currentUserId: profileProvider.userID!,
-                                              startTime: session.startTime,
-                                              endTime: session.endTime,
-                                              sessionTitle: session.title,
-                                              sessionDescription:" widget.description",
+                                              startTime: firstDaySession.startTime,
+                                              endTime: firstDaySession.endTime,
+                                              sessionTitle: firstDaySession.title,
+                                              sessionDescription:firstDaySession.summary,
                                               speakers:[],
-                                              sessionType: session.sessionType,
+                                              sessionType: firstDaySession.sessionType,
                                               date: 20,
-                                              );
-                                              setState(() {
-                                                isBookmarking = false;
-                                              });
-                                            },
-                                            child: const Icon(Icons.calendar_month,color: kIconDeepBlue,)),
-                                      )
+                                            );
+                                            setState(() {
+                                              isBookmarking = false;
+                                            });
+                                          },
+                                          child: const Icon(Icons.calendar_month,color: kIconDeepBlue,))
                                     ],
                                   ),
                                 ],
@@ -407,17 +425,18 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
                             PersistentNavBarNavigator.pushNewScreen(
                               context,
                               screen: FullAgendaScreen(
-                                title: session.title,
-                                day: 20,
-                                startTime: session.startTime,
-                                endTime: session.endTime,
-                                isFromSession: false,
-                                type:session.sessionType,
-                                userID: profileProvider.userID!,
-                                //   sigs:widget.sigs,
-                                description: "Cybersecurity threats are constantly changing – think of new viruses, more advanced hacking techniques, and unexpected targets. There is a need for individuals and organisations to stay informed about these shifts in the threat landscape.The goal is to continuously adapt security strategies to maintain protection in this ever-evolving digital world.",
-                                //  speakersCollection: widget.speakersCollection,
-                                speakers: false,
+                                  title: firstDaySession.title,
+                                  day: 20,
+                                  startTime: firstDaySession.startTime,
+                                  endTime: firstDaySession.endTime,
+                                  isFromSession: false,
+                                  type:firstDaySession.sessionType,
+                                  userID: profileProvider.userID!,
+                                  //   sigs:widget.sigs,
+                                  description: firstDaySession.summary,
+                                  //  speakersCollection: widget.speakersCollection,
+                                  speakers: false,
+                                  breakOuts: firstDaySession.breakoutSessions
                               ),
                               withNavBar: false,
                               pageTransitionAnimation: PageTransitionAnimation.slideRight,
@@ -442,10 +461,10 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
                                           mainAxisAlignment:
                                           MainAxisAlignment.center,
                                           children: [
-                                            Text(convertToAmPm(session.startTime),
+                                            Text(convertToAmPm(firstDaySession.startTime),
                                                 style: kGreyTextStyle(fontsiZe: 12)),
                                             verticalSpace(height: 10),
-                                            Text(convertToAmPm(session.endTime),
+                                            Text(convertToAmPm(firstDaySession.endTime),
                                                 style: kGreyTextStyle(fontsiZe: 12)),
                                           ],
                                         ),
@@ -460,7 +479,7 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
                                           children: [
                                             verticalSpace(height: 10),
                                             Text(
-                                              "${session.title}",
+                                              "${firstDaySession.title}",
                                               style: const TextStyle(
                                                   fontSize: 15,
                                                   fontWeight: FontWeight.w700),
@@ -472,28 +491,28 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
                                         ),
                                       ),
 
-                                       Padding(
+                                      Padding(
                                         padding:  EdgeInsets.fromLTRB(10,30,5,30),
                                         child: GestureDetector(onTap:()async{
 
-                    setState(() {
-                    isBookmarking = true;
-                    });
+                                          setState(() {
+                                            isBookmarking = true;
+                                          });
 
-                    await createSession(
-                    currentUserId: profileProvider.userID!,
-                    startTime: session.startTime,
-                    endTime: session.endTime,
-                    sessionTitle: session.title,
-                    sessionDescription:"Cybersecurity threats are constantly changing – think of new viruses, more advanced hacking techniques, and unexpected targets. There is a need for individuals and organisations to stay informed about these shifts in the threat landscape.The goal is to continuously adapt security strategies to maintain protection in this ever-evolving digital world.",
-                    speakers:[],
-                    sessionType: session.sessionType,
-                    date: 20,
-                    );
-                    setState(() {
-                    isBookmarking = false;
-                    });
-                    } ,child: Icon(Icons.calendar_month,color: kIconDeepBlue,)),
+                                          await createSession(
+                                            currentUserId: profileProvider.userID!,
+                                            startTime: firstDaySession.startTime,
+                                            endTime: firstDaySession.endTime,
+                                            sessionTitle: firstDaySession.title,
+                                            sessionDescription:firstDaySession.summary,
+                                            speakers:[],
+                                            sessionType: firstDaySession.sessionType,
+                                            date: 20,
+                                          );
+                                          setState(() {
+                                            isBookmarking = false;
+                                          });
+                                        } ,child: Icon(Icons.calendar_month,color: kIconDeepBlue,)),
                                       )
                                     ],
                                   ),
@@ -506,9 +525,301 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
                       );
                     }
                   },
-                ),
+                ):
+                ///Day 2
+                _selectedDate.day==21?ListView.builder(
+                  itemCount: agendaDays[1].sessions.length,
+                  itemBuilder: (context, index) {
+                    final secondDaySession = agendaDays[1].sessions[index];
+
+                    // Check if there are speakers for the session
+                    if (secondDaySession.speakers!.isNotEmpty) {
+                      // Fetch all speakers' details
+                      final futures = secondDaySession.speakers!
+                          .map((speaker) =>
+                          fetchSpeakerById(speaker.speaker.key))
+                          .toList();
+
+                      return Column(
+                        children: [
+                          GestureDetector( onTap:(){
+                            PersistentNavBarNavigator.pushNewScreen(
+                              context,
+                              screen: FullAgendaScreen(
+                                title: secondDaySession.title,
+                                day: 21,
+                                startTime: secondDaySession.startTime,
+                                endTime: secondDaySession.endTime,
+                                isFromSession: false,
+                                type:secondDaySession.sessionType,
+                                userID: profileProvider.userID!,
+                                //   sigs:widget.sigs,
+                                description: secondDaySession.summary,
+                                //  speakersCollection: widget.speakersCollection,
+                                speakers: futures,
+                                breakOuts: secondDaySession.breakoutSessions,
+                              ),
+                              withNavBar: false,
+                              pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                            );
+                          },
+                            child: Container(padding: EdgeInsets.only(top: 20,bottom: 20),
+                              height: secondDaySession.speakers!.length>=2?250:165,
+                              color: kRightBubble.withOpacity(0.5),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.all(10),
+                                        //  height: 180,
+                                        color: kRightBubble,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                          children: [
+                                            Text(convertToAmPm(secondDaySession.startTime),
+                                                style: kGreyTextStyle(fontsiZe: 12)),
+                                            verticalSpace(height: 10),
+                                            Text(convertToAmPm(secondDaySession.endTime),
+                                                style: kGreyTextStyle(fontsiZe: 12)),
+                                          ],
+                                        ),
+                                      ),
+                                      horizontalSpace(width: 15),
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          children: [
+                                            verticalSpace(height: 10),
+                                            Text(
+                                              "${secondDaySession.title}",
+                                              style: const TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w700),
+                                            ),
+                                            verticalSpace(height: 10),
+                                            FutureBuilder<
+                                                List<IndividualSpeaker?>>(
+                                              future: Future.wait(futures),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.connectionState ==
+                                                    ConnectionState.done &&
+                                                    snapshot.data != null) {
+                                                  // Join the first names of all speakers
+                                                  final speakerWidgets =
+                                                  snapshot.data!
+                                                      .where((speaker) =>
+                                                  speaker != null)
+                                                      .map((speaker) => Padding(
+                                                    padding: const EdgeInsets.only(top:8.0,bottom: 8.0),
+                                                    child: Row(
+                                                      children: [
+                                                        CachedNetworkImage(
+                                                          fit:
+                                                          BoxFit.cover,
+                                                          imageUrl:
+                                                          "https://subscriptions.cioafrica.co/assets/${speaker!.photo!}",
+                                                          // placeholder: (context, url) => CircularProgressIndicator(), // Optional
+                                                          // errorWidget: (context, url, error) =>  ProfileInitials(),
+                                                          progressIndicatorBuilder: (context, url, downloadProgress) => SizedBox(
+                                                              height: 20,
+                                                              width: 20,
+                                                              child: CircularProgressIndicator(value: downloadProgress.progress)), // Optional
+                                                          imageBuilder: (context, imageProvider) =>
+                                                              CircleAvatar(
+                                                                radius: 15,
+                                                                backgroundImage: imageProvider,
+                                                              ),
+                                                        ),horizontalSpace(width: 10),
+
+                                                        Expanded(
+                                                          child: Column(mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.start,
+                                                            children: [
+                                                              Text(
+                                                                '${speaker!.firstName} ${speaker.lastName}',style:kGreyTextStyle(fontsiZe: 12) ,),
+                                                              Text(
+                                                                '${speaker!.role} at ${speaker.company}',style: kNameTextStyle( fontsiZe: 10),overflow: TextOverflow.ellipsis,maxLines: 2,),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ))
+                                                      .toList();
+                                                  return Column(
+                                                    crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                    children: [
+                                                      ...speakerWidgets,
+                                                    ],
+                                                  );
+                                                } else if (snapshot
+                                                    .connectionState ==
+                                                    ConnectionState.waiting) {
+                                                  return const Text(
+                                                      'Loading speakers...');
+                                                } else {
+                                                  return const Text(
+                                                      'Speakers details not available');
+                                                }
+                                              },
+                                            ),
+
+                                          ],
+                                        ),
+                                      ),
+
+                                      GestureDetector(
+                                          onTap:()async{
+
+                                            setState(() {
+                                              isBookmarking = true;
+                                            });
+
+                                            await createSession(
+                                              currentUserId: profileProvider.userID!,
+                                              startTime: secondDaySession.startTime,
+                                              endTime: secondDaySession.endTime,
+                                              sessionTitle: secondDaySession.title,
+                                              sessionDescription:secondDaySession.summary,
+                                              speakers:[],
+                                              sessionType: secondDaySession.sessionType,
+                                              date: 20,
+                                            );
+                                            setState(() {
+                                              isBookmarking = false;
+                                            });
+                                          },
+                                          child: const Icon(Icons.calendar_month,color: kIconDeepBlue,))
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          verticalSpace(height: 10)
+                        ],
+                      );
+                    } else {
+                      // If there are no speakers for the session
+                      return Column(
+                        children: [
+                          GestureDetector( onTap:(){
+                            PersistentNavBarNavigator.pushNewScreen(
+                              context,
+                              screen: FullAgendaScreen(
+                                title: secondDaySession.title,
+                                day: 21,
+                                startTime: secondDaySession.startTime,
+                                endTime: secondDaySession.endTime,
+                                isFromSession: false,
+                                type:secondDaySession.sessionType,
+                                userID: profileProvider.userID!,
+                                //   sigs:widget.sigs,
+                                description: secondDaySession.summary,
+                                //  speakersCollection: widget.speakersCollection,
+                                speakers: false,
+                                breakOuts: secondDaySession.breakoutSessions,
+
+                              ),
+                              withNavBar: false,
+                              pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                            );
+                          },
+                            child: Container(
+                              height: 100,
+                              color: kRightBubble.withOpacity(0.5),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.all(10),
+                                        height: 100,
+                                        color: kRightBubble,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                          children: [
+                                            Text(convertToAmPm(secondDaySession.startTime),
+                                                style: kGreyTextStyle(fontsiZe: 12)),
+                                            verticalSpace(height: 10),
+                                            Text(convertToAmPm(secondDaySession.endTime),
+                                                style: kGreyTextStyle(fontsiZe: 12)),
+                                          ],
+                                        ),
+                                      ),
+                                      horizontalSpace(width: 15),
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          children: [
+                                            verticalSpace(height: 10),
+                                            Text(
+                                              "${secondDaySession.title}",
+                                              style: const TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w700),
+                                            ),
+                                            verticalSpace(height: 10),
+
+
+                                          ],
+                                        ),
+                                      ),
+
+                                      Padding(
+                                        padding:  EdgeInsets.fromLTRB(10,30,5,30),
+                                        child: GestureDetector(onTap:()async{
+
+                                          setState(() {
+                                            isBookmarking = true;
+                                          });
+
+                                          await createSession(
+                                            currentUserId: profileProvider.userID!,
+                                            startTime: secondDaySession.startTime,
+                                            endTime: secondDaySession.endTime,
+                                            sessionTitle: secondDaySession.title,
+                                            sessionDescription:secondDaySession.summary,
+                                            speakers:[],
+                                            sessionType: secondDaySession.sessionType,
+                                            date: 20,
+                                          );
+                                          setState(() {
+                                            isBookmarking = false;
+                                          });
+                                        } ,child: Icon(Icons.calendar_month,color: kIconDeepBlue,)),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          verticalSpace(height: 10)
+                        ],
+                      );
+                    }
+                  },
+                ):null,
               ),
-            ),
+            ),)
           ],
         ));
   }

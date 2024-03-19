@@ -10,6 +10,7 @@ import '../../helpers/helper_functions.dart';
 import '../../models/image_model.dart';
 import '../../models/speakersModel.dart';
 import '../../widgets/appbarWidget.dart';
+import '../../widgets/breakoutWidget.dart';
 
 class FullAgendaScreen extends StatefulWidget {
   String title;
@@ -22,6 +23,7 @@ class FullAgendaScreen extends StatefulWidget {
   bool isFromSession;
   int? sessionId;
   var speakers;
+  var breakOuts;
   //var sigs;
  // List <Speaker>speakersCollection;
   FullAgendaScreen(
@@ -33,6 +35,7 @@ class FullAgendaScreen extends StatefulWidget {
       //  required this.speakersCollection,
         this.sessionId,
         required this.speakers,
+        this.breakOuts,
         required this.type,
         required this.userID,
        // required this.sigs,
@@ -154,7 +157,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
                           style: TextStyle(fontSize: 21, fontWeight: FontWeight.w600),
                         ),
                         verticalSpace(height: 5),
-                        Text("${convertToAmPm(widget.startTime)} - ${convertToAmPm(widget.startTime)} ",
+                        Text("${convertToAmPm(widget.startTime)} - ${convertToAmPm(widget.endTime)} ",
                           style: kFullAgendaDayTextStyle(fontsiZe: 14),),
                         verticalSpace(height: 3),
                          Text("Radisson Blu Upperhill, Nairobi",style: kFullAgendaDayTextStyle(fontsiZe: 14),),
@@ -253,12 +256,14 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
               Divider(),
               verticalSpace(height: 10),
               if(widget.description.length>0 || widget.description!="")
-                Text("About",style: TextStyle(fontSize: 17,fontWeight: FontWeight.w700),),
-              verticalSpace(height: 5),
+                const Text("About",style: TextStyle(fontSize: 17,fontWeight: FontWeight.w700),),
+              verticalSpace(height: 10),
 
-              verticalSpace(height: 5),
-              if(widget.description!=null || widget.description!="")Text(widget.description,style: TextStyle(fontSize: 16,color: kTextColorGrey),),
-              Divider(),
+              if(widget.description!=null || widget.description!="")Text(widget.description,style: const TextStyle(fontSize: 16,color: kTextColorGrey),),
+              const Divider(),verticalSpace(height: 10),
+              if(widget.breakOuts!=null) const Text("Breakout Sessions",style: TextStyle(fontSize: 17,fontWeight: FontWeight.w700),),
+              if(widget.breakOuts!=null) BreakOutWidget(breakOutSessions: widget.breakOuts,),
+
 
               verticalSpace(height: 60)
             ],
@@ -273,11 +278,11 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
 agendaDate({required String date}) {
   return Row(
     children: [
-      Icon(Icons.calendar_month),
+      const Icon(Icons.calendar_month),
       horizontalSpace(width: 5),
       Text(
         date,
-        style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+        style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
       ),
     ],
   );

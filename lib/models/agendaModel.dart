@@ -1,7 +1,7 @@
 class AgendaModel {
  // final int id;
 
-  final List<Day> days;
+  final List<AgendaDay> days;
 
   AgendaModel({
   //  required this.id,
@@ -13,7 +13,7 @@ class AgendaModel {
     return AgendaModel(
      // id: json['data']['id'],
 
-      days: List<Day>.from(json['data']['day'].map((x) => Day.fromJson(x))),
+      days: List<AgendaDay>.from(json['data']['day'].map((x) => AgendaDay.fromJson(x))),
     );
   }
 
@@ -31,17 +31,17 @@ class AgendaModel {
 
 
 
-class Day {
+class AgendaDay {
   final String date;
   final List<Session> sessions;
 
-  Day({
+  AgendaDay({
     required this.date,
     required this.sessions,
   });
 
-  factory Day.fromJson(Map<String, dynamic> json) {
-    return Day(
+  factory AgendaDay.fromJson(Map<String, dynamic> json) {
+    return AgendaDay(
       date: json['date'],
       sessions: List<Session>.from(json['sessions'].map((x) => Session.fromJson(x))),
     );
@@ -53,13 +53,16 @@ class Session {
   final String endTime;
   final String title;
   final String sessionType;
+  final String summary;
   final List<SpeakerAssignment>? speakers;
+  final List<BreakoutSession>? breakoutSessions;
 
   Session({
     required this.startTime,
     required this.endTime,
     required this.title,
-    required this.sessionType,    this.speakers,
+    required this.summary,
+    required this.sessionType,    this.speakers,    this.breakoutSessions,
   });
 
   factory Session.fromJson(Map<String, dynamic> json) {
@@ -71,7 +74,9 @@ class Session {
       startTime: json['start_time'],
       endTime: json['end_time'],
       title: json['title'],
-      sessionType: json['session_type'],
+      summary: json['Summary'] ?? "",
+      sessionType: json['session_type']?? "",
+        breakoutSessions: json['breakout_sessions'] == null ? null : List<BreakoutSession>.from(json['breakout_sessions'].map((x) => BreakoutSession.fromJson(x))),
       speakers: speakers
     );
   }
@@ -103,4 +108,46 @@ class SpeakerReference {
     key: json['key'],
     collection: json['collection'],
   );
+}
+
+class BreakoutSession {
+  final String title;
+  final String type;
+  final String summary;
+  final List<Speaker> speakers;
+
+  BreakoutSession({
+    required this.title,
+    required this.type,
+    required this.summary,
+    required this.speakers,
+  });
+
+  factory BreakoutSession.fromJson(Map<String, dynamic> json) {
+    var speakersList = json['breakout_session_speakers'] as List;
+    List<Speaker> speakerObjects = speakersList.map((speakerJson) => Speaker.fromJson(speakerJson)).toList();
+
+    return BreakoutSession(
+      title: json['breakout_session_title'],
+      type: json['breakout_session_type'],
+      summary: json['breakout_session_summary'],
+      speakers: speakerObjects,
+    );
+  }
+}
+
+class Speaker {
+  final int key;
+  final String collection;
+  final String assumedRole;
+
+  Speaker({required this.key, required this.collection, required this.assumedRole});
+
+  factory Speaker.fromJson(Map<String, dynamic> json) {
+    return Speaker(
+      key: json['speaker']['key'],
+      collection: json['speaker']['collection'],
+      assumedRole: json['assumed_role'],
+    );
+  }
 }

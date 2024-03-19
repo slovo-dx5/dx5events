@@ -1,5 +1,6 @@
 
 import 'package:dx5veevents/providers.dart';
+import 'package:dx5veevents/screens/landingPage.dart';
 import 'package:dx5veevents/widgets/checkin_widget.dart';
 import 'package:dx5veevents/widgets/notifications_widget.dart';
 import 'package:dx5veevents/widgets/qr_scanner.dart';
@@ -146,15 +147,27 @@ class MenuScreen extends GetView<MyDrawerController> {
                                 pageTransitionAnimation: PageTransitionAnimation.slideRight,
                               );
 
-                          })
-                      ,
+                          }),
 
 
                       // menuItem(menuText: "Logout", widgetIcon: Icons.logout, iconColor: kKeyRedBG, onPressedFunction: (){
                       //   logOut(context);
                       // }),
 
-                      const CheckInWidget()
+                      const CheckInWidget(),
+
+                      menuItem(menuText: 'Events Menu',
+                          widgetIcon: Icons.qr_code_2, iconColor: kCIOPink, onPressedFunction: () {
+
+                            PersistentNavBarNavigator.pushNewScreen(
+                              context,
+                              screen: const LandingPage(
+                            ),
+                              withNavBar: false,
+                              pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                            );
+
+                          }),
                     ],
                   ),
                 ),

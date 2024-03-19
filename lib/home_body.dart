@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dx5veevents/screens/cisoScreens/cisoAgendaScreen.dart';
 import 'package:dx5veevents/screens/cisoScreens/cisoAttendeesScreen.dart';
 import 'package:dx5veevents/screens/cisoScreens/cisoSpeakersScreen.dart';
+import 'package:dx5veevents/screens/cisoScreens/ciso_partners_screen.dart';
 import 'package:dx5veevents/screens/cisoScreens/ciso_sessions_screen.dart';
 import 'package:dx5veevents/screens/cisoScreens/ciso_sponsors_screens.dart';
 import 'package:dx5veevents/widgets/cio_widgets.dart';
@@ -187,18 +188,18 @@ class _HomeBodyState extends State<HomeBody> {
                   screen: AttendeesScreen(),
                   itemName: 'Attendees',
                 ),
-                // CIOWidgets().gradientItemWidget(
-                //   firstColor: kCISOOrange,
-                //   secondColor: kCISOPurple,
-                //   context: context,
-                //   editIcon: Image.asset(
-                //     "assets/icons/exhibitors.png",
-                //     width: 10,
-                //     height: 10,
-                //   ),
-                //   screen: CISOAgendaScreen(),
-                //   itemName: 'Partners',
-                // ),
+                CIOWidgets().gradientItemWidget(
+                  firstColor: kCISOOrange,
+                  secondColor: kCISOPurple,
+                  context: context,
+                  editIcon: Image.asset(
+                    "assets/icons/exhibitors.png",
+                    width: 10,
+                    height: 10,
+                  ),
+                  screen: CISOPartnersScreen(),
+                  itemName: 'Partners',
+                ),
                 CIOWidgets().gradientItemWidget(
                   firstColor: kCISOPink.withOpacity(0.9),
                   secondColor: kCISOPurple.withOpacity(0.9),
