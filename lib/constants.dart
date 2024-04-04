@@ -266,6 +266,8 @@ String convertToAmPm(String time) {
 }
 
 ///TextStyles
+///
+///
 
 TextStyle kGreyTextStyle({required double fontsiZe}) {
   return TextStyle(
@@ -286,4 +288,7 @@ TextStyle kFullAgendaDateTextStyle({required double fontsiZe}) {
       color: kIconDeepBlue, fontSize: fontsiZe, fontWeight: FontWeight.w700);
 }
 
-
+TextStyle kFutureTextStyle({required double fontsiZe}) {
+  return TextStyle(
+      color: kWhiteColor, fontSize: fontsiZe, fontWeight: FontWeight.w600);
+}

@@ -57,6 +57,26 @@ class DioPostService extends DioClient {
     }
   }
 
+
+  Future<Response> createFilteredCheckin(messageData) async {
+    try{
+      print("sending notif");
+      return await _client
+          .init()
+          .post("https://subscriptions.cioafrica.co/items/filtered_chekins",
+          data: messageData,
+          options: Options(headers: {
+            'Authorization': 'Bearer AAAAQrAxy0I:APA91bGrDqULJNq_hEZtUIgmv-gJfxXcgaDLCHCACiPqWablKBu-vy0qscT_raEr4C3dEtQQX2m1ocAYCjTm9po3mjaPMUeNN21ffeIXAz1afO_XE2k1chbSoe3iUv0Pd0Y3ry2SQDnd',
+          })
+
+        // Set headers using the 'headers' parameter
+      );
+
+    }on DioError catch (ex) {
+      throw Exception("Notification create error: ${ex.response!.data!}");
+    }
+  }
+
   Future<Response> postSponsorData({required Map<String, dynamic> body,required BuildContext context}) async {
     try{
       return await _client
@@ -79,6 +99,24 @@ class DioPostService extends DioClient {
       return await _client
           .init()
           .post("https://checkinv2.cioafrica.co/api/printbadge",
+        data: body,
+
+
+        // Set headers using the 'headers' parameter
+      );
+    }on DioError catch (ex) {
+      Fluttertoast.showToast(backgroundColor:kLogoutRed,msg: "Error: Check your internet connection");
+      Future.delayed(Duration(seconds: 2),(){Navigator.of(context).pop();});
+
+
+      throw Exception("Checkin data create error: ${ex.response!.data!}");
+    }
+  }
+  Future<Response> postCheckinDataFiltered({required Map<String, dynamic> body,required BuildContext context,}) async {
+    try{
+      return await _client
+          .init()
+          .post("https://subscriptions.cioafrica.co/items/filtered_chekins",
         data: body,
 
 

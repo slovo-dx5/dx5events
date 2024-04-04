@@ -1,5 +1,8 @@
 import 'package:dx5veevents/providers.dart';
+import 'package:dx5veevents/providers/themeProvider.dart';
+import 'package:dx5veevents/screens/doLastMinuteShyet.dart';
 import 'package:dx5veevents/screens/landingPage.dart';
+import 'package:dx5veevents/screens/landingPage2.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +11,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
+import 'helpers/themeData.dart';
 import 'homeScreen.dart';
 import 'notifications/pushNotifications.dart';
 @pragma('vm:entry-point')
@@ -48,15 +52,26 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         //// New provider
       ],
       builder: (context, _) {
-        return const MaterialApp(
-          debugShowCheckedModeBanner: false,
-
-          home: LandingPage(),
-          // home: ProfilePicScreen(),
-          //home: InterestsScreen(),
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, _) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              themeMode: themeProvider.themeMode == ThemeModeOptions.light
+                  ? ThemeMode.light
+                  : ThemeMode.dark,
+              theme: lightTheme,
+              darkTheme: darkTheme,
+              //home: SplashScreen(),
+              // home: SignUpScreen(),
+              home:  LandingPage2(),
+              // home: ProfilePicScreen(),
+              //home: InterestsScreen(),
+            );
+          },
         );
       },
     );

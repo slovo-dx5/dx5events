@@ -52,7 +52,7 @@ class _SponsorBottomSheetState extends State<SponsorBottomSheet> {
             verticalSpace(height: 30),
             HtmlWidget(
               widget.SponsorAbout,
-             // style: TextStyle(color: kTextColorBlack, fontSize: 14),
+              // style: TextStyle(color: kTextColorBlack, fontSize: 14),
             )
           ],
         ),
@@ -228,21 +228,24 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
   }
 
   sendMeetingNotification() async {
-   // get receiver token
-    String ?receiverToken;
-    try{
+    // get receiver token
+    String? receiverToken;
+    try {
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-          .collection("users").doc(widget.otherUSerID.toString()).get();
+          .collection("users")
+          .doc(widget.otherUSerID.toString())
+          .get();
       //.collection("users").doc("158").get();
 
       if (documentSnapshot.exists) {
         // Replace 'field_name' with the name of the field you want to fetch
         setState(() {
-          receiverToken=documentSnapshot.get('messaging_token').toString();
+          receiverToken = documentSnapshot.get('messaging_token').toString();
           print("receiver token is $receiverToken");
         });
-        await DioPostService().sendNotification({"to": receiverToken,
-          "notification":{
+        await DioPostService().sendNotification({
+          "to": receiverToken,
+          "notification": {
             //"title": sentFromname,
             "body": "New Meeting request"
           }
@@ -251,11 +254,12 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
       } else {
         return 'Document does not exist';
       }
-    }catch(e){
+    } catch (e) {
       print("Coul not get user id");
     }
     //
   }
+
   @override
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
@@ -414,9 +418,9 @@ defaultScrollableBottomSheet(
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
       builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.6,
+        initialChildSize: 0.97,
         minChildSize: 0.4,
-        maxChildSize: 0.6,
+        maxChildSize: 0.97,
         expand: false,
         builder: (_, controller) => Column(
           mainAxisSize: MainAxisSize.min,
@@ -457,16 +461,24 @@ defaultScrollableBottomSheet(
 
 class PendingEventBottomSheet extends StatefulWidget {
   String imagePath;
+  String eventNAme;
   int month;
   int date;
   String slug;
-
+  String startDay;
+  String startMonth;
+  String startDate;
+  String endDay;
+  String endMonth;
+  String endDate;
 
   PendingEventBottomSheet(
       {required this.imagePath,
       required this.month,
       required this.date,
-        required this.slug,
+
+        required this.eventNAme,
+      required this.slug,required this.endDate, required this.endDay, required this.endMonth, required this.startDate, required this.startDay, required this.startMonth,
       super.key});
 
   @override
@@ -513,7 +525,7 @@ class _PendingEventBottomSheetState extends State<PendingEventBottomSheet> {
   @override
   Widget build(BuildContext context) {
     // Format the duration to include leading zeros
-    final days=_duration.inDays.toString().padLeft(2,'0');
+    final days = _duration.inDays.toString().padLeft(2, '0');
     final hours = _duration.inHours.remainder(24).toString().padLeft(2, '0');
     final minutes =
         _duration.inMinutes.remainder(60).toString().padLeft(2, '0');
@@ -526,58 +538,133 @@ class _PendingEventBottomSheetState extends State<PendingEventBottomSheet> {
           borderRadius: BorderRadius.circular(20),
           color: kGrayishBlueText,
         ),
-        height: MediaQuery.of(context).size.height * 0.5,
+        height: MediaQuery.of(context).size.height * 0.9,
         width: MediaQuery.of(context).size.height * 0.8,
-        child: Column(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: SizedBox(
-                height: 140,
-                width: MediaQuery.of(context).size.width,
-                child: Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage(widget.imagePath),
-                      fit: BoxFit.fill,
+        child: Container(
+          padding: EdgeInsets.all(8),
+          child: Column(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.3,
+                  width: MediaQuery.of(context).size.width,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage(widget.imagePath),
+                        fit: BoxFit.fill,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            verticalSpace(height: 15),
-            const Text(
-              "Happening in:",
-              style: TextStyle(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 16,
-                  color: kLighterGreenAccent),
-            ),
-            Center(
-              child: Text('$days Days,$hours Hours,\n$minutes Minutes,\n$seconds Seconds',
-                  style: const TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: kLightDisabledColor),textAlign: TextAlign.center,),
-            ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(20.0,10,20,30),
-              child: Divider(thickness: 7,color:kLighterGreenAccent ,),
-            ),
-            SizedBox(height: 50,    width: MediaQuery.of(context).size.width * 0.6,
+              verticalSpace(height: 15),
+              Container(
+                width: MediaQuery.of(context).size.width,
 
-              child: ElevatedButton(
-                  onPressed:(){openTicketURL(slug: widget.slug);},
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white, backgroundColor: kPrimaryLightGrey, // Text color
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: kWhiteColor.withOpacity(0.5))),
+                child: Column(
+                  children: [
+                    const Text(
+                      "Happening in:",
+                      style: TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 16,
+                          color: kLighterGreenAccent),
+                    ),
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          children: [
+                            Text(
+                              days,
+                              style: kFutureTextStyle(fontsiZe: 50),
+                            ),
+                            Text(
+                              "Days",
+                              style: kFutureTextStyle(fontsiZe: 12),
+                            )
+                          ],
+                        ), Column(
+                          children: [
+                            Text(
+                              hours,
+                              style: kFutureTextStyle(fontsiZe: 50),
+                            ),
+                            Text(
+                              "Hours",
+                              style: kFutureTextStyle(fontsiZe: 12),
+                            )
+                          ],
+                        ), Column(
+                          children: [
+                            Text(
+                              minutes,
+                              style: kFutureTextStyle(fontsiZe: 50),
+                            ),
+                            Text(
+                              "Minutes",
+                              style: kFutureTextStyle(fontsiZe: 12),
+                            )
+                          ],
+                        ), Column(
+                          children: [
+                            Text(
+                              seconds,
+                              style: kFutureTextStyle(fontsiZe: 50),
+                            ),
+                            Text(
+                              "Seconds",
+                              style: kFutureTextStyle(fontsiZe: 12),
+                            )
+                          ],
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),verticalSpace(height: 15),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(widget.eventNAme,style: kFutureTextStyle(fontsiZe: 25),),verticalSpace(height: 10),
+                        Row(children: [const Icon(Icons.calendar_month,),horizontalSpace(width: 10), Text("${widget.startDay}, ${widget.startMonth} ${widget.startDate} - ${widget.endDay}, ${widget.endMonth}, ${widget.endDate}")],)
+                      ],
+                    ),
                   ),
-                  child: const Text(
-                    "Buy Ticket",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14,color: kTextColorBlack),
-                  )),
-            ),
+                  Container(padding:const EdgeInsets.all(15),decoration: BoxDecoration(border: Border.all(color: kWhiteColor.withOpacity(0.5)),borderRadius: BorderRadius.circular(5)),child: const Column(children: [Icon(Icons.location_on_sharp),Text("Kenya")],),)
+                ],
+              ),verticalSpace(height: 20),
+              Text("${widget.eventDescription}"),
 
-          ],
+
+              SizedBox(
+                height: 50,
+                width: MediaQuery.of(context).size.width * 0.6,
+                child: ElevatedButton(
+                    onPressed: () {
+                      openTicketURL(slug: widget.slug);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: kPrimaryLightGrey, // Text color
+                    ),
+                    child: const Text(
+                      "Buy Ticket",
+                      style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: kTextColorBlack),
+                    )),
+              ),
+            ],
+          ),
         ),
       ),
     );
