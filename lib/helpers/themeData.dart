@@ -15,30 +15,33 @@ ThemeData(
     disabledColor: kLightGrayishOrange,
     dividerColor:kGrayishOrange ,
 
-
-
-
     cardColor: kDarkCard,
     fontFamily: 'Poppins',
 
+
+    ///Works for text fields
     inputDecorationTheme: InputDecorationTheme(
-        enabledBorder: UnderlineInputBorder(
+      labelStyle:  TextStyle(color: kWhiteColor.withOpacity(0.5)),
+        enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: kGrayishOrange.withOpacity(0.5)), // Specify your color here
         ),
-        focusedBorder: const UnderlineInputBorder(
+        focusedBorder: const OutlineInputBorder(
           borderSide: BorderSide(color: kPrimaryColor), // Specify your focused color here
         ),
         disabledBorder:const UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.pink), // Specify your focused color here
         ) ,
-        filled: false,
-        fillColor: Colors.lightBlue[50],
+        filled: true,
+        fillColor: kDarkFill,
         outlineBorder: const BorderSide(color: kPrimaryColor),
         border: OutlineInputBorder(
-          borderSide: BorderSide.none,
+         // borderSide: BorderSide.none,
           borderRadius: BorderRadius.circular(8.0),
         )),
-    textTheme:  const TextTheme(
+
+
+
+    textTheme:   const TextTheme(
       bodyLarge: TextStyle(
           color: kWhiteText,
           fontSize: 15,
@@ -46,7 +49,7 @@ ThemeData(
 
       ),
       bodyMedium: TextStyle(
-        color: kToggleLight,
+        color: kWhiteText,
         fontSize: 12,
         // fontWeight: FontWeight.bold
 
@@ -64,7 +67,10 @@ ThemeData(
           fontWeight: FontWeight.bold
 
       ),
+      titleMedium: TextStyle(color: kWhiteText,)
     ),
+
+
 
     checkboxTheme: const CheckboxThemeData(
       fillColor: MaterialStatePropertyAll<Color>(kScreenGray),
@@ -103,7 +109,10 @@ ThemeData(
         elevation: 0.0,
         titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)
 
-    ), bottomAppBarTheme: const BottomAppBarTheme(color: kScreenDark)
+    ),
+
+    bottomAppBarTheme: const BottomAppBarTheme(color: kScreenDark),
+
 
 );
 

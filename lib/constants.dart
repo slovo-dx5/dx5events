@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dx5veevents/screens/cisoScreens/cisoIndividualAttendee.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
@@ -23,6 +24,7 @@ const kToggleDark = Color(0xFF161616);
 const kScreenDark = Color(0xFF262626);
 const kDarkCard = Color(0xFF262626);
 const kDarkAppbar = Color(0xFF262626);
+const kDarkFill = Color(0xFF201F26);
 //const kScreenBlue = Color(0xFF182034);
 
 //Keys
@@ -48,6 +50,7 @@ const kLightAccent = Color(0xFFfa9500);
 const kLighterGreenAccent = Color(0xFFc9ccc5);
 const kDarkBold = Color(0xFFa7a7a7);
 const kLightDisabledColor = Color(0xFFadadad);
+const kGreyAgenda = Color(0xFF1C1B21);
 
 //Keys
 // const kKeyBackgroundCyan = Color(0xFF377f86);
@@ -165,6 +168,27 @@ primaryButton(
   );
 }
 
+primaryButton2(
+    {required BuildContext context,
+    required VoidCallback onPressedFunction,
+    required String buttonText,required Color backgroundColor}) {
+  return SizedBox(
+    width: MediaQuery.of(context).size.width * 0.6,
+    child: ElevatedButton(
+        onPressed: onPressedFunction,
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white, backgroundColor: backgroundColor, // Text color
+        ),
+        child: Text(
+          buttonText,
+          style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              color: kTextColorBlack),
+        )),
+  );
+}
+
 connectButton(
     {required String assetName,
     required String firstName,
@@ -178,20 +202,19 @@ connectButton(
     height: 30,
     child: ElevatedButton(
       onPressed: () {
-        // PersistentNavBarNavigator.pushNewScreen(
-        //   context,
-        //   screen: IndividualAttendeeScreen(
-        //     assetName: assetName,
-        //     FirstName: firstName,
-        //     LastName: lastName,
-        //     Role: role,
-        //     Company: company,
-        //     Bio: bio,
-        //     profileid: profileid, id: userID,
-        //   ),
-        //   withNavBar: false,
-        //   pageTransitionAnimation: PageTransitionAnimation.slideRight,
-        // );
+        PersistentNavBarNavigator.pushNewScreen(
+          context,
+          screen: CisoIndividualAttendeeScreen(
+            assetName: assetName,
+            FirstName: firstName,
+            LastName: lastName,
+            Role: role,
+            Company: company,
+            profileid: profileid, id: userID, Bio: '',
+          ),
+          withNavBar: false,
+          pageTransitionAnimation: PageTransitionAnimation.slideRight,
+        );
       },
       style: ButtonStyle(
           backgroundColor: const MaterialStatePropertyAll<Color>(kCIOPink),
@@ -292,3 +315,5 @@ TextStyle kFutureTextStyle({required double fontsiZe}) {
   return TextStyle(
       color: kWhiteColor, fontSize: fontsiZe, fontWeight: FontWeight.w600);
 }
+
+

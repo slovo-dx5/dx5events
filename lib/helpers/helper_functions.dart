@@ -68,8 +68,14 @@ linkedinButton({required BuildContext context,required String linkedinURL}) {
         children: [
         SizedBox(height:25,width:25,child: Image.asset("assets/images/linkedin.png")),
         horizontalSpace(width: 10),
-        Text("LinkedIn",style: TextStyle(fontSize: 20,color: kWhiteColor,fontWeight: FontWeight.w500),)
+        const Text("LinkedIn",style: TextStyle(fontSize: 20,color: kWhiteColor,fontWeight: FontWeight.w500),)
       ],),
+    ),
+  );
+}linkedinCircularButton({required String linkedinURL}) {
+  return GestureDetector(onTap: (){openLinkedin(linkedinURL: linkedinURL);},
+    child: CircleAvatar(
+  backgroundImage:AssetImage("assets/images/linkedin.png") ,
     ),
   );
 }
@@ -113,6 +119,96 @@ createSession(
   if (response.statusCode == 200) {
     log("Session Success:${response.data.toString()}");
     Fluttertoast.showToast(msg: "Session bookmarked successfully");
+    return true;
+  } else {
+    log("Session Error:${response.data.toString()}");
+    Fluttertoast.showToast(msg: "Error:Check your internet");
+    return false;
+  }
+}
+
+submitProposalToSPeak(
+    {
+    required String firstName,
+    required String lastName,
+    required String workEmail,
+    required String workPhone,
+    required String company,
+    required String role,
+    required String bio,
+    required String imageID,
+    required String linkedinProfileLink,
+    required String eventId,
+    required String reasonsForProposal,
+    required List proposedTopics,
+
+
+
+    }) async {
+  Map<String, dynamic> _proposalBodyData = {
+    "firstName": firstName,
+    "lastName": lastName,
+    "workEmail": workEmail,
+    //"personalEmail": "johndoe@example.com",
+    "workPhone": workPhone,
+    //"personalPhone": "+0987654321",
+    "company": company,
+    "role": role,
+    "bio": bio,
+    "profilePhotoUrl": "https://subscriptions.cioafrica.co/assets/$imageID",
+    "linkedinProfileLink": linkedinProfileLink,
+    //"websiteLink": "https://johndoe-professional.com",
+    "eventId": eventId,
+    "proposedTopics": proposedTopics,
+    "reasonsForProposal": reasonsForProposal,
+    //"allowedContactMethods": ["Email", "Phone"]
+    };
+
+  final response =
+      await DioPostService().createProposal(proposalBody:_proposalBodyData);
+  if (response.statusCode == 200) {
+    log("proposal Success:${response.data.toString()}");
+    Fluttertoast.showToast(msg: "Proposal submitted successfully");
+    return true;
+  } else {
+    log("Session Error:${response.data.toString()}");
+    Fluttertoast.showToast(msg: "Error:Check your internet");
+    return false;
+  }
+}
+
+submitSponsorProposal(
+    {
+    required String firstName,
+    required String eventID,
+    required String lastName,
+    required String workEmail,
+    required String workPhone,
+    required String company,
+    required String role,
+    required String reason_of_interest,
+
+
+
+
+    }) async {
+  Map<String, dynamic> _proposalBodyData = {
+    "event_id":eventID,
+    "first_name": firstName,
+    "last_name": lastName,
+      "work_email": workEmail,
+      "phone": workPhone,
+      "company": company,
+      "role": role,
+      "reason_for_sponsorship_interest": reason_of_interest,
+
+    };
+
+  final response =
+      await DioPostService().createSponsorSubmission(sessionBody: _proposalBodyData);
+  if (response.statusCode == 200) {
+    log("proposal Success:${response.data.toString()}");
+    Fluttertoast.showToast(msg: "Proposal submitted successfully");
     return true;
   } else {
     log("Session Error:${response.data.toString()}");

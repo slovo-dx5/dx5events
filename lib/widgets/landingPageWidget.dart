@@ -366,16 +366,16 @@ class UpcomingEventWidget2 extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.location_on_sharp,size: 15,),
+                        const Icon(Icons.location_on_sharp,size: 15,color: kWhiteText,),horizontalSpace(width: 10),
                         Text(location)
                       ],
                     ),
                     verticalSpace(height: 5),
                     Row(
                       children: [
-                        const Icon(Icons.calendar_month,size: 15,),
+                        const Icon(Icons.calendar_month,size: 15,color: kWhiteText,),horizontalSpace(width: 5),
                         AutoSizeText(
-                          "$dayMonth,$date - $endDayMonth $endDate",
+                          "$dayMonth $date - $endDayMonth $endDate",
                           minFontSize: 5,
                           maxFontSize: 12,
                         )

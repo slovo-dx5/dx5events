@@ -19,6 +19,27 @@ class DioPostService extends DioClient {
     }  on DioError catch (ex) {
       throw Exception("Session create error: ${ex.response!.data!}");
     }
+  }  Future<Response> createSponsorSubmission({required Map<String, dynamic> sessionBody}) async {
+    try {
+      return await _client
+          .init()
+          .post("https://subscriptions.cioafrica.co/items/sponsor_registrations",
+        data: sessionBody,);
+    }  on DioError catch (ex) {
+      throw Exception("Session create error: ${ex.response!.data!}");
+    }
+  }
+
+
+  Future<Response> createProposal({required Map<String, dynamic> proposalBody}) async {
+    try {
+      return await _client
+          .init()
+          .post("https://speakerapi.cioafrica.co/speakers/app",
+        data: proposalBody,);
+    }  on DioError catch (ex) {
+      throw Exception("Proposal create error: ${ex.response!.data!}");
+    }
   }
 
   Future<Response> uploadProfilePic(formData) async {

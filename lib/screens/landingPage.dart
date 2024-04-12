@@ -41,7 +41,7 @@ class _LandingPageState extends State<LandingPage> {
               );
              },),
             verticalSpace(height: 25),
-             Divider(thickness: 5,),            verticalSpace(height: 25),
+             const Divider(thickness: 5,),            verticalSpace(height: 25),
 
     //         CurvedImageContainer(imagePath: 'assets/images/themes/cloudsecurity.png',  dayMonth: 'THUR, APR', date: '25th', endDate: '26th', endDayMonth: 'FRI, APR', location: 'NIGERIA', onPressedFunct: (){
     //             defaultScrollableBottomSheet(context,"Cloud and Security Summit",PendingEventBottomSheet(imagePath: 'assets/images/themes/cloudsecurity.png', month: 4, date: 25, slug: 'events/africa-cloud-and-security-summit', ));

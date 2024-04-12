@@ -1,8 +1,12 @@
+import 'package:dx5veevents/initialScreen.dart';
 import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/providers/themeProvider.dart';
+import 'package:dx5veevents/screens/authScreens/cisoLogin.dart';
 import 'package:dx5veevents/screens/doLastMinuteShyet.dart';
 import 'package:dx5veevents/screens/landingPage.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
+import 'package:dx5veevents/screens/proposeToSpeakPage.dart';
+import 'package:dx5veevents/screens/sponsorEventScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +17,7 @@ import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'helpers/themeData.dart';
 import 'homeScreen.dart';
+import 'mainNavigationPage.dart';
 import 'notifications/pushNotifications.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message ) async {
@@ -65,10 +70,10 @@ class MyApp extends StatelessWidget {
                   : ThemeMode.dark,
               theme: lightTheme,
               darkTheme: darkTheme,
-              //home: SplashScreen(),
-              // home: SignUpScreen(),
-              home:  LandingPage2(),
-              // home: ProfilePicScreen(),
+             // home: SponsorEventScreen(),
+             // home: MainNavigationPage(),
+            //home:  ProposeToSpeakPage(eventName: 'Africa CISO Suimmit',),
+               home: LandingPage2()
               //home: InterestsScreen(),
             );
           },

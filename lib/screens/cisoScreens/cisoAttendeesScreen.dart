@@ -90,7 +90,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
     final profileProvider = Provider.of<ProfileProvider>(context);
 
     return Scaffold(
-        appBar: AppBar(backgroundColor: kCISOPurple,
+        appBar: AppBar(automaticallyImplyLeading: true,
           centerTitle: true,
           title: isSearching
               ? TextField(

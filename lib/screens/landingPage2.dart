@@ -1,8 +1,10 @@
 import 'package:dx5veevents/constants.dart';
 import 'package:flutter/material.dart';
 
+import '../initialScreen.dart';
 import '../widgets/cio_bottomsheets.dart';
 import '../widgets/landingPageWidget.dart';
+import 'authScreens/cisoLogin.dart';
 
 class LandingPage2 extends StatefulWidget {
   @override
@@ -65,7 +67,12 @@ class _ActiveEventsState extends State<ActiveEvents> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        UpcomingEventWidget2(imagePath: 'assets/images/themes/cloudsecurity.png', dayMonth: 'THUR, MAY', date: '2nd', endDate: '3rd', location: 'NIGERIA', endDayMonth: 'FRIDAY, MAY', onPressedFunct: (){}, eventName: 'Cloud and Security\n'
+        UpcomingEventWidget2(imagePath: 'assets/images/themes/cloudsecurity.png', dayMonth: 'THUR, MAY', date: '2nd', endDate: '3rd', location: 'NIGERIA', endDayMonth: 'FRIDAY, MAY', onPressedFunct: (){
+
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => InitialScreen(followingScreen: CISOLogin())),
+          );
+        }, eventName: 'Cloud and Security\n'
             'Summit', containerColor: kCISOPurple,),
         UpcomingEventWidget2(imagePath: 'assets/images/themes/smartbanking.png', dayMonth: 'WED, MAY', date: '22nd', endDate: '23rd', location: 'KENYA', endDayMonth: 'THUR, MAY', onPressedFunct: (){}, eventName: 'Smart Banking'
             , containerColor: kCISOPurple,),
@@ -86,7 +93,7 @@ class _FutureEventsState extends State<FutureEvents> {
   Widget build(BuildContext context) {
     return Column(children: [ CurvedImageContainer(imagePath: 'assets/images/themes/smarthealth.png',  dayMonth: 'THUR, APR', date: '25th', endDate: '26th', endDayMonth: 'FRI, APR', location: 'NIGERIA', onPressedFunct: (){
       defaultScrollableBottomSheet(context,"",PendingEventBottomSheet(imagePath: 'assets/images/themes/smarthealth.png', month: 4, date: 25, slug: 'events/africa-cloud-and-security-summit',
-        eventNAme: 'Smart Health', endDate: '29th', endDay: 'Sat', endMonth: 'June', startDate: '28th', startDay: 'Fri', startMonth: 'June', ));
+        eventNAme: 'Smart Health', endDate: '29th', endDay: 'Sat', endMonth: 'June', startDate: '28th', startDay: 'Fri', startMonth: 'June', eventDesc: 'The Africa SaccoTech Forum spearheads the vital SACCO movement, propelling these inclusive cooperatives into the future with cutting-edge technology and digital solutions as they continue', ));
     },),],);
   }
 }

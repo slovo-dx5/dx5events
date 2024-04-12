@@ -73,7 +73,7 @@ class MainScreen extends GetView<MyDrawerController> {
           ),
         ) ,
         backgroundColor: kCIOPurple.withOpacity(0.5),centerTitle: true,
-        title:  Text("AFRICA CISO SUMMIT",style: TextStyle(color: kTextColorBlackLighter,fontSize: 15,fontWeight: FontWeight.w600),),
+        title:  Text("DX5VE EVENTS",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),),
         actions: [NotificationIconButton()],
         // actions:  [Icon(Icons.notification_important_rounded,color: kTextColorBlackLighter,)],
       ),
@@ -81,6 +81,7 @@ class MainScreen extends GetView<MyDrawerController> {
     );
   }
 }
+
 
 class MenuScreen extends GetView<MyDrawerController> {
   MenuScreen({Key? key}) : super(key: key);

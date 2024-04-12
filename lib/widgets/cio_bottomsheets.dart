@@ -10,14 +10,18 @@ import 'package:provider/provider.dart';
 import '../constants.dart';
 import '../dioServices/dioPostService.dart';
 import '../helpers/helper_functions.dart';
+import '../helpers/info_dialog.dart';
 import '../helpers/time_dropdown.dart';
+import '../helpers/venue_dropdown.dart';
 import '../providers.dart';
+import 'buttons.dart';
 
 class SponsorBottomSheet extends StatefulWidget {
   String SponsorName;
   String SponsorImage;
   String SponsorAbout;
   String SponsorURL;
+
   SponsorBottomSheet(
       {Key? key,
       required this.SponsorImage,
@@ -211,6 +215,7 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
   bool isEditing = false;
   bool isSending = false;
   String startTime = "";
+  String tableSlot = "";
 
   String placeholderText = "";
 
@@ -268,7 +273,8 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
-          Text("You can request a 30 minute meeting with ${widget.userName}"),
+          verticalSpace(height: 10),
+          Text("You can request a 30 minute meeting with ${widget.userName}",style: TextStyle(fontSize: 15),),verticalSpace(height: 10),
           TextFormField(
             textCapitalization: TextCapitalization.sentences,
             maxLines: null,
@@ -291,11 +297,47 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: IconButton(
+                      onPressed: () {
+                        infoDialog(
+                            context: context,
+                            dialogText:
+                            "Use this dropdown to select the time you would like to start the meeting with ${widget.meetingWith}."
+                        );
+                      },
+                      icon: const Icon(
+                          Icons.info_outline_rounded))),
               const Text("Starting time: ", style: TextStyle(fontSize: 15)),
               TimeDropdown(
                 onTimePicked: (String? value) {
                   setState(() {
                     startTime = value!;
+                  });
+                },
+              ),
+            ],
+          ), Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: IconButton(
+                      onPressed: () {
+                        infoDialog(
+                            context: context,
+                            dialogText:
+                          "Use this dropdown to select the table within the event venue that you would like to have the meeting with ${widget.meetingWith}. (Limited slots available)."
+                        );
+                      },
+                      icon: const Icon(
+                          Icons.info_outline_rounded))),
+              const Text("Meeting Slot: ", style: TextStyle(fontSize: 15)),
+              VenueDropdown(
+                onVenuePicked: (String? value) {
+                  setState(() {
+                    tableSlot = value!;
                   });
                 },
               ),
@@ -307,9 +349,9 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
               width: 135,
               child: ElevatedButton(
                   onPressed: () async {
-                    if (startTime == "") {
+                    if (tableSlot == "") {
                       Fluttertoast.showToast(
-                          msg: "You must select starting time",
+                          msg: "You must select a meeting location",
                           backgroundColor: kLogoutRed);
                     } else {
                       setState(() {
@@ -323,7 +365,7 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
                           message: textEditingController.text,
                           company: profileProvider.company,
                           otherUserID: widget.otherUSerID,
-                          startTime: startTime,
+                          startTime: tableSlot,
                           requestedByID: profileProvider.userID.toString(),
                           meetingWithI: widget.otherUSerID.toString());
                       await sendMeetingNotification();
@@ -425,30 +467,30 @@ defaultScrollableBottomSheet(
         builder: (_, controller) => Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Spacer(),
-                SizedBox(width: 30),
+                const Spacer(),
+                const SizedBox(width: 30),
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                       color: Colors.black,
                       fontSize: 18,
                       fontWeight: FontWeight.w900),
                 ),
-                Spacer(),
+                const Spacer(),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Container(
-                      padding: EdgeInsets.all(5),
-                      decoration: new BoxDecoration(
+                      padding: const EdgeInsets.all(5),
+                      decoration: const BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(100)),
                         color: Color(0xFFEEEEEE),
                       ),
-                      child: Icon(Icons.close_rounded)),
+                      child: const Icon(Icons.close_rounded)),
                 ),
                 SizedBox(width: 5)
               ],
@@ -471,11 +513,13 @@ class PendingEventBottomSheet extends StatefulWidget {
   String endDay;
   String endMonth;
   String endDate;
+  String eventDesc;
 
   PendingEventBottomSheet(
       {required this.imagePath,
       required this.month,
       required this.date,
+        required this.eventDesc,
 
         required this.eventNAme,
       required this.slug,required this.endDate, required this.endDay, required this.endMonth, required this.startDate, required this.startDay, required this.startMonth,
@@ -541,129 +585,115 @@ class _PendingEventBottomSheetState extends State<PendingEventBottomSheet> {
         height: MediaQuery.of(context).size.height * 0.9,
         width: MediaQuery.of(context).size.height * 0.8,
         child: Container(
-          padding: EdgeInsets.all(8),
-          child: Column(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.3,
-                  width: MediaQuery.of(context).size.width,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage(widget.imagePath),
-                        fit: BoxFit.fill,
+          padding: const EdgeInsets.all(8),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.3,
+                    width: MediaQuery.of(context).size.width,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage(widget.imagePath),
+                          fit: BoxFit.fill,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              verticalSpace(height: 15),
-              Container(
-                width: MediaQuery.of(context).size.width,
+                verticalSpace(height: 15),
+                Container(
+                  width: MediaQuery.of(context).size.width,
 
-                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: kWhiteColor.withOpacity(0.5))),
-                child: Column(
-                  children: [
-                    const Text(
-                      "Happening in:",
-                      style: TextStyle(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 16,
-                          color: kLighterGreenAccent),
-                    ),
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          children: [
-                            Text(
-                              days,
-                              style: kFutureTextStyle(fontsiZe: 50),
-                            ),
-                            Text(
-                              "Days",
-                              style: kFutureTextStyle(fontsiZe: 12),
-                            )
-                          ],
-                        ), Column(
-                          children: [
-                            Text(
-                              hours,
-                              style: kFutureTextStyle(fontsiZe: 50),
-                            ),
-                            Text(
-                              "Hours",
-                              style: kFutureTextStyle(fontsiZe: 12),
-                            )
-                          ],
-                        ), Column(
-                          children: [
-                            Text(
-                              minutes,
-                              style: kFutureTextStyle(fontsiZe: 50),
-                            ),
-                            Text(
-                              "Minutes",
-                              style: kFutureTextStyle(fontsiZe: 12),
-                            )
-                          ],
-                        ), Column(
-                          children: [
-                            Text(
-                              seconds,
-                              style: kFutureTextStyle(fontsiZe: 50),
-                            ),
-                            Text(
-                              "Seconds",
-                              style: kFutureTextStyle(fontsiZe: 12),
-                            )
-                          ],
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              ),verticalSpace(height: 15),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(widget.eventNAme,style: kFutureTextStyle(fontsiZe: 25),),verticalSpace(height: 10),
-                        Row(children: [const Icon(Icons.calendar_month,),horizontalSpace(width: 10), Text("${widget.startDay}, ${widget.startMonth} ${widget.startDate} - ${widget.endDay}, ${widget.endMonth}, ${widget.endDate}")],)
-                      ],
-                    ),
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: kWhiteColor.withOpacity(0.5))),
+                  child: Column(
+                    children: [
+                      const Text(
+                        "Happening in:",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 16,
+                            color: kLighterGreenAccent),
+                      ),
+                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            children: [
+                              Text(
+                                days,
+                                style: kFutureTextStyle(fontsiZe: 50),
+                              ),
+                              Text(
+                                "Days",
+                                style: kFutureTextStyle(fontsiZe: 12),
+                              )
+                            ],
+                          ), Column(
+                            children: [
+                              Text(
+                                hours,
+                                style: kFutureTextStyle(fontsiZe: 50),
+                              ),
+                              Text(
+                                "Hours",
+                                style: kFutureTextStyle(fontsiZe: 12),
+                              )
+                            ],
+                          ), Column(
+                            children: [
+                              Text(
+                                minutes,
+                                style: kFutureTextStyle(fontsiZe: 50),
+                              ),
+                              Text(
+                                "Minutes",
+                                style: kFutureTextStyle(fontsiZe: 12),
+                              )
+                            ],
+                          ), Column(
+                            children: [
+                              Text(
+                                seconds,
+                                style: kFutureTextStyle(fontsiZe: 50),
+                              ),
+                              Text(
+                                "Seconds",
+                                style: kFutureTextStyle(fontsiZe: 12),
+                              )
+                            ],
+                          ),
+                        ],
+                      )
+                    ],
                   ),
-                  Container(padding:const EdgeInsets.all(15),decoration: BoxDecoration(border: Border.all(color: kWhiteColor.withOpacity(0.5)),borderRadius: BorderRadius.circular(5)),child: const Column(children: [Icon(Icons.location_on_sharp),Text("Kenya")],),)
-                ],
-              ),verticalSpace(height: 20),
-              Text("${widget.eventDescription}"),
-
-
-              SizedBox(
-                height: 50,
-                width: MediaQuery.of(context).size.width * 0.6,
-                child: ElevatedButton(
-                    onPressed: () {
-                      openTicketURL(slug: widget.slug);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: kPrimaryLightGrey, // Text color
+                ),verticalSpace(height: 15),
+                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(widget.eventNAme,style: kFutureTextStyle(fontsiZe: 25),),verticalSpace(height: 10),
+                          Row(children: [const Icon(Icons.calendar_month,),horizontalSpace(width: 10), Text("${widget.startDay}, ${widget.startMonth} ${widget.startDate} - ${widget.endDay}, ${widget.endMonth}, ${widget.endDate}")],)
+                        ],
+                      ),
                     ),
-                    child: const Text(
-                      "Buy Ticket",
-                      style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: kTextColorBlack),
-                    )),
-              ),
-            ],
+                    Container(padding:const EdgeInsets.all(15),decoration: BoxDecoration(border: Border.all(color: kWhiteColor.withOpacity(0.5)),borderRadius: BorderRadius.circular(5)),child: const Column(children: [Icon(Icons.location_on_sharp),Text("Kenya")],),)
+                  ],
+                ),verticalSpace(height: 20),
+                Text("${widget.eventDesc}"),
+                verticalSpace(height: 10),
+
+
+                buyTicketButton(context: context, ticketSlug: widget.slug),verticalSpace(height: 10),
+                proposeToSpeakButton(context: context),verticalSpace(height: 10),sponsorEventButton(context: context)
+              ],
+            ),
           ),
         ),
       ),

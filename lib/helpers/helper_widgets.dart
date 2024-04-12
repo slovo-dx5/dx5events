@@ -67,7 +67,7 @@ attendeeWidget({
             LastName: lastName,
             Role: role,
             Company: company,
-            Bio: "bio",
+            Bio: "",
            profileid: profileid??'', id: userID,
           ),
           withNavBar: false,
@@ -312,7 +312,7 @@ nameWidget(
     child: Padding(
       padding: const EdgeInsets.fromLTRB(8.0, 2, 8, 2),
       child: Card(
-        color: kPrimaryLightGrey.withOpacity(0.9),
+
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
@@ -328,7 +328,7 @@ nameWidget(
                 name,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
-              verticalSpace(height: 9),
+              //verticalSpace(height: 9),
               Divider(),
               verticalSpace(height: 9),
               Text(
@@ -340,7 +340,6 @@ nameWidget(
                 phone,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
-              verticalSpace(height: 9),
               Divider(),
               verticalSpace(height: 9),
               Text(
@@ -351,9 +350,9 @@ nameWidget(
               Text(
                 email,
                 style: Theme.of(context).textTheme.bodyLarge,
-              ), verticalSpace(height: 9),
-              Divider(),
-              verticalSpace(height: 9),Text(
+              ),
+              Divider(),verticalSpace(height: 9),
+              Text(
                 "Company",
                 style: Theme.of(context).textTheme.bodyMedium,
               ),

@@ -1,6 +1,7 @@
 
 import 'dart:convert';
 
+import 'package:dx5veevents/constants.dart';
 import 'package:flutter/material.dart';
 
 import '../../dioServices/dioFetchService.dart';
@@ -70,7 +71,7 @@ super.initState();
                 Container(height:55,width:MediaQuery.of(context).size.width,child: Row(children: [
                   IconButton(onPressed: (){Navigator.of(context).pop();}, icon: Icon(Icons.chevron_left,color: Colors.black54,size: 35,)),
                   Spacer(),
-                  Text("MEET OUR SPONSORS", style: TextStyle(fontSize:17,fontWeight: FontWeight.w600 ,color:  Colors.black54),)
+                  const Text("MEET OUR SPONSORS", style: TextStyle(fontSize:17,fontWeight: FontWeight.w600 ,color:  Colors.black54),)
                   ,Spacer(),
 
                 ],),),
@@ -82,24 +83,19 @@ super.initState();
                       children: [
 
                         Flexible(
-                          child: GridView.builder(
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              mainAxisSpacing: 25,
-                              crossAxisSpacing:25,
-                              crossAxisCount: 2,
-                              childAspectRatio: 4/2,
-                            ),
-                            padding:  EdgeInsets.all(8),
+                          child: ListView.builder(
+
+                            padding:  const EdgeInsets.all(8),
                             itemCount: sponsors.length,
                             itemBuilder: (context, index) {
                               //  final Speaker speaker = sponsorData[index];
 
-                              return sponsorWidget(context: context, sponsorAsset:"https://subscriptions.cioafrica.co/assets/${sponsors[index]!.logo!}",
+                              return Column(children: [sponsorWidget(context: context, sponsorAsset:"https://subscriptions.cioafrica.co/assets/${sponsors[index]!.logo!}",
                                 degree: "${sponsors[index].degree!}°",
                                 sponsorName:sponsors[index].sponsorName!,
                                 sponsorBio:sponsors[index].about!, sponsorURL: sponsors![index]!.websites!.first.link!,
 
-                              );
+                              ),verticalSpace(height: 10)],);
 
                               //   speakerWidget(context: context, name: speaker.name,
                               //     title: speaker.title, bio: speaker.bio,imageURL: url

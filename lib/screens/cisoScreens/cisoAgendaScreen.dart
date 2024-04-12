@@ -159,7 +159,7 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
             gradientEnd: kCIOPink,
           ),
         ),
-        backgroundColor: kScaffoldColor,
+       // backgroundColor: kScaffoldColor,
         body: Column(
           children: [
             TableCalendar(
@@ -248,284 +248,64 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
                           .map((speaker) =>
                           fetchSpeakerById(speaker.speaker.key))
                           .toList();
+                      return agendaItemWithSpeakers(context: context,
+                        title: firstDaySession.title,
+                        startTime: firstDaySession.startTime,
+                        futures: futures, endTime: firstDaySession.endTime, sessionType: firstDaySession.sessionType,
+                        summary: firstDaySession.summary, userID: profileProvider.userID!,
+                        breakoutSessions:firstDaySession.breakoutSessions, speakers: firstDaySession.speakers!, onPressedFunction: () async{
+                          setState(() {
+                            isBookmarking = true;
+                          });
 
-                      return Column(
-                        children: [
-                          GestureDetector( onTap:(){
-                            PersistentNavBarNavigator.pushNewScreen(
-                              context,
-                              screen: FullAgendaScreen(
-                                  title: firstDaySession.title,
-                                  day: 20,
-                                  startTime: firstDaySession.startTime,
-                                  endTime: firstDaySession.endTime,
-                                  isFromSession: false,
-                                  type:firstDaySession.sessionType,
-                                  userID: profileProvider.userID!,
-                                  //   sigs:widget.sigs,
-                                  description: firstDaySession.summary,
-                                  //  speakersCollection: widget.speakersCollection,
-                                  speakers: futures,
-                                  breakOuts: firstDaySession.breakoutSessions
-                              ),
-                              withNavBar: false,
-                              pageTransitionAnimation: PageTransitionAnimation.slideRight,
-                            );
-                          },
-                            child: Container(padding: EdgeInsets.only(top: 20,bottom: 20),
-                              height: firstDaySession.speakers!.length>=2?250:160,
-                              color: kRightBubble.withOpacity(0.5),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.all(10),
-                                        //height: 180,
-                                        color: kRightBubble,
-                                        child: Column(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                          children: [
-                                            Text(convertToAmPm(firstDaySession.startTime),
-                                                style: kGreyTextStyle(fontsiZe: 12)),
-                                            verticalSpace(height: 10),
-                                            Text(convertToAmPm(firstDaySession.endTime),
-                                                style: kGreyTextStyle(fontsiZe: 12)),
-                                          ],
-                                        ),
-                                      ),
-                                      horizontalSpace(width: 15),
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                          children: [
-                                            verticalSpace(height: 10),
-                                            Text(
-                                              "${firstDaySession.title}",
-                                              style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w700),
-                                            ),
-                                            verticalSpace(height: 10),
-                                            FutureBuilder<
-                                                List<IndividualSpeaker?>>(
-                                              future: Future.wait(futures),
-                                              builder: (context, snapshot) {
-                                                if (snapshot.connectionState ==
-                                                    ConnectionState.done &&
-                                                    snapshot.data != null) {
-                                                  // Join the first names of all speakers
-                                                  final speakerWidgets =
-                                                  snapshot.data!
-                                                      .where((speaker) =>
-                                                  speaker != null)
-                                                      .map((speaker) => Padding(
-                                                    padding: const EdgeInsets.only(top:8.0,bottom: 8.0),
-                                                    child: Row(
-                                                      children: [
-                                                        CachedNetworkImage(
-                                                          fit:
-                                                          BoxFit.cover,
-                                                          imageUrl:
-                                                          "https://subscriptions.cioafrica.co/assets/${speaker!.photo!}",
-                                                          // placeholder: (context, url) => CircularProgressIndicator(), // Optional
-                                                          // errorWidget: (context, url, error) =>  ProfileInitials(),
-                                                          progressIndicatorBuilder: (context, url, downloadProgress) => SizedBox(
-                                                              height: 20,
-                                                              width: 20,
-                                                              child: CircularProgressIndicator(value: downloadProgress.progress)), // Optional
-                                                          imageBuilder: (context, imageProvider) =>
-                                                              CircleAvatar(
-                                                                radius: 15,
-                                                                backgroundImage: imageProvider,
-                                                              ),
-                                                        ),horizontalSpace(width: 10),
+                          await createSession(
+                          currentUserId: profileProvider.userID!,
+                          startTime: firstDaySession.startTime,
+                          endTime: firstDaySession.endTime,
+                          sessionTitle: firstDaySession.title,
+                          sessionDescription:firstDaySession.summary,
+                          speakers:[],
+                          sessionType: firstDaySession.sessionType,
+                          date: 20,
+                          );
+                          setState(() {
+                            isBookmarking = false;
+                          });
+                        } ,);
+                     
 
-                                                        Expanded(
-                                                          child: Column(mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.start,
-                                                            children: [
-                                                              Text(
-                                                                '${speaker!.firstName} ${speaker.lastName}',style:kGreyTextStyle(fontsiZe: 12) ,),
-                                                              Text(
-                                                                '${speaker!.role} at ${speaker.company}',style: kNameTextStyle( fontsiZe: 10),overflow: TextOverflow.ellipsis,maxLines: 2,),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ))
-                                                      .toList();
-                                                  return Column(
-                                                    crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                    children: [
-                                                      ...speakerWidgets,
-                                                    ],
-                                                  );
-                                                } else if (snapshot
-                                                    .connectionState ==
-                                                    ConnectionState.waiting) {
-                                                  return const Text(
-                                                      'Loading speakers...');
-                                                } else {
-                                                  return const Text(
-                                                      'Speakers details not available');
-                                                }
-                                              },
-                                            ),
-
-                                          ],
-                                        ),
-                                      ),
-
-                                      GestureDetector(
-                                          onTap:()async{
-
-                                            setState(() {
-                                              isBookmarking = true;
-                                            });
-
-                                            await createSession(
-                                              currentUserId: profileProvider.userID!,
-                                              startTime: firstDaySession.startTime,
-                                              endTime: firstDaySession.endTime,
-                                              sessionTitle: firstDaySession.title,
-                                              sessionDescription:firstDaySession.summary,
-                                              speakers:[],
-                                              sessionType: firstDaySession.sessionType,
-                                              date: 20,
-                                            );
-                                            setState(() {
-                                              isBookmarking = false;
-                                            });
-                                          },
-                                          child: const Icon(Icons.calendar_month,color: kIconDeepBlue,))
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          verticalSpace(height: 10)
-                        ],
-                      );
                     } else {
                       // If there are no speakers for the session
-                      return Column(
-                        children: [
-                          GestureDetector( onTap:(){
-                            PersistentNavBarNavigator.pushNewScreen(
-                              context,
-                              screen: FullAgendaScreen(
-                                  title: firstDaySession.title,
-                                  day: 20,
-                                  startTime: firstDaySession.startTime,
-                                  endTime: firstDaySession.endTime,
-                                  isFromSession: false,
-                                  type:firstDaySession.sessionType,
-                                  userID: profileProvider.userID!,
-                                  //   sigs:widget.sigs,
-                                  description: firstDaySession.summary,
-                                  //  speakersCollection: widget.speakersCollection,
-                                  speakers: false,
-                                  breakOuts: firstDaySession.breakoutSessions
-                              ),
-                              withNavBar: false,
-                              pageTransitionAnimation: PageTransitionAnimation.slideRight,
-                            );
-                          },
-                            child: Container(
-                              height: 100,
-                              color: kRightBubble.withOpacity(0.5),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.all(10),
-                                        height: 100,
-                                        color: kRightBubble,
-                                        child: Column(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                          children: [
-                                            Text(convertToAmPm(firstDaySession.startTime),
-                                                style: kGreyTextStyle(fontsiZe: 12)),
-                                            verticalSpace(height: 10),
-                                            Text(convertToAmPm(firstDaySession.endTime),
-                                                style: kGreyTextStyle(fontsiZe: 12)),
-                                          ],
-                                        ),
-                                      ),
-                                      horizontalSpace(width: 15),
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                          children: [
-                                            verticalSpace(height: 10),
-                                            Text(
-                                              "${firstDaySession.title}",
-                                              style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w700),
-                                            ),
-                                            verticalSpace(height: 10),
+                      return agendaItemWithoutSpeakers(context: context,
+                        title: firstDaySession.title,
+                        startTime: firstDaySession.startTime,
+                         endTime: firstDaySession.endTime, sessionType: firstDaySession.sessionType,
+                        summary: firstDaySession.summary, userID: profileProvider.userID!,
+                        breakoutSessions:firstDaySession.breakoutSessions, speakers: firstDaySession.speakers!, onPressedFunction: () async{
+                          setState(() {
+                            isBookmarking = true;
+                          });
 
+                          await createSession(
+                            currentUserId: profileProvider.userID!,
+                            startTime: firstDaySession.startTime,
+                            endTime: firstDaySession.endTime,
+                            sessionTitle: firstDaySession.title,
+                            sessionDescription:firstDaySession.summary,
+                            speakers:[],
+                            sessionType: firstDaySession.sessionType,
+                            date: 20,
+                          );
+                          setState(() {
+                            isBookmarking = false;
+                          });
+                        } ,);
 
-                                          ],
-                                        ),
-                                      ),
-
-                                      Padding(
-                                        padding:  EdgeInsets.fromLTRB(10,30,5,30),
-                                        child: GestureDetector(onTap:()async{
-
-                                          setState(() {
-                                            isBookmarking = true;
-                                          });
-
-                                          await createSession(
-                                            currentUserId: profileProvider.userID!,
-                                            startTime: firstDaySession.startTime,
-                                            endTime: firstDaySession.endTime,
-                                            sessionTitle: firstDaySession.title,
-                                            sessionDescription:firstDaySession.summary,
-                                            speakers:[],
-                                            sessionType: firstDaySession.sessionType,
-                                            date: 20,
-                                          );
-                                          setState(() {
-                                            isBookmarking = false;
-                                          });
-                                        } ,child: Icon(Icons.calendar_month,color: kIconDeepBlue,)),
-                                      )
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          verticalSpace(height: 10)
-                        ],
-                      );
                     }
                   },
                 ):
+
+
                 ///Day 2
                 _selectedDate.day==21?ListView.builder(
                   itemCount: agendaDays[1].sessions.length,
@@ -540,281 +320,56 @@ class _CISOAgendaScreenState extends State<CISOAgendaScreen> {
                           fetchSpeakerById(speaker.speaker.key))
                           .toList();
 
-                      return Column(
-                        children: [
-                          GestureDetector( onTap:(){
-                            PersistentNavBarNavigator.pushNewScreen(
-                              context,
-                              screen: FullAgendaScreen(
-                                title: secondDaySession.title,
-                                day: 21,
-                                startTime: secondDaySession.startTime,
-                                endTime: secondDaySession.endTime,
-                                isFromSession: false,
-                                type:secondDaySession.sessionType,
-                                userID: profileProvider.userID!,
-                                //   sigs:widget.sigs,
-                                description: secondDaySession.summary,
-                                //  speakersCollection: widget.speakersCollection,
-                                speakers: futures,
-                                breakOuts: secondDaySession.breakoutSessions,
-                              ),
-                              withNavBar: false,
-                              pageTransitionAnimation: PageTransitionAnimation.slideRight,
-                            );
-                          },
-                            child: Container(padding: EdgeInsets.only(top: 20,bottom: 20),
-                              height: secondDaySession.speakers!.length>=2?250:165,
-                              color: kRightBubble.withOpacity(0.5),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.all(10),
-                                        //  height: 180,
-                                        color: kRightBubble,
-                                        child: Column(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                          children: [
-                                            Text(convertToAmPm(secondDaySession.startTime),
-                                                style: kGreyTextStyle(fontsiZe: 12)),
-                                            verticalSpace(height: 10),
-                                            Text(convertToAmPm(secondDaySession.endTime),
-                                                style: kGreyTextStyle(fontsiZe: 12)),
-                                          ],
-                                        ),
-                                      ),
-                                      horizontalSpace(width: 15),
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                          children: [
-                                            verticalSpace(height: 10),
-                                            Text(
-                                              "${secondDaySession.title}",
-                                              style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w700),
-                                            ),
-                                            verticalSpace(height: 10),
-                                            FutureBuilder<
-                                                List<IndividualSpeaker?>>(
-                                              future: Future.wait(futures),
-                                              builder: (context, snapshot) {
-                                                if (snapshot.connectionState ==
-                                                    ConnectionState.done &&
-                                                    snapshot.data != null) {
-                                                  // Join the first names of all speakers
-                                                  final speakerWidgets =
-                                                  snapshot.data!
-                                                      .where((speaker) =>
-                                                  speaker != null)
-                                                      .map((speaker) => Padding(
-                                                    padding: const EdgeInsets.only(top:8.0,bottom: 8.0),
-                                                    child: Row(
-                                                      children: [
-                                                        CachedNetworkImage(
-                                                          fit:
-                                                          BoxFit.cover,
-                                                          imageUrl:
-                                                          "https://subscriptions.cioafrica.co/assets/${speaker!.photo!}",
-                                                          // placeholder: (context, url) => CircularProgressIndicator(), // Optional
-                                                          // errorWidget: (context, url, error) =>  ProfileInitials(),
-                                                          progressIndicatorBuilder: (context, url, downloadProgress) => SizedBox(
-                                                              height: 20,
-                                                              width: 20,
-                                                              child: CircularProgressIndicator(value: downloadProgress.progress)), // Optional
-                                                          imageBuilder: (context, imageProvider) =>
-                                                              CircleAvatar(
-                                                                radius: 15,
-                                                                backgroundImage: imageProvider,
-                                                              ),
-                                                        ),horizontalSpace(width: 10),
+                      return  agendaItemWithSpeakers(context: context,
+                        title: secondDaySession.title,
+                        startTime: secondDaySession.startTime,
+                        futures: futures, endTime: secondDaySession.endTime, sessionType: secondDaySession.sessionType,
+                        summary: secondDaySession.summary, userID: profileProvider.userID!,
+                        breakoutSessions:secondDaySession.breakoutSessions, speakers: secondDaySession.speakers!, onPressedFunction: () async{
+                          setState(() {
+                            isBookmarking = true;
+                          });
 
-                                                        Expanded(
-                                                          child: Column(mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.start,
-                                                            children: [
-                                                              Text(
-                                                                '${speaker!.firstName} ${speaker.lastName}',style:kGreyTextStyle(fontsiZe: 12) ,),
-                                                              Text(
-                                                                '${speaker!.role} at ${speaker.company}',style: kNameTextStyle( fontsiZe: 10),overflow: TextOverflow.ellipsis,maxLines: 2,),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ))
-                                                      .toList();
-                                                  return Column(
-                                                    crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                    children: [
-                                                      ...speakerWidgets,
-                                                    ],
-                                                  );
-                                                } else if (snapshot
-                                                    .connectionState ==
-                                                    ConnectionState.waiting) {
-                                                  return const Text(
-                                                      'Loading speakers...');
-                                                } else {
-                                                  return const Text(
-                                                      'Speakers details not available');
-                                                }
-                                              },
-                                            ),
-
-                                          ],
-                                        ),
-                                      ),
-
-                                      GestureDetector(
-                                          onTap:()async{
-
-                                            setState(() {
-                                              isBookmarking = true;
-                                            });
-
-                                            await createSession(
-                                              currentUserId: profileProvider.userID!,
-                                              startTime: secondDaySession.startTime,
-                                              endTime: secondDaySession.endTime,
-                                              sessionTitle: secondDaySession.title,
-                                              sessionDescription:secondDaySession.summary,
-                                              speakers:[],
-                                              sessionType: secondDaySession.sessionType,
-                                              date: 20,
-                                            );
-                                            setState(() {
-                                              isBookmarking = false;
-                                            });
-                                          },
-                                          child: const Icon(Icons.calendar_month,color: kIconDeepBlue,))
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          verticalSpace(height: 10)
-                        ],
-                      );
+                          await createSession(
+                            currentUserId: profileProvider.userID!,
+                            startTime: secondDaySession.startTime,
+                            endTime: secondDaySession.endTime,
+                            sessionTitle: secondDaySession.title,
+                            sessionDescription:secondDaySession.summary,
+                            speakers:[],
+                            sessionType: secondDaySession.sessionType,
+                            date: 20,
+                          );
+                          setState(() {
+                            isBookmarking = false;
+                          });
+                        } ,);
                     } else {
                       // If there are no speakers for the session
-                      return Column(
-                        children: [
-                          GestureDetector( onTap:(){
-                            PersistentNavBarNavigator.pushNewScreen(
-                              context,
-                              screen: FullAgendaScreen(
-                                title: secondDaySession.title,
-                                day: 21,
-                                startTime: secondDaySession.startTime,
-                                endTime: secondDaySession.endTime,
-                                isFromSession: false,
-                                type:secondDaySession.sessionType,
-                                userID: profileProvider.userID!,
-                                //   sigs:widget.sigs,
-                                description: secondDaySession.summary,
-                                //  speakersCollection: widget.speakersCollection,
-                                speakers: false,
-                                breakOuts: secondDaySession.breakoutSessions,
+                      return agendaItemWithoutSpeakers(context: context,
+                        title: secondDaySession.title,
+                        startTime: secondDaySession.startTime,
+                        endTime: secondDaySession.endTime, sessionType: secondDaySession.sessionType,
+                        summary: secondDaySession.summary, userID: profileProvider.userID!,
+                        breakoutSessions:secondDaySession.breakoutSessions, speakers: secondDaySession.speakers!, onPressedFunction: () async{
+                          setState(() {
+                            isBookmarking = true;
+                          });
 
-                              ),
-                              withNavBar: false,
-                              pageTransitionAnimation: PageTransitionAnimation.slideRight,
-                            );
-                          },
-                            child: Container(
-                              height: 100,
-                              color: kRightBubble.withOpacity(0.5),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.all(10),
-                                        height: 100,
-                                        color: kRightBubble,
-                                        child: Column(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                          children: [
-                                            Text(convertToAmPm(secondDaySession.startTime),
-                                                style: kGreyTextStyle(fontsiZe: 12)),
-                                            verticalSpace(height: 10),
-                                            Text(convertToAmPm(secondDaySession.endTime),
-                                                style: kGreyTextStyle(fontsiZe: 12)),
-                                          ],
-                                        ),
-                                      ),
-                                      horizontalSpace(width: 15),
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                          children: [
-                                            verticalSpace(height: 10),
-                                            Text(
-                                              "${secondDaySession.title}",
-                                              style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w700),
-                                            ),
-                                            verticalSpace(height: 10),
-
-
-                                          ],
-                                        ),
-                                      ),
-
-                                      Padding(
-                                        padding:  EdgeInsets.fromLTRB(10,30,5,30),
-                                        child: GestureDetector(onTap:()async{
-
-                                          setState(() {
-                                            isBookmarking = true;
-                                          });
-
-                                          await createSession(
-                                            currentUserId: profileProvider.userID!,
-                                            startTime: secondDaySession.startTime,
-                                            endTime: secondDaySession.endTime,
-                                            sessionTitle: secondDaySession.title,
-                                            sessionDescription:secondDaySession.summary,
-                                            speakers:[],
-                                            sessionType: secondDaySession.sessionType,
-                                            date: 20,
-                                          );
-                                          setState(() {
-                                            isBookmarking = false;
-                                          });
-                                        } ,child: Icon(Icons.calendar_month,color: kIconDeepBlue,)),
-                                      )
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          verticalSpace(height: 10)
-                        ],
-                      );
+                          await createSession(
+                            currentUserId: profileProvider.userID!,
+                            startTime: secondDaySession.startTime,
+                            endTime: secondDaySession.endTime,
+                            sessionTitle: secondDaySession.title,
+                            sessionDescription:secondDaySession.summary,
+                            speakers:[],
+                            sessionType: secondDaySession.sessionType,
+                            date: 20,
+                          );
+                          setState(() {
+                            isBookmarking = false;
+                          });
+                        } ,);
                     }
                   },
                 ):null,

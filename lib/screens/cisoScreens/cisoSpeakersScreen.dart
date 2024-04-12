@@ -10,7 +10,8 @@ import '../../models/speakersModel.dart';
 import '../../widgets/speakerWidget.dart';
 
 class CisoSpeakersScreen extends StatefulWidget {
-  const CisoSpeakersScreen({super.key});
+  String eventName;
+   CisoSpeakersScreen({super.key, required this.eventName});
 
   @override
   State<CisoSpeakersScreen> createState() => _CisoSpeakersScreenState();
@@ -156,14 +157,14 @@ class _CisoSpeakersScreenState extends State<CisoSpeakersScreen> {
               filterData(query);
 
             },
-          ):const Column(
+          ): Column(
             children: [
-              Text(
+              const Text(
                 "SPEAKERS",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500,color: kToggleDark),
               ),
               Text(
-                "AFRICA CISO SUMMIT",
+                widget.eventName,
                 style: TextStyle(fontSize: 9, color: kTextColorGrey),
               )
             ],
@@ -186,29 +187,24 @@ class _CisoSpeakersScreenState extends State<CisoSpeakersScreen> {
         Padding(padding: EdgeInsets.only(top: 8),
           child: isFetching
               ? speakerShimmerWidget(context: context)
-              : GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              mainAxisSpacing: 0,
-              crossAxisSpacing:4,
-              crossAxisCount: 2,
-              childAspectRatio: 1.6/2,
-            ),
+              : ListView.builder(
+
             padding:  EdgeInsets.all(8),
             itemCount: filteredSpeakers.length,
             itemBuilder: (context, index) {
               final IndividualSpeaker speaker = filteredSpeakers[index];
 
-              return speakerWidget(context: context,
+              return Column(children: [speakerWidget(context: context,
 
                   name: "${speaker.firstName!} ${speaker.lastName}",
 
 
-                title: "${speaker.role!} at ${speaker.company}",
+                  title: "${speaker.role!} at ${speaker.company}",
 
-                 bio: speaker!.bio! ?? "",
+                  bio: speaker!.bio! ?? "",
 
                   imageURL: "https://subscriptions.cioafrica.co/assets/${speaker!.photo!}",
-                  linkedinurl: speaker.linkedinProfile!);
+                  linkedinurl: speaker.linkedinProfile!),verticalSpace(height: 10),],);
 
               //   speakerWidget(context: context, name: speaker.name,
               //     title: speaker.title, bio: speaker.bio,imageURL: url
