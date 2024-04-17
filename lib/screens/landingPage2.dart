@@ -7,6 +7,12 @@ import '../widgets/landingPageWidget.dart';
 import 'authScreens/cisoLogin.dart';
 
 class LandingPage2 extends StatefulWidget {
+
+  LandingPage2({
+
+
+
+    Key? key}) : super(key: key);
   @override
   State<LandingPage2> createState() => _LandingPage2State();
 }
@@ -47,7 +53,7 @@ class _LandingPage2State extends State<LandingPage2> {
       child: Scaffold(
 
         body: Column(children: [customAppbar(),
-        if (current==0) ActiveEvents(),
+        if (current==0) FutureEvents(),
         if(current==1)ActiveEvents(),if (current==2)FutureEvents()],)
       ),
     );
@@ -56,7 +62,13 @@ class _LandingPage2State extends State<LandingPage2> {
 
 
 class ActiveEvents extends StatefulWidget {
-  const ActiveEvents({super.key});
+
+  ActiveEvents({
+
+
+
+
+    Key? key}) : super(key: key);
 
   @override
   State<ActiveEvents> createState() => _ActiveEventsState();
@@ -70,11 +82,33 @@ class _ActiveEventsState extends State<ActiveEvents> {
         UpcomingEventWidget2(imagePath: 'assets/images/themes/cloudsecurity.png', dayMonth: 'THUR, MAY', date: '2nd', endDate: '3rd', location: 'NIGERIA', endDayMonth: 'FRIDAY, MAY', onPressedFunct: (){
 
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => InitialScreen(followingScreen: CISOLogin())),
+            MaterialPageRoute(builder: (_) => InitialScreen(eventDay: 2, eventMonth: 5, eventYear: 2024,coverImagePath: 'assets/images/themes/cloudsecurity.png', eventName: "AFRICA CLOUD AND SECURITY SUMMIT",
+                eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+
+                shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+                eventLocation: 'Nigeria'
+                ,followingScreen: CISOLogin(eventDay: 2, eventMonth: 5, eventYear: 2024,coverImagePath: 'assets/images/themes/cloudsecurity.png', eventName: "AFRICA CLOUD AND SECURITY SUMMIT",
+                    eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+
+                    shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+                    eventLocation: 'Nigeria', eventID: '6',), eventID: '6',)),
           );
         }, eventName: 'Cloud and Security\n'
             'Summit', containerColor: kCISOPurple,),
-        UpcomingEventWidget2(imagePath: 'assets/images/themes/smartbanking.png', dayMonth: 'WED, MAY', date: '22nd', endDate: '23rd', location: 'KENYA', endDayMonth: 'THUR, MAY', onPressedFunct: (){}, eventName: 'Smart Banking'
+        UpcomingEventWidget2(imagePath: 'assets/images/themes/smartbanking.png', dayMonth: 'WED, MAY', date: '22nd', endDate: '23rd', location: 'KENYA', endDayMonth: 'THUR, MAY', onPressedFunct: (){
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => InitialScreen(coverImagePath: 'assets/images/themes/smartbanking.png', eventName: "SMART BANKING",
+                eventDate: 'WED, MAY, 22nd - THUR MAY 23rd',
+
+                shortEventDescription: "Navigating the Next: Africa's Leap into Smart, Secure, and Inclusive Banking",
+                eventLocation: 'KENYA'
+                ,followingScreen: CISOLogin(coverImagePath: 'assets/images/themes/smartbanking.png', eventName: "SMART BANKING",
+                    eventDate: 'WED, MAY, 22nd - THUR MAY 23rd',
+
+                    shortEventDescription: "Navigating the Next: Africa's Leap into Smart, Secure, and Inclusive Banking",
+                    eventLocation: 'KENYA', eventID: '8', eventDay: 22, eventMonth: 5, eventYear: 2024,), eventID: '8', eventDay: 22, eventMonth: 5, eventYear: 2024,)),
+          );
+        }, eventName: 'Smart Banking'
             , containerColor: kCISOPurple,),
       ],
     );

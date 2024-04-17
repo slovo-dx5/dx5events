@@ -5,12 +5,13 @@ import 'package:upgrader/upgrader.dart';
 
 import '../constants.dart';
 import '../providers.dart';
-import '../screens/cisoScreens/cisoAgendaScreen.dart';
-import '../screens/cisoScreens/cisoAttendeesScreen.dart';
-import '../screens/cisoScreens/cisoSpeakersScreen.dart';
-import '../screens/cisoScreens/ciso_partners_screen.dart';
-import '../screens/cisoScreens/ciso_sessions_screen.dart';
-import '../screens/cisoScreens/ciso_sponsors_screens.dart';
+
+import '../screens/dx5veScreens/cisoSpeakersScreen.dart';
+import '../screens/dx5veScreens/ciso_partners_screen.dart';
+import '../screens/dx5veScreens/ciso_sessions_screen.dart';
+import '../screens/dx5veScreens/ciso_sponsors_screens.dart';
+import '../screens/dx5veScreens/dx5veAttendeesScreen.dart';
+import '../screens/dx5veScreens/eventAgendaScreen.dart';
 import 'cio_widgets.dart';
 
 class HomePageWidget extends StatefulWidget {
@@ -19,12 +20,17 @@ class HomePageWidget extends StatefulWidget {
   String shortEventDescription;
   String eventDate;
   String eventLocation;
+  String eventID;int eventDay;
+  int eventMonth;
+  int eventYear;
   HomePageWidget(
       {super.key,
       required this.coverImagepath,
       required this.eventName,
-      required this.eventDate,required this.eventLocation,
-      required this.shortEventDescription});
+      required this.eventDate,required this.eventLocation,required this.eventID,
+      required this.shortEventDescription , required this.eventDay,
+        required this.eventMonth,
+        required this.eventYear});
 
   @override
   State<HomePageWidget> createState() => _HomePageWidgetState();
@@ -136,7 +142,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     width: 10,
                     height: 10,
                   ),
-                  screen: CISOAgendaScreen(),
+                  screen: EventAgendaScreen(eventID: widget.eventID, eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear, eventLocation: widget.eventLocation,),
                   itemName: 'Agenda',
                 ),
               ],
@@ -153,7 +159,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     width: 10,
                     height: 10,
                   ),
-                  screen: AttendeesScreen(),
+                  screen: AttendeesScreen(eventID: widget.eventID,),
                   itemName: 'Attendees',
                 ),
                 CIOWidgets().gradientItemWidget(
@@ -179,7 +185,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                   ),
                   screen: UserSessionsScreen(
                     userid: profileProvider.userID!,
-                  ),
+                    eventID: widget.eventID,eventDay: widget.eventDay, eventLocation: widget.eventLocation, eventMonth: widget.eventMonth,eventYear: widget.eventYear,                ),
                   itemName: 'My Sessions',
                 ),
               ],

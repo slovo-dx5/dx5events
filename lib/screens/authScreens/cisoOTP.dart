@@ -30,8 +30,22 @@ class OTPScreen extends StatefulWidget {
   String company;
   String isAdmin;
   int id;
-  String profileID;
-  OTPScreen({required this.email,required this.isAdmin,required this.profileID,required this.company,required this.role,required this.lastName, required this.firstName, required this.phone,required this.id,
+  String profileID; int eventDay;
+  int eventMonth;
+  int eventYear;
+
+  final String coverImagePath ;
+  final String eventLocation ;
+  final String eventDate ;
+  final String eventName ;
+  final String shortEventDescription ;
+  final String eventID ;
+  OTPScreen({  required this.eventDay,
+    required this.eventMonth,
+    required this.eventYear,
+
+    required this.coverImagePath, required this.eventName,required this.eventID,required this.shortEventDescription,required this.eventDate, required this.eventLocation,
+    required this.email,required this.isAdmin,required this.profileID,required this.company,required this.role,required this.lastName, required this.firstName, required this.phone,required this.id,
 
     Key? key}) : super(key: key);
   @override
@@ -164,7 +178,13 @@ class _OTPScreenState extends State<OTPScreen> {
           //   pageTransitionAnimation: PageTransitionAnimation.slideRight,
           // );
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => MainNavigationPage()),
+            MaterialPageRoute(builder: (_) => MainNavigationPage(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,coverImagePath: widget.coverImagePath, eventName: widget.eventName,
+              //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+              eventDate: widget.eventDate,
+              //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+              shortEventDescription: widget.shortEventDescription,
+              //eventLocation: 'Nigeria',);
+              eventLocation: widget.eventLocation, eventID: widget.eventID,)),
           );
         }
 
@@ -323,7 +343,13 @@ class _OTPScreenState extends State<OTPScreen> {
 
                                           if(mounted){
                                             Navigator.of(context).pushReplacement(
-                                              MaterialPageRoute(builder: (_) => MainNavigationPage()),
+                                              MaterialPageRoute(builder: (_) => MainNavigationPage(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,coverImagePath: widget.coverImagePath, eventName: widget.eventName,
+                                                //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+                                                eventDate: widget.eventDate,
+                                                //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+                                                shortEventDescription: widget.shortEventDescription,
+                                                //eventLocation: 'Nigeria',);
+                                                eventLocation: widget.eventLocation, eventID: widget.eventID,)),
                                             );
                                             // PersistentNavBarNavigator.pushNewScreen(
                                             //   context,

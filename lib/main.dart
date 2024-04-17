@@ -3,7 +3,6 @@ import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/providers/themeProvider.dart';
 import 'package:dx5veevents/screens/authScreens/cisoLogin.dart';
 import 'package:dx5veevents/screens/doLastMinuteShyet.dart';
-import 'package:dx5veevents/screens/landingPage.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
 import 'package:dx5veevents/screens/proposeToSpeakPage.dart';
 import 'package:dx5veevents/screens/sponsorEventScreen.dart';
@@ -73,8 +72,8 @@ class MyApp extends StatelessWidget {
              // home: SponsorEventScreen(),
              // home: MainNavigationPage(),
             //home:  ProposeToSpeakPage(eventName: 'Africa CISO Suimmit',),
-               home: LandingPage2()
-              //home: InterestsScreen(),
+              home: LandingPage2()
+            //  home: CISOLogin(coverImagePath: '', eventName: '', shortEventDescription: '', eventDate: '', eventLocation: '',),
             );
           },
         );

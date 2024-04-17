@@ -4,75 +4,15 @@ import 'package:dx5veevents/models/agendaModel.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
-import '../helpers/helper_functions.dart';
 import '../models/speakersModel.dart';
-import '../screens/cisoScreens/cisoFullAgenda.dart';
-
-class AgendaWidget extends StatefulWidget {
-  String startTime;
-  String endTime;
-  String sessionType;
-  String sessionTitle;
- List <IndividualSpeaker> speakers;
-  AgendaWidget({required this.startTime,required this.endTime,required this.sessionTitle,required this.speakers,required this.sessionType, super.key});
-
-  @override
-  State<AgendaWidget> createState() => _AgendaWidgetState();
-}
-
-class _AgendaWidgetState extends State<AgendaWidget> {
-
-  bool doesSpeakerExist(String nameToCheck,List speakerstoCheck) {
-    return speakerstoCheck.any((speakerr) => speakerr.name == nameToCheck);
-  }
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Column(
-                children: [
-                  Text(widget.startTime),
-                  Container(
-                    height: 80,
-                    width: 3,
-                    color: kCIOPink,
-                  ),Text(widget.startTime),
-                ],
-              )
-            ],
-          ),horizontalSpace(width: 5),Column(children: [
-            Text(widget.sessionType),
-            Text(widget.sessionTitle),
-            if(widget.speakers!=[])Text("SPEAKERS",style: TextStyle(fontWeight: FontWeight.w600),),
-            if(widget.speakers!=[])
-              Container(width: MediaQuery.of(context).size.width*0.8,height: 80,
-                child: ListView.builder(scrollDirection:Axis.horizontal,itemCount: widget.speakers.length,itemBuilder: (BuildContext context, int index){
-                  // bool speakerExists = doesSpeakerExist(widget.speakers[index]["field_62ac3eeb577b8"],widget.speakersCollection);
-
-
-                 // IndividualSpeaker requiredPeaker=widget.speakersCollection.firstWhere((element) => element.name==widget.speakers[index]["first_name"]);
-
-                  return Text("${widget.speakers[index].firstName}");
-
-
-                },),
-              ),
-
-          ],)
-        ],
-      ),
-    );
-  }
-}
-
-
-
+import '../screens/dx5veScreens/cisoFullAgenda.dart';
 
 
 agendaItemWithSpeakers({required BuildContext context,
+  required String eventLocation,
+  required int eventYear,
+  required int eventMonth,
+  required int eventDay,
   required String title,
   required String startTime,
   required var futures, required String endTime,
@@ -86,23 +26,16 @@ agendaItemWithSpeakers({required BuildContext context,
         PersistentNavBarNavigator.pushNewScreen(
           context,
           screen: FullAgendaScreen(
-             // title: firstDaySession.title,
               title: title,
               day: 20,
-            //  startTime: firstDaySession.startTime,
               startTime: startTime,
-             // endTime: firstDaySession.endTime,
              endTime: endTime,
               isFromSession: false,
-             // type:firstDaySession.sessionType,
               type:sessionType,
-            //  userID: profileProvider.userID!,
-             userID: userID!,
-              //description: firstDaySession.summary,
+             userID: userID,
               description: summary,
-              //  speakersCollection: widget.speakersCollection,
               speakers: futures,
-              breakOuts: breakoutSessions
+              breakOuts: breakoutSessions, eventLocation: eventLocation, eventDay: eventDay, eventMonth: eventMonth, eventYear: eventYear,
           ),
           withNavBar: false,
           pageTransitionAnimation: PageTransitionAnimation.slideRight,
@@ -111,7 +44,7 @@ agendaItemWithSpeakers({required BuildContext context,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Container(padding: const EdgeInsets.only(top: 20,bottom: 20),
-            height: speakers!.length>=2?280:190,
+            height: speakers.length>=2?280:190,
 
             color: kGreyAgenda,
             child: Padding(
@@ -125,14 +58,12 @@ agendaItemWithSpeakers({required BuildContext context,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(convertToAmPm(startTime),
-                        //style: kGreyTextStyle(fontsiZe: 12)
-                      ),horizontalSpace(width: 5),Text("-"),
+                      ),horizontalSpace(width: 5),const Text("-"),
                       horizontalSpace(width: 5),
                       Text(convertToAmPm(endTime),
-                        //  style: kGreyTextStyle(fontsiZe: 12)
                       ),
 
-                      Spacer(),
+                      const Spacer(),
 
 
                       Padding(
@@ -153,7 +84,7 @@ agendaItemWithSpeakers({required BuildContext context,
                       children: [
                         verticalSpace(height: 10),
                         Text(
-                          "${title}",
+                          title,
                           style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w700),
@@ -179,7 +110,7 @@ agendaItemWithSpeakers({required BuildContext context,
                                       fit:
                                       BoxFit.cover,
                                       imageUrl:
-                                      "https://subscriptions.cioafrica.co/assets/${speaker!.photo!}",
+                                      "https://subscriptions.cioafrica.co/assets/${speaker!.photo}",
                                       // placeholder: (context, url) => CircularProgressIndicator(), // Optional
                                       // errorWidget: (context, url, error) =>  ProfileInitials(),
                                       progressIndicatorBuilder: (context, url, downloadProgress) => SizedBox(
@@ -197,9 +128,9 @@ agendaItemWithSpeakers({required BuildContext context,
                                       child: Column(mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            '${speaker!.firstName} ${speaker.lastName}',style:kGreyTextStyle(fontsiZe: 12) ,),
+                                            '${speaker.firstName} ${speaker.lastName}',style:kGreyTextStyle(fontsiZe: 12) ,),
                                           Text(
-                                            '${speaker!.role} at ${speaker.company}',style: kNameTextStyle( fontsiZe: 10),overflow: TextOverflow.ellipsis,maxLines: 2,),
+                                            '${speaker.role} at ${speaker.company}',style: kNameTextStyle( fontsiZe: 10),overflow: TextOverflow.ellipsis,maxLines: 2,),
                                         ],
                                       ),
                                     ),
@@ -243,8 +174,11 @@ agendaItemWithSpeakers({required BuildContext context,
 agendaItemWithoutSpeakers({required BuildContext context,
   required String title,
   required String startTime,
-   required String endTime,
-  required String sessionType,required String summary,
+   required String endTime,required String eventLocation,
+  required int eventYear,
+  required int eventMonth,
+  required int eventDay,
+  required String type,required String summary,
    List <BreakoutSession>?breakoutSessions,
   required List speakers,required VoidCallback onPressedFunction,
   required int userID}){
@@ -253,14 +187,14 @@ agendaItemWithoutSpeakers({required BuildContext context,
       GestureDetector( onTap:(){
         PersistentNavBarNavigator.pushNewScreen(
           context,
-          screen: FullAgendaScreen(
+          screen: FullAgendaScreen(eventLocation: eventLocation, eventDay: eventDay, eventMonth: eventMonth, eventYear: eventYear,
               title: title,
               day: 20,
               startTime:startTime,
               endTime: endTime,
               isFromSession: false,
-              type:sessionType,
-              userID: userID!,
+              type:type,
+              userID: userID,
               description: summary,
               //  speakersCollection: widget.speakersCollection,
               speakers: false,
@@ -286,14 +220,12 @@ agendaItemWithoutSpeakers({required BuildContext context,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(convertToAmPm(startTime),
-                          //style: kGreyTextStyle(fontsiZe: 12)
-                      ),horizontalSpace(width: 5),Text("-"),
+                      ),horizontalSpace(width: 5),const Text("-"),
                       horizontalSpace(width: 5),
                       Text(convertToAmPm(endTime),
-                        //  style: kGreyTextStyle(fontsiZe: 12)
                       ),
 
-                   Spacer(),
+                   const Spacer(),
 
 
                       Padding(
@@ -312,7 +244,8 @@ agendaItemWithoutSpeakers({required BuildContext context,
                     children: [
                       verticalSpace(height: 10),
                       Text(
-                        title,
+                        title,maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w700),

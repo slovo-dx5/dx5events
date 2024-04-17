@@ -7,11 +7,11 @@ import 'endpoints/endpoint.dart';
 class DioFetchService extends DioClient {
   DioClient _client = new DioClient();
 
-  Future<Response> fetchCISOAttendees() async {
+  Future<Response> fetchCISOAttendees({required String eventID}) async {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/event_registrations?filter[eventId][_eq]=3&filter[status][_eq]=approved&limit=800",
+          .get("https://subscriptions.cioafrica.co/items/event_registrations?filter[eventId][_eq]=$eventID&filter[status][_eq]=approved&limit=800",
      //   options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
@@ -32,12 +32,14 @@ class DioFetchService extends DioClient {
   }
 
 
-  Future<Response> fetchCISOAgenda() async {
+  Future<Response> fetchdx5veAgenda({required String eventID}) async {
+    int dodod=6;
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/agenda/1",
-        options: buildCacheOptions(const Duration(minutes: 30)),
+         // .get("https://subscriptions.cioafrica.co/items/agenda?filter[event_id][_eq]=$eventID",
+          .get("https://subscriptions.cioafrica.co/items/agenda?filter[event_id][_eq]=$eventID",
+        //options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
       throw Exception(ex);

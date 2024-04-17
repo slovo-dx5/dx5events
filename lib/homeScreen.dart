@@ -1,6 +1,6 @@
 
 import 'package:dx5veevents/providers.dart';
-import 'package:dx5veevents/screens/landingPage.dart';
+import 'package:dx5veevents/screens/landingPage2.dart';
 import 'package:dx5veevents/widgets/checkin_widget.dart';
 import 'package:dx5veevents/widgets/notifications_widget.dart';
 import 'package:dx5veevents/widgets/qr_scanner.dart';
@@ -23,17 +23,29 @@ import 'dart:io';
 
 class HomeScreen extends GetView<MyDrawerController> {
   static String routeName = "/home";
+  final String coverImagePath ;
+  final String eventLocation ;
+  final String eventDate ;
+  final String eventName ;
+  final String shortEventDescription ;
+  final String eventID ;final int eventDay;
+  final int eventMonth;
+  final int eventYear;
 
 
-   HomeScreen({Key? key, }) : super(key: key);
+   const HomeScreen({Key? key,   required this.eventDay,
+     required this.eventMonth,
+     required this.eventYear,required this.coverImagePath,required this.eventID, required this.eventLocation, required this.eventName, required this.eventDate,required this.shortEventDescription}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+
     return GetBuilder<MyDrawerController>(
       builder: (_) => ZoomDrawer(
         controller: _.zoomDrawerController,
         menuScreen: MenuScreen(),
-        mainScreen: MainScreen(controller: controller,),
+        mainScreen: MainScreen(controller: controller, coverImagePath: coverImagePath, eventLocation: eventLocation, eventName: eventName, eventDate: eventDate, 
+          shortEventDescription: shortEventDescription, eventID: eventID, eventDay: eventDay, eventMonth: eventMonth, eventYear: eventYear,),
         androidCloseOnBackTap: true,
         borderRadius: 24.0,
         showShadow: true,
@@ -52,9 +64,19 @@ class HomeScreen extends GetView<MyDrawerController> {
 }
 
 class MainScreen extends GetView<MyDrawerController> {
-  const MainScreen({
+  String coverImagePath;
+  String eventName;
+  String eventDate;
+  String shortEventDescription;
+  String eventLocation;
+  String eventID; int eventDay;
+  int eventMonth;
+  int eventYear;
+   MainScreen({
     Key? key,
-    required this.controller,
+    required this.controller,  required this.eventDay,
+     required this.eventMonth,
+     required this.eventYear,required this.coverImagePath, required this.eventID,required this.eventLocation, required this.eventName, required this.eventDate,required this.shortEventDescription
   }) : super(key: key);
 
   final MyDrawerController controller;
@@ -77,7 +99,7 @@ class MainScreen extends GetView<MyDrawerController> {
         actions: [NotificationIconButton()],
         // actions:  [Icon(Icons.notification_important_rounded,color: kTextColorBlackLighter,)],
       ),
-      body: const HomeBody(),
+      body:  HomeBody(eventDay: eventDay, eventMonth: eventMonth, eventYear: eventYear,coverImagePath: coverImagePath, eventName: eventName, shortEventDescription: shortEventDescription, eventDate: eventDate, eventLocation: eventLocation, eventID: eventID,),
     );
   }
 }
@@ -162,7 +184,7 @@ class MenuScreen extends GetView<MyDrawerController> {
 
                             PersistentNavBarNavigator.pushNewScreen(
                               context,
-                              screen: const LandingPage(
+                              screen:  LandingPage2(
                             ),
                               withNavBar: false,
                               pageTransitionAnimation: PageTransitionAnimation.slideRight,

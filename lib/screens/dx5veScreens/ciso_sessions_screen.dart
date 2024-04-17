@@ -11,8 +11,13 @@ import '../../widgets/appbarWidget.dart';
 import '../../widgets/sessionWidget.dart';
 
 class UserSessionsScreen extends StatefulWidget {
-  int userid;
-   UserSessionsScreen({required this.userid,super.key});
+  int userid;String eventLocation;
+  String eventID;int eventDay;
+  int eventMonth;
+  int eventYear;
+   UserSessionsScreen({required this.userid,required this.eventID, required this.eventDay,required this.eventLocation,
+     required this.eventMonth,
+     required this.eventYear,super.key});
 
   @override
   State<UserSessionsScreen> createState() => _UserSessionsScreenState();
@@ -107,7 +112,7 @@ class _UserSessionsScreenState extends State<UserSessionsScreen> {
             endTime: pulledSession.session.endTime,
             speakers: pulledSession.session.speakers,
             description: pulledSession.session.description,
-            sessions: sessions!, date: pulledSession.session.date,  );
+            sessions: sessions!, date: pulledSession.session.date,  eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear, eventLocation: widget.eventLocation );
         })
     );
   }

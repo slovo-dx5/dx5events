@@ -16,6 +16,23 @@ import '../../dioServices/dioOTPService.dart';
 import 'cisoOTP.dart';
 
 class CISOLogin extends StatefulWidget {
+
+  final String coverImagePath ;
+  final String eventLocation ;
+  final String eventDate ;
+  final String eventName ;
+  final String eventID ;
+  final String shortEventDescription ; int eventDay;
+  int eventMonth;
+  int eventYear;
+  CISOLogin({  required this.eventDay,
+    required this.eventMonth,
+    required this.eventYear,
+
+    required this.coverImagePath, required this.eventID,required this.eventName,required this.shortEventDescription,required this.eventDate, required this.eventLocation,
+
+
+    Key? key}) : super(key: key);
   @override
   State<CISOLogin> createState() => _CISOLoginState();
 }
@@ -60,12 +77,19 @@ class _CISOLoginState extends State<CISOLogin> {
           print("login screen attendee id is ${attendee!.id!}");
           PersistentNavBarNavigator.pushNewScreen(
             context,
-            screen: OTPScreen(email: email,
+            screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,
               isAdmin:"false",
               company: attendee!.company,
               role: attendee.role, lastName: attendee.lastName,
               firstName: attendee.firstName, phone: attendee.phone,
               id:attendee.id, profileID: attendee.profilePhoto??"",
+              coverImagePath: widget.coverImagePath, eventName: widget.eventName,
+              //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+              eventDate: widget.eventDate,
+              //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+              shortEventDescription: widget.shortEventDescription,
+              //eventLocation: 'Nigeria',);
+              eventLocation: widget.eventLocation, eventID: widget.eventID,
 
             ),
             withNavBar: false,
@@ -96,9 +120,16 @@ class _CISOLoginState extends State<CISOLogin> {
             PersistentNavBarNavigator.pushNewScreen(
 
               context,
-              screen: OTPScreen(email: email,isAdmin:"false",
+              screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,isAdmin:"false",
                 company: attendee!.company,
                 role: attendee.role, lastName: attendee.lastName,firstName: attendee.firstName, phone: attendee.phone,id: attendee.id, profileID: attendee.profilePhoto??"",
+                coverImagePath: widget.coverImagePath, eventName: widget.eventName,
+                //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+                eventDate: widget.eventDate,
+                //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+                shortEventDescription: widget.shortEventDescription,
+                //eventLocation: 'Nigeria',);
+                eventLocation: widget.eventLocation, eventID: widget.eventID,
 
               ),
               withNavBar: false,
@@ -153,7 +184,7 @@ class _CISOLoginState extends State<CISOLogin> {
 
 
   Future fetchAllAttendees() async {
-    final response = await DioFetchService().fetchCISOAttendees();
+    final response = await DioFetchService().fetchCISOAttendees(eventID: widget.eventID);
 
     setState(() {
       //isFetching=false;
@@ -265,10 +296,17 @@ class _CISOLoginState extends State<CISOLogin> {
                                       if(mounted){
                                         PersistentNavBarNavigator.pushNewScreen(
                                           context,
-                                          screen: OTPScreen(email: "admin@applereviewer.com",
+                                          screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: "admin@applereviewer.com",
                                             isAdmin:"true",
                                             company: "apple",
                                             role: "reviewer", lastName: "Reviewer",firstName: "Apple", phone: "5678900000",id:9789, profileID: "",
+                                            coverImagePath: widget.coverImagePath, eventName: widget.eventName,
+                                            //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+                                            eventDate: widget.eventDate,
+                                            //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+                                            shortEventDescription: widget.shortEventDescription,
+                                            //eventLocation: 'Nigeria',);
+                                            eventLocation: widget.eventLocation, eventID: widget.eventID,
 
                                           ),
                                           withNavBar: false,

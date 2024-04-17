@@ -1,8 +1,6 @@
 import 'dart:math';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
 
@@ -11,16 +9,19 @@ import '../helpers/helper_functions.dart';
 
 import '../models/sessionModel.dart';
 import '../providers.dart';
-import '../screens/cisoScreens/cisoFullAgenda.dart';
+import '../screens/dx5veScreens/cisoFullAgenda.dart';
 class SessionWidget extends StatefulWidget {
   String sessionTitle;
   String startTime;
   String endTime;
   String description;
   String sessionType;
+  String eventLocation;
   int sessionId;
   int date;
-  var speakers;
+  var speakers;int eventDay;
+  int eventMonth;
+  int eventYear;
   // List <Speaker>speakersCollection;
    List <SessionModel>sessions;
 
@@ -29,7 +30,9 @@ class SessionWidget extends StatefulWidget {
   SessionWidget({super.key, required this.speakers,
 
   //  required this.speakersCollection,
-    required this.sessionType,required this.sessions,required this.date,required this.sessionId,required this.sessionTitle, required this.startTime, required this.endTime, required this.description});
+    required this.sessionType,required this.sessions, required this.eventDay,
+    required this.eventMonth,
+    required this.eventYear,required this.date,required this.eventLocation,required this.sessionId,required this.sessionTitle, required this.startTime, required this.endTime, required this.description});
 
   @override
   State<SessionWidget> createState() => _SessionWidgetState();
@@ -67,10 +70,8 @@ class _SessionWidgetState extends State<SessionWidget> {
             isFromSession: false,
             type:widget.sessionType,
             userID: profileProvider.userID!,
-            //   sigs:widget.sigs,
             description: "Cybersecurity threats are constantly changing – think of new viruses, more advanced hacking techniques, and unexpected targets. There is a need for individuals and organisations to stay informed about these shifts in the threat landscape.The goal is to continuously adapt security strategies to maintain protection in this ever-evolving digital world.",
-            //  speakersCollection: widget.speakersCollection,
-            speakers: false,
+            speakers: false, eventLocation: widget.eventLocation, eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,
           ),
           withNavBar: false,
           pageTransitionAnimation: PageTransitionAnimation.slideRight,

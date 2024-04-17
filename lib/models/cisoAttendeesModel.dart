@@ -1,14 +1,4 @@
-// class CISOAttendeesModel {
-//   final List<Registrant> data;
-//
-//   CISOAttendeesModel({required this.data});
-//
-//   factory CISOAttendeesModel.fromJson(Map<String, dynamic> json) {
-//     var list = json['data'] as List;
-//     List<Registrant> dataList = list.map((i) => Registrant.fromJson(i)).toList();
-//     return CISOAttendeesModel(data: dataList);
-//   }
-// }
+
 
 class CISOAttendeeModel {
   final int id;

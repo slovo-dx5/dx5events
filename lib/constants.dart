@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dx5veevents/screens/cisoScreens/cisoIndividualAttendee.dart';
+import 'package:dx5veevents/screens/dx5veScreens/cisoIndividualAttendee.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
@@ -106,9 +106,9 @@ const kCISOGreenYellow = Color(0xFFd4e001);
 
 final kCISOToday = DateTime(2024, 03, 20);
 final kCISOFirstDay =
-    DateTime(kCISOToday.year, kCISOToday.month - 2, kCISOToday.day);
+    DateTime(kCISOToday.year, kCISOToday.month - 30, kCISOToday.day);
 final kCISOLastDay =
-    DateTime(kCISOToday.year, kCISOToday.month + 2, kCISOToday.day);
+    DateTime(kCISOToday.year, kCISOToday.month + 30, kCISOToday.day);
 
 final RegExp emailValidatorRegExp =
     RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+");

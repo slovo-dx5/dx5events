@@ -1,12 +1,9 @@
 import 'package:dx5veevents/widgets/showMoreText.dart';
-import 'package:dx5veevents/widgets/speakerDialog.dart';
 import 'package:flutter/material.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../constants.dart';
 import '../helpers/helper_functions.dart';
-import '../screens/cisoScreens/cisoIndividualSpeaker.dart';
 
 speakerWidget({
   required BuildContext context,

@@ -7,7 +7,7 @@ import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 import '../constants.dart';
 
-import '../screens/cisoScreens/cisoIndividualAttendee.dart';
+import '../screens/dx5veScreens/cisoIndividualAttendee.dart';
 import '../widgets/profile_initials_widget.dart';
 
 menuItem(

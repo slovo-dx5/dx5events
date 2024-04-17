@@ -1,26 +1,23 @@
-import 'dart:io';
 
-import 'package:dx5veevents/screens/cisoScreens/cisoAgendaScreen.dart';
-import 'package:dx5veevents/screens/cisoScreens/cisoAttendeesScreen.dart';
-import 'package:dx5veevents/screens/cisoScreens/cisoSpeakersScreen.dart';
-import 'package:dx5veevents/screens/cisoScreens/ciso_partners_screen.dart';
-import 'package:dx5veevents/screens/cisoScreens/ciso_sessions_screen.dart';
-import 'package:dx5veevents/screens/cisoScreens/ciso_sponsors_screens.dart';
-import 'package:dx5veevents/widgets/cio_widgets.dart';
 import 'package:dx5veevents/widgets/homePageWidget.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:showcaseview/showcaseview.dart';
-import 'package:upgrader/upgrader.dart';
 
-import '../helpers/helper_widgets.dart';
-import '../providers.dart';
-import 'constants.dart';
 
 class HomeBody extends StatefulWidget {
+  String coverImagePath;
+  String eventName;
+  String eventDate;
+  String shortEventDescription;
+  String eventLocation;
+  String eventID; int eventDay;
+  int eventMonth;
+  int eventYear;
 
-  const HomeBody({super.key});
+   HomeBody({super.key,   required this.eventDay,
+     required this.eventMonth,
+     required this.eventYear,required this.coverImagePath,required this.eventID, required this.eventName,required this.shortEventDescription,required this.eventDate, required this.eventLocation});
 
   @override
   State<HomeBody> createState() => _HomeBodyState();
@@ -28,9 +25,9 @@ class HomeBody extends StatefulWidget {
 
 class _HomeBodyState extends State<HomeBody> {
   final GlobalKey _one = GlobalKey();
-  GlobalKey _two = GlobalKey();
-  GlobalKey _three = GlobalKey();
-  GlobalKey _four = GlobalKey();
+  final GlobalKey _two = GlobalKey();
+  final GlobalKey _three = GlobalKey();
+  final GlobalKey _four = GlobalKey();
   bool isFirstTime = true;
   void checkFirstTime() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -57,8 +54,12 @@ class _HomeBodyState extends State<HomeBody> {
 
   @override
   Widget build(BuildContext context) {
-    final profileProvider = Provider.of<ProfileProvider>(context);
 
-    return HomePageWidget(coverImagepath: 'assets/images/themes/cloudsecurity.png', eventName: 'Cloud and Security Summit', eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd', shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.', eventLocation: 'Nigeria',);
+    return HomePageWidget(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,
+      coverImagepath: widget.coverImagePath, eventName: widget.eventName,
+      eventDate: widget.eventDate,
+      shortEventDescription: widget.shortEventDescription,
+      eventLocation: widget.eventLocation, eventID: widget.eventID,);
+
   }
 }

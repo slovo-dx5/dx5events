@@ -13,7 +13,7 @@ class AgendaModel {
     return AgendaModel(
      // id: json['data']['id'],
 
-      days: List<AgendaDay>.from(json['data']['day'].map((x) => AgendaDay.fromJson(x))),
+      days: List<AgendaDay>.from(json['data'][0]['day'].map((x) => AgendaDay.fromJson(x))),
     );
   }
 
@@ -32,7 +32,7 @@ class AgendaModel {
 
 
 class AgendaDay {
-  final String date;
+   var date;
   final List<Session> sessions;
 
   AgendaDay({
@@ -42,18 +42,17 @@ class AgendaDay {
 
   factory AgendaDay.fromJson(Map<String, dynamic> json) {
     return AgendaDay(
-      date: json['date'],
-      sessions: List<Session>.from(json['sessions'].map((x) => Session.fromJson(x))),
+      date: DateTime.parse(json['date']),      sessions: List<Session>.from(json['sessions'].map((x) => Session.fromJson(x))),
     );
   }
 }
 
 class Session {
-  final String startTime;
-  final String endTime;
-  final String title;
-  final String sessionType;
-  final String summary;
+  var  startTime;
+  var endTime;
+  var title;
+  var sessionType;
+  var summary;
   final List<SpeakerAssignment>? speakers;
   final List<BreakoutSession>? breakoutSessions;
 
@@ -96,8 +95,8 @@ class SpeakerAssignment {
   );
 }
 class SpeakerReference {
-  final int key;
-  final String collection;
+  var key;
+   var collection;
 
   SpeakerReference({
     required this.key,
@@ -114,30 +113,30 @@ class BreakoutSession {
   final String title;
   final String type;
   final String summary;
-  final List<Speaker> speakers;
+  final List<Speaker>? speakers;
 
   BreakoutSession({
     required this.title,
     required this.type,
     required this.summary,
-    required this.speakers,
+     this.speakers,
   });
 
   factory BreakoutSession.fromJson(Map<String, dynamic> json) {
-    var speakersList = json['breakout_session_speakers'] as List;
-    List<Speaker> speakerObjects = speakersList.map((speakerJson) => Speaker.fromJson(speakerJson)).toList();
+   // var speakersList = json['breakout_session_speakers'] as List;
+   // List<Speaker> speakerObjects = speakersList.map((speakerJson) => Speaker.fromJson(speakerJson)).toList();
 
     return BreakoutSession(
       title: json['breakout_session_title'],
       type: json['breakout_session_type'],
       summary: json['breakout_session_summary'],
-      speakers: speakerObjects,
+      //speakers: speakerObjects,
     );
   }
 }
 
 class Speaker {
-  final int key;
+  var key;
   final String collection;
   final String assumedRole;
 
@@ -151,3 +150,5 @@ class Speaker {
     );
   }
 }
+
+

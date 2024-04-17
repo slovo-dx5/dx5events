@@ -15,14 +15,15 @@ import '../../models/cisoAttendeesModel.dart';
 import '../../providers.dart';
 
 class AttendeesScreen extends StatefulWidget {
-  const AttendeesScreen({super.key});
+  String eventID;
+   AttendeesScreen({super.key, required this.eventID});
 
   @override
   State<AttendeesScreen> createState() => _AttendeesScreenState();
 }
 
 class _AttendeesScreenState extends State<AttendeesScreen> {
-  RefreshController _refreshController = RefreshController();
+  final RefreshController _refreshController = RefreshController();
 
   List<CISOAttendeeModel>? attendeesList;
   List<CISOAttendeeModel>? filteredattendeesList;
@@ -46,7 +47,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
   }
 
   Future fetchAllAttendees() async {
-    final response = await DioFetchService().fetchCISOAttendees();
+    final response = await DioFetchService().fetchCISOAttendees(eventID: widget.eventID);
 
     setState(() {
       //isFetching=false;
@@ -56,7 +57,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
       final rawData = response.data['data'];
       List<dynamic> filteredData = rawData
           .where((item) =>
-              item['event'] == "Africa CISO Summit" &&
+
               item['status'] == "approved")
           .toList();
 
@@ -136,7 +137,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
                   child: SpinKitCircle(
                     color: kCIOPink,
                   ),
-                )
+                ):filteredattendeesList!.isEmpty?Center(child: Column(mainAxisAlignment:MainAxisAlignment.center,children: [SizedBox(height:70,width:70,child: Image.asset("assets/icons/attendees_empty.png")),verticalSpace(height: 10),const Text("All Approved Attendees Will Appear Here")],),)
               : SmartRefresher(
                   controller: _refreshController,
                   enablePullDown: true,

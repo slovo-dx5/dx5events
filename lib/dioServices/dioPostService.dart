@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:dio/dio.dart';
@@ -61,7 +60,6 @@ class DioPostService extends DioClient {
 
   Future<Response> sendNotification(messageData) async {
     try{
-      print("sending notif");
       return await _client
           .init()
           .post("https://fcm.googleapis.com/fcm/send",
@@ -127,7 +125,7 @@ class DioPostService extends DioClient {
       );
     }on DioError catch (ex) {
       Fluttertoast.showToast(backgroundColor:kLogoutRed,msg: "Error: Check your internet connection");
-      Future.delayed(Duration(seconds: 2),(){Navigator.of(context).pop();});
+      Future.delayed(const Duration(seconds: 2),(){Navigator.of(context).pop();});
 
 
       throw Exception("Checkin data create error: ${ex.response!.data!}");
@@ -145,7 +143,7 @@ class DioPostService extends DioClient {
       );
     }on DioError catch (ex) {
       Fluttertoast.showToast(backgroundColor:kLogoutRed,msg: "Error: Check your internet connection");
-      Future.delayed(Duration(seconds: 2),(){Navigator.of(context).pop();});
+      Future.delayed(const Duration(seconds: 2),(){Navigator.of(context).pop();});
 
 
       throw Exception("Checkin data create error: ${ex.response!.data!}");

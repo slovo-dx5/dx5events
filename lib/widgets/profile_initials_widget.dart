@@ -97,7 +97,7 @@ class _ProfilePicWidgetState extends State<ProfilePicWidget> {
 class AttendeeProfileInitials extends StatefulWidget {
   String firstName;
   String lastName;
-   AttendeeProfileInitials({required this.firstName,required this.lastName });
+   AttendeeProfileInitials({super.key, required this.firstName,required this.lastName });
 
   @override
   State<AttendeeProfileInitials> createState() => _AttendeeProfileInitialsState();
@@ -123,7 +123,7 @@ class _AttendeeProfileInitialsState extends State<AttendeeProfileInitials> {
 
   @override
   Widget build(BuildContext context) {
-    return  CircleAvatar(backgroundColor:randomBackgroundColor,radius: 30,child: Center(child: Text("${widget.firstName![0].toUpperCase()}${widget.lastName![0].toUpperCase()}", style: const TextStyle(color: Colors.white,fontSize: 25),)),);
+    return  CircleAvatar(backgroundColor:randomBackgroundColor,radius: 30,child: Center(child: Text("${widget.firstName[0].toUpperCase()}${widget.lastName[0].toUpperCase()}", style: const TextStyle(color: Colors.white,fontSize: 25),)),);
 
   }
 }
@@ -159,7 +159,7 @@ class _IndividualAttendeeProfileInitialsState extends State<IndividualAttendeePr
   Widget build(BuildContext context) {
     return  CircleAvatar(
       radius: 70,
-      backgroundColor:randomBackgroundColor,child: Center(child: Text("${widget.firstName[0].toUpperCase()}${widget.lastName![0].toUpperCase()}", style: const TextStyle(color: Colors.white,fontSize: 80),)),);
+      backgroundColor:randomBackgroundColor,child: Center(child: Text("${widget.firstName[0].toUpperCase()}${widget.lastName[0].toUpperCase()}", style: const TextStyle(color: Colors.white,fontSize: 80),)),);
 
   }
 }

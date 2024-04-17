@@ -18,12 +18,16 @@ class FullAgendaScreen extends StatefulWidget {
   String endTime;
   String description;
   String type;
+  String eventLocation;
   int day;
   int userID;
   bool isFromSession;
   int? sessionId;
   var speakers;
   var breakOuts;
+  int eventDay;
+  int eventMonth;
+  int eventYear;
   //var sigs;
  // List <Speaker>speakersCollection;
   FullAgendaScreen(
@@ -33,9 +37,10 @@ class FullAgendaScreen extends StatefulWidget {
         required this.startTime,
         required this.endTime,
       //  required this.speakersCollection,
-        this.sessionId,
+        this.sessionId,required this.eventLocation,
         required this.speakers,
         this.breakOuts,
+        required this.eventDay,required this.eventMonth, required this.eventYear,
         required this.type,
         required this.userID,
        // required this.sigs,
@@ -50,7 +55,7 @@ class FullAgendaScreen extends StatefulWidget {
 
 class _FullAgendaScreenState extends State<FullAgendaScreen> {
   final currentDate = DateTime.now();
-  final DateTime targetDate = DateTime(2024, 3, 21);
+   DateTime? targetDate;
   bool isBookmarking=false;
   int? expandedIndex;
   // getSpeakerImage({required String id})async{
@@ -71,9 +76,18 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
   String replaceUnderscoresWithSpaces(String text) {
     return text.replaceAll('_', ' ');
   }
+
+  @override
+  void initState() {
+
+    setState(() {
+      targetDate = DateTime(widget.eventYear, widget.eventMonth, widget.eventDay);
+    });
+
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
-    print("spesakes are ${widget.speakers}");
     return Scaffold(
       floatingActionButton: FloatingActionButton(onPressed: () async{
         if(widget.isFromSession){
@@ -116,7 +130,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
     gradientEnd: kCIOPink,
     ),
     ),
-    backgroundColor: kScaffoldColor,
+
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -160,7 +174,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
                         Text("${convertToAmPm(widget.startTime)} - ${convertToAmPm(widget.endTime)} ",
                           style: kFullAgendaDayTextStyle(fontsiZe: 14),),
                         verticalSpace(height: 3),
-                         Text("Radisson Blu Upperhill, Nairobi",style: kFullAgendaDayTextStyle(fontsiZe: 14),),
+                         Text(widget.eventLocation,style: kFullAgendaDayTextStyle(fontsiZe: 14),),
                         if(widget.speakers!=[false])verticalSpace(height:10),
                         if(widget.speakers!=[false])verticalSpace(height: 5),
                         if(widget.speakers!=false)Container(width: MediaQuery.of(context).size.width,height: 100,
@@ -247,7 +261,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
                   ),
                 ],
               ),
-              if (currentDate.isAfter(targetDate))
+              if (currentDate.isAfter(targetDate!))
                 Text("Session is over",style: TextStyle(fontSize: 15,color: kKeyRedBG),),
 
 
