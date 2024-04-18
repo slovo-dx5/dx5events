@@ -5,11 +5,13 @@ import 'package:dx5veevents/constants.dart';
 import 'package:flutter/material.dart';
 
 import '../../dioServices/dioFetchService.dart';
+import '../../models/eventModel.dart';
 import '../../models/sponsor_data_model.dart';
 import '../../widgets/cool_background.dart';
 import '../../widgets/sponsor_widget.dart';
 class CISOSponsorsScreen extends StatefulWidget {
-  const CISOSponsorsScreen({super.key});
+  String eventID;
+   CISOSponsorsScreen({required this.eventID,super.key});
 
   @override
   State<CISOSponsorsScreen> createState() => _CISOSponsorsScreenState();
@@ -18,46 +20,69 @@ class CISOSponsorsScreen extends StatefulWidget {
 class _CISOSponsorsScreenState extends State<CISOSponsorsScreen> {
 
   List<SponsorData> sponsors = [];
+  List<SponsorAssociation> neosponsors = [];
+  Map <String, SponsorData> sponsorMap={};
+  bool isFetching=false;
 
   @override
   void initState() {
-fetchCisoSponsors();
+    fetchEventData();
 super.initState();
   }
 
 
 
-  Future fetchCisoSponsors() async {
-    final response = await DioFetchService().fetchCISOSponsors();
-
-    setState(() {
-      //isFetching=false;
-    });
-
-    List<dynamic> filteredData = response.data['data'].toList();
 
 
+  Future fetchSponsorById({required int key}) async {
+    try {
+      final response = await DioFetchService().fetchCISOSponsors();
+      final sponsorsModel = RootSponsorDataModel.fromJson(response.data);
 
-
-
-    if (response.statusCode == 200) {
-      final rawData = response.data['data'].toList();
-      print("Raw sponsr data is ${rawData.length}");
-
-      List<SponsorData> sponsorsList = List<SponsorData>.from(filteredData.map((user) => SponsorData.fromJson(user)));
-
-
-      setState(() {
-        sponsors=sponsorsList;
-        //  print(attendees![624].firstName);
-        print(sponsors!.length);
-
-      });
-    } else {
-      throw Exception('Failed to load data');
-
+      // Manually find the speaker to allow returning null.
+      for (var sponsor in sponsorsModel.data!) {
+        if (sponsor.id == key) {
+          return sponsor;
+        }
+      }
+      return null; // Explicitly return null if no speaker matches the key.
+    } catch (e) {
+      print(e);
+      return null;
     }
   }
+
+  fetchEventData()async{
+    setState(() {
+      isFetching=true;
+    });
+    final response= await DioFetchService().fetchEvents(eventID: widget.eventID);
+    final Map<String, dynamic> responseData = response.data['data'];
+
+    final List<dynamic> sponsorsData = responseData['sponsors'];
+
+
+
+    for (var sponsorData in sponsorsData) {
+      neosponsors.add(SponsorAssociation.fromJson(sponsorData));
+    }
+
+    for (var sponsor in neosponsors) {
+      await fetchSponsorById(key: sponsor.sponsor.key).then((receivedSponsor) {
+          sponsorMap.putIfAbsent(sponsor.category, () => receivedSponsor,
+              );
+
+      });
+
+     /// print('Sponsor Key: ${sponsor.sponsor.key}, Category: ${sponsor.category}');
+    }
+    setState(() {
+      isFetching=false;
+    });
+    print("SPonsor data is ${sponsorMap.length}");
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +100,7 @@ super.initState();
                   ,Spacer(),
 
                 ],),),
-                Divider(color: Colors.black,),
+                const Divider(color: Colors.black,),
                 Flexible(
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -83,24 +108,37 @@ super.initState();
                       children: [
 
                         Flexible(
-                          child: ListView.builder(
+                          child: Visibility(
+                            visible:isFetching==false,
+                            replacement: CircularProgressIndicator(),
 
-                            padding:  const EdgeInsets.all(8),
-                            itemCount: sponsors.length,
-                            itemBuilder: (context, index) {
-                              //  final Speaker speaker = sponsorData[index];
+                            child: ListView.builder(
 
-                              return Column(children: [sponsorWidget(context: context, sponsorAsset:"https://subscriptions.cioafrica.co/assets/${sponsors[index]!.logo!}",
-                                degree: "${sponsors[index].degree!}°",
-                                sponsorName:sponsors[index].sponsorName!,
-                                sponsorBio:sponsors[index].about!, sponsorURL: sponsors![index]!.websites!.first.link!,
+                              padding:  const EdgeInsets.all(8),
+                              itemCount: sponsorMap.length,
+                              itemBuilder: (context, index) {
+                                final entry = sponsorMap.entries.elementAt(index);
+                                final category = entry.key;
+                                final sponsorrr = entry.value;
 
-                              ),verticalSpace(height: 10)],);
 
-                              //   speakerWidget(context: context, name: speaker.name,
-                              //     title: speaker.title, bio: speaker.bio,imageURL: url
-                              // );
-                            },
+                                if(sponsorMap==null){return const Text("Sponsors will appear here");}else{
+                                  return Column(children: [sponsorWidget(context: context, sponsorAsset:"https://subscriptions.cioafrica.co/assets/${sponsorrr.transparent_logo??sponsorrr.logo}",
+                                    //degree: "${sponsors[index].degree!}°",
+                                    degree: "$category°",
+                                    sponsorName:sponsorrr.sponsorName!,
+                                    sponsorBio:sponsorrr.about!, sponsorURL: sponsorrr!.websites!.first.link!,
+
+                                  ),
+                                    Divider(),
+                                    verticalSpace(height: 10),],);
+                                }
+
+                                //   speakerWidget(context: context, name: speaker.name,
+                                //     title: speaker.title, bio: speaker.bio,imageURL: url
+                                // );
+                              },
+                            ),
                           ),
                         ),
 

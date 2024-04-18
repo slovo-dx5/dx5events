@@ -42,26 +42,29 @@ class _SponsorBottomSheetState extends State<SponsorBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-        child: SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20.0, 20, 20, 100),
-        child: Column(
-          children: [
-            GestureDetector(
-                onTap: () {
-                  visitSponsor(url: widget.SponsorURL);
-                },
-                child: SizedBox(
-                    height: 150, child: Image.network(widget.SponsorImage))),
-            verticalSpace(height: 30),
-            HtmlWidget(
-              widget.SponsorAbout,
-              // style: TextStyle(color: kTextColorBlack, fontSize: 14),
-            )
-          ],
-        ),
-      ),
-    ));
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20.0, 20, 20, 100),
+          child: Column(
+            children: [
+              GestureDetector(
+                  onTap: () {
+                    visitSponsor(url: widget.SponsorURL);
+                  },
+                  child: SizedBox(
+                      height: 120, child: Image.network(widget.SponsorImage))),
+              verticalSpace(height: 30),
+              SizedBox(height: 150,
+                child: SingleChildScrollView(
+                  child: HtmlWidget(
+                    widget.SponsorAbout,
+                    textStyle: const TextStyle(color: kTextColorBlack),
+                    // style: TextStyle(color: kTextColorBlack, fontSize: 14),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ));
   }
 }
 
@@ -460,7 +463,7 @@ defaultScrollableBottomSheet(
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
       builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.97,
+        initialChildSize: 0.7,
         minChildSize: 0.4,
         maxChildSize: 0.97,
         expand: false,

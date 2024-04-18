@@ -130,7 +130,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     width: 10,
                     height: 10,
                   ),
-                  screen: CISOSponsorsScreen(),
+                  screen: CISOSponsorsScreen(eventID: widget.eventID,),
                   itemName: 'Sponsors',
                 ),
                 CIOWidgets().gradientItemWidget(

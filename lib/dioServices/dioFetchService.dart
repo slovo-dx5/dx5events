@@ -57,6 +57,18 @@ class DioFetchService extends DioClient {
     }
   }
 
+  Future<Response> fetchEvents({required String eventID}) async {
+    try {
+      return await _client
+          .init()
+          .get("https://subscriptions.cioafrica.co/items/events/$eventID",
+        //options: buildCacheOptions(const Duration(minutes: 30)),
+           );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
 
   Future<Response> fetchLastMinuteCheckins() async {
     try {

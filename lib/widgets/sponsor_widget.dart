@@ -6,9 +6,9 @@ sponsorWidget({required BuildContext context ,required String sponsorName,requir
     GestureDetector(onTap: (){
       defaultScrollableBottomSheet(context, sponsorName,
           SponsorBottomSheet(SponsorImage: sponsorAsset, SponsorAbout: sponsorBio, SponsorName: sponsorName, SponsorURL: sponsorURL,));
-    },child: Opacity(opacity: 0.65,
+    },child: Opacity(opacity: 0.9,
       child: Container(padding: EdgeInsets.all(8),
-        decoration: BoxDecoration(color:Colors.white,borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
         height: 150,
         width: MediaQuery.of(context).size.width,
         child: Column(mainAxisSize: MainAxisSize.min,mainAxisAlignment: MainAxisAlignment.spaceEvenly,
