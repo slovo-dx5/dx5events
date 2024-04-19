@@ -9,7 +9,7 @@ sponsorWidget({required BuildContext context ,required String sponsorName,requir
     },child: Opacity(opacity: 0.9,
       child: Container(padding: EdgeInsets.all(8),
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-        height: 150,
+        height: 160,
         width: MediaQuery.of(context).size.width,
         child: Column(mainAxisSize: MainAxisSize.min,mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [

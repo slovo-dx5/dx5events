@@ -83,7 +83,7 @@ class _ActiveEventsState extends State<ActiveEvents> {
 
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (_) => InitialScreen(eventDay: 2, eventMonth: 5, eventYear: 2024,coverImagePath: 'assets/images/themes/cloudsecurity.png', eventName: "AFRICA CLOUD AND SECURITY SUMMIT",
-                eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+                eventDate: 'THUR, MAY 2nd - FRIDAY MAY 3rd',
 
                 shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
                 eventLocation: 'Nigeria'

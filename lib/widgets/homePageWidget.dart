@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:dx5veevents/widgets/showMoreText.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -96,7 +97,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                         const Icon(
                           Icons.location_on_sharp,
                           color: kCISOPurple,
-                        ),Text(widget.eventLocation)
+                        ),AutoSizeText(widget.eventLocation, maxFontSize: 10,minFontSize: 5,)
                       ],
                     ),
                   )

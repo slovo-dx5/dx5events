@@ -357,10 +357,12 @@ class UpcomingEventWidget2 extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    AutoSizeText(
                       eventName,
+                      minFontSize: 5,
+                      maxFontSize: 12,
                       style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w600),
+                          fontSize: 14, fontWeight: FontWeight.w600),
                     ),
                     verticalSpace(height: 10),
                     Row(
@@ -377,7 +379,7 @@ class UpcomingEventWidget2 extends StatelessWidget {
                         AutoSizeText(
                           "$dayMonth $date - $endDayMonth $endDate",
                           minFontSize: 5,
-                          maxFontSize: 12,
+                          maxFontSize: 10,overflow: TextOverflow.ellipsis,
                         )
                       ],
                     ),
