@@ -85,7 +85,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
 
   Future<List<IndividualSpeaker>> fetchAllSpeakers(
       {required List<int> filterIds}) async {
-    final response = await DioFetchService().fetchCISOSpeakers();
+    final response = await DioFetchService().fetchEventSpeakers();
 
     if (response.statusCode == 200) {
       final speakerData = SpeakersModel.fromJson(response.data);
@@ -146,7 +146,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
 
   Future<IndividualSpeaker?> fetchSpeakerById(int key) async {
     try {
-      final response = await DioFetchService().fetchCISOSpeakers();
+      final response = await DioFetchService().fetchEventSpeakers();
       final speakerssModel = SpeakersModel.fromJson(response.data);
 
       // Manually find the speaker to allow returning null.

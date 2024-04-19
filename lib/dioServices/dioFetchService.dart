@@ -45,11 +45,23 @@ class DioFetchService extends DioClient {
       throw Exception(ex);
     }
   }
-  Future<Response> fetchCISOSponsors() async {
+  Future<Response> fetchEventSponsors() async {
     try {
       return await _client
           .init()
           .get("https://subscriptions.cioafrica.co/items/sponsors",
+        options: buildCacheOptions(const Duration(minutes: 30)),
+           );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> fetchEventPartners() async {
+    try {
+      return await _client
+          .init()
+          .get("https://subscriptions.cioafrica.co/items/partners",
         options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
@@ -93,7 +105,7 @@ class DioFetchService extends DioClient {
     }
   }
 
-  Future<Response> fetchCISOSpeakers() async {
+  Future<Response> fetchEventSpeakers() async {
     try {
       return await _client
           .init()

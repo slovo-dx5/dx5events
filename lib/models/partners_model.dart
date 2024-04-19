@@ -16,6 +16,7 @@ class PartnerData {
   int? id;
 
   String? logo;
+  String? transparent_Logo;
   String? about;
   String? website;
   String? partnerName;
@@ -23,7 +24,7 @@ class PartnerData {
   PartnerData({
     this.id,
 
-    this.logo,
+    this.logo,this.transparent_Logo,
     this.about,
     this.website,
     this.partnerName,
@@ -33,6 +34,7 @@ class PartnerData {
     id: json['id'],
 
     logo: json['logo'],
+    transparent_Logo: json['transparent_Logo'],
     about: json['about'],
     website: json['website'] ,
     partnerName: json['partner_name'],
@@ -42,6 +44,7 @@ class PartnerData {
     'id': id,
 
     'logo': logo,
+    'transparent_Logo': transparent_Logo,
     'about': about,
     'website': website,
     'partner_name': partnerName,

@@ -19,7 +19,6 @@ class CISOSponsorsScreen extends StatefulWidget {
 
 class _CISOSponsorsScreenState extends State<CISOSponsorsScreen> {
 
-  List<SponsorData> sponsors = [];
   List<SponsorAssociation> neosponsors = [];
   Map <String, SponsorData> sponsorMap={};
   bool isFetching=false;
@@ -36,7 +35,7 @@ super.initState();
 
   Future fetchSponsorById({required int key}) async {
     try {
-      final response = await DioFetchService().fetchCISOSponsors();
+      final response = await DioFetchService().fetchEventSponsors();
       final sponsorsModel = RootSponsorDataModel.fromJson(response.data);
 
       // Manually find the speaker to allow returning null.

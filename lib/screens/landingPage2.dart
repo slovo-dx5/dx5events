@@ -19,8 +19,8 @@ class LandingPage2 extends StatefulWidget {
 
 class _LandingPage2State extends State<LandingPage2> {
 
-  List <String> items=["PAST","ACTIVE","FUTURE" ];
-  int current=1;
+  List <String> items=["ACTIVE","FUTURE" ];
+  int current=0;
   customAppbar() {
     return SizedBox(
       height: 60,
@@ -38,7 +38,7 @@ class _LandingPage2State extends State<LandingPage2> {
               child: Container(
                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(30),color:current==index? kCISOPurple:kTextColorGrey),
                 margin: const EdgeInsets.all(5),
-                width: MediaQuery.of(context).size.width*0.3,
+                width: MediaQuery.of(context).size.width*0.45,
                 height: 45,
                 child: Center(child: Text(items[index],),),
               ),
@@ -53,8 +53,8 @@ class _LandingPage2State extends State<LandingPage2> {
       child: Scaffold(
 
         body: Column(children: [customAppbar(),
-        if (current==0) FutureEvents(),
-        if(current==1)ActiveEvents(),if (current==2)FutureEvents()],)
+        //if (current==0) FutureEvents(),
+        if(current==0)ActiveEvents(),if (current==1)FutureEvents()],)
       ),
     );
   }

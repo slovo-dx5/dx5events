@@ -6,10 +6,10 @@ import 'package:upgrader/upgrader.dart';
 import '../constants.dart';
 import '../providers.dart';
 
-import '../screens/dx5veScreens/cisoSpeakersScreen.dart';
-import '../screens/dx5veScreens/ciso_partners_screen.dart';
-import '../screens/dx5veScreens/ciso_sessions_screen.dart';
-import '../screens/dx5veScreens/ciso_sponsors_screens.dart';
+import '../screens/dx5veScreens/eventSpeakersScreen.dart';
+import '../screens/dx5veScreens/dx5ve_partners_screen.dart';
+import '../screens/dx5veScreens/event_sessions_screen.dart';
+import '../screens/dx5veScreens/dx5ve_sponsors_screen.dart';
 import '../screens/dx5veScreens/dx5veAttendeesScreen.dart';
 import '../screens/dx5veScreens/eventAgendaScreen.dart';
 import 'cio_widgets.dart';
@@ -104,7 +104,10 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               ),
             ),verticalSpace(height: 10),
             //Text(widget.eventDescription),
-            Text( widget.shortEventDescription,),
+            Padding(
+              padding: const EdgeInsets.only(left:8.0, right: 8.0),
+              child: Text( widget.shortEventDescription,),
+            ),
             Divider(color: kCIOPink),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -118,7 +121,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     width: 10,
                     height: 10,
                   ),
-                  screen: CisoSpeakersScreen(eventName: widget.eventName,),
+                  // screen: EventSpeakersScreen(eventName: widget.eventName,eventID: widget.eventID),
+                  screen: EventSpeakersScreen(eventID: widget.eventID,),
                   itemName: 'Speakers',
                 ),
                 CIOWidgets().gradientItemWidget(
@@ -171,7 +175,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     width: 10,
                     height: 10,
                   ),
-                  screen: CISOPartnersScreen(),
+                  screen: CISOPartnersScreen(eventID: widget.eventID,),
                   itemName: 'Partners',
                 ),
                 CIOWidgets().gradientItemWidget(

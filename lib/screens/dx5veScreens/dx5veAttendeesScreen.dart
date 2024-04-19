@@ -11,7 +11,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import '../../constants.dart';
 import '../../dioServices/dioFetchService.dart';
 import '../../helpers/helper_widgets.dart';
-import '../../models/cisoAttendeesModel.dart';
+import '../../models/eventAttendeesModel.dart';
 import '../../providers.dart';
 
 class AttendeesScreen extends StatefulWidget {

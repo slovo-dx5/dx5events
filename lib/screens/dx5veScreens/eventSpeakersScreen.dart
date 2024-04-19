@@ -9,15 +9,15 @@ import '../../models/image_model.dart';
 import '../../models/speakersModel.dart';
 import '../../widgets/speakerWidget.dart';
 
-class CisoSpeakersScreen extends StatefulWidget {
-  String eventName;
-   CisoSpeakersScreen({super.key, required this.eventName});
+class EventSpeakersScreen extends StatefulWidget {
+  String eventID;
+   EventSpeakersScreen({super.key, required this.eventID});
 
   @override
-  State<CisoSpeakersScreen> createState() => _CisoSpeakersScreenState();
+  State<EventSpeakersScreen> createState() => _EventSpeakersScreenState();
 }
 
-class _CisoSpeakersScreenState extends State<CisoSpeakersScreen> {
+class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
   bool isSearching = false;
   final TextEditingController _searchController = TextEditingController();
   //List<Map<String, dynamic>> filteredData = [];
@@ -29,61 +29,13 @@ class _CisoSpeakersScreenState extends State<CisoSpeakersScreen> {
   void initState() {
     super.initState();
 
-    fetchAllSpeakers(eventId: 3);
+    fetchAllSpeakers(eventId: int.parse(widget.eventID));
 
   }
-  // Future<List<IndividualSpeaker>> fetchAllSpeakers() async {
-  //   final response = await DioFetchService().fetchCISOSpeakers();
-  //
-  //
-  //   if (response.statusCode == 200) {
-  //     final List<dynamic> data = json.decode(json.encode(response.data["data"]));
-  //     final List<IndividualSpeaker> speakersList = data.map((eventData) => IndividualSpeaker.fromJson(eventData)).toList();
-  //     setState(() {
-  //       speakers =speakersList;
-  //       filteredSpeakers = speakers;
-  //       isFetching=false;
-  //     });
-  //     return speakersList;
-  //   } else {
-  //     throw Exception('Failed to load events');
-  //   }
-  // }
 
-  // Future<List<IndividualSpeaker>> fetchAllSpeakers({required int eventId}) async {
-  //   final speakersresponse = await DioFetchService().fetchCISOSpeakers();
-  //   final eventResponse = await DioFetchService().fetchCISOTopics();
-  //
-  //   final List<dynamic> speakerdata = json.decode(json.encode(speakersresponse.data["data"]));
-  //   final List<dynamic> eventdata = json.decode(json.encode(eventResponse.data["data"]));
-  //
-  //   var filteredProposals = eventdata.where((proposal) => proposal['event_id'] == eventId).toList();
-  //
-  //
-  //   for (var proposal in filteredProposals) {
-  //     // Assuming speaker_id is unique and directly maps to a single speaker
-  //     IndividualSpeaker speakerDetails = speakerdata.firstWhere((speaker) => speaker['id'] == proposal['speaker_id'], orElse: () => null);
-  //     print("speker details are ${speakerDetails.firstName}");
-  //     if (speakerDetails != null) {
-  //       // Process speakerDetails here (e.g., display it on the UI)
-  //       speakers.add(speakerDetails);      }
-  //   }
-  //
-  //
-  //   //final List<dynamic> rawData = json.decode(json.encode(response.data["data"]));
-  //   //List<dynamic> filteredData = rawData.where((item) => item['event'] == "Africa CISO Summit" && item['status'] == "approved" ).toList();
-  //   // final List<IndividualSpeaker> speakersList = data.map((eventData) => IndividualSpeaker.fromJson(eventData)).toList();
-  //   setState(() {
-  //     // speakers =speakersList;
-  //     filteredSpeakers = speakers;
-  //     isFetching=false;
-  //   });
-  //   return speakers;
-  //
-  // }
 
   Future<List<IndividualSpeaker>> fetchAllSpeakers({required int eventId}) async {
-    final speakersResponse = await DioFetchService().fetchCISOSpeakers();
+    final speakersResponse = await DioFetchService().fetchEventSpeakers();
     final eventResponse = await DioFetchService().fetchCISOTopics();
 
     // Assuming the data is already in the desired format after decoding
@@ -157,14 +109,14 @@ class _CisoSpeakersScreenState extends State<CisoSpeakersScreen> {
               filterData(query);
 
             },
-          ): Column(
+          ):const Column(
             children: [
-              const Text(
+              Text(
                 "SPEAKERS",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500,color: kToggleDark),
               ),
               Text(
-                widget.eventName,
+                "AFRICA CISO SUMMIT",
                 style: TextStyle(fontSize: 9, color: kTextColorGrey),
               )
             ],
@@ -204,7 +156,7 @@ class _CisoSpeakersScreenState extends State<CisoSpeakersScreen> {
                   bio: speaker!.bio! ?? "",
 
                   imageURL: "https://subscriptions.cioafrica.co/assets/${speaker!.photo!}",
-                  linkedinurl: speaker.linkedinProfile!),verticalSpace(height: 10),],);
+                  linkedinurl: speaker.linkedinProfile!), verticalSpace(height: 10)],);
 
               //   speakerWidget(context: context, name: speaker.name,
               //     title: speaker.title, bio: speaker.bio,imageURL: url
