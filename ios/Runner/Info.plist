@@ -28,6 +28,10 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Permission required to scan QR Codes</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Permission required by AppStore</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Permission required by AppStore</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Permission required to select profile pictures.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
