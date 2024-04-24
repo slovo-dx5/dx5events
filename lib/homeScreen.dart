@@ -1,5 +1,6 @@
 
 import 'package:dx5veevents/providers.dart';
+import 'package:dx5veevents/providers/themeProvider.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
 import 'package:dx5veevents/widgets/checkin_widget.dart';
 import 'package:dx5veevents/widgets/notifications_widget.dart';
@@ -115,6 +116,7 @@ class MenuScreen extends GetView<MyDrawerController> {
 
   Widget buildMenu(context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return UpgradeAlert(
       upgrader: Upgrader(
@@ -123,7 +125,7 @@ class MenuScreen extends GetView<MyDrawerController> {
           //     : UpgradeDialogStyle.cupertino,
           // showIgnore: false,
           durationUntilAlertAgain: const Duration(hours: 1)),
-      child: Scaffold(backgroundColor: Colors.white54,
+      child: Scaffold(backgroundColor: themeProvider.themeMode==ThemeModeOptions.dark?kTextColorBlack:Colors.white54,
         body: SafeArea(
           child: SingleChildScrollView(
 
@@ -141,19 +143,21 @@ class MenuScreen extends GetView<MyDrawerController> {
                       //     radius: 22.0,
                       //     avatarRadius: 22.0,
                       //     fontSize: 12.0),
-                      if(profileProvider.profileId==null||profileProvider.profileId=="")ProfileInitials(),
+                      if(profileProvider.profileId==null||profileProvider.profileId=="")const ProfileInitials(),
                       if(profileProvider.profileId!=null&&profileProvider.profileId!="")const ProfilePicWidget(),
-                      SizedBox(height: 16.0),
+                      const SizedBox(height: 16.0),
                       greetingFunc(firstName: profileProvider.firstName),
-                      Divider(),
-                      // Row(mainAxisAlignment:MainAxisAlignment.spaceBetween,children: [Text("Dark mode",style: settingsTextStyle(),),Switch(
-                      //   inactiveTrackColor: kWhiteText,
-                      //   value: themeProvider.themeMode == ThemeModeOptions.dark,
-                      //   onChanged: (value) {
-                      //     final newTheme = value ? ThemeModeOptions.dark : ThemeModeOptions.light;
-                      //     themeProvider.setThemeMode(newTheme);
-                      //   },
-                      // ),],),
+                      const Divider(),
+                      Row(mainAxisAlignment:MainAxisAlignment.spaceBetween,children: [const Text("Dark mode",
+                      //  style: settingsTextStyle(),
+                      ),Switch(
+                        inactiveTrackColor: kWhiteText,
+                        value: themeProvider.themeMode == ThemeModeOptions.dark,
+                        onChanged: (value) {
+                          final newTheme = value ? ThemeModeOptions.dark : ThemeModeOptions.light;
+                          themeProvider.setThemeMode(newTheme);
+                        },
+                      ),],),
                       menuItem(menuText: 'Scan QR',
                           widgetIcon: Icons.qr_code_2, iconColor: kCIOPink, onPressedFunction: () {
 

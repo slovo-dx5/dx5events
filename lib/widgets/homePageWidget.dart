@@ -60,7 +60,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                   widget.coverImagepath,
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height * 0.3,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                 ),
               ],
             ),
@@ -91,7 +91,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                   Container(padding: EdgeInsets.all(5),
                     height: 50,
                     width: 50,
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(5),color: kScreenDark),
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(5),),
                     child: Column(
                       children: [
                         const Icon(
@@ -109,7 +109,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               padding: const EdgeInsets.only(left:8.0, right: 8.0),
               child: Text( widget.shortEventDescription,),
             ),
-            Divider(color: kCIOPink),
+            const Divider(color: kCIOPink),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [

@@ -117,6 +117,18 @@ class DioFetchService extends DioClient {
     }
   }
 
+  Future<Response> fetchEventSpeakerByKey({required int speakerKey}) async {
+    try {
+      return await _client
+          .init()
+          .get("https://subscriptions.cioafrica.co/items/speakers?filter[id][_eq]=$speakerKey",
+      //  options: buildCacheOptions(const Duration(minutes: 30)),
+           );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
   Future<Response> fetchCISOTopics() async {
     try {
       return await _client

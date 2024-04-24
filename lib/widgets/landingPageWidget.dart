@@ -1,7 +1,9 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../constants.dart';
+import '../providers/themeProvider.dart';
 
 // Custom CurvedImageContainer widget
 class CurvedImageContainer extends StatelessWidget {
@@ -318,6 +320,8 @@ class UpcomingEventWidget2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: GestureDetector(
@@ -359,17 +363,17 @@ class UpcomingEventWidget2 extends StatelessWidget {
                   children: [
                     AutoSizeText(
                       eventName,
-                      minFontSize: 5,
-                      maxFontSize: 12,
-                      style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.w600),
+                      minFontSize: 20,
+                      maxFontSize: 25,
+                      style:  TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.w600,color: themeProvider.themeMode==ThemeModeOptions.dark?kWhiteText:kTextColorBlack),
                     ),
                     verticalSpace(height: 10),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Icon(Icons.location_on_sharp,size: 15,color: kWhiteText,),horizontalSpace(width: 10),
-                        Text(location)
+                        Text(location,style: TextStyle(color:themeProvider.themeMode==ThemeModeOptions.dark?kWhiteText:kTextColorBlack ),)
                       ],
                     ),
                     verticalSpace(height: 5),
@@ -379,7 +383,7 @@ class UpcomingEventWidget2 extends StatelessWidget {
                         AutoSizeText(
                           "$dayMonth $date - $endDayMonth $endDate",
                           minFontSize: 5,
-                          maxFontSize: 10,overflow: TextOverflow.ellipsis,
+                          maxFontSize: 10,overflow: TextOverflow.ellipsis,style: TextStyle(color: themeProvider.themeMode==ThemeModeOptions.dark?kWhiteText:kTextColorBlack),
                         )
                       ],
                     ),

@@ -463,9 +463,9 @@ defaultScrollableBottomSheet(
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
       builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.7,
+        initialChildSize: 0.99,
         minChildSize: 0.4,
-        maxChildSize: 0.97,
+        maxChildSize: 0.99,
         expand: false,
         builder: (_, controller) => Column(
           mainAxisSize: MainAxisSize.min,

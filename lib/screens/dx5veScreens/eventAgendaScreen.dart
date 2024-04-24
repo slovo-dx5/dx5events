@@ -145,15 +145,17 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
   }
 
   Future<IndividualSpeaker?> fetchSpeakerById(int key) async {
+    print("speaker key is $key");
     try {
-      final response = await DioFetchService().fetchEventSpeakers();
+      final response = await DioFetchService().fetchEventSpeakerByKey(speakerKey: key);
       final speakerssModel = SpeakersModel.fromJson(response.data);
 
       // Manually find the speaker to allow returning null.
       for (var speaker in speakerssModel.data) {
-        if (speaker.id == key) {
+          print("speaker is ${speaker.firstName}");
+
           return speaker;
-        }
+
       }
       return null; // Explicitly return null if no speaker matches the key.
     } catch (e) {
@@ -264,6 +266,8 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                                   .map((speaker) =>
                                       fetchSpeakerById(speaker.speaker.key))
                                   .toList();
+                              for(var future in futures){
+                              }
 
                               return agendaItemWithSpeakers(
                                 context: context,

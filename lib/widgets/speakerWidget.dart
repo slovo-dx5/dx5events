@@ -1,9 +1,11 @@
 import 'package:dx5veevents/widgets/showMoreText.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../constants.dart';
 import '../helpers/helper_functions.dart';
+import '../providers/themeProvider.dart';
 
 speakerWidget({
   required BuildContext context,
@@ -14,12 +16,14 @@ speakerWidget({
   required String imageURL,
   // required List<String> interests,
 }) {
+  final themeProvider = Provider.of<ThemeProvider>(context);
+
   return Padding(
       padding: const EdgeInsets.only(left: 1.0, right: 1.0),
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10), color: kGrayishBlueText),
+            borderRadius: BorderRadius.circular(10), color: themeProvider.themeMode==ThemeModeOptions.dark?kGrayishBlueText:kGradientLighterBlue),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

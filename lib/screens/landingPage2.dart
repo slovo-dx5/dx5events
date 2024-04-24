@@ -1,7 +1,9 @@
 import 'package:dx5veevents/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../initialScreen.dart';
+import '../providers/themeProvider.dart';
 import '../widgets/cio_bottomsheets.dart';
 import '../widgets/landingPageWidget.dart';
 import 'authScreens/cisoLogin.dart';
@@ -19,9 +21,12 @@ class LandingPage2 extends StatefulWidget {
 
 class _LandingPage2State extends State<LandingPage2> {
 
-  List <String> items=["ACTIVE","FUTURE" ];
+
+
+List <String> items=["ACTIVE","FUTURE" ];
   int current=0;
   customAppbar() {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return SizedBox(
       height: 60,
       width: MediaQuery.of(context).size.width,
@@ -40,7 +45,7 @@ class _LandingPage2State extends State<LandingPage2> {
                 margin: const EdgeInsets.all(5),
                 width: MediaQuery.of(context).size.width*0.45,
                 height: 45,
-                child: Center(child: Text(items[index],),),
+                child: Center(child: Text(items[index],style: TextStyle(color: themeProvider.themeMode==ThemeModeOptions.dark?kWhiteText:kTextColorBlack),),),
               ),
             );
           }),
@@ -85,12 +90,12 @@ class _ActiveEventsState extends State<ActiveEvents> {
             MaterialPageRoute(builder: (_) => InitialScreen(eventDay: 2, eventMonth: 5, eventYear: 2024,coverImagePath: 'assets/images/themes/cloudsecurity.png', eventName: "AFRICA CLOUD AND SECURITY SUMMIT",
                 eventDate: 'THUR, MAY 2nd - FRIDAY MAY 3rd',
 
-                shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+                shortEventDescription: 'Digital Transformation Through Cloud Security.',
                 eventLocation: 'Nigeria'
                 ,followingScreen: CISOLogin(eventDay: 2, eventMonth: 5, eventYear: 2024,coverImagePath: 'assets/images/themes/cloudsecurity.png', eventName: "AFRICA CLOUD AND SECURITY SUMMIT",
                     eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
 
-                    shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+                    shortEventDescription: 'Digital Transformation Through Cloud Security',
                     eventLocation: 'Nigeria', eventID: '6',), eventID: '6',)),
           );
         }, eventName: 'Cloud and Security\n'
@@ -126,7 +131,7 @@ class _FutureEventsState extends State<FutureEvents> {
   @override
   Widget build(BuildContext context) {
     return Column(children: [ CurvedImageContainer(imagePath: 'assets/images/themes/smarthealth.png',  dayMonth: 'THUR, APR', date: '25th', endDate: '26th', endDayMonth: 'FRI, APR', location: 'NIGERIA', onPressedFunct: (){
-      defaultScrollableBottomSheet(context,"",PendingEventBottomSheet(imagePath: 'assets/images/themes/smarthealth.png', month: 4, date: 25, slug: 'events/africa-cloud-and-security-summit',
+      defaultScrollableBottomSheet(context,"",PendingEventBottomSheet(imagePath: 'assets/images/themes/smarthealth.png', month: 6, date: 25, slug: 'events/africa-cloud-and-security-summit',
         eventNAme: 'Smart Health', endDate: '29th', endDay: 'Sat', endMonth: 'June', startDate: '28th', startDay: 'Fri', startMonth: 'June', eventDesc: 'The Africa SaccoTech Forum spearheads the vital SACCO movement, propelling these inclusive cooperatives into the future with cutting-edge technology and digital solutions as they continue', ));
     },),],);
   }

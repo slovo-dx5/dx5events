@@ -3,8 +3,10 @@ import 'package:dx5veevents/constants.dart';
 import 'package:dx5veevents/models/agendaModel.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:provider/provider.dart';
 
 import '../models/speakersModel.dart';
+import '../providers/themeProvider.dart';
 import '../screens/dx5veScreens/cisoFullAgenda.dart';
 
 
@@ -20,6 +22,8 @@ agendaItemWithSpeakers({required BuildContext context,
    List <BreakoutSession>?breakoutSessions,
   required List speakers,required VoidCallback onPressedFunction,
   required int userID}){
+  final themeProvider = Provider.of<ThemeProvider>(context);
+
   return Column(
     children: [
       GestureDetector( onTap:(){
@@ -34,7 +38,7 @@ agendaItemWithSpeakers({required BuildContext context,
               type:sessionType,
              userID: userID,
               description: summary,
-              speakers: futures,
+              speakers: speakers,
               breakOuts: breakoutSessions, eventLocation: eventLocation, eventDay: eventDay, eventMonth: eventMonth, eventYear: eventYear,
           ),
           withNavBar: false,
@@ -44,9 +48,8 @@ agendaItemWithSpeakers({required BuildContext context,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Container(padding: const EdgeInsets.only(top: 20,bottom: 20),
-            height: speakers.length>=2?280:190,
+            height: speakers.length>=2?280:190,decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: themeProvider.themeMode==ThemeModeOptions.dark?kGreyAgenda:kGradientLighterBlue.withOpacity(0.4),),
 
-            color: kGreyAgenda,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
@@ -94,6 +97,7 @@ agendaItemWithSpeakers({required BuildContext context,
                             List<IndividualSpeaker?>>(
                           future: Future.wait(futures),
                           builder: (context, snapshot) {
+                           // print("snapshot is ${snapshot.data!.first!.firstName!}");
                             if (snapshot.connectionState ==
                                 ConnectionState.done &&
                                 snapshot.data != null) {
@@ -136,8 +140,11 @@ agendaItemWithSpeakers({required BuildContext context,
                                     ),
                                   ],
                                 ),
-                              ))
+                              )
+
+                              )
                                   .toList();
+                              print("speker widgets are ${speakerWidgets.length}");
                               return Column(
                                 crossAxisAlignment:
                                 CrossAxisAlignment.start,
@@ -182,6 +189,8 @@ agendaItemWithoutSpeakers({required BuildContext context,
    List <BreakoutSession>?breakoutSessions,
   required List speakers,required VoidCallback onPressedFunction,
   required int userID}){
+  final themeProvider = Provider.of<ThemeProvider>(context);
+
   return Column(
     children: [
       GestureDetector( onTap:(){
@@ -207,8 +216,8 @@ agendaItemWithoutSpeakers({required BuildContext context,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Container(
-            height: 100,
-            color: kGreyAgenda,
+            height: 100,decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: themeProvider.themeMode==ThemeModeOptions.dark?kGreyAgenda:kGradientLighterBlue.withOpacity(0.5),),
+
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
