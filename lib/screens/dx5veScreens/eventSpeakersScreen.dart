@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dx5veevents/models/eventModel.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants.dart';
@@ -23,52 +24,80 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
   //List<Map<String, dynamic>> filteredData = [];
   List<SpeakersModel> events = [];
   List<IndividualSpeaker> speakers = [];
+  List<SpeakerAssociation> neoSpeakers = [];
   List<IndividualSpeaker> filteredSpeakers = []; // Store filtered speakers
   bool isFetching=true;
   @override
   void initState() {
     super.initState();
 
-    fetchAllSpeakers(eventId: int.parse(widget.eventID));
-
+    fetchEventData();
   }
 
 
-  Future<List<IndividualSpeaker>> fetchAllSpeakers({required int eventId}) async {
-    final speakersResponse = await DioFetchService().fetchEventSpeakers();
-    final eventResponse = await DioFetchService().fetchCISOTopics();
+  Future fetchEventData()async{
+    setState(() {
+      isFetching=true;
+    });
+    final response= await DioFetchService().fetchEvents(eventID: widget.eventID);
+    final Map<String, dynamic> responseData = response.data['data'];
 
-    // Assuming the data is already in the desired format after decoding
-    final List<dynamic> speakerData = speakersResponse.data["data"];
-    final List<dynamic> eventData = eventResponse.data["data"];
+    final List<dynamic> speakersData = responseData['speakers'];
 
-
-    var filteredProposals = eventData.where((proposal) => proposal['event_id'] == eventId).toList();
-
-    for (var proposal in filteredProposals) {
-      // Find the speaker details and convert them to IndividualSpeaker instances
-      var speakerDetailMap = speakerData.firstWhere(
-            (speaker) => speaker['id'] == proposal['speaker_id'],
-        orElse: () => null,
-      );
-
-
-      if (speakerDetailMap != null) {
-        // Convert the Map to an IndividualSpeaker instance using fromJson
-        IndividualSpeaker speakerDetails = IndividualSpeaker.fromJson(speakerDetailMap);
-        print("Speaker details are ${speakerDetails.firstName}");
-        speakers.add(speakerDetails);
-      }
+    for (var speakerData in speakersData) {
+      neoSpeakers.add(SpeakerAssociation.fromJson(speakerData));
     }
 
-    //Update your state here as needed
+
+
+
+    for (var speaker in neoSpeakers) {
+      fetchSpeakerById(speaker.speaker.key).then((value) {
+        speakers.add(value!);
+        print("spekaer added");
+        print("speakers len is ${speakers.length}");
+        setState(() {
+          filteredSpeakers=speakers;
+        });
+
+      });
+    }
+
     setState(() {
-      filteredSpeakers = speakers;
+      print("speakers count is ${speakers.length}");
+      //filteredSpeakers = speakers;
       isFetching = false;
     });
 
+
+
     return speakers;
+
+
   }
+
+  Future<IndividualSpeaker?> fetchSpeakerById(int key) async {
+    try {
+      final response = await DioFetchService().fetchEventSpeakerByKey(speakerKey: key);
+      final speakerssModel = SpeakersModel.fromJson(response.data);
+
+      // Manually find the speaker to allow returning null.
+      for (var speaker in speakerssModel.data) {
+      if(speaker.id==key){
+        print("retuned speake is ${speaker.firstName}");
+        return speaker;
+      }
+
+
+      }
+
+    } catch (e) {
+      print("speaker eror is $e");
+      return null;
+    }
+  }
+
+
 
   void filterData(String query) {
     setState(() {
@@ -148,10 +177,10 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
 
               return Column(children: [speakerWidget(context: context,
 
-                  name: "${speaker.firstName!} ${speaker.lastName}",
+                  name: "${speaker.firstName} ${speaker.lastName}",
 
 
-                  title: "${speaker.role!} at ${speaker.company}",
+                  title: "${speaker.role} at ${speaker.company}",
 
                   bio: speaker!.bio! ?? "",
 

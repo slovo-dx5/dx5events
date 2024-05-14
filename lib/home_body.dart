@@ -8,16 +8,17 @@ import 'package:showcaseview/showcaseview.dart';
 class HomeBody extends StatefulWidget {
   String coverImagePath;
   String eventName;
-  String eventDate;
+  String eventDayOfWeek;
   String shortEventDescription;
   String eventLocation;
+  String eventDate;
   String eventID; int eventDay;
   int eventMonth;
   int eventYear;
 
    HomeBody({super.key,   required this.eventDay,
      required this.eventMonth,
-     required this.eventYear,required this.coverImagePath,required this.eventID, required this.eventName,required this.shortEventDescription,required this.eventDate, required this.eventLocation});
+     required this.eventYear,required this.coverImagePath,required this.eventDate,required this.eventID, required this.eventName,required this.shortEventDescription,required this.eventDayOfWeek, required this.eventLocation});
 
   @override
   State<HomeBody> createState() => _HomeBodyState();
@@ -57,9 +58,9 @@ class _HomeBodyState extends State<HomeBody> {
 
     return HomePageWidget(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,
       coverImagepath: widget.coverImagePath, eventName: widget.eventName,
-      eventDate: widget.eventDate,
+      eventDayOfWeek: widget.eventDayOfWeek,
       shortEventDescription: widget.shortEventDescription,
-      eventLocation: widget.eventLocation, eventID: widget.eventID,);
+      eventLocation: widget.eventLocation, eventID: widget.eventID, eventDate: widget.eventDate,);
 
   }
 }

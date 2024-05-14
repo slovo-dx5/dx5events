@@ -20,8 +20,9 @@ class CISOSponsorsScreen extends StatefulWidget {
 class _CISOSponsorsScreenState extends State<CISOSponsorsScreen> {
 
   List<SponsorAssociation> neosponsors = [];
-  Map <String, SponsorData> sponsorMap={};
+  Map <int, List<dynamic>> sponsorMap={};
   bool isFetching=false;
+  int index = 0;
 
   @override
   void initState() {
@@ -67,13 +68,13 @@ super.initState();
     }
 
     for (var sponsor in neosponsors) {
-      await fetchSponsorById(key: sponsor.sponsor.key).then((receivedSponsor) {
-          sponsorMap.putIfAbsent(sponsor.category, () => receivedSponsor,
-              );
-
-      });
-
-     /// print('Sponsor Key: ${sponsor.sponsor.key}, Category: ${sponsor.category}');
+      try {
+        var receivedSponsor = await fetchSponsorById(key: sponsor.sponsor.key);
+        sponsorMap[index] = [sponsor.category, receivedSponsor];
+        index++; // Increment index for the next sponsor
+      } catch (e) {
+        print("fetch error is $e");
+      }
     }
     setState(() {
       isFetching=false;
@@ -122,11 +123,11 @@ super.initState();
 
 
                                 if(sponsorMap==null){return const Text("Sponsors will appear here");}else{
-                                  return Column(children: [sponsorWidget(context: context, sponsorAsset:"https://subscriptions.cioafrica.co/assets/${sponsorrr.transparent_logo??sponsorrr.logo}",
+                                  return Column(children: [sponsorWidget(context: context, sponsorAsset:"https://subscriptions.cioafrica.co/assets/${sponsorrr[1].transparent_logo??sponsorrr[1].logo}",
                                     //degree: "${sponsors[index].degree!}°",
-                                    degree: "$category°",
-                                    sponsorName:sponsorrr.sponsorName!,
-                                    sponsorBio:sponsorrr.about!, sponsorURL: sponsorrr!.websites!.first.link!,
+                                    degree: "${sponsorrr[0]}°",
+                                    sponsorName:sponsorrr[1].sponsorName!,
+                                    sponsorBio:sponsorrr[1].about!, sponsorURL: sponsorrr[1].websites!.first.link!,
 
                                   ),
                                     Divider(),

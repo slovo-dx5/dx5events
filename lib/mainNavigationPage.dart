@@ -7,14 +7,12 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 import '../../constants.dart';
 
 import 'gallery_screen.dart';
 import 'homeScreen.dart';
-import 'meetings/meeting_tabs.dart';
 import 'meetings/meeting_tabs.dart';
 
 _MainNavigationPageState mainNavigationPageState = _MainNavigationPageState();
@@ -24,6 +22,7 @@ class MainNavigationPage extends StatefulWidget {
   final String coverImagePath ;
   final String eventLocation ;
   final String eventDate ;
+  final String eventDayOfWeek ;
   final String eventName ;
   final String eventID ;
   final String shortEventDescription ; int eventDay;
@@ -32,7 +31,7 @@ class MainNavigationPage extends StatefulWidget {
 
   MainNavigationPage({Key? key,  required this.eventDay,
     required this.eventMonth,
-    required this.eventYear,required this.coverImagePath,required this.eventID, required this.eventName,required this.shortEventDescription,required this.eventDate, required this.eventLocation}) : super(key: key);
+    required this.eventYear,required this.coverImagePath,required this.eventID,required this.eventDayOfWeek, required this.eventName,required this.shortEventDescription,required this.eventDate, required this.eventLocation}) : super(key: key);
 
   @override
   _MainNavigationPageState createState() {
@@ -115,7 +114,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
         shortEventDescription: widget.shortEventDescription,
         //eventLocation: 'Nigeria',);
-        eventLocation: widget.eventLocation, eventID: widget.eventID,),
+        eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek:widget.eventDayOfWeek ,),
       AllChatsScreen(),
       MeetingTabs(),
       const ProfileScreen(),
@@ -162,7 +161,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                 //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
                 shortEventDescription: widget.shortEventDescription,
                 //eventLocation: 'Nigeria',);
-                eventLocation: widget.eventLocation, eventID: widget.eventID,),
+                eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek,),
               '/second': (context) => MeetingTabs(),
               '/third': (context) => const GalleryScreen(),
               '/fourth': (context) => const ProfileScreen(),

@@ -26,6 +26,7 @@ class HomeScreen extends GetView<MyDrawerController> {
   static String routeName = "/home";
   final String coverImagePath ;
   final String eventLocation ;
+  final String eventDayOfWeek ;
   final String eventDate ;
   final String eventName ;
   final String shortEventDescription ;
@@ -36,7 +37,7 @@ class HomeScreen extends GetView<MyDrawerController> {
 
    const HomeScreen({Key? key,   required this.eventDay,
      required this.eventMonth,
-     required this.eventYear,required this.coverImagePath,required this.eventID, required this.eventLocation, required this.eventName, required this.eventDate,required this.shortEventDescription}) : super(key: key);
+     required this.eventYear,required this.coverImagePath,required this.eventDayOfWeek,required this.eventID, required this.eventLocation, required this.eventName, required this.eventDate,required this.shortEventDescription}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +47,7 @@ class HomeScreen extends GetView<MyDrawerController> {
         controller: _.zoomDrawerController,
         menuScreen: MenuScreen(),
         mainScreen: MainScreen(controller: controller, coverImagePath: coverImagePath, eventLocation: eventLocation, eventName: eventName, eventDate: eventDate, 
-          shortEventDescription: shortEventDescription, eventID: eventID, eventDay: eventDay, eventMonth: eventMonth, eventYear: eventYear,),
+          shortEventDescription: shortEventDescription, eventID: eventID, eventDay: eventDay, eventMonth: eventMonth, eventYear: eventYear, eventDayOfWeek: eventDayOfWeek,),
         androidCloseOnBackTap: true,
         borderRadius: 24.0,
         showShadow: true,
@@ -68,6 +69,7 @@ class MainScreen extends GetView<MyDrawerController> {
   String coverImagePath;
   String eventName;
   String eventDate;
+  String eventDayOfWeek;
   String shortEventDescription;
   String eventLocation;
   String eventID; int eventDay;
@@ -77,7 +79,7 @@ class MainScreen extends GetView<MyDrawerController> {
     Key? key,
     required this.controller,  required this.eventDay,
      required this.eventMonth,
-     required this.eventYear,required this.coverImagePath, required this.eventID,required this.eventLocation, required this.eventName, required this.eventDate,required this.shortEventDescription
+     required this.eventYear,required this.coverImagePath, required this.eventID,required this.eventLocation, required this.eventName, required this.eventDate,required this.eventDayOfWeek,required this.shortEventDescription
   }) : super(key: key);
 
   final MyDrawerController controller;
@@ -100,7 +102,7 @@ class MainScreen extends GetView<MyDrawerController> {
         actions: [NotificationIconButton()],
         // actions:  [Icon(Icons.notification_important_rounded,color: kTextColorBlackLighter,)],
       ),
-      body:  HomeBody(eventDay: eventDay, eventMonth: eventMonth, eventYear: eventYear,coverImagePath: coverImagePath, eventName: eventName, shortEventDescription: shortEventDescription, eventDate: eventDate, eventLocation: eventLocation, eventID: eventID,),
+      body:  HomeBody(eventDay: eventDay, eventMonth: eventMonth, eventYear: eventYear,coverImagePath: coverImagePath, eventName: eventName, shortEventDescription: shortEventDescription, eventDate: eventDate, eventLocation: eventLocation, eventID: eventID, eventDayOfWeek: eventDayOfWeek,),
     );
   }
 }

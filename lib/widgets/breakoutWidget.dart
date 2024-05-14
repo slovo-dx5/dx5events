@@ -46,87 +46,22 @@ class _BreakOutWidgetState extends State<BreakOutWidget> {
                                     verticalSpace(height: 10),
                                     Container(padding:const EdgeInsets.all(5),decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5),color: kCISOOrange.withOpacity(0.5)
-                                    ),child: Text(breakOut.type!,),),
+                                    ),child: Text(breakOut.type,),),
                                     verticalSpace(height: 15),
                                     Text(
-                                      breakOut.title!,
+                                      breakOut.title,
                                       style: const TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w700),
                                     ),
                                     verticalSpace(height: 10),
                                     Text(
-                                      breakOut.summary!,
+                                      breakOut.summary,
                                       style: const TextStyle(color: kTextColorGrey,
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500),
                                     ),
-                                    // FutureBuilder<
-                                    //     List<IndividualSpeaker?>>(
-                                    //   future: Future.wait(futures),
-                                    //   builder: (context, snapshot) {
-                                    //     if (snapshot.connectionState ==
-                                    //         ConnectionState.done &&
-                                    //         snapshot.data != null) {
-                                    //       // Join the first names of all speakers
-                                    //       final speakerWidgets =
-                                    //       snapshot.data!
-                                    //           .where((speaker) =>
-                                    //       speaker != null)
-                                    //           .map((speaker) => Padding(
-                                    //         padding: const EdgeInsets.only(top:8.0,bottom: 8.0),
-                                    //         child: Row(
-                                    //           children: [
-                                    //             CachedNetworkImage(
-                                    //               fit:
-                                    //               BoxFit.cover,
-                                    //               imageUrl:
-                                    //               "https://subscriptions.cioafrica.co/assets/${speaker!.photo!}",
-                                    //               // placeholder: (context, url) => CircularProgressIndicator(), // Optional
-                                    //               // errorWidget: (context, url, error) =>  ProfileInitials(),
-                                    //               progressIndicatorBuilder: (context, url, downloadProgress) => SizedBox(
-                                    //                   height: 20,
-                                    //                   width: 20,
-                                    //                   child: CircularProgressIndicator(value: downloadProgress.progress)), // Optional
-                                    //               imageBuilder: (context, imageProvider) =>
-                                    //                   CircleAvatar(
-                                    //                     radius: 15,
-                                    //                     backgroundImage: imageProvider,
-                                    //                   ),
-                                    //             ),horizontalSpace(width: 10),
-                                    //
-                                    //             Expanded(
-                                    //               child: Column(mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.start,
-                                    //                 children: [
-                                    //                   Text(
-                                    //                     '${speaker!.firstName} ${speaker.lastName}',style:kGreyTextStyle(fontsiZe: 12) ,),
-                                    //                   Text(
-                                    //                     '${speaker!.role} at ${speaker.company}',style: kNameTextStyle( fontsiZe: 10),overflow: TextOverflow.ellipsis,maxLines: 2,),
-                                    //                 ],
-                                    //               ),
-                                    //             ),
-                                    //           ],
-                                    //         ),
-                                    //       ))
-                                    //           .toList();
-                                    //       return Column(
-                                    //         crossAxisAlignment:
-                                    //         CrossAxisAlignment.start,
-                                    //         children: [
-                                    //           ...speakerWidgets,
-                                    //         ],
-                                    //       );
-                                    //     } else if (snapshot
-                                    //         .connectionState ==
-                                    //         ConnectionState.waiting) {
-                                    //       return const Text(
-                                    //           'Loading speakers...');
-                                    //     } else {
-                                    //       return const Text(
-                                    //           'Speakers details not available');
-                                    //     }
-                                    //   },
-                                    // ),
+
 
                                   ],
                                 ),

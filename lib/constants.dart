@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
 
 const kIconBlue = Color(0xFF2398cd);
 const kIconPurple = Color(0xFF8f3b9d);
@@ -122,6 +124,8 @@ const String kUserID = "userID";
 const String kProfileID = "profileID";
 const String kIsAdmin = "isAdmin";
 const String kDefaultPassword = "DX5iveCIO100";
+FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
 
 final usersRef = FirebaseFirestore.instance.collection("users");
 final notificationsRef = FirebaseFirestore.instance.collection("notifications");

@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:dx5veevents/models/eventAttendeesModel.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -13,31 +12,32 @@ import 'dart:ui';
 import '../../constants.dart';
 import '../../dioServices/dioFetchService.dart';
 import '../../dioServices/dioOTPService.dart';
-import 'cisoOTP.dart';
+import 'eventOTP.dart';
 
-class CISOLogin extends StatefulWidget {
+class EventLogin extends StatefulWidget {
 
   final String coverImagePath ;
   final String eventLocation ;
+  final String eventDayOfWeek ;
   final String eventDate ;
   final String eventName ;
   final String eventID ;
   final String shortEventDescription ; int eventDay;
   int eventMonth;
   int eventYear;
-  CISOLogin({  required this.eventDay,
+  EventLogin({  required this.eventDay,
     required this.eventMonth,
     required this.eventYear,
 
-    required this.coverImagePath, required this.eventID,required this.eventName,required this.shortEventDescription,required this.eventDate, required this.eventLocation,
+    required this.coverImagePath, required this.eventID,required this.eventDayOfWeek,required this.eventName,required this.shortEventDescription,required this.eventDate, required this.eventLocation,
 
 
     Key? key}) : super(key: key);
   @override
-  State<CISOLogin> createState() => _CISOLoginState();
+  State<EventLogin> createState() => _EventLoginState();
 }
 
-class _CISOLoginState extends State<CISOLogin> {
+class _EventLoginState extends State<EventLogin> {
 
   List<CISOAttendeeModel>? attendees;
   final _formKey = GlobalKey<FormState>();
@@ -79,7 +79,7 @@ class _CISOLoginState extends State<CISOLogin> {
             context,
             screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,
               isAdmin:"false",
-              company: attendee!.company,
+              company: attendee.company,
               role: attendee.role, lastName: attendee.lastName,
               firstName: attendee.firstName, phone: attendee.phone,
               id:attendee.id, profileID: attendee.profilePhoto??"",
@@ -89,7 +89,7 @@ class _CISOLoginState extends State<CISOLogin> {
               //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
               shortEventDescription: widget.shortEventDescription,
               //eventLocation: 'Nigeria',);
-              eventLocation: widget.eventLocation, eventID: widget.eventID,
+              eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek,
 
             ),
             withNavBar: false,
@@ -129,7 +129,7 @@ class _CISOLoginState extends State<CISOLogin> {
                 //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
                 shortEventDescription: widget.shortEventDescription,
                 //eventLocation: 'Nigeria',);
-                eventLocation: widget.eventLocation, eventID: widget.eventID,
+                eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek,
 
               ),
               withNavBar: false,
@@ -149,7 +149,7 @@ class _CISOLoginState extends State<CISOLogin> {
 
   Widget buildEmail(){
     return TextFormField(
-      style: TextStyle(
+      style: const TextStyle(
         color: kLighterGreenAccent
       ),
       controller: emailController,
@@ -220,11 +220,11 @@ class _CISOLoginState extends State<CISOLogin> {
           Positioned.fill(
             child: ImageFiltered(
               imageFilter: ImageFilter.blur(
-                sigmaX: 3, // Horizontal blur
-                sigmaY: 3, // Vertical blur
+                sigmaX: 0.2, // Horizontal blur
+                sigmaY: 0.2, // Vertical blur
               ),
               child: Image.asset(
-                'assets/images/backgrounds/cisobackground.png', // Your background image
+                'assets/images/backgrounds/dx5eventsBackground.jpg', // Your background image
                 fit: BoxFit.cover,
               ),
             ),
@@ -236,12 +236,12 @@ class _CISOLoginState extends State<CISOLogin> {
                 children: [
                   Column(
                     children: [
-                      Align(
+                      const Align(
                         alignment: Alignment.center,
                         child: SizedBox(
                           height: 300,
                           width: 300,
-                          child: Image.asset("assets/images/logos/cisologo.png"),
+
                         ),
                       ),
                       Padding(
@@ -253,7 +253,7 @@ class _CISOLoginState extends State<CISOLogin> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               verticalSpace(
-                                  height:MediaQuery.of(context).size.height * 0.04),
+                                  height:MediaQuery.of(context).size.height * 0.16),
 
                               const Text(
                                 "Welcome",
@@ -306,7 +306,7 @@ class _CISOLoginState extends State<CISOLogin> {
                                             //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
                                             shortEventDescription: widget.shortEventDescription,
                                             //eventLocation: 'Nigeria',);
-                                            eventLocation: widget.eventLocation, eventID: widget.eventID,
+                                            eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek,
 
                                           ),
                                           withNavBar: false,

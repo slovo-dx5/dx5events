@@ -38,13 +38,14 @@ class OTPScreen extends StatefulWidget {
   final String eventLocation ;
   final String eventDate ;
   final String eventName ;
+  final String eventDayOfWeek ;
   final String shortEventDescription ;
   final String eventID ;
   OTPScreen({  required this.eventDay,
     required this.eventMonth,
     required this.eventYear,
 
-    required this.coverImagePath, required this.eventName,required this.eventID,required this.shortEventDescription,required this.eventDate, required this.eventLocation,
+    required this.coverImagePath,required this.eventDayOfWeek, required this.eventName,required this.eventID,required this.shortEventDescription,required this.eventDate, required this.eventLocation,
     required this.email,required this.isAdmin,required this.profileID,required this.company,required this.role,required this.lastName, required this.firstName, required this.phone,required this.id,
 
     Key? key}) : super(key: key);
@@ -123,7 +124,6 @@ class _OTPScreenState extends State<OTPScreen> {
 
     try{
       final response=await DioOTPService().verifyOTP(email: email, otp: otp);
-      SharedPreferences prefs= await SharedPreferences.getInstance();
       if(response.statusCode==200){
         setIntPref(key: 'isFirstTime', value: 1);
         setStringPref(key: kFirstName, value: widget.firstName);
@@ -184,7 +184,7 @@ class _OTPScreenState extends State<OTPScreen> {
               //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
               shortEventDescription: widget.shortEventDescription,
               //eventLocation: 'Nigeria',);
-              eventLocation: widget.eventLocation, eventID: widget.eventID,)),
+              eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek,)),
           );
         }
 
@@ -232,7 +232,7 @@ class _OTPScreenState extends State<OTPScreen> {
               sigmaY: 3, // Vertical blur
             ),
             child: Image.asset(
-              'assets/images/backgrounds/cisobackground.png', // Your background image
+              'assets/images/backgrounds/dx5eventsBackground.jpg', // Your background image
               fit: BoxFit.cover,
             ),
           ),
@@ -247,7 +247,7 @@ class _OTPScreenState extends State<OTPScreen> {
                       child: SizedBox(
                         height: 200,
                         width: 200,
-                        child: Image.asset("assets/images/logos/cisologo.png"),
+
                       ),
                     ),
                     const SizedBox(height: 50),
@@ -349,7 +349,7 @@ class _OTPScreenState extends State<OTPScreen> {
                                                 //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
                                                 shortEventDescription: widget.shortEventDescription,
                                                 //eventLocation: 'Nigeria',);
-                                                eventLocation: widget.eventLocation, eventID: widget.eventID,)),
+                                                eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek,)),
                                             );
                                             // PersistentNavBarNavigator.pushNewScreen(
                                             //   context,

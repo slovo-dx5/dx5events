@@ -49,7 +49,7 @@ class _ProfileInitialsState extends State<ProfileInitials> {
   @override
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
-    return  CircleAvatar(backgroundColor:randomBackgroundColor,radius: 80,child: Center(child: Text("${profileProvider.firstName![0].toUpperCase()}${profileProvider.lastName![0].toUpperCase()}", style: const TextStyle(color: Colors.white,fontSize: 60),)),);
+    return  CircleAvatar(backgroundColor:randomBackgroundColor,radius: 80,child: Center(child: Text("${profileProvider.firstName[0].toUpperCase()}${profileProvider.lastName[0].toUpperCase()}", style: const TextStyle(color: Colors.white,fontSize: 60),)),);
 
   }
 }

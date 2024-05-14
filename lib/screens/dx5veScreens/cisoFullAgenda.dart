@@ -19,11 +19,13 @@ class FullAgendaScreen extends StatefulWidget {
   String description;
   String type;
   String eventLocation;
+  String date;
   int day;
   int userID;
   bool isFromSession;
   int? sessionId;
   var speakers;
+  var futures;
   var breakOuts;
   int eventDay;
   int eventMonth;
@@ -34,11 +36,13 @@ class FullAgendaScreen extends StatefulWidget {
       {super.key,
         required this.title,
         required this.day,
+        required this.date,
         required this.startTime,
         required this.endTime,
       //  required this.speakersCollection,
         this.sessionId,required this.eventLocation,
         required this.speakers,
+        required this.futures,
         this.breakOuts,
         required this.eventDay,required this.eventMonth, required this.eventYear,
         required this.type,
@@ -141,7 +145,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
               verticalSpace(height: 20),
 
               Container(
-                  padding: EdgeInsets.all(5),
+                  padding: const EdgeInsets.all(5),
                   decoration:BoxDecoration(
                 borderRadius: BorderRadius.circular(5),
                 color: kCISOPurple
@@ -153,11 +157,10 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
                 children: [
                   Column(children: [
 
-                    if (widget.day==20)Text("WED",style: kFullAgendaDayTextStyle(fontsiZe: 15),),
-                    if (widget.day==20)Text("20",style: kFullAgendaDateTextStyle(fontsiZe: 30),),
+                    Text(widget.date,style: kFullAgendaDayTextStyle(fontsiZe: 15),),
+                    Text(widget.day.toString(),style: kFullAgendaDateTextStyle(fontsiZe: 30),),
 
-                    if (widget.day==21)Text("THUR",style: kFullAgendaDayTextStyle(fontsiZe: 15),),
-                    if (widget.day==21)Text("21",style: kFullAgendaDateTextStyle(fontsiZe: 30),),
+
 
 
 
@@ -177,7 +180,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
                          Text(widget.eventLocation,style: kFullAgendaDayTextStyle(fontsiZe: 14),),
                         if(widget.speakers!=[false])verticalSpace(height:10),
                         if(widget.speakers!=[false])verticalSpace(height: 5),
-                        if(widget.speakers!=false)Container(width: MediaQuery.of(context).size.width,height: 100,
+                        if(widget.speakers!=false)SizedBox(width: MediaQuery.of(context).size.width,height: 230,
                           child: ListView.builder(
                             shrinkWrap: true,
                             physics: const AlwaysScrollableScrollPhysics(), // new
@@ -189,7 +192,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
                             return
                               FutureBuilder<
                                   List<IndividualSpeaker?>>(
-                                future: Future.wait(widget.speakers),
+                                future: Future.wait(widget.futures),
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState ==
                                       ConnectionState.done &&
@@ -224,9 +227,9 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
                                           Column(mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                '${speaker!.firstName} ${speaker.lastName}',style:kGreyTextStyle(fontsiZe: 12) ,),
+                                                '${speaker.firstName} ${speaker.lastName}',style:kGreyTextStyle(fontsiZe: 12) ,),
                                               Text(
-                                                '${speaker!.role} at ${speaker.company}',style: kNameTextStyle( fontsiZe: 10),overflow: TextOverflow.ellipsis,maxLines: 2,),
+                                                '${speaker.role} at ${speaker.company}',style: kNameTextStyle( fontsiZe: 10),overflow: TextOverflow.ellipsis,maxLines: 2,),
                                             ],
                                           ),
                                         ],
@@ -253,7 +256,6 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
                               );
 
 
-                            Text(widget.speakers[index]["field_62ac3eeb577b8"]);
                           },),
                         ),
                       ],

@@ -1,5 +1,4 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:dx5veevents/widgets/showMoreText.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:upgrader/upgrader.dart';
@@ -19,6 +18,7 @@ class HomePageWidget extends StatefulWidget {
   String coverImagepath;
   String eventName;
   String shortEventDescription;
+  String eventDayOfWeek;
   String eventDate;
   String eventLocation;
   String eventID;int eventDay;
@@ -27,8 +27,8 @@ class HomePageWidget extends StatefulWidget {
   HomePageWidget(
       {super.key,
       required this.coverImagepath,
-      required this.eventName,
-      required this.eventDate,required this.eventLocation,required this.eventID,
+      required this.eventName,required this.eventDate,
+      required this.eventDayOfWeek,required this.eventLocation,required this.eventID,
       required this.shortEventDescription , required this.eventDay,
         required this.eventMonth,
         required this.eventYear});
@@ -147,7 +147,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     width: 10,
                     height: 10,
                   ),
-                  screen: EventAgendaScreen(eventID: widget.eventID, eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear, eventLocation: widget.eventLocation,),
+                  screen: EventAgendaScreen(eventID: widget.eventID, eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear, eventLocation: widget.eventLocation, eventDayOfWeek: widget.eventDayOfWeek,),
                   itemName: 'Agenda',
                 ),
               ],
@@ -190,7 +190,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                   ),
                   screen: UserSessionsScreen(
                     userid: profileProvider.userID!,
-                    eventID: widget.eventID,eventDay: widget.eventDay, eventLocation: widget.eventLocation, eventMonth: widget.eventMonth,eventYear: widget.eventYear,                ),
+                    eventID: widget.eventID,eventDay: widget.eventDay, eventLocation: widget.eventLocation, eventMonth: widget.eventMonth,eventYear: widget.eventYear, eventDate: widget.eventDayOfWeek,                ),
                   itemName: 'My Sessions',
                 ),
               ],

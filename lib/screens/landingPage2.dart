@@ -6,7 +6,7 @@ import '../initialScreen.dart';
 import '../providers/themeProvider.dart';
 import '../widgets/cio_bottomsheets.dart';
 import '../widgets/landingPageWidget.dart';
-import 'authScreens/cisoLogin.dart';
+import 'authScreens/eventLogin.dart';
 
 class LandingPage2 extends StatefulWidget {
 
@@ -84,34 +84,34 @@ class _ActiveEventsState extends State<ActiveEvents> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        UpcomingEventWidget2(imagePath: 'assets/images/themes/cloudsecurity.png', dayMonth: 'THUR, MAY', date: '2nd', endDate: '3rd', location: 'NIGERIA', endDayMonth: 'FRIDAY, MAY', onPressedFunct: (){
-
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => InitialScreen(eventDay: 2, eventMonth: 5, eventYear: 2024,coverImagePath: 'assets/images/themes/cloudsecurity.png', eventName: "AFRICA CLOUD AND SECURITY SUMMIT",
-                eventDate: 'THUR, MAY 2nd - FRIDAY MAY 3rd',
-
-                shortEventDescription: 'Digital Transformation Through Cloud Security.',
-                eventLocation: 'Nigeria'
-                ,followingScreen: CISOLogin(eventDay: 2, eventMonth: 5, eventYear: 2024,coverImagePath: 'assets/images/themes/cloudsecurity.png', eventName: "AFRICA CLOUD AND SECURITY SUMMIT",
-                    eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
-
-                    shortEventDescription: 'Digital Transformation Through Cloud Security',
-                    eventLocation: 'Nigeria', eventID: '6',), eventID: '6',)),
-          );
-        }, eventName: 'Cloud and Security\n'
-            'Summit', containerColor: kCISOPurple,),
+        // UpcomingEventWidget2(imagePath: 'assets/images/themes/cloudsecurity.png', dayMonth: 'THUR, MAY', date: '2nd', endDate: '3rd', location: 'NIGERIA', endDayMonth: 'FRIDAY, MAY', onPressedFunct: (){
+        //
+        //   Navigator.of(context).pushReplacement(
+        //     MaterialPageRoute(builder: (_) => InitialScreen(eventDay: 2, eventMonth: 5, eventYear: 2024,coverImagePath: 'assets/images/themes/cloudsecurity.png', eventName: "AFRICA CLOUD AND SECURITY SUMMIT",
+        //         eventDate: 'THUR, MAY 2nd - FRIDAY MAY 3rd',
+        //
+        //         shortEventDescription: 'Digital Transformation Through Cloud Security.',
+        //         eventLocation: 'Nigeria'
+        //         ,followingScreen: CISOLogin(eventDay: 2, eventMonth: 5, eventYear: 2024,coverImagePath: 'assets/images/themes/cloudsecurity.png', eventName: "AFRICA CLOUD AND SECURITY SUMMIT",
+        //             eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+        //
+        //             shortEventDescription: 'Digital Transformation Through Cloud Security',
+        //             eventLocation: 'Nigeria', eventID: '6',), eventID: '6',)),
+        //   );
+        // }, eventName: 'Cloud and Security\n'
+        //     'Summit', containerColor: kCISOPurple,),
         UpcomingEventWidget2(imagePath: 'assets/images/themes/smartbanking.png', dayMonth: 'WED, MAY', date: '22nd', endDate: '23rd', location: 'KENYA', endDayMonth: 'THUR, MAY', onPressedFunct: (){
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (_) => InitialScreen(coverImagePath: 'assets/images/themes/smartbanking.png', eventName: "SMART BANKING",
-                eventDate: 'WED, MAY, 22nd - THUR MAY 23rd',
+                eventHappeningDates: 'WED, MAY, 22nd - THUR MAY 23rd',
 
                 shortEventDescription: "Navigating the Next: Africa's Leap into Smart, Secure, and Inclusive Banking",
                 eventLocation: 'KENYA'
-                ,followingScreen: CISOLogin(coverImagePath: 'assets/images/themes/smartbanking.png', eventName: "SMART BANKING",
+                ,followingScreen: EventLogin(coverImagePath: 'assets/images/themes/smartbanking.png', eventName: "SMART BANKING",
                     eventDate: 'WED, MAY, 22nd - THUR MAY 23rd',
 
                     shortEventDescription: "Navigating the Next: Africa's Leap into Smart, Secure, and Inclusive Banking",
-                    eventLocation: 'KENYA', eventID: '8', eventDay: 22, eventMonth: 5, eventYear: 2024,), eventID: '8', eventDay: 22, eventMonth: 5, eventYear: 2024,)),
+                    eventLocation: 'KENYA', eventID: '8', eventDay: 22, eventMonth: 5, eventYear: 2024, eventDayOfWeek: 'WED',), eventID: '8', eventDay: 22, eventMonth: 5, eventYear: 2024, eventDayOfWeek: 'WED',)),
           );
         }, eventName: 'Smart Banking'
             , containerColor: kCISOPurple,),

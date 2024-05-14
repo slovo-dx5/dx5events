@@ -16,9 +16,11 @@ class SessionWidget extends StatefulWidget {
   String endTime;
   String description;
   String sessionType;
+  String eventDate;
   String eventLocation;
   int sessionId;
   int date;
+  var futures;
   var speakers;int eventDay;
   int eventMonth;
   int eventYear;
@@ -30,9 +32,9 @@ class SessionWidget extends StatefulWidget {
   SessionWidget({super.key, required this.speakers,
 
   //  required this.speakersCollection,
-    required this.sessionType,required this.sessions, required this.eventDay,
+    required this.sessionType,required this.sessions, required this.eventDay,required this.eventDate,
     required this.eventMonth,
-    required this.eventYear,required this.date,required this.eventLocation,required this.sessionId,required this.sessionTitle, required this.startTime, required this.endTime, required this.description});
+    required this.eventYear,required this.date,required this.eventLocation,this.futures,required this.sessionId,required this.sessionTitle, required this.startTime, required this.endTime, required this.description});
 
   @override
   State<SessionWidget> createState() => _SessionWidgetState();
@@ -71,7 +73,7 @@ class _SessionWidgetState extends State<SessionWidget> {
             type:widget.sessionType,
             userID: profileProvider.userID!,
             description: "Cybersecurity threats are constantly changing – think of new viruses, more advanced hacking techniques, and unexpected targets. There is a need for individuals and organisations to stay informed about these shifts in the threat landscape.The goal is to continuously adapt security strategies to maintain protection in this ever-evolving digital world.",
-            speakers: false, eventLocation: widget.eventLocation, eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,
+            speakers: false, eventLocation: widget.eventLocation, eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear, futures: widget.futures, date: widget.eventDate,
           ),
           withNavBar: false,
           pageTransitionAnimation: PageTransitionAnimation.slideRight,

@@ -25,11 +25,13 @@ class EventAgendaScreen extends StatefulWidget {
   int eventMonth;
   int eventYear;
   String eventLocation;
+  String eventDayOfWeek;
 
   EventAgendaScreen(
       {super.key,
       required this.eventID,
       required this.eventDay,
+        required this.eventDayOfWeek,
       required this.eventMonth,
         required this.eventLocation,
       required this.eventYear});
@@ -122,7 +124,6 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
       // return jsonData.map((userJson) => AttendeeModel.fromJson(userJson)).toList();
     } else {
       throw Exception('Failed to load data');
-      isLoading = false;
     }
   }
 
@@ -291,14 +292,14 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                                     endTime: session.endTime!,
                                     sessionTitle: session.title,
                                     sessionDescription: session.summary,
-                                    speakers: [],
+                                    speakers: session.speakers,
                                     sessionType: session.sessionType!,
                                     date: 20,
                                   );
                                   setState(() {
                                     isBookmarking = false;
                                   });
-                                }, eventLocation: widget.eventLocation, eventYear: widget.eventYear,eventDay: widget.eventDay, eventMonth: widget.eventMonth
+                                }, eventLocation: widget.eventLocation, eventYear: widget.eventYear,eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventDayOfWeek: widget.eventDayOfWeek
                               );
                             } else {
                               return agendaItemWithoutSpeakers(
@@ -330,7 +331,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                                   setState(() {
                                     isBookmarking = false;
                                   });
-                                }, eventLocation: widget.eventLocation, eventYear: widget.eventYear,eventMonth: widget.eventMonth,eventDay: widget.eventDay
+                                }, eventLocation: widget.eventLocation, eventYear: widget.eventYear,eventMonth: widget.eventMonth,eventDay: widget.eventDay, eventDayOfWeek: widget.eventDayOfWeek
                               );
                             }
                           },

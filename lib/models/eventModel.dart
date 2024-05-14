@@ -79,14 +79,14 @@ class Agenda {
 
 class SpeakerAssociation {
   final Reference speaker;
-  final String assumedRole;
+//  final String assumedRole;
 
-  SpeakerAssociation({required this.speaker, required this.assumedRole});
+  SpeakerAssociation({required this.speaker, });
 
   factory SpeakerAssociation.fromJson(Map<String, dynamic> json) {
     return SpeakerAssociation(
       speaker: Reference.fromJson(json['speaker']),
-      assumedRole: json['assumed_role'],
+    //  assumedRole: json['assumed_role'],
     );
   }
 }

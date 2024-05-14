@@ -66,6 +66,7 @@ dependencies:
   shimmer: ^3.0.0
   qr_code_scanner: ^1.0.1
   flutter_widget_from_html: ^0.14.11
+  firebase_analytics: ^10.8.0
 
 dev_dependencies:
   flutter_test:
