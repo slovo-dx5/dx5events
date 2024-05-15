@@ -94,26 +94,24 @@ getSpeakerImage({required String id}) async {
 
 createSession(
     {required int currentUserId,
-    required String startTime,
-    required String endTime,
-    required String sessionTitle,
-    required String sessionType,
-    required int date,
-    required String sessionDescription,
-    required var speakers}) async {
+
+    required int sessionID,
+    required DateTime date,
+    }) async {
+
+
   Map<String, dynamic> sessionBodyData = {
     "attendee_id": currentUserId,
-    "sessions": {
-      "user_id": currentUserId,
-      "start_time": startTime,
-      "end_time": endTime,
-      "title": sessionTitle,
-      "description": sessionDescription,
-      "type": sessionType,
-      "date": date,
-      "speakers": speakers
-    }
+   "event_date": date.toString(),
+    "session_id": sessionID,
+
   };
+
+
+
+  print("attendee id is $currentUserId");
+  print("date id is ${date.toString()}");
+  print("session id is $sessionID");
   final response =
       await DioPostService().createSession(sessionBody: sessionBodyData);
   if (response.statusCode == 200) {
@@ -367,4 +365,9 @@ String addThirtyMinutes({required String time}) {
 
   // Convert the DateTime back to a string in the original format
   return format.format(dateTime);
+}
+
+String formatDate(DateTime date) {
+  final DateFormat formatter = DateFormat('yyyy-MM-dd');
+  return formatter.format(date);
 }

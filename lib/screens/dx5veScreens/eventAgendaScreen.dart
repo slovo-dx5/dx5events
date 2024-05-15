@@ -17,7 +17,7 @@ import '../../models/speakersModel.dart';
 import '../../providers.dart';
 import '../../widgets/agendaWidget.dart';
 import '../../widgets/appbarWidget.dart';
-import 'cisoFullAgenda.dart';
+import 'eventFullAgenda.dart';
 
 class EventAgendaScreen extends StatefulWidget {
   String eventID;
@@ -287,19 +287,13 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                                   });
 
                                   await createSession(
-                                    currentUserId: profileProvider.userID!,
-                                    startTime: session.startTime,
-                                    endTime: session.endTime!,
-                                    sessionTitle: session.title,
-                                    sessionDescription: session.summary,
-                                    speakers: session.speakers,
-                                    sessionType: session.sessionType!,
-                                    date: 20,
+                                    currentUserId: profileProvider.userID!, sessionID: session.sessionId, date: _dayToAgendaMap[_selectedDate]!.date!,
+                                 
                                   );
                                   setState(() {
                                     isBookmarking = false;
                                   });
-                                }, eventLocation: widget.eventLocation, eventYear: widget.eventYear,eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventDayOfWeek: widget.eventDayOfWeek
+                                }, eventLocation: widget.eventLocation, eventYear: widget.eventYear,eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventDayOfWeek: widget.eventDayOfWeek, sessionDate: _dayToAgendaMap[_selectedDate]!.date!, sessionID: session.sessionId,
                               );
                             } else {
                               return agendaItemWithoutSpeakers(
@@ -318,20 +312,16 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                                   });
 
                                   await createSession(
-                                    currentUserId: profileProvider.userID!,
-                                    startTime: session.startTime,
-                                    endTime: session.endTime!,
-                                    sessionTitle: session.title,
-                                    sessionDescription: session.summary,
-                                    speakers: [],
-                                    sessionType: session.sessionType!,
-                                    date: 20,
+                                    currentUserId: profileProvider.userID!, sessionID: session.sessionId, date: _dayToAgendaMap[_selectedDate]!.date!,
+
                                   );
 
                                   setState(() {
                                     isBookmarking = false;
                                   });
-                                }, eventLocation: widget.eventLocation, eventYear: widget.eventYear,eventMonth: widget.eventMonth,eventDay: widget.eventDay, eventDayOfWeek: widget.eventDayOfWeek
+                                }, eventLocation: widget.eventLocation, eventYear: widget.eventYear,
+                                  eventMonth: widget.eventMonth,eventDay: widget.eventDay, eventDayOfWeek: widget.eventDayOfWeek,
+                                  sessionDate:  _dayToAgendaMap[_selectedDate]!.date!, sessionID: session.sessionId
                               );
                             }
                           },

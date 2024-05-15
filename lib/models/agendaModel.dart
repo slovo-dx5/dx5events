@@ -53,6 +53,7 @@ class Session {
   var title;
   var sessionType;
   var summary;
+  int sessionId;
   final List<SpeakerAssignment>? speakers;
   final List<BreakoutSession>? breakoutSessions;
 
@@ -61,6 +62,7 @@ class Session {
     required this.endTime,
     required this.title,
     required this.summary,
+    required this.sessionId,
     required this.sessionType,    this.speakers,    this.breakoutSessions,
   });
 
@@ -76,7 +78,8 @@ class Session {
       summary: json['Summary'] ?? "",
       sessionType: json['session_type']?? "",
         breakoutSessions: json['breakout_sessions'] == null ? null : List<BreakoutSession>.from(json['breakout_sessions'].map((x) => BreakoutSession.fromJson(x))),
-      speakers: speakers
+      speakers: speakers,
+      sessionId: json['session_id']??1600,
     );
   }
 }

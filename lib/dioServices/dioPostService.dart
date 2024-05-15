@@ -10,6 +10,7 @@ class DioPostService extends DioClient {
   DioClient _client = new DioClient();
 
   Future<Response> createSession({required Map<String, dynamic> sessionBody}) async {
+    print("session bosy is $sessionBody");
     try {
       return await _client
           .init()
@@ -18,7 +19,9 @@ class DioPostService extends DioClient {
     }  on DioError catch (ex) {
       throw Exception("Session create error: ${ex.response!.data!}");
     }
-  }  Future<Response> createSponsorSubmission({required Map<String, dynamic> sessionBody}) async {
+  }
+
+  Future<Response> createSponsorSubmission({required Map<String, dynamic> sessionBody}) async {
     try {
       return await _client
           .init()

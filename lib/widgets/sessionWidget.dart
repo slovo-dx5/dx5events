@@ -9,7 +9,7 @@ import '../helpers/helper_functions.dart';
 
 import '../models/sessionModel.dart';
 import '../providers.dart';
-import '../screens/dx5veScreens/cisoFullAgenda.dart';
+import '../screens/dx5veScreens/eventFullAgenda.dart';
 class SessionWidget extends StatefulWidget {
   String sessionTitle;
   String startTime;
@@ -62,22 +62,22 @@ class _SessionWidgetState extends State<SessionWidget> {
     return  Padding(
       padding: const EdgeInsets.only(left: 8.0,right: 8.0,top: 4,bottom: 4),
       child: GestureDetector(onTap: (){
-        PersistentNavBarNavigator.pushNewScreen(
-          context,
-          screen: FullAgendaScreen(
-            title: widget.sessionTitle,
-            day: 20,
-            startTime: widget.startTime,
-            endTime: widget.endTime,
-            isFromSession: false,
-            type:widget.sessionType,
-            userID: profileProvider.userID!,
-            description: "Cybersecurity threats are constantly changing – think of new viruses, more advanced hacking techniques, and unexpected targets. There is a need for individuals and organisations to stay informed about these shifts in the threat landscape.The goal is to continuously adapt security strategies to maintain protection in this ever-evolving digital world.",
-            speakers: false, eventLocation: widget.eventLocation, eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear, futures: widget.futures, date: widget.eventDate,
-          ),
-          withNavBar: false,
-          pageTransitionAnimation: PageTransitionAnimation.slideRight,
-        );
+        // PersistentNavBarNavigator.pushNewScreen(
+        //   context,
+        //   screen: FullAgendaScreen(
+        //     title: widget.sessionTitle,
+        //     day: 20,
+        //     startTime: widget.startTime,
+        //     endTime: widget.endTime,
+        //     isFromSession: false,
+        //     type:widget.sessionType,
+        //     userID: profileProvider.userID!,
+        //     description: "Cybersecurity threats are constantly changing – think of new viruses, more advanced hacking techniques, and unexpected targets. There is a need for individuals and organisations to stay informed about these shifts in the threat landscape.The goal is to continuously adapt security strategies to maintain protection in this ever-evolving digital world.",
+        //     speakers: false, eventLocation: widget.eventLocation, eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear, futures: widget.futures, date: widget.eventDate,
+        //   ),
+        //   withNavBar: false,
+        //   pageTransitionAnimation: PageTransitionAnimation.slideRight,
+        // );
       },
         child: Visibility(visible: !isDeleted,
           child:widget.speakers!=[]?

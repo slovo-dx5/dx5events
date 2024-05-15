@@ -20,10 +20,12 @@ class FullAgendaScreen extends StatefulWidget {
   String type;
   String eventLocation;
   String date;
+  DateTime sessionDate;
+  int sessionId;
   int day;
   int userID;
   bool isFromSession;
-  int? sessionId;
+
   var speakers;
   var futures;
   var breakOuts;
@@ -40,9 +42,10 @@ class FullAgendaScreen extends StatefulWidget {
         required this.startTime,
         required this.endTime,
       //  required this.speakersCollection,
-        this.sessionId,required this.eventLocation,
+        required this.sessionId,required this.eventLocation,
         required this.speakers,
         required this.futures,
+        required this.sessionDate,
         this.breakOuts,
         required this.eventDay,required this.eventMonth, required this.eventYear,
         required this.type,
@@ -110,8 +113,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
             isBookmarking=true;
           });
           await createSession(currentUserId: widget.userID!,
-            startTime: widget.startTime, endTime: widget.endTime,
-            sessionTitle: widget.title, sessionDescription: widget.description, speakers: [], sessionType: widget.type, date: widget.day,
+           sessionID: widget.sessionId, date: widget.sessionDate,
 
           );
           setState(() {

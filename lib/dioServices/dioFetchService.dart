@@ -45,6 +45,20 @@ class DioFetchService extends DioClient {
       throw Exception(ex);
     }
   }
+
+  Future<Response> fetchIndividualSessions({required String attendeeID}) async {
+    int dodod=6;
+    try {
+      return await _client
+          .init()
+         // .get("https://subscriptions.cioafrica.co/items/agenda?filter[event_id][_eq]=$eventID",
+          .get("https://subscriptions.cioafrica.co/items/user_sessions?filter[attendee_id][_eq]=$attendeeID",
+        //options: buildCacheOptions(const Duration(minutes: 30)),
+           );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
   Future<Response> fetchEventSponsors() async {
     try {
       return await _client
