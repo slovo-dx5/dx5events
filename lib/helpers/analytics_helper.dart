@@ -6,6 +6,7 @@ class Dx5veAnalytics{
 
   logdx5veEvent({required String eventName})async{
     await analytics.logEvent(name: eventName).then((value) => (printInfo));
+    print("logging successful;");
     
   }
 

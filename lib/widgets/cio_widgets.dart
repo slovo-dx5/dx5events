@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 import '../constants.dart';
+import '../helpers/analytics_helper.dart';
 
 class CIOWidgets {
   // itemWidget({
@@ -30,12 +31,13 @@ class CIOWidgets {
   //   );
   // }
 
-  gradientItemWidget({ required BuildContext context,required Color firstColor, required Color secondColor,required Widget editIcon,
+  gradientItemWidget({ required BuildContext context,required Color firstColor, required String analyticsActionName, required Color secondColor,required Widget editIcon,
     required Widget screen,
     required String itemName,}){
       return Column(
         children: [
-          GestureDetector(onTap: (){
+          GestureDetector(onTap: ()async{
+            await Dx5veAnalytics().logdx5veEvent(eventName: analyticsActionName);
             PersistentNavBarNavigator.pushNewScreen(
               context,
               screen: screen,

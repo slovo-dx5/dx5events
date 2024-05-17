@@ -47,7 +47,7 @@ class DioFetchService extends DioClient {
   }
 
   Future<Response> fetchIndividualSessions({required String attendeeID}) async {
-    int dodod=6;
+
     try {
       return await _client
           .init()

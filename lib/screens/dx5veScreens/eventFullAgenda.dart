@@ -112,7 +112,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
           setState(() {
             isBookmarking=true;
           });
-          await createSession(currentUserId: widget.userID!,
+          await createSession(currentUserId: widget.userID,
            sessionID: widget.sessionId, date: widget.sessionDate,
 
           );
@@ -125,7 +125,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
         child:
 
         Visibility(
-          replacement: SpinKitCircle(color: Colors.black54,),
+          replacement: const SpinKitCircle(color: Colors.black54,),
           visible: isBookmarking==false,
           child: widget.isFromSession? const Icon(Icons.delete):const Icon(Icons.bookmark),),),
       appBar:  const PreferredSize(
@@ -266,7 +266,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
                 ],
               ),
               if (currentDate.isAfter(targetDate!))
-                Text("Session is over",style: TextStyle(fontSize: 15,color: kKeyRedBG),),
+                const Text("Session is over",style: TextStyle(fontSize: 15,color: kKeyRedBG),),
 
 
 

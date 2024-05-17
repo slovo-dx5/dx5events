@@ -11,6 +11,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../dioServices/dioFetchService.dart';
+import '../../helpers/analytics_helper.dart';
 import '../../helpers/helper_functions.dart';
 import '../../models/agendaModel.dart';
 import '../../models/speakersModel.dart';
@@ -66,11 +67,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
     super.initState();
   }
 
-  void printDayToAgendaMap() {
-    _dayToAgendaMap.forEach((date, agendaDay) {
-      print('Date: ${date.toString()}'); // Print the date
-    });
-  }
+
 
   Future<void> _loadSessions() async {
     setState(() {
@@ -81,7 +78,6 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
       _sessions = sessions;
       isFetching = false;
       _dayToAgendaMap = { for (var item in agendaDays) (item).date : item };
-      printDayToAgendaMap();
     });
   }
 
@@ -127,6 +123,36 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
     }
   }
 
+  // Future<List<Session>> fetchSessions({required List<int> sessionIds}) async {
+  //   try {
+  //     final response = await DioFetchService().fetchdx5veAgenda(eventID: widget.eventID);
+  //
+  //     log("response is ${response.data}");
+  //
+  //     final agendaModel = AgendaModel.fromJson(response.data);
+  //     print("agenda model data is $agendaModel");
+  //
+  //     // Filter sessions based on the provided session IDs
+  //     List<Session> filteredSessions = [];
+  //     for (var day in agendaModel.days) {
+  //       day.sessions = day.sessions.where((session) => sessionIds.contains(session.sessionId)).toList();
+  //       if (day.sessions.isNotEmpty) {
+  //         filteredSessions.addAll(day.sessions);
+  //       }
+  //     }
+  //
+  //     setState(() {
+  //       agendaDays = agendaModel.days;
+  //     });
+  //
+  //     return filteredSessions;
+  //   } catch (e) {
+  //     print("session fetch error: $e");
+  //     return [];
+  //   }
+  // }
+
+
   Future<List<Session>> fetchSessions() async {
     try {
       final response =
@@ -138,7 +164,8 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
         agendaDays = agendaModel.days;
         print("Agenda datys are ${agendaDays.first.date}");
       });
-      return agendaModel.days.expand((day) => day.sessions).toList();
+     // return agendaModel.days.expand((day) => day.sessions).toList();
+      return agendaModel.days.expand((day) => day.sessions.where((sesh) => sesh.sessionId==13)).toList();
     } catch (e) {
       print("session fetch error os ${e}");
       return [];
@@ -146,14 +173,13 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
   }
 
   Future<IndividualSpeaker?> fetchSpeakerById(int key) async {
-    print("speaker key is $key");
     try {
       final response = await DioFetchService().fetchEventSpeakerByKey(speakerKey: key);
       final speakerssModel = SpeakersModel.fromJson(response.data);
 
       // Manually find the speaker to allow returning null.
       for (var speaker in speakerssModel.data) {
-          print("speaker is ${speaker.firstName}");
+
 
           return speaker;
 
@@ -285,6 +311,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                                   setState(() {
                                     isBookmarking = true;
                                   });
+                                  await Dx5veAnalytics().logdx5veEvent(eventName: 'agenda_bookmarked');
 
                                   await createSession(
                                     currentUserId: profileProvider.userID!, sessionID: session.sessionId, date: _dayToAgendaMap[_selectedDate]!.date!,
@@ -310,6 +337,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                                   setState(() {
                                     isBookmarking = true;
                                   });
+                                  await Dx5veAnalytics().logdx5veEvent(eventName: 'agenda_bookmarked');
 
                                   await createSession(
                                     currentUserId: profileProvider.userID!, sessionID: session.sessionId, date: _dayToAgendaMap[_selectedDate]!.date!,

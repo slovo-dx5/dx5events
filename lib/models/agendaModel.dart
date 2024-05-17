@@ -33,7 +33,7 @@ class AgendaModel {
 
 class AgendaDay {
    var date;
-  final List<Session> sessions;
+   List<Session> sessions;
 
   AgendaDay({
     required this.date,

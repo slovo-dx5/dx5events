@@ -124,7 +124,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                   ),
                   // screen: EventSpeakersScreen(eventName: widget.eventName,eventID: widget.eventID),
                   screen: EventSpeakersScreen(eventID: widget.eventID,),
-                  itemName: 'Speakers',
+                  itemName: 'Speakers', analyticsActionName: 'speakers_page_opened',
                 ),
                 CIOWidgets().gradientItemWidget(
                   firstColor: kCISOTeal.withOpacity(0.7),
@@ -136,7 +136,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     height: 10,
                   ),
                   screen: CISOSponsorsScreen(eventID: widget.eventID,),
-                  itemName: 'Sponsors',
+                  itemName: 'Sponsors', analyticsActionName: 'sponsors_page_opened',
                 ),
                 CIOWidgets().gradientItemWidget(
                   firstColor: kCISOYellow.withOpacity(0.7),
@@ -148,7 +148,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     height: 10,
                   ),
                   screen: EventAgendaScreen(eventID: widget.eventID, eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear, eventLocation: widget.eventLocation, eventDayOfWeek: widget.eventDayOfWeek,),
-                  itemName: 'Agenda',
+                  itemName: 'Agenda', analyticsActionName: 'agenda_page_opened',
                 ),
               ],
             ),
@@ -165,7 +165,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     height: 10,
                   ),
                   screen: AttendeesScreen(eventID: widget.eventID,),
-                  itemName: 'Attendees',
+                  itemName: 'Attendees', analyticsActionName: 'attendees_page_opened',
                 ),
                 CIOWidgets().gradientItemWidget(
                   firstColor: kCISOOrange,
@@ -177,7 +177,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     height: 10,
                   ),
                   screen: CISOPartnersScreen(eventID: widget.eventID,),
-                  itemName: 'Partners',
+                  itemName: 'Partners', analyticsActionName: 'partners_page_opened',
                 ),
                 CIOWidgets().gradientItemWidget(
                   firstColor: kCISOPink.withOpacity(0.9),
@@ -190,8 +190,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                   ),
                   screen: UserSessionsScreen(
                     userid: profileProvider.userID!,
-                    eventID: widget.eventID,eventDay: widget.eventDay, eventLocation: widget.eventLocation, eventMonth: widget.eventMonth,eventYear: widget.eventYear, eventDate: widget.eventDayOfWeek,                ),
-                  itemName: 'My Sessions',
+                    eventID: widget.eventID,eventDay: widget.eventDay, eventLocation: widget.eventLocation, eventMonth: widget.eventMonth,eventYear: widget.eventYear, eventDayOfWeek: widget.eventDayOfWeek,                ),
+                  itemName: 'My Sessions', analyticsActionName: 'sessions_page_opened',
                 ),
               ],
             ),
