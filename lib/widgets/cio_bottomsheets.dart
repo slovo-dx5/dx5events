@@ -368,7 +368,8 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
                           message: textEditingController.text,
                           company: profileProvider.company,
                           otherUserID: widget.otherUSerID,
-                          startTime: tableSlot,
+                          startTime: startTime,
+                          tableSlot: tableSlot,
                           requestedByID: profileProvider.userID.toString(),
                           meetingWithI: widget.otherUSerID.toString());
                       await sendMeetingNotification();

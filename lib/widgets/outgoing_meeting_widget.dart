@@ -37,7 +37,7 @@ class _OutgoingMeetingWidgetState extends State<OutgoingMeetingWidget> {
         width:  MediaQuery.of(context).size.width ,
         height: MediaQuery.of(context).size.height * 0.3,
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: kToggleLight),color: kKeyRedBG.withOpacity(0.1)),
+            border: Border.all(color: kToggleLight),),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -50,7 +50,7 @@ class _OutgoingMeetingWidgetState extends State<OutgoingMeetingWidget> {
 
                   child: Text("Sent request to ${widget.wantsToMeetWithName}",style: TextStyle(color: kCIOPink),)),
               verticalSpace(height: 25),
-              Text("Your message:\n${widget.message}",style: const TextStyle(fontSize: 15,color: kToggleDark),),
+              Text("Your message:\n${widget.message}",style: const TextStyle(fontSize: 15,),),
               verticalSpace(height: 10),
 
               Text("Proposed time: Today ${widget.startTime} to ${addThirtyMinutes(time: widget.startTime)}"),

@@ -54,8 +54,7 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
     for (var speaker in neoSpeakers) {
       fetchSpeakerById(speaker.speaker.key).then((value) {
         speakers.add(value!);
-        print("spekaer added");
-        print("speakers len is ${speakers.length}");
+
         setState(() {
           filteredSpeakers=speakers;
         });
@@ -64,7 +63,6 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
     }
 
     setState(() {
-      print("speakers count is ${speakers.length}");
       //filteredSpeakers = speakers;
       isFetching = false;
     });
@@ -84,7 +82,6 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
       // Manually find the speaker to allow returning null.
       for (var speaker in speakerssModel.data) {
       if(speaker.id==key){
-        print("retuned speake is ${speaker.firstName}");
         return speaker;
       }
 
@@ -185,7 +182,7 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
                   bio: speaker!.bio! ?? "",
 
                   imageURL: "https://subscriptions.cioafrica.co/assets/${speaker!.photo!}",
-                  linkedinurl: speaker.linkedinProfile!), verticalSpace(height: 10)],);
+                  linkedinurl: speaker.linkedinProfile ??"linkedin.com"), verticalSpace(height: 10)],);
 
               //   speakerWidget(context: context, name: speaker.name,
               //     title: speaker.title, bio: speaker.bio,imageURL: url

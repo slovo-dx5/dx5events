@@ -144,7 +144,6 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                                   .update(<String, dynamic>{
                                 'isAccepted': true,
                               });
-                                print("other id is ${items["requested_by_id"]}" );
                               await usersRef.doc(items["requested_by_id"]).collection("meetings").doc(items["id"]).set({
                                 "id": items["id"],
 

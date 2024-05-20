@@ -294,6 +294,7 @@ requestMeeting(
     required String meetingWith,
     required String message,
     required String startTime,
+    required String tableSlot,
 
     required String requestedByID,
     required String meetingWithI,
@@ -314,6 +315,7 @@ requestMeeting(
     "isDefault": false,
     "date_requested": Timestamp.now(),
     "message": message,
+    "tableSlot": tableSlot,
     "startTime": startTime,
 
 
