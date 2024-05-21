@@ -24,9 +24,10 @@ class _BreakOutWidgetState extends State<BreakOutWidget> {
               return Expanded(
                 child: Column(
                   children: [
-                    Container(padding: const EdgeInsets.only(top: 20,bottom: 20),
+                    Container(padding: const EdgeInsets.only(top: 20,bottom: 20,left: 5,right: 5),
                      // height: firstDaySession.speakers!.length>=2?250:160,
-                      color: kRightBubble.withOpacity(0.5),
+                      color: kGradientLightBlue.withOpacity(0.1
+                      ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,

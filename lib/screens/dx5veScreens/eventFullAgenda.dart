@@ -90,6 +90,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
     setState(() {
       targetDate = DateTime(widget.eventYear, widget.eventMonth, widget.eventDay);
     });
+    if(widget.breakOuts!=null)print("breakouts are ${widget.breakOuts.length}");
 
     super.initState();
   }
@@ -182,7 +183,9 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
                          Text(widget.eventLocation,style: kFullAgendaDayTextStyle(fontsiZe: 14),),
                         if(widget.speakers!=[false])verticalSpace(height:10),
                         if(widget.speakers!=[false])verticalSpace(height: 5),
-                        if(widget.speakers!=false)SizedBox(width: MediaQuery.of(context).size.width,height: 230,
+                        if(widget.speakers!=false)
+                          SizedBox(width: MediaQuery.of(context).size.width,
+                            height: 230,
                           child: ListView.builder(
                             shrinkWrap: true,
                             physics: const AlwaysScrollableScrollPhysics(), // new
@@ -281,6 +284,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
               const Divider(),verticalSpace(height: 10),
               if(widget.breakOuts!=null) const Text("Breakout Sessions",style: TextStyle(fontSize: 17,fontWeight: FontWeight.w700),),
               if(widget.breakOuts!=null) BreakOutWidget(breakOutSessions: widget.breakOuts,),
+
 
 
               verticalSpace(height: 60)
