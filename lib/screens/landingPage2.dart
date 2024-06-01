@@ -130,10 +130,50 @@ class FutureEvents extends StatefulWidget {
 class _FutureEventsState extends State<FutureEvents> {
   @override
   Widget build(BuildContext context) {
-    return Column(children: [ CurvedImageContainer(imagePath: 'assets/images/themes/smarthealth.png',  dayMonth: 'THUR, APR', date: '25th', endDate: '26th', endDayMonth: 'FRI, APR', location: 'NIGERIA', onPressedFunct: (){
-      defaultScrollableBottomSheet(context,"",PendingEventBottomSheet(imagePath: 'assets/images/themes/smarthealth.png', month: 6, date: 25, slug: 'events/africa-cloud-and-security-summit',
-        eventNAme: 'Smart Health', endDate: '29th', endDay: 'Sat', endMonth: 'June', startDate: '28th', startDay: 'Fri', startMonth: 'June', eventDesc: 'The Africa SaccoTech Forum spearheads the vital SACCO movement, propelling these inclusive cooperatives into the future with cutting-edge technology and digital solutions as they continue', ));
-    },),],);
+    return Column(children: [
+      CurvedImageContainer(imagePath: 'assets/images/themes/smarthealth.png',
+      dayMonth: 'THUR, APR', date: '25th', endDate: '26th',
+      endDayMonth: 'FRI, APR', location: 'SOUTH AFRICA', onPressedFunct: (){
+      defaultScrollableBottomSheet(context,"",
+          PendingEventBottomSheet(imagePath: 'assets/images/themes/smarthealth.png', month: 6,
+            date: 25, slug: 'events/africa-cloud-and-security-summit',
+        eventNAme: 'Smart Health',
+            endDate: '29th', endDay: 'Sat', endMonth: 'June',
+            startDate: '28th', startDay: 'Fri', startMonth: 'June',
+            eventDesc: 'The Africa SaccoTech Forum spearheads the vital SACCO movement, propelling these inclusive cooperatives into the future with cutting-edge technology and digital solutions as they continue', ));
+    },),
+
+      verticalSpace(height: 10),
+
+
+      CurvedImageContainer(imagePath: 'assets/images/themes/smartgov.png',
+      dayMonth: 'WED, JUL', date: '24th', endDate: '25th',
+      endDayMonth: 'THUR, JULY', location: 'KENYA', onPressedFunct: (){
+      defaultScrollableBottomSheet(context,"",
+          PendingEventBottomSheet(imagePath: 'assets/images/themes/smartgov.png', month: 7,
+            date: 24, slug: 'events/smart-government-summit',
+        eventNAme: 'Smart Government Summit',
+            endDate: '25th', endDay: 'THUR', endMonth: 'July',
+            startDate: '24th', startDay: 'WED', startMonth: 'July',
+            eventDesc: 'The Smart Government Summit stands at the forefront of Africa’s digital transformation, bridging the gap between advanced digital technologies and government operations. This pivotal event comes at a time when Africa’s digital landscape is witnessing exponential growth, with increasing internet access and mobile connectivity shaping public sector innovation. The summit is a critical confluence for discussing the integration of digital solutions in government, offering a unique perspective on the future of digital government in Africa.', ));
+    },),
+
+      verticalSpace(height: 10),
+
+      CurvedImageContainer(imagePath: 'assets/images/themes/cio100.png',
+      dayMonth: 'WED, NOV', date: '20th', endDate: '22nd',
+      endDayMonth: 'FRI, NOV', location: 'KENYA', onPressedFunct: (){
+      defaultScrollableBottomSheet(context,"",
+          PendingEventBottomSheet(imagePath: 'assets/images/themes/cio100.png', month: 11,
+            date: 20, slug: 'events/smart-government-summit',
+        eventNAme: 'CIO100 Symposium and Awards',
+            endDate: '22nd', endDay: 'FRI', endMonth: 'Nov',
+            startDate: '20th', startDay: 'WED', startMonth: 'Nov',
+            eventDesc: 'The CIO100 Symposium & Awards is a celebration of excellence in IT leadership. This prestigious event will honor 100 award recipients, highlighting their achievements in leadership, innovation, and the adoption of advanced technologies such as generative AI and Edge Computing.', ));
+    },),
+
+
+    ],);
   }
 }
 

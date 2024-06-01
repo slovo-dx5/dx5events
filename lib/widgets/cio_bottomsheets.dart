@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -682,7 +683,7 @@ class _PendingEventBottomSheetState extends State<PendingEventBottomSheet> {
                     SizedBox(
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(widget.eventNAme,style: kFutureTextStyle(fontsiZe: 25),),verticalSpace(height: 10),
+                          AutoSizeText(widget.eventNAme,style: TextStyle(color: kWhiteColor,  fontWeight: FontWeight.w600),minFontSize: 18, maxFontSize: 25,),verticalSpace(height: 10),
                           Row(children: [const Icon(Icons.calendar_month,),horizontalSpace(width: 10), Text("${widget.startDay}, ${widget.startMonth} ${widget.startDate} - ${widget.endDay}, ${widget.endMonth}, ${widget.endDate}")],)
                         ],
                       ),

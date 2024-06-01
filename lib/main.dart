@@ -1,6 +1,7 @@
 import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/providers/themeProvider.dart';
 import 'package:dx5veevents/screens/authScreens/eventLogin.dart';
+import 'package:dx5veevents/screens/doLastMinuteShyet.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -65,10 +66,8 @@ class MyApp extends StatelessWidget {
                   : ThemeMode.dark,
               theme: lightTheme,
               darkTheme: darkTheme,
-             // home: SponsorEventScreen(),
-             // home: MainNavigationPage(),
-            //home:  EventLogin(eventDay: 3, eventMonth: 2, eventYear: 2024, coverImagePath: '', eventID: '', eventName: '', shortEventDescription: '', eventDate: '', eventLocation: '',)
              home: LandingPage2()
+             //home: StructureLAstMinute()
             //  home: CISOLogin(coverImagePath: '', eventName: '', shortEventDescription: '', eventDate: '', eventLocation: '',),
             );
           },

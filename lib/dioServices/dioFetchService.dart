@@ -19,11 +19,11 @@ class DioFetchService extends DioClient {
     }
   }
 
-  Future<Response> fetchSingleAttendee({required int id}) async {
+  Future<Response> fetchSingleAttendee({required int id, required int eventID}) async {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/event_registrations?filter[attendeeId][_eq]=$id&filter[eventId][_eq]=3",
+          .get("https://subscriptions.cioafrica.co/items/event_registrations?filter[attendeeId][_eq]=$id&filter[eventId][_eq]=$eventID",
         //   options: buildCacheOptions(const Duration(minutes: 30)),
       );
     } on DioError catch (ex) {
