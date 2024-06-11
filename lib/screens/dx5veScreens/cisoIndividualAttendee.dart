@@ -49,130 +49,133 @@ class _CisoIndividualAttendeeScreenState
       appBar: AppBar(centerTitle: true,
         title: const Text("ATTENDEE"),
       ),
-      body: Column(children: <Widget>[
-        verticalSpace(height: 40),
-        IndividualAttendeeProfileInitials(
-          firstName: widget.FirstName,
-          lastName: widget.LastName,
-        ),verticalSpace(height: 8),
-        Text(
-          "${widget.FirstName} ${widget.LastName}",
-          style: const TextStyle(
-              fontWeight: FontWeight.bold, fontSize: 34.0, color: kLightAppbar),
-        ),
-        Text(
-          "${widget.Role} at ${widget.Company}",
-          style: const TextStyle(color: kLighterGreenAccent),
-        ),verticalSpace(height: 10),
+      body: SingleChildScrollView(
+        child: Column(children: <Widget>[
+          verticalSpace(height: 40),
+          IndividualAttendeeProfileInitials(
+            firstName: widget.FirstName,
+            lastName: widget.LastName,
+          ),verticalSpace(height: 8),
+          Text(
+            "${widget.FirstName} ${widget.LastName}",
+            style: const TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 34.0, ),
+          ),
+          Text(
+            //"${widget.Role} at ${widget.Company}",
+            " ${widget.Company}",
 
-        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-          SizedBox(width: MediaQuery.of(context).size.width*0.35,child:   primaryButton2(
-              context: context,
-              onPressedFunction: () {},
-              buttonText: "MEET",
-              backgroundColor: kCISOPurple) ,), SizedBox(width: MediaQuery.of(context).size.width*0.35,child:   primaryButton2(
-              context: context,
-              onPressedFunction: () {     if(mounted){
-                PersistentNavBarNavigator.pushNewScreen(
-                  context,
-                  screen:  CioChatScreen(chattingWithName: widget.FirstName, chattingWithID: widget.id, currentUserID: profileProvider.userID!, currentUserName: profileProvider.firstName,),
-                  withNavBar: false,
-                  pageTransitionAnimation: PageTransitionAnimation.slideRight,
-                );
-              }},
-              buttonText: "CHAT",
-              backgroundColor: kLightCardColor) ,),
+          ),verticalSpace(height: 10),
 
-          ],
-        ),verticalSpace(height: 10),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+            SizedBox(width: MediaQuery.of(context).size.width*0.35,child:   primaryButton2(
+                context: context,
+                onPressedFunction: () {},
+                buttonText: "MEET",
+                backgroundColor: kCISOPurple) ,), SizedBox(width: MediaQuery.of(context).size.width*0.35,child:   primaryButton2(
+                context: context,
+                onPressedFunction: () {     if(mounted){
+                  PersistentNavBarNavigator.pushNewScreen(
+                    context,
+                    screen:  CioChatScreen(chattingWithName: widget.FirstName, chattingWithID: widget.id, currentUserID: profileProvider.userID!, currentUserName: profileProvider.firstName,),
+                    withNavBar: false,
+                    pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                  );
+                }},
+                buttonText: "CHAT",
+                backgroundColor: kLightCardColor) ,),
+
+            ],
+          ),verticalSpace(height: 10),
     MeetingRequestBottomSheet(userName: widget.FirstName,
     meetingWith: "${widget.FirstName} ${widget.LastName}",
     otherUSerID: widget.id,),
 
-        // Stack(
-        //   alignment:
-        //   Alignment.topCenter,
-        //   children: <Widget>[
-        //     Padding(
-        //       padding: const EdgeInsets.only(
-        //         top: 120 / 2.0,
-        //       ),
-        //
-        //       ///here we create space for the circle avatar to get ut of the box
-        //       child: Container(
-        //         height: 690.0,
-        //         decoration:
-        //         BoxDecoration(
-        //           borderRadius:
-        //           BorderRadius
-        //               .circular(
-        //               15.0),
-        //           // color: Colors.white,
-        //           color:
-        //           kLightAppbar,
-        //
-        //           boxShadow: const [
-        //             BoxShadow(
-        //               color: kCISOPurple,
-        //               blurRadius: 12.0,
-        //               offset: Offset(
-        //                   0.0, 5.0),
-        //             ),
-        //           ],
-        //         ),
-        //         width: double.infinity,
-        //         child: Padding(
-        //             padding:
-        //             const EdgeInsets
-        //                 .only(
-        //                 top: 15.0,
-        //                 bottom:
-        //                 15.0),
-        //             child:
-        //             Column(
-        //               children: <
-        //                   Widget>[
-        //                 verticalSpace(height: 45),
-        //
-        //
-        //                 verticalSpace(height: 50),
-        //                  Padding(
-        //                   padding: const EdgeInsets
-        //                       .symmetric(
-        //                       horizontal:
-        //                       80),
-        //                   child:Row(
-        //                     children: [
-        //                       CircleGradientAvatar(actionIcon: Icons.meeting_room, actionText: 'Meet', onPressedF: (){
-        //                         defaultScrollableBottomSheet(context, "Meeting request",
-        //                             MeetingRequestBottomSheet(userName: widget.FirstName,
-        //                               meetingWith: "${widget.FirstName} ${widget.LastName}",
-        //                               otherUSerID: widget.id,));
-        //                       },),
-        //                       Spacer(),
-        //                       CircleGradientAvatar(actionIcon: Icons.message, actionText: 'Chat', onPressedF: (){
-        //                         if(mounted){
-        //                           PersistentNavBarNavigator.pushNewScreen(
-        //                             context,
-        //                             screen:  CioChatScreen(chattingWithName: widget.FirstName, chattingWithID: widget.id, currentUserID: profileProvider.userID!, currentUserName: profileProvider.firstName,),
-        //                             withNavBar: false,
-        //                             pageTransitionAnimation: PageTransitionAnimation.slideRight,
-        //                           );
-        //                         }
-        //                       },),
-        //                     ],
-        //                   )
-        //                   ,
-        //                 )
-        //               ],
-        //             )),
-        //       ),
-        //     ),
-        //
-        //   ],
-        // ),
-      ]),
+          // Stack(
+          //   alignment:
+          //   Alignment.topCenter,
+          //   children: <Widget>[
+          //     Padding(
+          //       padding: const EdgeInsets.only(
+          //         top: 120 / 2.0,
+          //       ),
+          //
+          //       ///here we create space for the circle avatar to get ut of the box
+          //       child: Container(
+          //         height: 690.0,
+          //         decoration:
+          //         BoxDecoration(
+          //           borderRadius:
+          //           BorderRadius
+          //               .circular(
+          //               15.0),
+          //           // color: Colors.white,
+          //           color:
+          //           kLightAppbar,
+          //
+          //           boxShadow: const [
+          //             BoxShadow(
+          //               color: kCISOPurple,
+          //               blurRadius: 12.0,
+          //               offset: Offset(
+          //                   0.0, 5.0),
+          //             ),
+          //           ],
+          //         ),
+          //         width: double.infinity,
+          //         child: Padding(
+          //             padding:
+          //             const EdgeInsets
+          //                 .only(
+          //                 top: 15.0,
+          //                 bottom:
+          //                 15.0),
+          //             child:
+          //             Column(
+          //               children: <
+          //                   Widget>[
+          //                 verticalSpace(height: 45),
+          //
+          //
+          //                 verticalSpace(height: 50),
+          //                  Padding(
+          //                   padding: const EdgeInsets
+          //                       .symmetric(
+          //                       horizontal:
+          //                       80),
+          //                   child:Row(
+          //                     children: [
+          //                       CircleGradientAvatar(actionIcon: Icons.meeting_room, actionText: 'Meet', onPressedF: (){
+          //                         defaultScrollableBottomSheet(context, "Meeting request",
+          //                             MeetingRequestBottomSheet(userName: widget.FirstName,
+          //                               meetingWith: "${widget.FirstName} ${widget.LastName}",
+          //                               otherUSerID: widget.id,));
+          //                       },),
+          //                       Spacer(),
+          //                       CircleGradientAvatar(actionIcon: Icons.message, actionText: 'Chat', onPressedF: (){
+          //                         if(mounted){
+          //                           PersistentNavBarNavigator.pushNewScreen(
+          //                             context,
+          //                             screen:  CioChatScreen(chattingWithName: widget.FirstName, chattingWithID: widget.id, currentUserID: profileProvider.userID!, currentUserName: profileProvider.firstName,),
+          //                             withNavBar: false,
+          //                             pageTransitionAnimation: PageTransitionAnimation.slideRight,
+          //                           );
+          //                         }
+          //                       },),
+          //                     ],
+          //                   )
+          //                   ,
+          //                 )
+          //               ],
+          //             )),
+          //       ),
+          //     ),
+          //
+          //   ],
+          // ),
+        ]),
+      ),
     ));
   }
 }

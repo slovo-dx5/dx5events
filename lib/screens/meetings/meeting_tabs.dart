@@ -16,8 +16,8 @@ class MeetingTabs extends StatefulWidget {
 
 class _MeetingTabsState extends State<MeetingTabs> {
   final List<Tab> tabs = <Tab>[
-    Tab(child: Text("Confirmed",style: TextStyle(color:kTextColorBlackLighter ),),),
-    Tab(child: Text("Pending",style: TextStyle(color:kTextColorBlackLighter ),),),
+    Tab(child: Text("Confirmed",style: TextStyle(color: kCIOPink),),),
+    Tab(child: Text("Pending",),),
   ];
 
 
