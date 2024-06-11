@@ -154,9 +154,11 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
 
 
   Future<List<Session>> fetchSessions() async {
+    print("Event id is ${widget.eventID}");
     try {
       final response =
           await DioFetchService().fetchdx5veAgenda(eventID: widget.eventID);
+      print("reponse is ${response.data}");
 
       final agendaModel = AgendaModel.fromJson(response.data);
       print("agenda model dta is $agendaModel");
@@ -164,10 +166,10 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
         agendaDays = agendaModel.days;
         print("Agenda datys are ${agendaDays.first.date}");
       });
-     // return agendaModel.days.expand((day) => day.sessions).toList();
-      return agendaModel.days.expand((day) => day.sessions.where((sesh) => sesh.sessionId==13)).toList();
+      return agendaModel.days.expand((day) => day.sessions).toList();
+      //return agendaModel.days.expand((day) => day.sessions.where((sesh) => sesh.sessionId==13)).toList();
     } catch (e) {
-      print("session fetch error os ${e}");
+      print("session fetch error issss ${e}");
       return [];
     }
   }
