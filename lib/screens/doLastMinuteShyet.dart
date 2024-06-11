@@ -27,7 +27,6 @@ class _StructureLAstMinuteState extends State<StructureLAstMinute> {
 
   fetchCheckins()async{
     final response = await DioFetchService().fetchLastMinuteCheckins();
-    final filteredData = response.data['data'][1]["attendeeId"];
     ConferenceRoom conferenceRoom = ConferenceRoom.fromJson(response.data);
 
       for (var roomData in conferenceRoom.data) {

@@ -40,9 +40,17 @@ class _ProfileInitialsState extends State<ProfileInitials> {
       });
     });
      getStringPref(kLastName).then((value) {
-       setState(() {
-         lastName=value;
-       });
+
+       if(value==""){
+         setState(() {
+           lastName=".";
+         });
+       }else{
+         setState(() {
+           lastName=value;
+         });
+       }
+
      });
 
   }

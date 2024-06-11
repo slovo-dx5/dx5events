@@ -17,11 +17,11 @@ class InitialScreen extends StatefulWidget {
   final String eventName ;
   final String eventDayOfWeek ;
   final String shortEventDescription ;
-  final String eventID ; int eventDay;
+  final String eventID ; int eventDay;bool isCustomerEvent;
   int eventMonth;
   int eventYear;
    InitialScreen({  required this.eventDay,
-     required this.eventMonth,
+     required this.eventMonth,required this.isCustomerEvent,
      required this.eventYear,required this.followingScreen,required this.eventDayOfWeek,required this.coverImagePath,required this.eventID, required this.eventName,required this.shortEventDescription,required this.eventHappeningDates, required this.eventLocation,super.key});
 
   @override
@@ -56,7 +56,7 @@ class _InitialScreenState extends State<InitialScreen> {
             //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
             shortEventDescription: widget.shortEventDescription,
             //eventLocation: 'Nigeria',);
-            eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek,)),
+            eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,)),
         );
 
       }

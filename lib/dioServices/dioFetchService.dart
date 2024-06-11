@@ -7,11 +7,23 @@ import 'endpoints/endpoint.dart';
 class DioFetchService extends DioClient {
   DioClient _client = new DioClient();
 
-  Future<Response> fetchCISOAttendees({required String eventID}) async {
+  Future<Response> fetchCIOAttendees({required String eventID}) async {
     try {
       return await _client
           .init()
           .get("https://subscriptions.cioafrica.co/items/event_registrations?filter[eventId][_eq]=$eventID&filter[status][_eq]=approved&limit=800",
+     //   options: buildCacheOptions(const Duration(minutes: 30)),
+           );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> fetchCustomerEventsAttendees({required String eventID}) async {
+    try {
+      return await _client
+          .init()
+          .get("https://subscriptions.cioafrica.co/items/Customer_Event_Registrations?filter[eventID][_eq]=$eventID&filter[status][_eq]=approved&limit=800",
      //   options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {

@@ -25,9 +25,11 @@ class EventLogin extends StatefulWidget {
   final String shortEventDescription ; int eventDay;
   int eventMonth;
   int eventYear;
+  bool isCustomerEvent;
   EventLogin({  required this.eventDay,
     required this.eventMonth,
     required this.eventYear,
+    required this.isCustomerEvent,
 
     required this.coverImagePath, required this.eventID,required this.eventDayOfWeek,required this.eventName,required this.shortEventDescription,required this.eventDate, required this.eventLocation,
 
@@ -40,6 +42,7 @@ class EventLogin extends StatefulWidget {
 class _EventLoginState extends State<EventLogin> {
 
   List<CISOAttendeeModel>? attendees;
+  List<CustomerAttendeeModel>? customerAttendees;
   final _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
 
@@ -52,11 +55,16 @@ class _EventLoginState extends State<EventLogin> {
     // TODO: implement initState
     super.initState();
   }
-  CISOAttendeeModel? findAttendeeByEmail(String emailToCheck) {
-    return attendees!.firstWhere(
+  findAttendeeByEmail(String emailToCheck) {
+    return widget.isCustomerEvent==false? attendees!.firstWhere(
           (attendee) => attendee.workEmail.toLowerCase() == emailToCheck.toLowerCase(),
 
-    );
+    ):customerAttendees!.firstWhere(
+          (attendee) => attendee.email!.toLowerCase() == emailToCheck.toLowerCase(),
+
+    )
+
+    ;
   }
   sendOTP({required String email})async{
     Map<String, dynamic> emailData = {
@@ -89,7 +97,7 @@ class _EventLoginState extends State<EventLogin> {
               //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
               shortEventDescription: widget.shortEventDescription,
               //eventLocation: 'Nigeria',);
-              eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek,
+              eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,
 
             ),
             withNavBar: false,
@@ -114,28 +122,55 @@ class _EventLoginState extends State<EventLogin> {
           setState(() {
             isCreating=false;
           });
-          CISOAttendeeModel? attendee = findAttendeeByEmail(email);
-          if(mounted){
+         if(widget.isCustomerEvent==false){
+           CISOAttendeeModel? attendee = findAttendeeByEmail(email);
+           if(mounted){
 
-            PersistentNavBarNavigator.pushNewScreen(
+             PersistentNavBarNavigator.pushNewScreen(
 
-              context,
-              screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,isAdmin:"false",
-                company: attendee!.company,
-                role: attendee.role, lastName: attendee.lastName,firstName: attendee.firstName, phone: attendee.phone,id: attendee.id, profileID: attendee.profilePhoto??"",
-                coverImagePath: widget.coverImagePath, eventName: widget.eventName,
-                //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
-                eventDate: widget.eventDate,
-                //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
-                shortEventDescription: widget.shortEventDescription,
-                //eventLocation: 'Nigeria',);
-                eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek,
+               context,
+               screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,isAdmin:"false",
+                 company: attendee!.company,
+                 role: attendee.role, lastName: attendee.lastName,firstName: attendee.firstName, phone: attendee.phone,id: attendee.id, profileID: attendee.profilePhoto??"",
+                 coverImagePath: widget.coverImagePath, eventName: widget.eventName,
+                 //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+                 eventDate: widget.eventDate,
+                 //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+                 shortEventDescription: widget.shortEventDescription,
+                 //eventLocation: 'Nigeria',);
+                 eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,
 
-              ),
-              withNavBar: false,
-              pageTransitionAnimation: PageTransitionAnimation.slideRight,
-            );
-          }
+               ),
+               withNavBar: false,
+               pageTransitionAnimation: PageTransitionAnimation.slideRight,
+             );
+           }
+
+         }else{
+           CustomerAttendeeModel customerAttendee = findAttendeeByEmail(email);
+           if(mounted){
+
+             PersistentNavBarNavigator.pushNewScreen(
+
+               context,
+               screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,isAdmin:"false",
+                 company: customerAttendee!.company_role!,
+                 role: ".", lastName: ".",firstName: customerAttendee.name!, phone: customerAttendee.phone!,id: customerAttendee.id, profileID: customerAttendee.profilePhoto??"",
+                 coverImagePath: widget.coverImagePath, eventName: widget.eventName,
+                 //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+                 eventDate: widget.eventDate,
+                 //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+                 shortEventDescription: widget.shortEventDescription,
+                 //eventLocation: 'Nigeria',);
+                 eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,
+
+               ),
+               withNavBar: false,
+               pageTransitionAnimation: PageTransitionAnimation.slideRight,
+             );
+           }
+
+         }
         } else {
           print('Error: ${e.message}');
         }
@@ -176,7 +211,8 @@ class _EventLoginState extends State<EventLogin> {
     );
   }
   bool doesEmailExist(String emailToCheck) {
-    return attendees!.any((attendee) => attendee.workEmail.toLowerCase() == emailToCheck.toLowerCase());
+    return widget.isCustomerEvent==false? attendees!.any((attendee) => attendee.workEmail.toLowerCase() == emailToCheck.toLowerCase()):
+    customerAttendees!.any((attendee) => attendee.email!.toLowerCase() == emailToCheck.toLowerCase());
   }
 
 
@@ -184,7 +220,7 @@ class _EventLoginState extends State<EventLogin> {
 
 
   Future fetchAllAttendees() async {
-    final response = await DioFetchService().fetchCISOAttendees(eventID: widget.eventID);
+    final response = widget.isCustomerEvent==true?await DioFetchService().fetchCustomerEventsAttendees(eventID: widget.eventID):await DioFetchService().fetchCIOAttendees(eventID: widget.eventID);
 
     setState(() {
       //isFetching=false;
@@ -197,13 +233,25 @@ class _EventLoginState extends State<EventLogin> {
 
 
 
-      List<CISOAttendeeModel> userList = List<CISOAttendeeModel>.from(filteredData.map((user) => CISOAttendeeModel.fromJson(user)));
-      setState(() {
-        attendees=userList;
-      //  print(attendees![624].firstName);
-        print(attendees!.length);
+      if(widget.isCustomerEvent==false){
+        List<CISOAttendeeModel> userList = List<CISOAttendeeModel>.from(filteredData.map((user) => CISOAttendeeModel.fromJson(user)));
+        setState(() {
+          attendees=userList;
+          //  print(attendees![624].firstName);
+          print(attendees!.length);
 
-      });
+        });
+
+      }else{
+        List<CustomerAttendeeModel> userList = List<CustomerAttendeeModel>.from(filteredData.map((user) => CustomerAttendeeModel.fromJson(user)));
+        setState(() {
+          customerAttendees=userList;
+          //  print(attendees![624].firstName);
+          print(customerAttendees!.length);
+
+        });
+
+      }
 
       // return jsonData.map((userJson) => AttendeeModel.fromJson(userJson)).toList();
     } else {
@@ -306,7 +354,7 @@ class _EventLoginState extends State<EventLogin> {
                                             //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
                                             shortEventDescription: widget.shortEventDescription,
                                             //eventLocation: 'Nigeria',);
-                                            eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek,
+                                            eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,
 
                                           ),
                                           withNavBar: false,

@@ -80,7 +80,7 @@ attendeeWidget({
           padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
           child: Row(
             children: [
-             if(profileid=="" || profileid==null) AttendeeProfileInitials(firstName: firstName, lastName: lastName,),
+             if(profileid=="" || profileid==null) AttendeeProfileInitials(firstName: firstName??".", lastName: lastName,),
              if(profileid!="" && profileid!=null) AttendeeProfilePicWidget(profileID: profileid,),
               horizontalSpace(width: 20),
               SizedBox(

@@ -134,6 +134,45 @@ class DioPostService extends DioClient {
       throw Exception("Checkin data create error: ${ex.response!.data!}");
     }
   }
+
+  ///This function is incharge of uploading attendee details for customer events from a CSV file
+  Future<Response> postCustomerInfo({required Map<String, dynamic> body,required BuildContext context}) async {
+    try{
+      return await _client
+          .init()
+          .post("https://subscriptions.cioafrica.co/items/Customer_Event_Registrations",
+        data: body,
+
+
+        // Set headers using the 'headers' parameter
+      );
+    }on DioError catch (ex) {
+      Fluttertoast.showToast(backgroundColor:kLogoutRed,msg: "Error: Check your internet connection");
+      Future.delayed(const Duration(seconds: 2),(){Navigator.of(context).pop();});
+
+
+      throw Exception("Checkin data create error: ${ex.response!.data!}");
+    }
+  }
+
+  Future<Response> postCustomerSpeakerInfo({required Map<String, dynamic> body,required BuildContext context}) async {
+    try{
+      return await _client
+          .init()
+          .post("https://subscriptions.cioafrica.co/items/speakers",
+        data: body,
+
+
+        // Set headers using the 'headers' parameter
+      );
+    }on DioError catch (ex) {
+      Fluttertoast.showToast(backgroundColor:kLogoutRed,msg: "Error: Check your internet connection");
+      Future.delayed(const Duration(seconds: 2),(){Navigator.of(context).pop();});
+
+
+      throw Exception("Checkin data create error: ${ex.response!.data!}");
+    }
+  }
   Future<Response> postCheckinDataFiltered({required Map<String, dynamic> body,required BuildContext context,}) async {
     try{
       return await _client

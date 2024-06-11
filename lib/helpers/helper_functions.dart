@@ -373,3 +373,16 @@ String formatDate(DateTime date) {
   final DateFormat formatter = DateFormat('yyyy-MM-dd');
   return formatter.format(date);
 }
+
+launchMailClient(
+    {required String emailAddress,
+      required String subject,
+      required String body}) async {
+  Uri emailUri = Uri.parse(
+      "mailto:$emailAddress?subject=${Uri.encodeFull(subject)}&body=${Uri.encodeFull(body)}");
+  if (await canLaunchUrl(emailUri)) {
+    await launchUrl(emailUri);
+  } else {
+    throw 'Could not launch $emailUri';
+  }
+}

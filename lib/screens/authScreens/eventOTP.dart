@@ -32,7 +32,7 @@ class OTPScreen extends StatefulWidget {
   int id;
   String profileID; int eventDay;
   int eventMonth;
-  int eventYear;
+  int eventYear;bool isCustomerEvent;
 
   final String coverImagePath ;
   final String eventLocation ;
@@ -43,7 +43,7 @@ class OTPScreen extends StatefulWidget {
   final String eventID ;
   OTPScreen({  required this.eventDay,
     required this.eventMonth,
-    required this.eventYear,
+    required this.eventYear,required this.isCustomerEvent,
 
     required this.coverImagePath,required this.eventDayOfWeek, required this.eventName,required this.eventID,required this.shortEventDescription,required this.eventDate, required this.eventLocation,
     required this.email,required this.isAdmin,required this.profileID,required this.company,required this.role,required this.lastName, required this.firstName, required this.phone,required this.id,
@@ -184,7 +184,7 @@ class _OTPScreenState extends State<OTPScreen> {
               //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
               shortEventDescription: widget.shortEventDescription,
               //eventLocation: 'Nigeria',);
-              eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek,)),
+              eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,)),
           );
         }
 
@@ -349,7 +349,7 @@ class _OTPScreenState extends State<OTPScreen> {
                                                 //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
                                                 shortEventDescription: widget.shortEventDescription,
                                                 //eventLocation: 'Nigeria',);
-                                                eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek,)),
+                                                eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,)),
                                             );
                                             // PersistentNavBarNavigator.pushNewScreen(
                                             //   context,

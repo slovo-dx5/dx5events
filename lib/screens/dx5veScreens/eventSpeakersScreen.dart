@@ -43,6 +43,7 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
     final Map<String, dynamic> responseData = response.data['data'];
 
     final List<dynamic> speakersData = responseData['speakers'];
+    print("speaker dat is ${speakersData.length}");
 
     for (var speakerData in speakersData) {
       neoSpeakers.add(SpeakerAssociation.fromJson(speakerData));
@@ -57,6 +58,7 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
 
         setState(() {
           filteredSpeakers=speakers;
+          print("spekers len $filteredSpeakers");
         });
 
       });
@@ -81,6 +83,7 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
 
       // Manually find the speaker to allow returning null.
       for (var speaker in speakerssModel.data) {
+        print("speaker key is $key ");
       if(speaker.id==key){
         return speaker;
       }

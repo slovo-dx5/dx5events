@@ -29,6 +29,12 @@ class RoomData {
   // Extracts the numerical ID from the attendeeData string.
   int get attendeeId {
     var parts = attendeeData.split(':');
+    return int.tryParse(parts.first) ?? 0; // Returns 0 if parsing fails
+  }
+
+  //Get event regid
+  int get eventRegId {
+    var parts = attendeeData.split(':');
     return int.tryParse(parts.last) ?? 0; // Returns 0 if parsing fails
   }
 }

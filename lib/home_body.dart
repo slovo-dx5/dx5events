@@ -15,9 +15,10 @@ class HomeBody extends StatefulWidget {
   String eventID; int eventDay;
   int eventMonth;
   int eventYear;
+  bool isCustomerEvent;
 
    HomeBody({super.key,   required this.eventDay,
-     required this.eventMonth,
+     required this.eventMonth,required this.isCustomerEvent,
      required this.eventYear,required this.coverImagePath,required this.eventDate,required this.eventID, required this.eventName,required this.shortEventDescription,required this.eventDayOfWeek, required this.eventLocation});
 
   @override
@@ -60,7 +61,7 @@ class _HomeBodyState extends State<HomeBody> {
       coverImagepath: widget.coverImagePath, eventName: widget.eventName,
       eventDayOfWeek: widget.eventDayOfWeek,
       shortEventDescription: widget.shortEventDescription,
-      eventLocation: widget.eventLocation, eventID: widget.eventID, eventDate: widget.eventDate,);
+      eventLocation: widget.eventLocation, eventID: widget.eventID, eventDate: widget.eventDate, isCustomerEvent: widget.isCustomerEvent,);
 
   }
 }

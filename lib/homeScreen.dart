@@ -33,10 +33,11 @@ class HomeScreen extends GetView<MyDrawerController> {
   final String eventID ;final int eventDay;
   final int eventMonth;
   final int eventYear;
+  final bool isCustomerEvent;
 
 
    const HomeScreen({Key? key,   required this.eventDay,
-     required this.eventMonth,
+     required this.eventMonth,required this.isCustomerEvent,
      required this.eventYear,required this.coverImagePath,required this.eventDayOfWeek,required this.eventID, required this.eventLocation, required this.eventName, required this.eventDate,required this.shortEventDescription}) : super(key: key);
 
   @override
@@ -47,7 +48,7 @@ class HomeScreen extends GetView<MyDrawerController> {
         controller: _.zoomDrawerController,
         menuScreen: MenuScreen(),
         mainScreen: MainScreen(controller: controller, coverImagePath: coverImagePath, eventLocation: eventLocation, eventName: eventName, eventDate: eventDate, 
-          shortEventDescription: shortEventDescription, eventID: eventID, eventDay: eventDay, eventMonth: eventMonth, eventYear: eventYear, eventDayOfWeek: eventDayOfWeek,),
+          shortEventDescription: shortEventDescription, eventID: eventID, eventDay: eventDay, eventMonth: eventMonth, eventYear: eventYear, eventDayOfWeek: eventDayOfWeek, isCustomerEvent: isCustomerEvent,),
         androidCloseOnBackTap: true,
         borderRadius: 24.0,
         showShadow: true,
@@ -75,10 +76,11 @@ class MainScreen extends GetView<MyDrawerController> {
   String eventID; int eventDay;
   int eventMonth;
   int eventYear;
+  bool isCustomerEvent;
    MainScreen({
     Key? key,
     required this.controller,  required this.eventDay,
-     required this.eventMonth,
+     required this.eventMonth,required this.isCustomerEvent,
      required this.eventYear,required this.coverImagePath, required this.eventID,required this.eventLocation, required this.eventName, required this.eventDate,required this.eventDayOfWeek,required this.shortEventDescription
   }) : super(key: key);
 
@@ -102,7 +104,7 @@ class MainScreen extends GetView<MyDrawerController> {
         actions: [NotificationIconButton()],
         // actions:  [Icon(Icons.notification_important_rounded,color: kTextColorBlackLighter,)],
       ),
-      body:  HomeBody(eventDay: eventDay, eventMonth: eventMonth, eventYear: eventYear,coverImagePath: coverImagePath, eventName: eventName, shortEventDescription: shortEventDescription, eventDate: eventDate, eventLocation: eventLocation, eventID: eventID, eventDayOfWeek: eventDayOfWeek,),
+      body:  HomeBody(eventDay: eventDay, eventMonth: eventMonth, eventYear: eventYear,coverImagePath: coverImagePath, eventName: eventName, shortEventDescription: shortEventDescription, eventDate: eventDate, eventLocation: eventLocation, eventID: eventID, eventDayOfWeek: eventDayOfWeek, isCustomerEvent: isCustomerEvent,),
     );
   }
 }
@@ -195,6 +197,15 @@ class MenuScreen extends GetView<MyDrawerController> {
                               withNavBar: false,
                               pageTransitionAnimation: PageTransitionAnimation.slideRight,
                             );
+
+                          }),
+
+                      verticalSpace(height: 30),
+
+                      menuItem(menuText: 'Need an app?',
+                          widgetIcon: Icons.touch_app, iconColor: kCIOPink, onPressedFunction: () {
+
+                            launchMailClient(emailAddress: 'dev@dx5ve.com', subject: 'APP DEVELOPMENT PROPOSAL', body: '');
 
                           }),
                     ],

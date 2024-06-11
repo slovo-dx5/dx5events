@@ -24,8 +24,10 @@ class HomePageWidget extends StatefulWidget {
   String eventID;int eventDay;
   int eventMonth;
   int eventYear;
+  bool isCustomerEvent;
   HomePageWidget(
       {super.key,
+        required this.isCustomerEvent,
       required this.coverImagepath,
       required this.eventName,required this.eventDate,
       required this.eventDayOfWeek,required this.eventLocation,required this.eventID,
@@ -164,7 +166,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     width: 10,
                     height: 10,
                   ),
-                  screen: AttendeesScreen(eventID: widget.eventID,),
+                  screen: AttendeesScreen(eventID: widget.eventID, isCustomerEvent: widget.isCustomerEvent,),
                   itemName: 'Attendees', analyticsActionName: 'attendees_page_opened',
                 ),
                 CIOWidgets().gradientItemWidget(

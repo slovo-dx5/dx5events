@@ -100,20 +100,24 @@ class _ActiveEventsState extends State<ActiveEvents> {
         //   );
         // }, eventName: 'Cloud and Security\n'
         //     'Summit', containerColor: kCISOPurple,),
-        UpcomingEventWidget2(imagePath: 'assets/images/themes/smartbanking.png', dayMonth: 'WED, MAY', date: '22nd', endDate: '23rd', location: 'KENYA', endDayMonth: 'THUR, MAY', onPressedFunct: (){
+
+
+        UpcomingEventWidget2(imagePath: 'assets/images/themes/aff.png', dayMonth: 'WED, JUNE', date: '12th',
+          endDate: '14th', location: 'KENYA', endDayMonth: 'FRI, JUNE', onPressedFunct: (){
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => InitialScreen(coverImagePath: 'assets/images/themes/smartbanking.png', eventName: "SMART BANKING",
-                eventHappeningDates: 'WED, MAY, 22nd - THUR MAY 23rd',
+            MaterialPageRoute(builder: (_) => InitialScreen(coverImagePath: 'assets/images/themes/aff.png', eventName: 'AFRICA FINTECH\nFESTIVAL',
+                eventHappeningDates: 'WED, JUNE, 12th - FRI JUNE 14th',
 
-                shortEventDescription: "Navigating the Next: Africa's Leap into Smart, Secure, and Inclusive Banking",
+                shortEventDescription: "Catalyzing Smart Regulation, GreenTech and AgriTech",
                 eventLocation: 'KENYA'
-                ,followingScreen: EventLogin(coverImagePath: 'assets/images/themes/smartbanking.png', eventName: "SMART BANKING",
-                    eventDate: 'WED, MAY, 22nd - THUR MAY 23rd',
+                ,followingScreen: EventLogin(coverImagePath: 'assets/images/themes/aff.png', eventName: 'AFRICA FINTECH\nFESTIVAL',
+                    eventDate: 'WED, JUNE, 12th - FRI JUNE 14th',
 
-                    shortEventDescription: "Navigating the Next: Africa's Leap into Smart, Secure, and Inclusive Banking",
-                    eventLocation: 'KENYA', eventID: '8', eventDay: 22, eventMonth: 5, eventYear: 2024, eventDayOfWeek: 'WED',), eventID: '8', eventDay: 22, eventMonth: 5, eventYear: 2024, eventDayOfWeek: 'WED',)),
+                    shortEventDescription: "Catalyzing Smart Regulation, GreenTech and AgriTech",
+                    eventLocation: 'KENYA', eventID: '25', eventDay: 12, eventMonth: 6, eventYear: 2024, eventDayOfWeek: 'WED',
+                isCustomerEvent: true,), eventID: '25', eventDay: 12, eventMonth: 6, eventYear: 2024, eventDayOfWeek: 'WED', isCustomerEvent: true,)),
           );
-        }, eventName: 'Smart Banking'
+        }, eventName: 'AFRICA FINTECH\nFESTIVAL'
             , containerColor: kCISOPurple,),
       ],
     );

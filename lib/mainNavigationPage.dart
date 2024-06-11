@@ -27,10 +27,11 @@ class MainNavigationPage extends StatefulWidget {
   final String eventID ;
   final String shortEventDescription ; int eventDay;
   int eventMonth;
-  int eventYear;
+  int eventYear;bool isCustomerEvent;
+
 
   MainNavigationPage({Key? key,  required this.eventDay,
-    required this.eventMonth,
+    required this.eventMonth,required this.isCustomerEvent,
     required this.eventYear,required this.coverImagePath,required this.eventID,required this.eventDayOfWeek, required this.eventName,required this.shortEventDescription,required this.eventDate, required this.eventLocation}) : super(key: key);
 
   @override
@@ -114,7 +115,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
         shortEventDescription: widget.shortEventDescription,
         //eventLocation: 'Nigeria',);
-        eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek:widget.eventDayOfWeek ,),
+        eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek:widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent ,),
       AllChatsScreen(),
       MeetingTabs(),
       const ProfileScreen(),
@@ -161,7 +162,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                 //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
                 shortEventDescription: widget.shortEventDescription,
                 //eventLocation: 'Nigeria',);
-                eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek,),
+                eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,),
               '/second': (context) => MeetingTabs(),
               '/third': (context) => const GalleryScreen(),
               '/fourth': (context) => const ProfileScreen(),
