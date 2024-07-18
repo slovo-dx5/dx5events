@@ -1,6 +1,7 @@
 
 import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/providers/themeProvider.dart';
+import 'package:dx5veevents/screens/getContact.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
 import 'package:dx5veevents/widgets/checkin_widget.dart';
 import 'package:dx5veevents/widgets/notifications_widget.dart';
@@ -194,6 +195,19 @@ class MenuScreen extends GetView<MyDrawerController> {
                               context,
                               screen:  LandingPage2(
                             ),
+                              withNavBar: false,
+                              pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                            );
+
+                          }),
+
+                      menuItem(menuText: 'Get Contact',
+                          widgetIcon: Icons.contacts, iconColor: kCIOPink, onPressedFunction: () {
+
+                            PersistentNavBarNavigator.pushNewScreen(
+                              context,
+                              screen: GetContact(
+                               ),
                               withNavBar: false,
                               pageTransitionAnimation: PageTransitionAnimation.slideRight,
                             );

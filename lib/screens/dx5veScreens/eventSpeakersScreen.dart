@@ -138,17 +138,9 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
               filterData(query);
 
             },
-          ):const Column(
-            children: [
-              Text(
-                "SPEAKERS",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500,color: kToggleDark),
-              ),
-              Text(
-                "AFRICA CISO SUMMIT",
-                style: TextStyle(fontSize: 9, color: kTextColorGrey),
-              )
-            ],
+          ):Text(
+            "SPEAKERS",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500,color: kToggleDark),
           ),
           actions: [ IconButton(
             icon: Icon(isSearching ? Icons.close : Icons.search,color: kTextColorBlack,),

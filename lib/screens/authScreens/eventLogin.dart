@@ -238,7 +238,7 @@ class _EventLoginState extends State<EventLogin> {
         setState(() {
           attendees=userList;
           //  print(attendees![624].firstName);
-          print(attendees!.length);
+          print(attendees!.last.firstName);
 
         });
 
@@ -247,7 +247,7 @@ class _EventLoginState extends State<EventLogin> {
         setState(() {
           customerAttendees=userList;
           //  print(attendees![624].firstName);
-          print(customerAttendees!.length);
+        //  print("last attendee is ${customerAttendees!.last.email}");
 
         });
 

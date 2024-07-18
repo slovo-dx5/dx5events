@@ -2,7 +2,9 @@ import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/providers/themeProvider.dart';
 import 'package:dx5veevents/screens/authScreens/eventLogin.dart';
 import 'package:dx5veevents/screens/doLastMinuteShyet.dart';
+import 'package:dx5veevents/screens/getContact.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
+import 'package:dx5veevents/screens/saveContact.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -69,6 +71,7 @@ class MyApp extends StatelessWidget {
               theme: lightTheme,
               darkTheme: darkTheme,
              home: LandingPage2()
+             //home: GetContact()
              //home: StructureLAstMinute()
             // home: CSVHelper()
              //home: CustomerSpeakerCSVHelper()

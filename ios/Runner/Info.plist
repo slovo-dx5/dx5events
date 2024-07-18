@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Permission required to scan QR Codes</string>
+	<key>NSContactsUsageDescription</key>
+    <string>This app requires contacts access to function properly.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Permission required by AppStore</string>
 	<key>NSMicrophoneUsageDescription</key>
