@@ -328,7 +328,7 @@ class _UserSessionsScreenState extends State<UserSessionsScreen> {
                             setState(() {
                               isBookmarking = false;
                             });
-                          }, eventLocation: widget.eventLocation, eventYear: widget.eventYear,eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventDayOfWeek: widget.eventDayOfWeek, sessionDate: _dayToAgendaMap[_selectedDate]!.date!, sessionID: session.sessionId,
+                          }, eventLocation: widget.eventLocation, eventYear: widget.eventYear,eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventDayOfWeek: widget.eventDayOfWeek, sessionDate: _dayToAgendaMap[_selectedDate]!.date!, sessionID: session.sessionId, eventID: widget.eventID,
                         );
                       } else {
                         return SessionItemWithoutSpeakers(
@@ -356,7 +356,7 @@ class _UserSessionsScreenState extends State<UserSessionsScreen> {
                               });
                             }, eventLocation: widget.eventLocation, eventYear: widget.eventYear,
                             eventMonth: widget.eventMonth,eventDay: widget.eventDay, eventDayOfWeek: widget.eventDayOfWeek,
-                            sessionDate:  _dayToAgendaMap[_selectedDate]!.date!, sessionID: session.sessionId
+                            sessionDate:  _dayToAgendaMap[_selectedDate]!.date!, sessionID: session.sessionId, eventID: widget.eventID,
                         );
                       }
                     },

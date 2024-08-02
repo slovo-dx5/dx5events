@@ -246,7 +246,7 @@ class _EventLoginState extends State<EventLogin> {
         List<CustomerAttendeeModel> userList = List<CustomerAttendeeModel>.from(filteredData.map((user) => CustomerAttendeeModel.fromJson(user)));
         setState(() {
           customerAttendees=userList;
-          //  print(attendees![624].firstName);
+            print(attendees!.first.firstName);
         //  print("last attendee is ${customerAttendees!.last.email}");
 
         });

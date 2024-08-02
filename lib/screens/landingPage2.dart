@@ -41,7 +41,7 @@ List <String> items=["ACTIVE","FUTURE" ];
               });
             },
               child: Container(
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(30),color:current==index? kCISOPurple:kTextColorGrey),
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(30),color:current==index? kGradientLightBlue:kTextColorGrey),
                 margin: const EdgeInsets.all(5),
                 width: MediaQuery.of(context).size.width*0.45,
                 height: 45,
@@ -102,23 +102,23 @@ class _ActiveEventsState extends State<ActiveEvents> {
         //     'Summit', containerColor: kCISOPurple,),
 
 
-        UpcomingEventWidget2(imagePath: 'assets/images/themes/aff.png', dayMonth: 'WED, JUNE', date: '12th',
-          endDate: '14th', location: 'KENYA', endDayMonth: 'FRI, JUNE', onPressedFunct: (){
+        UpcomingEventWidget2(imagePath: 'assets/images/themes/insuretech.jpg', dayMonth: 'THUR, AUGUST', date: '15th',
+          endDate: '15th', location: 'KENYA', endDayMonth: 'THUR, AUGUST', onPressedFunct: (){
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => InitialScreen(coverImagePath: 'assets/images/themes/aff.png', eventName: 'AFRICA FINTECH\nFESTIVAL',
-                eventHappeningDates: 'WED, JUNE, 12th - FRI JUNE 14th',
+            MaterialPageRoute(builder: (_) => InitialScreen(coverImagePath: 'assets/images/themes/insuretech.jpg', eventName: 'AFRICA INSURETECH\nFORUM',
+                eventHappeningDates: 'THUR, AUGUST, 15th - THUR, AUGUST, 15th',
 
-                shortEventDescription: "Catalyzing Smart Regulation, GreenTech and AgriTech",
+                shortEventDescription: "Reimagining insurance for a secure tomorrow",
                 eventLocation: 'KENYA'
-                ,followingScreen: EventLogin(coverImagePath: 'assets/images/themes/aff.png', eventName: 'AFRICA FINTECH\nFESTIVAL',
-                    eventDate: 'WED, JUNE, 12th - FRI JUNE 14th',
+                ,followingScreen: EventLogin(coverImagePath: 'assets/images/themes/insuretech.jpg', eventName: 'AFRICA INSURETECH\nFORUM',
+                    eventDate: 'THUR, AUGUST, 15th - THUR, AUGUST, 15th',
 
-                    shortEventDescription: "Catalyzing Smart Regulation, GreenTech and AgriTech",
-                    eventLocation: 'KENYA', eventID: '25', eventDay: 12, eventMonth: 6, eventYear: 2024, eventDayOfWeek: 'WED',
-                isCustomerEvent: true,), eventID: '25', eventDay: 12, eventMonth: 6, eventYear: 2024, eventDayOfWeek: 'WED', isCustomerEvent: true,)),
+                    shortEventDescription: "Reimagining insurance for a secure tomorrow",
+                    eventLocation: 'KENYA', eventID: '13', eventDay: 15, eventMonth: 8, eventYear: 2024, eventDayOfWeek: 'THUR',
+                isCustomerEvent: false,), eventID: '13', eventDay: 15, eventMonth: 8, eventYear: 2024, eventDayOfWeek: 'THUR', isCustomerEvent: false,)),
           );
-        }, eventName: 'AFRICA FINTECH\nFESTIVAL'
-            , containerColor: kCISOPurple,),
+        }, eventName: 'AFRICA INSURETECH\nFORUM'
+            , containerColor: kGradientLightBlue.withOpacity(0.7),),
       ],
     );
   }

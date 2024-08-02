@@ -274,12 +274,14 @@ class SessionItemWithSpeakers extends StatefulWidget {
   List <BreakoutSession>?breakoutSessions;List speakers;
       VoidCallback onPressedFunction;
   int userID;
+  String eventID;
 
 
-   SessionItemWithSpeakers({super.key, required this.speakers,
+
+  SessionItemWithSpeakers({super.key, required this.speakers,
 
     //  required this.speakersCollection,
-    required this.eventLocation, required this.eventDayOfWeek, required this.eventYear, required this.eventMonth, required this.eventDay, required this.title
+    required this.eventLocation, required this.eventID,required this.eventDayOfWeek, required this.eventYear, required this.eventMonth, required this.eventDay, required this.title
    , required this.startTime, required this.sessionID, required this.sessionDate, required this.futures, required this.summary, this.breakoutSessions, required this.onPressedFunction,
      required this.userID, required this.endTime, required this.sessionType});
 
@@ -312,7 +314,7 @@ class _SessionItemWithSpeakersState extends State<SessionItemWithSpeakers> {
               speakers: widget.speakers,
               breakOuts: widget.breakoutSessions, eventLocation: widget.eventLocation,
               eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear, futures: widget.futures,
-              date: widget.eventDayOfWeek, sessionId: widget.sessionID, sessionDate: widget.sessionDate,
+              date: widget.eventDayOfWeek, sessionId: widget.sessionID, sessionDate: widget.sessionDate, eventID: '',
             ),
             withNavBar: false,
             pageTransitionAnimation: PageTransitionAnimation.slideRight,
@@ -479,6 +481,8 @@ class SessionItemWithoutSpeakers extends StatefulWidget {
   String startTime;
   DateTime sessionDate;
   int sessionID;
+  String eventID;
+
 
   String endTime;
   String sessionType;
@@ -491,7 +495,7 @@ class SessionItemWithoutSpeakers extends StatefulWidget {
   SessionItemWithoutSpeakers({super.key,
 
     //  required this.speakersCollection,
-    required this.eventLocation, required this.eventDayOfWeek, required this.eventYear, required this.eventMonth, required this.eventDay, required this.title
+    required this.eventLocation, required this.eventID, required this.eventDayOfWeek, required this.eventYear, required this.eventMonth, required this.eventDay, required this.title
     , required this.startTime, required this.sessionID, required this.sessionDate,  required this.summary, this.breakoutSessions, required this.onPressedFunction,
     required this.userID, required this.endTime, required this.sessionType});
 
@@ -523,7 +527,7 @@ class _SessionItemWithoutSpeakersState extends State<SessionItemWithoutSpeakers>
               speakers:false,
               breakOuts: widget.breakoutSessions, eventLocation: widget.eventLocation,
               eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear, futures: null,
-              date: widget.eventDayOfWeek, sessionId: widget.sessionID, sessionDate: widget.sessionDate,
+              date: widget.eventDayOfWeek, sessionId: widget.sessionID, sessionDate: widget.sessionDate, eventID: widget.eventID,
             ),
             withNavBar: false,
             pageTransitionAnimation: PageTransitionAnimation.slideRight,

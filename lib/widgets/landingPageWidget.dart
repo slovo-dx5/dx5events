@@ -345,7 +345,7 @@ class UpcomingEventWidget2 extends StatelessWidget {
                 // Text widget occupies a quarter of the container width
                 Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(15),
                     image: DecorationImage(
                       image: AssetImage(imagePath),
                       fit: BoxFit.fill,

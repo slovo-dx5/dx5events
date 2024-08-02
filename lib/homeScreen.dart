@@ -161,7 +161,7 @@ class MenuScreen extends GetView<MyDrawerController> {
                         onChanged: (value) {
                           final newTheme = value ? ThemeModeOptions.dark : ThemeModeOptions.light;
                           themeProvider.setThemeMode(newTheme);
-                        },
+                        }
                       ),],),
                       menuItem(menuText: 'Scan QR',
                           widgetIcon: Icons.qr_code_2, iconColor: kCIOPink, onPressedFunction: () {

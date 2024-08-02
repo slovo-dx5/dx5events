@@ -28,9 +28,11 @@ class EventAgendaScreen extends StatefulWidget {
   String eventLocation;
   String eventDayOfWeek;
 
+
   EventAgendaScreen(
       {super.key,
       required this.eventID,
+
       required this.eventDay,
         required this.eventDayOfWeek,
       required this.eventMonth,
@@ -123,34 +125,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
     }
   }
 
-  // Future<List<Session>> fetchSessions({required List<int> sessionIds}) async {
-  //   try {
-  //     final response = await DioFetchService().fetchdx5veAgenda(eventID: widget.eventID);
-  //
-  //     log("response is ${response.data}");
-  //
-  //     final agendaModel = AgendaModel.fromJson(response.data);
-  //     print("agenda model data is $agendaModel");
-  //
-  //     // Filter sessions based on the provided session IDs
-  //     List<Session> filteredSessions = [];
-  //     for (var day in agendaModel.days) {
-  //       day.sessions = day.sessions.where((session) => sessionIds.contains(session.sessionId)).toList();
-  //       if (day.sessions.isNotEmpty) {
-  //         filteredSessions.addAll(day.sessions);
-  //       }
-  //     }
-  //
-  //     setState(() {
-  //       agendaDays = agendaModel.days;
-  //     });
-  //
-  //     return filteredSessions;
-  //   } catch (e) {
-  //     print("session fetch error: $e");
-  //     return [];
-  //   }
-  // }
+
 
 
   Future<List<Session>> fetchSessions() async {
@@ -322,7 +297,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                                   setState(() {
                                     isBookmarking = false;
                                   });
-                                }, eventLocation: widget.eventLocation, eventYear: widget.eventYear,eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventDayOfWeek: widget.eventDayOfWeek, sessionDate: _dayToAgendaMap[_selectedDate]!.date!, sessionID: session.sessionId,
+                                }, eventLocation: widget.eventLocation, eventYear: widget.eventYear,eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventDayOfWeek: widget.eventDayOfWeek, sessionDate: _dayToAgendaMap[_selectedDate]!.date!, sessionID: session.sessionId, eventId: widget.eventID,
                               );
                             } else {
                               return agendaItemWithoutSpeakers(
@@ -351,7 +326,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                                   });
                                 }, eventLocation: widget.eventLocation, eventYear: widget.eventYear,
                                   eventMonth: widget.eventMonth,eventDay: widget.eventDay, eventDayOfWeek: widget.eventDayOfWeek,
-                                  sessionDate:  _dayToAgendaMap[_selectedDate]!.date!, sessionID: session.sessionId
+                                  sessionDate:  _dayToAgendaMap[_selectedDate]!.date!, sessionID: session.sessionId, eventID: widget.eventID
                               );
                             }
                           },

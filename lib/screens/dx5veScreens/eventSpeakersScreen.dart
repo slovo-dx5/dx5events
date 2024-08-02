@@ -43,35 +43,39 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
     final Map<String, dynamic> responseData = response.data['data'];
 
     final List<dynamic> speakersData = responseData['speakers'];
-    print("speaker dat is ${speakersData.length}");
 
-    for (var speakerData in speakersData) {
-      neoSpeakers.add(SpeakerAssociation.fromJson(speakerData));
-    }
+    if(speakersData.isNotEmpty){
+
+      for (var speakerData in speakersData) {
+        neoSpeakers.add(SpeakerAssociation.fromJson(speakerData));
+      }
 
 
 
 
-    for (var speaker in neoSpeakers) {
-      fetchSpeakerById(speaker.speaker.key).then((value) {
-        speakers.add(value!);
+      for (var speaker in neoSpeakers) {
+        fetchSpeakerById(speaker.speaker.key).then((value) {
+          speakers.add(value!);
 
-        setState(() {
-          filteredSpeakers=speakers;
-          print("spekers len $filteredSpeakers");
+          setState(() {
+            filteredSpeakers=speakers;
+          });
+
         });
+      }
 
+      setState(() {
+        //filteredSpeakers = speakers;
+        isFetching = false;
       });
+
+
+
+      return speakers;
+    }else{
+      print("No speakers");
     }
 
-    setState(() {
-      //filteredSpeakers = speakers;
-      isFetching = false;
-    });
-
-
-
-    return speakers;
 
 
   }
@@ -83,7 +87,6 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
 
       // Manually find the speaker to allow returning null.
       for (var speaker in speakerssModel.data) {
-        print("speaker key is $key ");
       if(speaker.id==key){
         return speaker;
       }
@@ -92,7 +95,6 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
       }
 
     } catch (e) {
-      print("speaker eror is $e");
       return null;
     }
   }
