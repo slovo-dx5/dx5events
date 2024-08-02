@@ -102,16 +102,16 @@ class _ActiveEventsState extends State<ActiveEvents> {
         //     'Summit', containerColor: kCISOPurple,),
 
 
-        UpcomingEventWidget2(imagePath: 'assets/images/themes/insuretech.jpg', dayMonth: 'THUR, AUGUST', date: '15th',
+        UpcomingEventWidget2(imagePath: 'assets/images/themes/insuretech.jpg', dayMonth: 'THUR, AUG', date: '15th',
           endDate: '15th', location: 'KENYA', endDayMonth: 'THUR, AUGUST', onPressedFunct: (){
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (_) => InitialScreen(coverImagePath: 'assets/images/themes/insuretech.jpg', eventName: 'AFRICA INSURETECH\nFORUM',
-                eventHappeningDates: 'THUR, AUGUST, 15th - THUR, AUGUST, 15th',
+                eventHappeningDates: 'THUR, AUG, 15th - THUR, AUG, 15th',
 
                 shortEventDescription: "Reimagining insurance for a secure tomorrow",
                 eventLocation: 'KENYA'
                 ,followingScreen: EventLogin(coverImagePath: 'assets/images/themes/insuretech.jpg', eventName: 'AFRICA INSURETECH\nFORUM',
-                    eventDate: 'THUR, AUGUST, 15th - THUR, AUGUST, 15th',
+                    eventDate: 'THUR, AUG, 15th - THUR, AUG, 15th',
 
                     shortEventDescription: "Reimagining insurance for a secure tomorrow",
                     eventLocation: 'KENYA', eventID: '13', eventDay: 15, eventMonth: 8, eventYear: 2024, eventDayOfWeek: 'THUR',

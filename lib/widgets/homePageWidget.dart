@@ -92,14 +92,14 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                   ),
                   Container(padding: EdgeInsets.all(5),
                     height: 50,
-                    width: 50,
+                    width: 60,
                     decoration: BoxDecoration(borderRadius: BorderRadius.circular(5),),
                     child: Column(
                       children: [
                         const Icon(
                           Icons.location_on_sharp,
                           color: kCISOPurple,
-                        ),AutoSizeText(widget.eventLocation, maxFontSize: 10,minFontSize: 5,)
+                        ),Flexible(child: AutoSizeText(widget.eventLocation, maxFontSize: 10,minFontSize: 5,))
                       ],
                     ),
                   )

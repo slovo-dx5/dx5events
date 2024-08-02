@@ -363,10 +363,10 @@ class UpcomingEventWidget2 extends StatelessWidget {
                   children: [
                     AutoSizeText(
                       eventName,
-                      minFontSize: 20,
+                      minFontSize: 10,
                       maxFontSize: 25,
                       style:  TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.w600,color: themeProvider.themeMode==ThemeModeOptions.dark?kWhiteText:kTextColorBlack),
+                           fontWeight: FontWeight.w600,color: themeProvider.themeMode==ThemeModeOptions.dark?kWhiteText:kTextColorBlack),
                     ),
                     verticalSpace(height: 10),
                     Row(
@@ -381,7 +381,7 @@ class UpcomingEventWidget2 extends StatelessWidget {
                       children: [
                         const Icon(Icons.calendar_month,size: 15,color: kWhiteText,),horizontalSpace(width: 5),
                         AutoSizeText(
-                          "$dayMonth $date - $endDayMonth $endDate",
+                          "$dayMonth $date -\n$endDayMonth $endDate",
                           minFontSize: 5,
                           maxFontSize: 10,overflow: TextOverflow.ellipsis,style: TextStyle(color: themeProvider.themeMode==ThemeModeOptions.dark?kWhiteText:kTextColorBlack),
                         )
