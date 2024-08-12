@@ -116,10 +116,49 @@ class CIOWidgets {
     );
   }
 
-  cioAppBar() {
+  cioAppBar({required String title}) {
     return AppBar(backgroundColor: kScaffoldBackground,centerTitle: true,
-      title:  Text("CIO 100 SYMPOSIUM",style: TextStyle(color: kTextColorBlackLighter,fontSize: 15,fontWeight: FontWeight.w600),),
+      title:  Text(title,style: TextStyle(color: kTextColorBlackLighter,fontSize: 15,fontWeight: FontWeight.w600),),
       actions:  [Icon(Icons.notification_important_rounded,color: kTextColorBlackLighter,)],
+    );
+  }
+
+  adminWidget({required String assetPath,required BuildContext context,required Widget screen, required String actionTitle, required String actionDescription}){
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: GestureDetector(onTap: (){
+        PersistentNavBarNavigator.pushNewScreen(
+          context,
+          screen: screen,
+
+          withNavBar: false,
+          pageTransitionAnimation: PageTransitionAnimation.slideRight,
+        );
+      },
+        child: Card(
+          shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(12.0),
+            side:  BorderSide(
+              color: Colors.red.withOpacity(0.2),
+              width: 0.5,
+            ),
+          ),
+          child: Container(padding: EdgeInsets.all(5),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),
+                ),
+            width: MediaQuery.of(context).size.width,height: 70,
+            child: Row(children: [SizedBox(height:30,width:30,child: Image.asset(assetPath)),
+              horizontalSpace(width: 10),
+
+              Column(
+              crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+              Text(actionTitle,style: TextStyle(fontWeight: FontWeight.w700,fontSize: 17),),
+              Text(actionDescription),
+            ],)
+
+          ],),),
+        ),
+      ),
     );
   }
 }

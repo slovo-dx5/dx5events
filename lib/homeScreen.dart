@@ -1,6 +1,7 @@
 
 import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/providers/themeProvider.dart';
+import 'package:dx5veevents/screens/adminScreens/adminPanelHome.dart';
 import 'package:dx5veevents/screens/getContact.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
 import 'package:dx5veevents/widgets/checkin_widget.dart';
@@ -201,6 +202,8 @@ class MenuScreen extends GetView<MyDrawerController> {
 
                           }),
 
+
+
                       menuItem(menuText: 'Get Contact',
                           widgetIcon: Icons.contacts, iconColor: kCIOPink, onPressedFunction: () {
 
@@ -208,6 +211,20 @@ class MenuScreen extends GetView<MyDrawerController> {
                               context,
                               screen: GetContact(
                                ),
+                              withNavBar: false,
+                              pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                            );
+
+                          }),
+                      if(profileProvider.isAdmin=="true") menuItem(menuText: 'Admin Panel',
+                          widgetIcon: Icons.admin_panel_settings, iconColor: Colors.green,
+                          onPressedFunction: () {
+
+                            PersistentNavBarNavigator.pushNewScreen(
+                              context,
+                              screen: AdminPanelHome(adminName:"${profileProvider.firstName} ${profileProvider.lastName}",
+
+                              ),
                               withNavBar: false,
                               pageTransitionAnimation: PageTransitionAnimation.slideRight,
                             );

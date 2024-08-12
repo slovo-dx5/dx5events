@@ -86,7 +86,7 @@ class _EventLoginState extends State<EventLogin> {
           PersistentNavBarNavigator.pushNewScreen(
             context,
             screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,
-              isAdmin:"false",
+              isAdmin:emailController.text.endsWith("cioafrica.co")?"true":"false",
               company: attendee.company,
               role: attendee.role, lastName: attendee.lastName,
               firstName: attendee.firstName, phone: attendee.phone,
