@@ -213,6 +213,7 @@ class MenuScreen extends GetView<MyDrawerController> {
                                ),
                               withNavBar: false,
                               pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                              // kkg
                             );
 
                           }),
