@@ -70,6 +70,8 @@ dependencies:
   csv: ^6.0.0
   contacts_service: ^0.6.3
   permission_handler: ^11.0.0
+  googleapis_auth: ^1.0.0
+  googleapis: any
 
 dev_dependencies:
   flutter_test:
@@ -95,14 +97,15 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-   - assets/images/themes/
-   - assets/images/logos/
-   - assets/icons/
-   - assets/images/
-   - assets/images/backgrounds/
-   - assets/images/sponsors/
-   - assets/aff.csv
-   - assets/affspeakers.csv
+    - assets/images/themes/
+    - assets/images/logos/
+    - assets/icons/
+    - assets/images/
+    - assets/images/backgrounds/
+    - assets/images/sponsors/
+    - assets/aff.csv
+    - assets/affspeakers.csv
+    - assets/serviceaccount.json
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

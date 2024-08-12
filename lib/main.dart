@@ -1,5 +1,7 @@
+import 'package:dx5veevents/dioServices/dioPostService.dart';
 import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/providers/themeProvider.dart';
+import 'package:dx5veevents/screens/adminScreens/adminPanelHome.dart';
 import 'package:dx5veevents/screens/authScreens/eventLogin.dart';
 import 'package:dx5veevents/screens/doLastMinuteShyet.dart';
 import 'package:dx5veevents/screens/getContact.dart';
@@ -13,6 +15,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:provider/provider.dart';
 
+import 'backendOps/sendBroadcast.dart';
 import 'firebase_options.dart';
 import 'helpers/CustomerAttendeeCSVHelper.dart';
 import 'helpers/CustomerSpeakerCSVHelper.dart';
@@ -34,7 +37,26 @@ void main() async{
     options: DefaultFirebaseOptions.currentPlatform,
 
   );
-  await NotificationSetup().getIOSPermission();
+  await FirebaseMessaging.instance.subscribeToTopic("dx5veBroadcast");
+  //
+  // await NotificationSetup().getIOSPermission();
+  // try {
+  //   final token = await getAccessToken();
+  //   await DioPostService().sendBroadcast(body: {
+  //     "message": {
+  //       "topic": "news",
+  //       "notification": {
+  //         "title": "Breaking News",
+  //         "body": "New news story available."
+  //       },
+  //
+  //     }
+  //   }
+  //       , accessToken: token, );
+  //   print('broadcast success');
+  // } catch (e) {
+  //   print('access token errorError: $e');
+  // }
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(const MyApp());
 }
@@ -70,7 +92,8 @@ class MyApp extends StatelessWidget {
                   : ThemeMode.dark,
               theme: lightTheme,
               darkTheme: darkTheme,
-             home: LandingPage2()
+             //home: LandingPage2()
+             home: AdminPanelHome(adminName: 'Slovo Ulo',)
              //home: GetContact()
              //home: StructureLAstMinute()
             // home: CSVHelper()

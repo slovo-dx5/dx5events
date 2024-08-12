@@ -168,12 +168,12 @@ ThemeData(
     inputDecorationTheme: const InputDecorationTheme(
       // Sets the default underline color for all `TextField`s
       // (replace `Colors.green` with your desired color)
-      enabledBorder: UnderlineInputBorder(
+      enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(color: kPrimaryColor),
       ),
       // Sets the default underline color when focused for all `TextField`s
       // (replace `Colors.red` with your desired color)
-      focusedBorder: UnderlineInputBorder(
+      focusedBorder: OutlineInputBorder(
         borderSide: BorderSide(color: kPrimaryColor),
       ),
     ),

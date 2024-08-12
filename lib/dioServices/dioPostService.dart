@@ -135,6 +135,30 @@ class DioPostService extends DioClient {
     }
   }
 
+
+  Future<Response> sendBroadcast({required Map<String, dynamic> body,required String accessToken,}) async {
+    try{
+      return await _client
+          .init()
+          .post("https://fcm.googleapis.com/v1/projects/dx5ve-events/messages:send",
+        data: body,
+          options: Options(headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + accessToken
+          })
+
+
+
+        // Set headers using the 'headers' parameter
+      );
+    }on DioError catch (ex) {
+      Fluttertoast.showToast(backgroundColor:kLogoutRed,msg: "Error: Check your internet connection");
+
+
+      throw Exception("Send broadcast error: ${ex.response!.data!}");
+    }
+  }
+
   ///This function is incharge of uploading attendee details for customer events from a CSV file
   Future<Response> postCustomerInfo({required Map<String, dynamic> body,required BuildContext context}) async {
     try{
