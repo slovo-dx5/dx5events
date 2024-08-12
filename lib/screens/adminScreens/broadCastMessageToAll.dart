@@ -1,5 +1,6 @@
 import "package:dx5veevents/constants.dart";
 import "package:flutter/material.dart";
+import "package:fluttertoast/fluttertoast.dart";
 
 import "../../backendOps/sendBroadcast.dart";
 import "../../dioServices/dioPostService.dart";
@@ -97,6 +98,9 @@ class _BroadCastMessageToAllState extends State<BroadCastMessageToAll> {
                     }
                   }
                     , accessToken: token, );
+                  Fluttertoast.showToast(msg: "Message sent successfully");
+                  titleController.clear();
+                  messageBodyController.clear();
                   print('broadcast success');
                 } catch (e) {
                   print('access token errorError: $e');
