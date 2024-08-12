@@ -13,7 +13,7 @@ const _scopes = [
 
 Future<String> getAccessToken() async {
   // Load the service-account.json file from assets
-  final jsonString = await rootBundle.loadString('assets/');
+  final jsonString = await rootBundle.loadString('assets/serviceaccount.json');
   final accountCredentials = ServiceAccountCredentials.fromJson(json.decode(jsonString));
 
   final authClient = await clientViaServiceAccount(accountCredentials, _scopes);
