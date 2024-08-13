@@ -129,7 +129,7 @@ class _EventLoginState extends State<EventLogin> {
              PersistentNavBarNavigator.pushNewScreen(
 
                context,
-               screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,isAdmin:"false",
+               screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,isAdmin:attendee!.workEmail.endsWith("cioafrica.co")?"true":"false",
                  company: attendee!.company,
                  role: attendee.role, lastName: attendee.lastName,firstName: attendee.firstName, phone: attendee.phone,id: attendee.id, profileID: attendee.profilePhoto??"",
                  coverImagePath: widget.coverImagePath, eventName: widget.eventName,
@@ -153,7 +153,7 @@ class _EventLoginState extends State<EventLogin> {
              PersistentNavBarNavigator.pushNewScreen(
 
                context,
-               screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,isAdmin:"false",
+               screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,isAdmin:customerAttendee!.email!.endsWith("cioafrica.co")?"true":"false",
                  company: customerAttendee!.company_role!,
                  role: ".", lastName: ".",firstName: customerAttendee.name!, phone: customerAttendee.phone!,id: customerAttendee.id, profileID: customerAttendee.profilePhoto??"",
                  coverImagePath: widget.coverImagePath, eventName: widget.eventName,

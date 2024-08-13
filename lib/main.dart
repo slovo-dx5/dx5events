@@ -92,8 +92,8 @@ class MyApp extends StatelessWidget {
                   : ThemeMode.dark,
               theme: lightTheme,
               darkTheme: darkTheme,
-             //home: LandingPage2()
-             home: AdminPanelHome(adminName: 'Slovo Ulo',)
+             home: LandingPage2()
+             //home: AdminPanelHome(adminName: 'Slovo Ulo',)
              //home: GetContact()
              //home: StructureLAstMinute()
             // home: CSVHelper()
