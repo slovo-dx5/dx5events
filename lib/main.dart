@@ -1,3 +1,4 @@
+import 'package:dx5veevents/constants.dart';
 import 'package:dx5veevents/dioServices/dioPostService.dart';
 import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/providers/themeProvider.dart';
@@ -81,10 +82,19 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void _handleNotificationClick(Map<String, dynamic> data) {
+  void _handleNotificationClick(Map<String, dynamic> data)async {
     String? targetPage = data['targetPage'];
-    if (targetPage == 'notifications') {
+    bool isAuthenticated=false;
+    await getBoolPref("isAuthenticated").then((value) {
+      setState(() {
+        isAuthenticated=value;
+        print("auth status is $value");
+      });
+    });
+    if (targetPage == 'notifications' && isAuthenticated==true) {
       navigatorKey.currentState?.pushNamed('/notifications', );
+    }else{
+      navigatorKey.currentState?.pushNamed('/landingTwo', );
     }
   }
 
@@ -128,6 +138,7 @@ class _MyAppState extends State<MyApp> {
              home: LandingPage2(),
               routes: {
                 '/notifications': (context) => NotificationsScreen(),
+                '/landingTwo': (context) => LandingPage2(),
               },
              //home: AdminPanelHome(adminName: 'Slovo Ulo',)
              //home: GetContact()

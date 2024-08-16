@@ -135,6 +135,7 @@ class _OTPScreenState extends State<OTPScreen> {
         setStringPref(key: kProfileID, value: widget.profileID);
         setStringPref(key: kIsAdmin, value: widget.isAdmin);
         setIntPref(key: kUserID, value: widget.id);
+        setBoolPref(key: "isAuthenticated", value: true);
 
         ///Try to create account in firebase
         try{
