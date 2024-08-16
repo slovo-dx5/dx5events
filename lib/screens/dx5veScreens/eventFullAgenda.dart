@@ -384,11 +384,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
                   ),
                 ],
               ),
-              if (currentDate.isAfter(targetDate!))
-                const Text(
-                  "Session is over",
-                  style: TextStyle(fontSize: 15, color: kKeyRedBG),
-                ),
+
               Divider(),
               verticalSpace(height: 10),
               if (widget.description.length > 0 || widget.description != "")

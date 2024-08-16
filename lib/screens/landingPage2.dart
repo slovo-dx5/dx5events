@@ -102,22 +102,22 @@ class _ActiveEventsState extends State<ActiveEvents> {
         //     'Summit', containerColor: kCISOPurple,),
 
 
-        UpcomingEventWidget2(imagePath: 'assets/images/themes/insuretech.jpg', dayMonth: 'THUR, AUG', date: '15th',
-          endDate: '15th', location: 'KENYA', endDayMonth: 'THUR, AUGUST', onPressedFunct: (){
+        UpcomingEventWidget2(imagePath: 'assets/images/themes/smartbanking.png', dayMonth: 'THUR, AUG', date: '22nd',
+          endDate: '23rd', location: 'NIGERIA', endDayMonth: 'FRI, AUGUST', onPressedFunct: (){
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => InitialScreen(coverImagePath: 'assets/images/themes/insuretech.jpg', eventName: 'AFRICA INSURETECH\nFORUM',
-                eventHappeningDates: 'THUR, AUG, 15th - THUR, AUG, 15th',
+            MaterialPageRoute(builder: (_) => InitialScreen(coverImagePath: 'assets/images/themes/smartbanking.png', eventName: 'SMART BANKING\nSUMMIT',
+                eventHappeningDates: 'THUR, AUG, 22nd - THUR, AUG, 23rd',
 
-                shortEventDescription: "Reimagining insurance for a secure tomorrow",
-                eventLocation: 'KENYA'
-                ,followingScreen: EventLogin(coverImagePath: 'assets/images/themes/insuretech.jpg', eventName: 'AFRICA INSURETECH\nFORUM',
-                    eventDate: 'THUR, AUG, 15th - THUR, AUG, 15th',
+                shortEventDescription: "Navigating the Next: Africa's Leap into Smart, Secure, and Inclusive Banking",
+                eventLocation: 'NIGERIA'
+                ,followingScreen: EventLogin(coverImagePath: 'assets/images/themes/smartbanking.png', eventName: 'SMART BANKING\nSUMMIT',
+                    eventDate: 'THUR, AUG, 22nd - THUR, AUG, 23rd',
 
-                    shortEventDescription: "Reimagining insurance for a secure tomorrow",
-                    eventLocation: 'KENYA', eventID: '13', eventDay: 15, eventMonth: 8, eventYear: 2024, eventDayOfWeek: 'THUR',
-                isCustomerEvent: false,), eventID: '13', eventDay: 15, eventMonth: 8, eventYear: 2024, eventDayOfWeek: 'THUR', isCustomerEvent: false,)),
+                    shortEventDescription: "Navigating the Next: Africa's Leap into Smart, Secure, and Inclusive Banking",
+                    eventLocation: 'NIGERIA', eventID: '24', eventDay: 22, eventMonth: 8, eventYear: 2024, eventDayOfWeek: 'THUR',
+                isCustomerEvent: false,), eventID: '24', eventDay: 22, eventMonth: 8, eventYear: 2024, eventDayOfWeek: 'THUR', isCustomerEvent: false,)),
           );
-        }, eventName: 'AFRICA INSURETECH\nFORUM'
+        }, eventName: 'SMART BANKING\nSUMMIT'
             , containerColor: kGradientLightBlue.withOpacity(0.7),),
       ],
     );
@@ -135,30 +135,19 @@ class _FutureEventsState extends State<FutureEvents> {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      CurvedImageContainer(imagePath: 'assets/images/themes/smarthealth.png',
-      dayMonth: 'THUR, APR', date: '25th', endDate: '26th',
-      endDayMonth: 'FRI, APR', location: 'SOUTH AFRICA', onPressedFunct: (){
-      defaultScrollableBottomSheet(context,"",
-          PendingEventBottomSheet(imagePath: 'assets/images/themes/smarthealth.png', month: 6,
-            date: 25, slug: 'events/africa-cloud-and-security-summit',
-        eventNAme: 'Smart Health',
-            endDate: '29th', endDay: 'Sat', endMonth: 'June',
-            startDate: '28th', startDay: 'Fri', startMonth: 'June',
-            eventDesc: 'The Africa SaccoTech Forum spearheads the vital SACCO movement, propelling these inclusive cooperatives into the future with cutting-edge technology and digital solutions as they continue', ));
-    },),
 
-      verticalSpace(height: 10),
+
 
 
       CurvedImageContainer(imagePath: 'assets/images/themes/smartgov.png',
-      dayMonth: 'WED, JUL', date: '24th', endDate: '25th',
-      endDayMonth: 'THUR, JULY', location: 'KENYA', onPressedFunct: (){
+      dayMonth: 'WED, OCT', date: '2nd', endDate: '3rd',
+      endDayMonth: 'THUR, OCT', location: 'KENYA', onPressedFunct: (){
       defaultScrollableBottomSheet(context,"",
           PendingEventBottomSheet(imagePath: 'assets/images/themes/smartgov.png', month: 7,
             date: 24, slug: 'events/smart-government-summit',
         eventNAme: 'Smart Government Summit',
-            endDate: '25th', endDay: 'THUR', endMonth: 'July',
-            startDate: '24th', startDay: 'WED', startMonth: 'July',
+            endDate: '3rd', endDay: 'THUR', endMonth: 'October',
+            startDate: '2nd', startDay: 'WED', startMonth: 'October',
             eventDesc: 'The Smart Government Summit stands at the forefront of Africa’s digital transformation, bridging the gap between advanced digital technologies and government operations. This pivotal event comes at a time when Africa’s digital landscape is witnessing exponential growth, with increasing internet access and mobile connectivity shaping public sector innovation. The summit is a critical confluence for discussing the integration of digital solutions in government, offering a unique perspective on the future of digital government in Africa.', ));
     },),
 

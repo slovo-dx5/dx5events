@@ -94,6 +94,10 @@ class _BroadCastMessageToAllState extends State<BroadCastMessageToAll> {
                         "title": titleController.text,
                         "body": messageBodyController.text
                       },
+                      "data": {
+                        "click_action": "FLUTTER_NOTIFICATION_CLICK",
+                        "targetPage": "notifications"
+                      }
 
                     }
                   }
