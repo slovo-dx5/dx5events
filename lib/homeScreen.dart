@@ -123,7 +123,6 @@ class MenuScreen extends GetView<MyDrawerController> {
   Widget buildMenu(context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
-    print("Admin status is ${profileProvider.isAdmin}");
 
     return UpgradeAlert(
       upgrader: Upgrader(

@@ -14,6 +14,8 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
 	<key>CFBundleName</key>
 	<string>dx5ve Events</string>
 	<key>CFBundlePackageType</key>
@@ -29,9 +31,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Permission required to scan QR Codes</string>
 	<key>NSContactsUsageDescription</key>
-    <string>This app requires contacts access to function properly.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Permission required by AppStore</string>
+	<string>This app requires contacts access to function properly.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Permission required by AppStore</string>
 	<key>NSPhotoLibraryUsageDescription</key>

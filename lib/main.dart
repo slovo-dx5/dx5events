@@ -2,13 +2,8 @@ import 'package:dx5veevents/constants.dart';
 import 'package:dx5veevents/dioServices/dioPostService.dart';
 import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/providers/themeProvider.dart';
-import 'package:dx5veevents/screens/adminScreens/adminPanelHome.dart';
-import 'package:dx5veevents/screens/authScreens/eventLogin.dart';
-import 'package:dx5veevents/screens/doLastMinuteShyet.dart';
 import 'package:dx5veevents/screens/dx5veScreens/notificationsScreen.dart';
-import 'package:dx5veevents/screens/getContact.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
-import 'package:dx5veevents/screens/saveContact.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -40,7 +35,10 @@ void main() async{
     options: DefaultFirebaseOptions.currentPlatform,
 
   );
-  await FirebaseMessaging.instance.subscribeToTopic("dx5veBroadcast");
+  await NotificationSetup().getIOSPermission();
+  await FirebaseMessaging.instance.subscribeToTopic("dx5veBroadcast").then((value) {
+    print("successfully subscribed to broadcast ");
+  });
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(const MyApp());
