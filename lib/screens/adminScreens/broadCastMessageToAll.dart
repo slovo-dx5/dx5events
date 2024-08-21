@@ -74,7 +74,9 @@ class _BroadCastMessageToAllState extends State<BroadCastMessageToAll> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(body: Form(key: _formKey,
+      child: Scaffold(
+        appBar: AppBar(title: Text("Admin Broadcast"),automaticallyImplyLeading: true,),
+        body: Form(key: _formKey,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(children: [

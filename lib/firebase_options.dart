@@ -24,7 +24,10 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return android;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for android - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
@@ -49,17 +52,9 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC7gJUOTiIWW3PgkFxN7sNNJHYcPXiqvnE',
-    appId: '1:286423894850:android:9476ce4f24e1212533d6db',
-    messagingSenderId: '286423894850',
-    projectId: 'dx5ve-events',
-    storageBucket: 'dx5ve-events.appspot.com',
-  );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyB2pxIrErPtuEPBzd-OYWXb8j_TQy65NEI',
-    appId: '1:286423894850:ios:1a8e254e7f2bd5ba33d6db',
+    appId: '1:286423894850:ios:a41a9a5b00d9ac9433d6db',
     messagingSenderId: '286423894850',
     projectId: 'dx5ve-events',
     storageBucket: 'dx5ve-events.appspot.com',
