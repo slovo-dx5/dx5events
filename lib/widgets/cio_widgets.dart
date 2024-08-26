@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:googleapis/apigeeregistry/v1.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 import '../constants.dart';
 import '../helpers/analytics_helper.dart';
+import '../helpers/helper_functions.dart';
 
 class CIOWidgets {
   // itemWidget({
@@ -46,8 +48,8 @@ class CIOWidgets {
             );
           },
             child: Container(
-              height: MediaQuery.of(context).size.width * 0.22,
-              width: MediaQuery.of(context).size.width * 0.22,
+              height: MediaQuery.of(context).size.width * 0.18,
+              width: MediaQuery.of(context).size.width * 0.18,
               margin: EdgeInsets.only(bottom: 5,top: 15), // Adjust the margin as needed
               decoration: BoxDecoration(
                 gradient:  LinearGradient(
@@ -123,7 +125,8 @@ class CIOWidgets {
     );
   }
 
-  adminWidget({required String assetPath,required BuildContext context,required Widget screen, required String actionTitle, required String actionDescription}){
+  adminWidget({required String assetPath,required BuildContext context,required Widget screen, required String actionTitle,
+    required String actionDescription}){
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: GestureDetector(onTap: (){
@@ -160,5 +163,17 @@ class CIOWidgets {
         ),
       ),
     );
+  }
+
+  clickableWidget({required BuildContext context, required String assetPath, }){
+    return GestureDetector(onTap:(){
+      openBannerURL();
+
+    },child: Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Container(
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+        height: MediaQuery.of(context).size.height*0.22,width: MediaQuery.of(context).size.width,child: Image.asset(assetPath,fit: BoxFit.contain,), ),
+    ));
   }
 }

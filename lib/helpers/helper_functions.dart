@@ -57,6 +57,12 @@ openTicketURL({required String slug}) async {
   await launch("https://tickets.cioafrica.co/$slug");
 }
 
+openBannerURL() async {
+  // Uri parsedURL = Uri.parse("https://tickets.cioafrica.co/");
+
+  await launch("https://tickets.cioafrica.co/events/cio100-symposium-and-awards?rf=REFTB7RUK8R");
+}
+
 linkedinButton({required BuildContext context,required String linkedinURL}) {
   return GestureDetector(onTap: (){openLinkedin(linkedinURL: linkedinURL);},
     child: Container(padding: EdgeInsets.all(8),

@@ -13,6 +13,7 @@ import '../screens/dx5veScreens/dx5ve_sponsors_screen.dart';
 import '../screens/dx5veScreens/dx5veAttendeesScreen.dart';
 import '../screens/dx5veScreens/eventAgendaScreen.dart';
 import 'cio_widgets.dart';
+import 'clickableBanner.dart';
 
 class HomePageWidget extends StatefulWidget {
   String coverImagepath;
@@ -61,8 +62,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 Image.asset(
                   widget.coverImagepath,
                   width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height * 0.3,
-                  fit: BoxFit.contain,
+                  height: MediaQuery.of(context).size.height * 0.2,
+                  fit: BoxFit.cover,
                 ),
               ],
             ),
@@ -197,6 +198,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 ),
               ],
             ),
+            //CIOWidgets().clickableWidget(context: context, assetPath: "assets/images/backgrounds/ciobanner.jpg"),
+            ClickableBannerWidget(assetPath: 'assets/images/backgrounds/ciobanner.jpg',),
             verticalSpace(height: 15),
             // SizedBox(
             //     height: 100,
