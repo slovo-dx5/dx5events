@@ -87,9 +87,11 @@ super.initState();
   @override
   Widget build(BuildContext context) {
     return  SafeArea(
-      child: Scaffold(body: Stack(
+      child: Scaffold(
+        backgroundColor: Colors.white.withOpacity(0.7),
+        body: Stack(
         children: [
-          CoolBackground(),
+         
           Container(height: MediaQuery.of(context).size.height,
             child: Column(
               children: [
