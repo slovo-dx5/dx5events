@@ -1,57 +1,58 @@
+
+
+import 'dart:convert';
+
+// Define the EventData model class
 class SessionModel {
-  final int id;
-  final DateTime dateCreated;
-  final int attendeeId;
-  final Session session;
+  int id;
+  int attendeeId;
+  String eventDate;
+  int sessionId;
 
   SessionModel({
     required this.id,
-    required this.dateCreated,
     required this.attendeeId,
-    required this.session,
+    required this.eventDate,
+    required this.sessionId,
   });
 
+  // Factory method to create an EventData instance from a JSON object
   factory SessionModel.fromJson(Map<String, dynamic> json) {
     return SessionModel(
       id: json['id'],
-      dateCreated: DateTime.parse(json['date_created']),
       attendeeId: json['attendee_id'],
-      session: Session.fromJson(json['sessions']),
+      eventDate: json['event_date'],
+      sessionId: json['session_id'],
     );
+  }
+
+  // Method to convert an EventData instance to a JSON object
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'attendee_id': attendeeId,
+      'event_date': eventDate,
+      'session_id': sessionId,
+    };
   }
 }
 
-class Session {
-  final int userId;
-  final String startTime;
-  final String endTime;
-  final String title;
-  final String description;
-  final String type;
-  final int date;
-  var speakers;
+class DataResponse {
+  List<SessionModel> data;
 
-  Session({
-    required this.userId,
-    required this.startTime,
-    required this.endTime,
-    required this.title,
-    required this.type,
-    required this.description,
-    required this.speakers,
-    required this.date,
-  });
+  DataResponse({required this.data});
 
-  factory Session.fromJson(Map<String, dynamic> json) {
-    return Session(
-      userId: json['user_id'],
-      startTime: json['start_time'],
-      endTime: json['end_time'],
-      title: json['title'],
-      type: json['type'],
-      date:json['date'],
-      description: json['description'],
-      speakers: json['speakers'],
-    );
+  factory DataResponse.fromJson(Map<String, dynamic> json) {
+    var dataList = json['data'] as List;
+    List<SessionModel> eventDataList = dataList.map((item) => SessionModel.fromJson(item)).toList();
+
+    return DataResponse(data: eventDataList);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'data': data.map((item) => item.toJson()).toList(),
+    };
   }
 }
+

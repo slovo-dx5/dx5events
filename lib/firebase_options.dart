@@ -50,19 +50,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC7gJUOTiIWW3PgkFxN7sNNJHYcPXiqvnE',
-    appId: '1:286423894850:android:9476ce4f24e1212533d6db',
+    apiKey: 'AIzaSyAgiiBlGnNCzIZuvwOjisn3OLb614uKJmI',
+    appId: '1:286423894850:android:ff681373972fb40033d6db',
     messagingSenderId: '286423894850',
     projectId: 'dx5ve-events',
     storageBucket: 'dx5ve-events.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyB2pxIrErPtuEPBzd-OYWXb8j_TQy65NEI',
-    appId: '1:286423894850:ios:1a8e254e7f2bd5ba33d6db',
+    apiKey: 'AIzaSyA03ou1cEh7hLXo6bD4ni-J8k6oPLEH-MI',
+    appId: '1:286423894850:ios:7c8464c18b1a214833d6db',
     messagingSenderId: '286423894850',
     projectId: 'dx5ve-events',
     storageBucket: 'dx5ve-events.appspot.com',
-    iosBundleId: 'com.cioafrica.dx5veevents',
+    iosBundleId: 'com.dxfive.events',
   );
+
 }

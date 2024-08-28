@@ -1,80 +1,77 @@
+import 'package:dx5veevents/widgets/showMoreText.dart';
 import 'package:flutter/material.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../constants.dart';
-import '../screens/cisoScreens/cisoIndividualSpeaker.dart';
+import '../helpers/helper_functions.dart';
+import '../providers/themeProvider.dart';
 
 speakerWidget({
   required BuildContext context,
   required String name,
-
   required String title,
-   String? bio,
+  String? bio,
   required String linkedinurl,
   required String imageURL,
   // required List<String> interests,
 }) {
+  final themeProvider = Provider.of<ThemeProvider>(context);
+
   return Padding(
       padding: const EdgeInsets.only(left: 1.0, right: 1.0),
-      child: GestureDetector(
-        onTap: () {
-          PersistentNavBarNavigator.pushNewScreen(
-            context,
-            screen: IndividualSpeakerScreen(imageUrl: imageURL!, speakerName: name, title: title, Bio: bio?? "", linkedinurl: linkedinurl,),
-            withNavBar: false,
-            pageTransitionAnimation: PageTransitionAnimation.slideRight,
-          );
-        },
-        child: SizedBox(
-          child: Column(
-            children: [
-              imageURL==""?CircularProgressIndicator():Image.network(
-                width: MediaQuery.of(context).size.width * 0.45,
-                height: MediaQuery.of(context).size.width * 0.4,
-                imageURL!,
-                fit: BoxFit.cover,
-              ),
-              Container(  decoration: const BoxDecoration(color: kLightCardColor,borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10),bottomRight: Radius.circular(10))),
-
-                height: MediaQuery.of(context).size.width * 0.15,
-                width: MediaQuery.of(context).size.width * 0.45,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: kTextColorBlack,
-                            fontSize: 15, fontWeight: FontWeight.w500),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10), color: themeProvider.themeMode==ThemeModeOptions.dark?kGrayishBlueText:kGradientLighterBlue),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                imageURL == ""
+                    ? const CircularProgressIndicator()
+                    : CircleAvatar(radius: 30,
+                        backgroundImage: NetworkImage(
+                          imageURL!,
+                        ),
                       ),
-                      Text(
+                horizontalSpace(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w500),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      child: Text(
                         title,
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w400,
-                            color: kTextColorGrey),
-                      )
-                    ],
-                  ),
-                ),
-              )
-            ],
-          ),
+                            color: kLightDisabledColor),
+                      ),
+                    )
+                  ],
+                ),linkedinCircularButton( linkedinURL: linkedinurl),
+
+
+              ],
+            ),verticalSpace(height: 10),
+            bio==""?const Text(""):ShowMoreText(text: bio??"",)
+          ],
         ),
       ));
 }
 
-
-
 speakerShimmerWidget({
-
   required BuildContext context,
 
   // required List<String> interests,
@@ -91,11 +88,10 @@ speakerShimmerWidget({
               Container(
                 width: MediaQuery.of(context).size.width * 0.45,
                 height: MediaQuery.of(context).size.width * 0.5,
-                child: Card(elevation: 2,),
-
-
+                child: Card(
+                  elevation: 2,
+                ),
               ),
-
             ],
           ),
         ),

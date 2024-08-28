@@ -30,8 +30,23 @@ class OTPScreen extends StatefulWidget {
   String company;
   String isAdmin;
   int id;
-  String profileID;
-  OTPScreen({required this.email,required this.isAdmin,required this.profileID,required this.company,required this.role,required this.lastName, required this.firstName, required this.phone,required this.id,
+  String profileID; int eventDay;
+  int eventMonth;
+  int eventYear;bool isCustomerEvent;
+
+  final String coverImagePath ;
+  final String eventLocation ;
+  final String eventDate ;
+  final String eventName ;
+  final String eventDayOfWeek ;
+  final String shortEventDescription ;
+  final String eventID ;
+  OTPScreen({  required this.eventDay,
+    required this.eventMonth,
+    required this.eventYear,required this.isCustomerEvent,
+
+    required this.coverImagePath,required this.eventDayOfWeek, required this.eventName,required this.eventID,required this.shortEventDescription,required this.eventDate, required this.eventLocation,
+    required this.email,required this.isAdmin,required this.profileID,required this.company,required this.role,required this.lastName, required this.firstName, required this.phone,required this.id,
 
     Key? key}) : super(key: key);
   @override
@@ -109,7 +124,6 @@ class _OTPScreenState extends State<OTPScreen> {
 
     try{
       final response=await DioOTPService().verifyOTP(email: email, otp: otp);
-      SharedPreferences prefs= await SharedPreferences.getInstance();
       if(response.statusCode==200){
         setIntPref(key: 'isFirstTime', value: 1);
         setStringPref(key: kFirstName, value: widget.firstName);
@@ -121,6 +135,7 @@ class _OTPScreenState extends State<OTPScreen> {
         setStringPref(key: kProfileID, value: widget.profileID);
         setStringPref(key: kIsAdmin, value: widget.isAdmin);
         setIntPref(key: kUserID, value: widget.id);
+        setBoolPref(key: "isAuthenticated", value: true);
 
         ///Try to create account in firebase
         try{
@@ -164,7 +179,13 @@ class _OTPScreenState extends State<OTPScreen> {
           //   pageTransitionAnimation: PageTransitionAnimation.slideRight,
           // );
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => MainNavigationPage()),
+            MaterialPageRoute(builder: (_) => MainNavigationPage(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,coverImagePath: widget.coverImagePath, eventName: widget.eventName,
+              //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+              eventDate: widget.eventDate,
+              //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+              shortEventDescription: widget.shortEventDescription,
+              //eventLocation: 'Nigeria',);
+              eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,)),
           );
         }
 
@@ -212,7 +233,7 @@ class _OTPScreenState extends State<OTPScreen> {
               sigmaY: 3, // Vertical blur
             ),
             child: Image.asset(
-              'assets/images/backgrounds/cisobackground.png', // Your background image
+              'assets/images/backgrounds/dx5eventsBackground.jpg', // Your background image
               fit: BoxFit.cover,
             ),
           ),
@@ -227,7 +248,7 @@ class _OTPScreenState extends State<OTPScreen> {
                       child: SizedBox(
                         height: 200,
                         width: 200,
-                        child: Image.asset("assets/images/logos/cisologo.png"),
+
                       ),
                     ),
                     const SizedBox(height: 50),
@@ -323,7 +344,13 @@ class _OTPScreenState extends State<OTPScreen> {
 
                                           if(mounted){
                                             Navigator.of(context).pushReplacement(
-                                              MaterialPageRoute(builder: (_) => MainNavigationPage()),
+                                              MaterialPageRoute(builder: (_) => MainNavigationPage(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,coverImagePath: widget.coverImagePath, eventName: widget.eventName,
+                                                //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+                                                eventDate: widget.eventDate,
+                                                //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+                                                shortEventDescription: widget.shortEventDescription,
+                                                //eventLocation: 'Nigeria',);
+                                                eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,)),
                                             );
                                             // PersistentNavBarNavigator.pushNewScreen(
                                             //   context,

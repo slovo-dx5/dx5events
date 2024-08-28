@@ -3,17 +3,14 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../constants.dart';
 import '../../dioServices/dioPostService.dart';
-import '../../helpers/helper_functions.dart';
 import '../../models/contact_model.dart';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 
 
@@ -155,7 +152,7 @@ class _CioChatScreenState extends State<CioChatScreen> {
           addedOn:currentTime,
           sentto:widget.chattingWithName,
           sentFrom:widget.currentUserName,
-          latestMessage:textEditingController.text!,
+          latestMessage:textEditingController.text,
           myId: id!,
           senderID: otherpersonId,
           chatId: chatId!,
@@ -184,7 +181,7 @@ class _CioChatScreenState extends State<CioChatScreen> {
         otherpersonuid:otherpersonId,
         addedOn:currentTime,
         sentto:sentToname!,
-        latestMessage:textEditingController.text!,
+        latestMessage:textEditingController.text,
         sentFrom:sentFromname!,
         myId:otherpersonId,
         senderID: senderId,
@@ -398,7 +395,7 @@ class _CioChatScreenState extends State<CioChatScreen> {
                               const SizedBox(width: 5.0,),
                               Padding(
                                 padding: const EdgeInsets.only(right:0.0,top: 20.0,left: 15.0,bottom: 1),
-                                child: Text(messageTime,style: TextStyle(color: Colors.black54,fontSize: 9.0),),
+                                child: Text(messageTime,style: const TextStyle(color: Colors.black54,fontSize: 9.0),),
                               )
                             ],
                           ),
@@ -487,7 +484,7 @@ class _CioChatScreenState extends State<CioChatScreen> {
                     Padding(
                       padding: const EdgeInsets.only(left:2.0,bottom: 8.0,top:8.0),
                       child: Material(
-                        borderRadius: BorderRadius.only(topRight:Radius.circular(15.0),bottomLeft: Radius.circular(15.0),bottomRight: Radius.circular(15.0)),
+                        borderRadius: const BorderRadius.only(topRight:Radius.circular(15.0),bottomLeft: Radius.circular(15.0),bottomRight: Radius.circular(15.0)),
                         elevation: 5.0 ,
                         color: kLightGrayishOrange,
                         child: Padding(

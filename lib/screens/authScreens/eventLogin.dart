@@ -1,9 +1,8 @@
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
-import 'package:dx5veevents/models/cisoAttendeesModel.dart';
+import 'package:dx5veevents/models/eventAttendeesModel.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -13,16 +12,37 @@ import 'dart:ui';
 import '../../constants.dart';
 import '../../dioServices/dioFetchService.dart';
 import '../../dioServices/dioOTPService.dart';
-import 'cisoOTP.dart';
+import 'eventOTP.dart';
 
-class CISOLogin extends StatefulWidget {
+class EventLogin extends StatefulWidget {
+
+  final String coverImagePath ;
+  final String eventLocation ;
+  final String eventDayOfWeek ;
+  final String eventDate ;
+  final String eventName ;
+  final String eventID ;
+  final String shortEventDescription ; int eventDay;
+  int eventMonth;
+  int eventYear;
+  bool isCustomerEvent;
+  EventLogin({  required this.eventDay,
+    required this.eventMonth,
+    required this.eventYear,
+    required this.isCustomerEvent,
+
+    required this.coverImagePath, required this.eventID,required this.eventDayOfWeek,required this.eventName,required this.shortEventDescription,required this.eventDate, required this.eventLocation,
+
+
+    Key? key}) : super(key: key);
   @override
-  State<CISOLogin> createState() => _CISOLoginState();
+  State<EventLogin> createState() => _EventLoginState();
 }
 
-class _CISOLoginState extends State<CISOLogin> {
+class _EventLoginState extends State<EventLogin> {
 
   List<CISOAttendeeModel>? attendees;
+  List<CustomerAttendeeModel>? customerAttendees;
   final _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
 
@@ -35,11 +55,16 @@ class _CISOLoginState extends State<CISOLogin> {
     // TODO: implement initState
     super.initState();
   }
-  CISOAttendeeModel? findAttendeeByEmail(String emailToCheck) {
-    return attendees!.firstWhere(
+  findAttendeeByEmail(String emailToCheck) {
+    return widget.isCustomerEvent==false? attendees!.firstWhere(
           (attendee) => attendee.workEmail.toLowerCase() == emailToCheck.toLowerCase(),
 
-    );
+    ):customerAttendees!.firstWhere(
+          (attendee) => attendee.email!.toLowerCase() == emailToCheck.toLowerCase(),
+
+    )
+
+    ;
   }
   sendOTP({required String email})async{
     Map<String, dynamic> emailData = {
@@ -60,12 +85,19 @@ class _CISOLoginState extends State<CISOLogin> {
           print("login screen attendee id is ${attendee!.id!}");
           PersistentNavBarNavigator.pushNewScreen(
             context,
-            screen: OTPScreen(email: email,
-              isAdmin:"false",
-              company: attendee!.company,
+            screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,
+              isAdmin:emailController.text.endsWith("cioafrica.co")?"true":"false",
+              company: attendee.company,
               role: attendee.role, lastName: attendee.lastName,
               firstName: attendee.firstName, phone: attendee.phone,
               id:attendee.id, profileID: attendee.profilePhoto??"",
+              coverImagePath: widget.coverImagePath, eventName: widget.eventName,
+              //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+              eventDate: widget.eventDate,
+              //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+              shortEventDescription: widget.shortEventDescription,
+              //eventLocation: 'Nigeria',);
+              eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,
 
             ),
             withNavBar: false,
@@ -90,21 +122,55 @@ class _CISOLoginState extends State<CISOLogin> {
           setState(() {
             isCreating=false;
           });
-          CISOAttendeeModel? attendee = findAttendeeByEmail(email);
-          if(mounted){
+         if(widget.isCustomerEvent==false){
+           CISOAttendeeModel? attendee = findAttendeeByEmail(email);
+           if(mounted){
 
-            PersistentNavBarNavigator.pushNewScreen(
+             PersistentNavBarNavigator.pushNewScreen(
 
-              context,
-              screen: OTPScreen(email: email,isAdmin:"false",
-                company: attendee!.company,
-                role: attendee.role, lastName: attendee.lastName,firstName: attendee.firstName, phone: attendee.phone,id: attendee.id, profileID: attendee.profilePhoto??"",
+               context,
+               screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,isAdmin:attendee!.workEmail.endsWith("cioafrica.co")?"true":"false",
+                 company: attendee!.company,
+                 role: attendee.role, lastName: attendee.lastName,firstName: attendee.firstName, phone: attendee.phone,id: attendee.id, profileID: attendee.profilePhoto??"",
+                 coverImagePath: widget.coverImagePath, eventName: widget.eventName,
+                 //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+                 eventDate: widget.eventDate,
+                 //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+                 shortEventDescription: widget.shortEventDescription,
+                 //eventLocation: 'Nigeria',);
+                 eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,
 
-              ),
-              withNavBar: false,
-              pageTransitionAnimation: PageTransitionAnimation.slideRight,
-            );
-          }
+               ),
+               withNavBar: false,
+               pageTransitionAnimation: PageTransitionAnimation.slideRight,
+             );
+           }
+
+         }else{
+           CustomerAttendeeModel customerAttendee = findAttendeeByEmail(email);
+           if(mounted){
+
+             PersistentNavBarNavigator.pushNewScreen(
+
+               context,
+               screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,isAdmin:customerAttendee!.email!.endsWith("cioafrica.co")?"true":"false",
+                 company: customerAttendee!.company_role!,
+                 role: ".", lastName: ".",firstName: customerAttendee.name!, phone: customerAttendee.phone!,id: customerAttendee.id, profileID: customerAttendee.profilePhoto??"",
+                 coverImagePath: widget.coverImagePath, eventName: widget.eventName,
+                 //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+                 eventDate: widget.eventDate,
+                 //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+                 shortEventDescription: widget.shortEventDescription,
+                 //eventLocation: 'Nigeria',);
+                 eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,
+
+               ),
+               withNavBar: false,
+               pageTransitionAnimation: PageTransitionAnimation.slideRight,
+             );
+           }
+
+         }
         } else {
           print('Error: ${e.message}');
         }
@@ -118,7 +184,7 @@ class _CISOLoginState extends State<CISOLogin> {
 
   Widget buildEmail(){
     return TextFormField(
-      style: TextStyle(
+      style: const TextStyle(
         color: kLighterGreenAccent
       ),
       controller: emailController,
@@ -145,7 +211,8 @@ class _CISOLoginState extends State<CISOLogin> {
     );
   }
   bool doesEmailExist(String emailToCheck) {
-    return attendees!.any((attendee) => attendee.workEmail.toLowerCase() == emailToCheck.toLowerCase());
+    return widget.isCustomerEvent==false? attendees!.any((attendee) => attendee.workEmail.toLowerCase() == emailToCheck.toLowerCase()):
+    customerAttendees!.any((attendee) => attendee.email!.toLowerCase() == emailToCheck.toLowerCase());
   }
 
 
@@ -153,7 +220,7 @@ class _CISOLoginState extends State<CISOLogin> {
 
 
   Future fetchAllAttendees() async {
-    final response = await DioFetchService().fetchCISOAttendees();
+    final response = widget.isCustomerEvent==true?await DioFetchService().fetchCustomerEventsAttendees(eventID: widget.eventID):await DioFetchService().fetchCIOAttendees(eventID: widget.eventID);
 
     setState(() {
       //isFetching=false;
@@ -166,13 +233,25 @@ class _CISOLoginState extends State<CISOLogin> {
 
 
 
-      List<CISOAttendeeModel> userList = List<CISOAttendeeModel>.from(filteredData.map((user) => CISOAttendeeModel.fromJson(user)));
-      setState(() {
-        attendees=userList;
-      //  print(attendees![624].firstName);
-        print(attendees!.length);
+      if(widget.isCustomerEvent==false){
+        List<CISOAttendeeModel> userList = List<CISOAttendeeModel>.from(filteredData.map((user) => CISOAttendeeModel.fromJson(user)));
+        setState(() {
+          attendees=userList;
+          //  print(attendees![624].firstName);
+          print(attendees!.last.firstName);
 
-      });
+        });
+
+      }else{
+        List<CustomerAttendeeModel> userList = List<CustomerAttendeeModel>.from(filteredData.map((user) => CustomerAttendeeModel.fromJson(user)));
+        setState(() {
+          customerAttendees=userList;
+            print(attendees!.first.firstName);
+        //  print("last attendee is ${customerAttendees!.last.email}");
+
+        });
+
+      }
 
       // return jsonData.map((userJson) => AttendeeModel.fromJson(userJson)).toList();
     } else {
@@ -189,11 +268,11 @@ class _CISOLoginState extends State<CISOLogin> {
           Positioned.fill(
             child: ImageFiltered(
               imageFilter: ImageFilter.blur(
-                sigmaX: 3, // Horizontal blur
-                sigmaY: 3, // Vertical blur
+                sigmaX: 0.2, // Horizontal blur
+                sigmaY: 0.2, // Vertical blur
               ),
               child: Image.asset(
-                'assets/images/backgrounds/cisobackground.png', // Your background image
+                'assets/images/backgrounds/dx5eventsBackground.jpg', // Your background image
                 fit: BoxFit.cover,
               ),
             ),
@@ -205,12 +284,12 @@ class _CISOLoginState extends State<CISOLogin> {
                 children: [
                   Column(
                     children: [
-                      Align(
+                      const Align(
                         alignment: Alignment.center,
                         child: SizedBox(
                           height: 300,
                           width: 300,
-                          child: Image.asset("assets/images/logos/cisologo.png"),
+
                         ),
                       ),
                       Padding(
@@ -222,7 +301,7 @@ class _CISOLoginState extends State<CISOLogin> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               verticalSpace(
-                                  height:MediaQuery.of(context).size.height * 0.04),
+                                  height:MediaQuery.of(context).size.height * 0.16),
 
                               const Text(
                                 "Welcome",
@@ -265,10 +344,17 @@ class _CISOLoginState extends State<CISOLogin> {
                                       if(mounted){
                                         PersistentNavBarNavigator.pushNewScreen(
                                           context,
-                                          screen: OTPScreen(email: "admin@applereviewer.com",
+                                          screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: "admin@applereviewer.com",
                                             isAdmin:"true",
                                             company: "apple",
                                             role: "reviewer", lastName: "Reviewer",firstName: "Apple", phone: "5678900000",id:9789, profileID: "",
+                                            coverImagePath: widget.coverImagePath, eventName: widget.eventName,
+                                            //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+                                            eventDate: widget.eventDate,
+                                            //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+                                            shortEventDescription: widget.shortEventDescription,
+                                            //eventLocation: 'Nigeria',);
+                                            eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,
 
                                           ),
                                           withNavBar: false,

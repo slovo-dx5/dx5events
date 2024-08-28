@@ -57,6 +57,12 @@ openTicketURL({required String slug}) async {
   await launch("https://tickets.cioafrica.co/$slug");
 }
 
+openBannerURL() async {
+  // Uri parsedURL = Uri.parse("https://tickets.cioafrica.co/");
+
+  await launch("https://tickets.cioafrica.co/events/cio100-symposium-and-awards?rf=REFTB7RUK8R");
+}
+
 linkedinButton({required BuildContext context,required String linkedinURL}) {
   return GestureDetector(onTap: (){openLinkedin(linkedinURL: linkedinURL);},
     child: Container(padding: EdgeInsets.all(8),
@@ -68,8 +74,14 @@ linkedinButton({required BuildContext context,required String linkedinURL}) {
         children: [
         SizedBox(height:25,width:25,child: Image.asset("assets/images/linkedin.png")),
         horizontalSpace(width: 10),
-        Text("LinkedIn",style: TextStyle(fontSize: 20,color: kWhiteColor,fontWeight: FontWeight.w500),)
+        const Text("LinkedIn",style: TextStyle(fontSize: 20,color: kWhiteColor,fontWeight: FontWeight.w500),)
       ],),
+    ),
+  );
+}linkedinCircularButton({required String linkedinURL}) {
+  return GestureDetector(onTap: (){openLinkedin(linkedinURL: linkedinURL);},
+    child: CircleAvatar(
+  backgroundImage:AssetImage("assets/images/linkedin.png") ,
     ),
   );
 }
@@ -88,31 +100,119 @@ getSpeakerImage({required String id}) async {
 
 createSession(
     {required int currentUserId,
-    required String startTime,
-    required String endTime,
-    required String sessionTitle,
-    required String sessionType,
-    required int date,
-    required String sessionDescription,
-    required var speakers}) async {
+
+    required int sessionID,
+    required DateTime date,
+    }) async {
+
+
   Map<String, dynamic> sessionBodyData = {
     "attendee_id": currentUserId,
-    "sessions": {
-      "user_id": currentUserId,
-      "start_time": startTime,
-      "end_time": endTime,
-      "title": sessionTitle,
-      "description": sessionDescription,
-      "type": sessionType,
-      "date": date,
-      "speakers": speakers
-    }
+   "event_date": date.toString(),
+    "session_id": sessionID,
+
   };
+
+
+
+  print("attendee id is $currentUserId");
+  print("date id is ${date.toString()}");
+  print("session id is $sessionID");
   final response =
       await DioPostService().createSession(sessionBody: sessionBodyData);
   if (response.statusCode == 200) {
     log("Session Success:${response.data.toString()}");
     Fluttertoast.showToast(msg: "Session bookmarked successfully");
+    return true;
+  } else {
+    log("Session Error:${response.data.toString()}");
+    Fluttertoast.showToast(msg: "Error:Check your internet");
+    return false;
+  }
+}
+
+submitProposalToSPeak(
+    {
+    required String firstName,
+    required String lastName,
+    required String workEmail,
+    required String workPhone,
+    required String company,
+    required String role,
+    required String bio,
+    required String imageID,
+    required String linkedinProfileLink,
+    required String eventId,
+    required String reasonsForProposal,
+    required List proposedTopics,
+
+
+
+    }) async {
+  Map<String, dynamic> _proposalBodyData = {
+    "firstName": firstName,
+    "lastName": lastName,
+    "workEmail": workEmail,
+    //"personalEmail": "johndoe@example.com",
+    "workPhone": workPhone,
+    //"personalPhone": "+0987654321",
+    "company": company,
+    "role": role,
+    "bio": bio,
+    "profilePhotoUrl": "https://subscriptions.cioafrica.co/assets/$imageID",
+    "linkedinProfileLink": linkedinProfileLink,
+    //"websiteLink": "https://johndoe-professional.com",
+    "eventId": eventId,
+    "proposedTopics": proposedTopics,
+    "reasonsForProposal": reasonsForProposal,
+    //"allowedContactMethods": ["Email", "Phone"]
+    };
+
+  final response =
+      await DioPostService().createProposal(proposalBody:_proposalBodyData);
+  if (response.statusCode == 200) {
+    log("proposal Success:${response.data.toString()}");
+    Fluttertoast.showToast(msg: "Proposal submitted successfully");
+    return true;
+  } else {
+    log("Session Error:${response.data.toString()}");
+    Fluttertoast.showToast(msg: "Error:Check your internet");
+    return false;
+  }
+}
+
+submitSponsorProposal(
+    {
+    required String firstName,
+    required String eventID,
+    required String lastName,
+    required String workEmail,
+    required String workPhone,
+    required String company,
+    required String role,
+    required String reason_of_interest,
+
+
+
+
+    }) async {
+  Map<String, dynamic> _proposalBodyData = {
+    "event_id":eventID,
+    "first_name": firstName,
+    "last_name": lastName,
+      "work_email": workEmail,
+      "phone": workPhone,
+      "company": company,
+      "role": role,
+      "reason_for_sponsorship_interest": reason_of_interest,
+
+    };
+
+  final response =
+      await DioPostService().createSponsorSubmission(sessionBody: _proposalBodyData);
+  if (response.statusCode == 200) {
+    log("proposal Success:${response.data.toString()}");
+    Fluttertoast.showToast(msg: "Proposal submitted successfully");
     return true;
   } else {
     log("Session Error:${response.data.toString()}");
@@ -200,6 +300,7 @@ requestMeeting(
     required String meetingWith,
     required String message,
     required String startTime,
+    required String tableSlot,
 
     required String requestedByID,
     required String meetingWithI,
@@ -220,6 +321,7 @@ requestMeeting(
     "isDefault": false,
     "date_requested": Timestamp.now(),
     "message": message,
+    "tableSlot": tableSlot,
     "startTime": startTime,
 
 
@@ -271,4 +373,22 @@ String addThirtyMinutes({required String time}) {
 
   // Convert the DateTime back to a string in the original format
   return format.format(dateTime);
+}
+
+String formatDate(DateTime date) {
+  final DateFormat formatter = DateFormat('yyyy-MM-dd');
+  return formatter.format(date);
+}
+
+launchMailClient(
+    {required String emailAddress,
+      required String subject,
+      required String body}) async {
+  Uri emailUri = Uri.parse(
+      "mailto:$emailAddress?subject=${Uri.encodeFull(subject)}&body=${Uri.encodeFull(body)}");
+  if (await canLaunchUrl(emailUri)) {
+    await launchUrl(emailUri);
+  } else {
+    throw 'Could not launch $emailUri';
+  }
 }

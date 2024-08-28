@@ -68,7 +68,7 @@ class AppBarWithGradient extends StatelessWidget implements PreferredSizeWidget 
         backgroundColor: Colors.transparent, // Make the AppBar transparent
         elevation: 0, // Remove shadow
         title: Padding(
-          padding: const EdgeInsets.only(top: 40.0),
+          padding: const EdgeInsets.only(top: 10.0),
           child: Text(title),
         ),
         centerTitle: true,

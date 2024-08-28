@@ -7,11 +7,11 @@ import 'endpoints/endpoint.dart';
 class DioFetchService extends DioClient {
   DioClient _client = new DioClient();
 
-  Future<Response> fetchCISOAttendees() async {
+  Future<Response> fetchCIOAttendees({required String eventID}) async {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/event_registrations?filter[eventId][_eq]=3&filter[status][_eq]=approved&limit=800",
+          .get("https://subscriptions.cioafrica.co/items/event_registrations?filter[eventId][_eq]=$eventID&filter[status][_eq]=approved&limit=2500",
      //   options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
@@ -19,24 +19,112 @@ class DioFetchService extends DioClient {
     }
   }
 
-
-  Future<Response> fetchCISOAgenda() async {
+  Future<Response> fetchCustomerEventsAttendees({required String eventID}) async {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/agenda/1",
+          .get("https://subscriptions.cioafrica.co/items/Customer_Event_Registrations?filter[eventID][_eq]=$eventID&filter[status][_eq]=approved&limit=800",
+     //   options: buildCacheOptions(const Duration(minutes: 30)),
+           );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> fetchSingleAttendeeForEvent({required int id, required int eventID}) async {
+    try {
+      return await _client
+          .init()
+          .get("https://subscriptions.cioafrica.co/items/event_registrations?filter[attendeeId][_eq]=$id&filter[eventId][_eq]=$eventID",
+        //   options: buildCacheOptions(const Duration(minutes: 30)),
+      );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+ Future<Response> fetchSingleAttendeeFromAttendees({required int id,}) async {
+    try {
+      return await _client
+          .init()
+          .get("https://subscriptions.cioafrica.co/items/attendees?filter[id][_eq]=$id",
+        //   options: buildCacheOptions(const Duration(minutes: 30)),
+      );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+
+  Future<Response> fetchdx5veAgenda({required String eventID}) async {
+    int dodod=6;
+    try {
+      return await _client
+          .init()
+         // .get("https://subscriptions.cioafrica.co/items/agenda?filter[event_id][_eq]=$eventID",
+          .get("https://subscriptions.cioafrica.co/items/agenda?filter[event_id][_eq]=$eventID",
+        //options: buildCacheOptions(const Duration(minutes: 30)),
+           );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> fetchIndividualSessions({required String attendeeID}) async {
+
+    try {
+      return await _client
+          .init()
+         // .get("https://subscriptions.cioafrica.co/items/agenda?filter[event_id][_eq]=$eventID",
+          .get("https://subscriptions.cioafrica.co/items/user_sessions?filter[attendee_id][_eq]=$attendeeID",
+        //options: buildCacheOptions(const Duration(minutes: 30)),
+           );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+  Future<Response> fetchEventSponsors() async {
+    try {
+      return await _client
+          .init()
+          .get("https://subscriptions.cioafrica.co/items/sponsors",
         options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
       throw Exception(ex);
     }
   }
-  Future<Response> fetchCISOSponsors() async {
+
+  Future<Response> fetchEventPartners() async {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/sponsors",
+          .get("https://subscriptions.cioafrica.co/items/partners",
         options: buildCacheOptions(const Duration(minutes: 30)),
+           );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> fetchEvents({required String eventID}) async {
+    try {
+      return await _client
+          .init()
+          .get("https://subscriptions.cioafrica.co/items/events/$eventID",
+        //options: buildCacheOptions(const Duration(minutes: 30)),
+           );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+
+  Future<Response> fetchLastMinuteCheckins() async {
+    try {
+      return await _client
+          .init()
+          .get("https://subscriptions.cioafrica.co/items/last_minute_checkins?limit=500",
+        options: buildCacheOptions(const Duration(minutes: 2)),
            );
     } on DioError catch (ex) {
       throw Exception(ex);
@@ -54,12 +142,24 @@ class DioFetchService extends DioClient {
     }
   }
 
-  Future<Response> fetchCISOSpeakers() async {
+  Future<Response> fetchEventSpeakers() async {
     try {
       return await _client
           .init()
           .get("https://subscriptions.cioafrica.co/items/speakers",
         options: buildCacheOptions(const Duration(minutes: 30)),
+           );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> fetchEventSpeakerByKey({required int speakerKey}) async {
+    try {
+      return await _client
+          .init()
+          .get("https://subscriptions.cioafrica.co/items/speakers?filter[id][_eq]=$speakerKey",
+      //  options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
       throw Exception(ex);

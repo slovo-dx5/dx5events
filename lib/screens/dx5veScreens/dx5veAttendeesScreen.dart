@@ -11,21 +11,26 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import '../../constants.dart';
 import '../../dioServices/dioFetchService.dart';
 import '../../helpers/helper_widgets.dart';
-import '../../models/cisoAttendeesModel.dart';
+import '../../models/eventAttendeesModel.dart';
 import '../../providers.dart';
 
 class AttendeesScreen extends StatefulWidget {
-  const AttendeesScreen({super.key});
+  String eventID;
+  bool isCustomerEvent;
+   AttendeesScreen({super.key, required this.isCustomerEvent,
+   required this.eventID});
 
   @override
   State<AttendeesScreen> createState() => _AttendeesScreenState();
 }
 
 class _AttendeesScreenState extends State<AttendeesScreen> {
-  RefreshController _refreshController = RefreshController();
+  final RefreshController _refreshController = RefreshController();
 
   List<CISOAttendeeModel>? attendeesList;
-  List<CISOAttendeeModel>? filteredattendeesList;
+  List<CustomerAttendeeModel>? customerAttendeesList;
+  List<CISOAttendeeModel>? filteredAttendeesList;
+  List<CustomerAttendeeModel>? filteredCustomerAttendeesList;
   bool isSearching = false;
   Dio dio = Dio();
   DioCacheManager dioCacheManager = DioCacheManager(CacheConfig());
@@ -38,15 +43,23 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
 
     //  filteredData = dummyData;
     fetchAllAttendees().then((value) {
-      setState(() {
-        attendeesList = value;
-        filteredattendeesList = attendeesList;
-      });
+      if(widget.isCustomerEvent==false){
+        setState(() {
+          attendeesList = value;
+          filteredAttendeesList = attendeesList;
+        });
+      }else{
+        setState(() {
+          customerAttendeesList = value;
+          filteredCustomerAttendeesList = customerAttendeesList;
+          print("lenth is ${filteredCustomerAttendeesList!.length}");
+        });
+      }
     });
   }
 
   Future fetchAllAttendees() async {
-    final response = await DioFetchService().fetchCISOAttendees();
+    final response = widget.isCustomerEvent==false?await DioFetchService().fetchCIOAttendees(eventID: widget.eventID):await DioFetchService().fetchCustomerEventsAttendees(eventID: widget.eventID);
 
     setState(() {
       //isFetching=false;
@@ -56,14 +69,18 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
       final rawData = response.data['data'];
       List<dynamic> filteredData = rawData
           .where((item) =>
-              item['event'] == "Africa CISO Summit" &&
+
               item['status'] == "approved")
           .toList();
 
 
-      return filteredData
+      return
+
+        widget.isCustomerEvent==false?filteredData
           .map((userJson) => CISOAttendeeModel.fromJson(userJson))
-          .toList();
+          .toList():filteredData
+            .map((userJson) => CustomerAttendeeModel.fromJson(userJson))
+            .toList();
     } else {
       throw Exception('Failed to load data');
     }
@@ -72,15 +89,23 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
   void filterData(String query) {
     setState(() {
       if (query.isEmpty) {
-        filteredattendeesList = attendeesList;
+        widget.isCustomerEvent==false?filteredAttendeesList = attendeesList:filteredCustomerAttendeesList=customerAttendeesList;
       } else {
-        filteredattendeesList = attendeesList!.where((data) {
-          final fullName = '${data.firstName}';
+        if(widget.isCustomerEvent==false){
+          filteredAttendeesList = attendeesList!.where((data) {
+            final fullName = '${data.firstName}';
+            return fullName.toLowerCase().contains(query.toLowerCase()) ||
+                data.lastName.toLowerCase().contains(query.toLowerCase()) ||
+                data.role.toLowerCase().contains(query.toLowerCase()) ||
+                data.company.toLowerCase().contains(query.toLowerCase());
+          }).toList();
+        }else{
+          filteredCustomerAttendeesList = customerAttendeesList!.where((data) {
+          final fullName = '${data.name}';
           return fullName.toLowerCase().contains(query.toLowerCase()) ||
-              data.lastName.toLowerCase().contains(query.toLowerCase()) ||
-              data.role.toLowerCase().contains(query.toLowerCase()) ||
-              data.company.toLowerCase().contains(query.toLowerCase());
-        }).toList();
+              data.name!.toLowerCase().contains(query.toLowerCase()) ||
+              data.company_role!.toLowerCase().contains(query.toLowerCase()) ;
+        }).toList();}
       }
     });
   }
@@ -90,7 +115,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
     final profileProvider = Provider.of<ProfileProvider>(context);
 
     return Scaffold(
-        appBar: AppBar(backgroundColor: kCISOPurple,
+        appBar: AppBar(automaticallyImplyLeading: true,
           centerTitle: true,
           title: isSearching
               ? TextField(
@@ -131,13 +156,17 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
         ),
         body: Padding(
           padding: const EdgeInsets.all(8),
-          child: filteredattendeesList == null
+          child: filteredAttendeesList == null && filteredCustomerAttendeesList==null
               ? const Center(
                   child: SpinKitCircle(
                     color: kCIOPink,
                   ),
                 )
-              : SmartRefresher(
+
+
+              : widget.isCustomerEvent==false?
+
+          SmartRefresher(
                   controller: _refreshController,
                   enablePullDown: true,
                   header: const WaterDropHeader(
@@ -157,9 +186,9 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
                     });
                   },
                   child: ListView.builder(
-                    itemCount: filteredattendeesList!.length,
+                    itemCount: filteredAttendeesList!.length,
                     itemBuilder: (context, index) {
-                      final user = filteredattendeesList![index];
+                      final user = filteredAttendeesList![index];
                       return profileProvider.userID == user.id
                           ? meWidget(
                               assetName: "assetName",
@@ -199,7 +228,69 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
                     //   );
                     // }
                   ),
-                ),
+                ):
+          SmartRefresher(
+            controller: _refreshController,
+            enablePullDown: true,
+            header: const WaterDropHeader(
+              waterDropColor: kCIOPink,
+            ),
+            onRefresh: () async {
+              await dioCacheManager.clearAll();
+              await fetchAllAttendees();
+              setState(() {
+                _refreshController.refreshCompleted();
+              });
+            },
+            onLoading: () async {
+              await Future.delayed(Duration(milliseconds: 1000));
+              setState(() {
+                _refreshController.loadComplete();
+              });
+            },
+            child: ListView.builder(
+              itemCount: filteredCustomerAttendeesList!.length,
+              itemBuilder: (context, index) {
+                final user = filteredCustomerAttendeesList![index];
+                return profileProvider.userID == user.id
+                    ? meWidget(
+                    assetName: "assetName",
+                    context: context,
+                    firstName: user.name?? "User ${user.id}",
+                    lastName: ".",
+                    company: user.company_role ?? "Unspecified",
+                    interests: [],
+                    profileid: user.profilePhoto ?? "",
+                    userID: user.id, role: '.')
+                    : attendeeWidget(
+                    assetName: "assetName",
+                    context: context,
+                    firstName: user.name?? "User ${user.id}",
+                    lastName: ".",
+                    role: ".",
+                    company: user.company_role?? "Unspecified",
+                    interests: [],
+                    profileid: user.profilePhoto ?? "",
+                    userID: user.id);
+              },
+
+              // itemCount: filteredData.length,
+              // itemBuilder: (context,index){
+              //   final data = filteredData[index];
+              //   return attendeeWidget(
+              //     assetName: data['assetname']!,
+              //     context: context,
+              //     firstName: "${data["firstname"]}",
+              //     lastName:  "${data["lastname"]}",
+              //     role:data["role"]!,
+              //     company:data["company"]!,
+              //     bio: data["bio"]??"",
+              //     interests: data["interests"]!,
+              //
+              //   );
+              // }
+            ),
+          ),
         ));
   }
 }

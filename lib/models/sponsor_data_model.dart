@@ -17,6 +17,7 @@ class SponsorData {
   DateTime? dateCreated;
   DateTime? dateUpdated;
   String? logo;
+  String? transparent_logo;
   String? about;
   List<Website>? websites;
   String? sponsorName;
@@ -27,6 +28,7 @@ class SponsorData {
     this.dateCreated,
     this.dateUpdated,
     this.logo,
+    this.transparent_logo,
     this.about,
     this.websites,
     this.degree,
@@ -38,6 +40,7 @@ class SponsorData {
     dateCreated: json['date_created'] != null ? DateTime.parse(json['date_created']) : null,
     dateUpdated: json['date_updated'] != null ? DateTime.parse(json['date_updated']) : null,
     logo: json['logo'],
+    transparent_logo: json['transparent_logo'],
     about: json['about'],
     websites: json['websites'] != null ? List<Website>.from(json['websites'].map((x) => Website.fromJson(x))) : null,
     sponsorName: json['sponsor_name'],
@@ -49,6 +52,7 @@ class SponsorData {
     'date_created': dateCreated?.toIso8601String(),
     'date_updated': dateUpdated?.toIso8601String(),
     'logo': logo,
+    'transparent_logo': transparent_logo,
     'about': about,
     'websites': websites != null ? List<dynamic>.from(websites!.map((x) => x.toJson())) : null,
     'sponsor_name': sponsorName,

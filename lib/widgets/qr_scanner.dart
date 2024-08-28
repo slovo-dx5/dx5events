@@ -71,10 +71,8 @@ class _SponsorScannerState extends State<SponsorScanner> {
     if(response.statusCode==200){
       if(Platform.isIOS)await controller?.pauseCamera();
       Fluttertoast.showToast(msg: "Success");
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => MainNavigationPage(),
-        ),
+      Navigator.of(context).pop(
+
       );
     }else{
       Fluttertoast.showToast(msg: "Error: Check your internet");
@@ -98,10 +96,8 @@ class _SponsorScannerState extends State<SponsorScanner> {
     if(response.statusCode==200){
       if(Platform.isIOS)await controller?.pauseCamera();
       Fluttertoast.showToast(msg: "Successfully checked in");
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => MainNavigationPage(),
-        ),
+      Navigator.of(context).pop(
+
       );setState(() {
         isSending=false;
       });
@@ -124,7 +120,7 @@ class _SponsorScannerState extends State<SponsorScanner> {
 
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(title: Text("dx5ve Events QR SCANNER"),automaticallyImplyLeading: true,),
+        appBar: AppBar(title: const Text("dx5ve Events QR SCANNER"),automaticallyImplyLeading: true,),
         body: Visibility(
           replacement: const Center(child: SpinKitCircle(color: kCIOPink,size: 100,),),
           visible: isSending==false,

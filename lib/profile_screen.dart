@@ -119,6 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(title: const Text("Profile"),centerTitle: true,automaticallyImplyLeading: true,),
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 import '../../constants.dart';
@@ -15,14 +14,25 @@ import '../../constants.dart';
 import 'gallery_screen.dart';
 import 'homeScreen.dart';
 import 'meetings/meeting_tabs.dart';
-import 'meetings/meeting_tabs.dart';
 
 _MainNavigationPageState mainNavigationPageState = _MainNavigationPageState();
 
 class MainNavigationPage extends StatefulWidget {
   static String routeName = "/main_page";
+  final String coverImagePath ;
+  final String eventLocation ;
+  final String eventDate ;
+  final String eventDayOfWeek ;
+  final String eventName ;
+  final String eventID ;
+  final String shortEventDescription ; int eventDay;
+  int eventMonth;
+  int eventYear;bool isCustomerEvent;
 
-  MainNavigationPage({Key? key}) : super(key: key);
+
+  MainNavigationPage({Key? key,  required this.eventDay,
+    required this.eventMonth,required this.isCustomerEvent,
+    required this.eventYear,required this.coverImagePath,required this.eventID,required this.eventDayOfWeek, required this.eventName,required this.shortEventDescription,required this.eventDate, required this.eventLocation}) : super(key: key);
 
   @override
   _MainNavigationPageState createState() {
@@ -99,7 +109,13 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
   List<Widget> _buildScreens() {
     return [
-      HomeScreen(),
+      HomeScreen(  eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,coverImagePath: widget.coverImagePath, eventName: widget.eventName,
+        //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+        eventDate: widget.eventDate,
+        //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+        shortEventDescription: widget.shortEventDescription,
+        //eventLocation: 'Nigeria',);
+        eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek:widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent ,),
       AllChatsScreen(),
       MeetingTabs(),
       const ProfileScreen(),
@@ -140,7 +156,13 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
           routeAndNavigatorSettings: RouteAndNavigatorSettings(
             initialRoute: '/',
             routes: {
-              '/first': (context) => HomeScreen(),
+              '/first': (context) => HomeScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,coverImagePath: widget.coverImagePath, eventName: widget.eventName,
+                //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
+                eventDate: widget.eventDate,
+                //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
+                shortEventDescription: widget.shortEventDescription,
+                //eventLocation: 'Nigeria',);
+                eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,),
               '/second': (context) => MeetingTabs(),
               '/third': (context) => const GalleryScreen(),
               '/fourth': (context) => const ProfileScreen(),

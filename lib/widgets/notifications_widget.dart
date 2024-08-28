@@ -1,5 +1,7 @@
+import 'package:dx5veevents/screens/dx5veScreens/notificationsScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 import '../constants.dart';
 
@@ -42,9 +44,15 @@ String? userID;
         if (snapshot.connectionState == ConnectionState.waiting) {
          // return const CircularProgressIndicator();
           return IconButton(
-            icon: const Icon(Icons.notifications,size: 35,),
+            icon: const Icon(Icons.hdr_strong,size: 35,),
             onPressed: () {
               // Handle notification icon press
+              PersistentNavBarNavigator.pushNewScreen(
+                context,
+                screen: const NotificationsScreen(),
+                withNavBar: false,
+                pageTransitionAnimation: PageTransitionAnimation.slideRight,
+              );
             },
           );
         }
@@ -57,7 +65,12 @@ String? userID;
             IconButton(
               icon: const Icon(Icons.notifications,size: 35,),
               onPressed: () {
-                // Handle notification icon press
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: const NotificationsScreen(),
+                  withNavBar: false,
+                  pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                );
               },
             ),
             if (docsCount > 0)
