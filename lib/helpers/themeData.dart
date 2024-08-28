@@ -9,7 +9,6 @@ ThemeData darkTheme =
 ThemeData(
 
     scaffoldBackgroundColor: kDarkScaffold,
-    backgroundColor:kToggleDark,
 
     //For Keys
     disabledColor: kLightGrayishOrange,
@@ -93,18 +92,13 @@ ThemeData(
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: kPrimaryColor,
     ),
-    iconTheme: const IconThemeData(color: kPrimaryColor),
-    iconButtonTheme: const IconButtonThemeData(style: ButtonStyle(
-      backgroundColor: MaterialStatePropertyAll<Color>(kPrimaryColor),
 
-    )),
 
     switchTheme: SwitchThemeData(
       thumbColor:  MaterialStateProperty.all(kPrimaryColor),
       trackColor:  MaterialStateProperty.all(kPrimaryLight),),
 
     appBarTheme: const AppBarTheme(
-        iconTheme: IconThemeData(color: kPrimaryColor),
         backgroundColor: kDarkAppbar,
         elevation: 0.0,
         titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)
@@ -121,8 +115,7 @@ ThemeData lightTheme =
 ThemeData(
 
     scaffoldBackgroundColor: kScaffoldColor,
-    backgroundColor:kToggleLight ,
-    bottomAppBarColor: kScreenGray,
+
 
     //For Keys
     disabledColor: kLightDisabledColor,
@@ -200,11 +193,7 @@ ThemeData(
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: kPrimaryColor,
     ),
-    iconTheme: const IconThemeData(color: kPrimaryColor),
-    iconButtonTheme: const IconButtonThemeData(style: ButtonStyle(
-      backgroundColor: MaterialStatePropertyAll<Color>(kPrimaryColor),
 
-    )),
 
     switchTheme: SwitchThemeData(
       thumbColor:  MaterialStateProperty.all(kPrimaryColor),
@@ -216,7 +205,6 @@ ThemeData(
 
 
     appBarTheme:  AppBarTheme(
-        iconTheme: IconThemeData(color: kPrimaryColor),
         backgroundColor: kLightAppbar,
         elevation: 0.0,
         titleTextStyle: TextStyle(color: kTextColorBlackLighter, fontSize: 20, fontWeight: FontWeight.bold)
