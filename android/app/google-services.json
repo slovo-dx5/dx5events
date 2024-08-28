@@ -7,7 +7,7 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:286423894850:android:9476ce4f24e1212533d6db",
+        "mobilesdk_app_id": "1:286423894850:android:ff681373972fb40033d6db",
         "android_client_info": {
           "package_name": "com.cioafrica.dx5veevents"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyC7gJUOTiIWW3PgkFxN7sNNJHYcPXiqvnE"
+          "current_key": "AIzaSyAgiiBlGnNCzIZuvwOjisn3OLb614uKJmI"
         }
       ],
       "services": {
