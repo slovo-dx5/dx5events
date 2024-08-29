@@ -91,7 +91,8 @@ class _BroadCastMessageToAllState extends State<BroadCastMessageToAll> {
                   final token = await getAccessToken();
                   await DioPostService().sendBroadcast(body: {
                     "message": {
-                      "topic": "dx5veBroadcast",
+                      //"topic": "dx5veBroadcast",
+                      "topic": "dx5veNewBroadcast",
                       "notification": {
                         "title": titleController.text,
                         "body": messageBodyController.text

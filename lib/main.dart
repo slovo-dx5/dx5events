@@ -36,7 +36,7 @@ void main() async{
 
   );
   await NotificationSetup().getIOSPermission();
-  await FirebaseMessaging.instance.subscribeToTopic("dx5veBroadcast").then((value) {
+  await FirebaseMessaging.instance.subscribeToTopic("dx5veNewBroadcast").then((value) {
     print("successfully subscribed to broadcast ");
   });
 
