@@ -16,7 +16,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     // Initialize the video player controller with the local video file
-    _controller = VideoPlayerController.asset('assets/splash.mp4')
+    _controller = VideoPlayerController.asset(Uri.encodeFull('assets/splash.mp4'))
       ..initialize().then((_) {
         // Ensure the video plays automatically
         _controller.play();

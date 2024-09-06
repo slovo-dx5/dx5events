@@ -3,6 +3,7 @@ import 'package:dx5veevents/dioServices/dioPostService.dart';
 import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/providers/themeProvider.dart';
 import 'package:dx5veevents/screens/dx5veScreens/notificationsScreen.dart';
+import 'package:dx5veevents/screens/dx5veScreens/videoSplash.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:provider/provider.dart';
+import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'backendOps/sendBroadcast.dart';
@@ -35,12 +37,22 @@ void main() async{
     options: DefaultFirebaseOptions.currentPlatform,
 
   );
-  await NotificationSetup().getIOSPermission();
-  await FirebaseMessaging.instance.subscribeToTopic("dx5veNewBroadcast").then((value) {
-    print("successfully subscribed to broadcast ");
-  });
+  if(Platform.isAndroid){
+    await FirebaseMessaging.instance.subscribeToTopic("dx5veNewBroadcast");
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  }else if(Platform.isIOS){
+    try{ await NotificationSetup().getIOSPermission();
+    await FirebaseMessaging.instance.getAPNSToken();
 
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    await FirebaseMessaging.instance.getAPNSToken().then((value)async{
+      await FirebaseMessaging.instance.subscribeToTopic("dx5veNewBroadcast");
+    } );
+
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);}catch(e){
+      print(("firebase messaging error is? $e"));
+    }
+  }
+
   runApp(const MyApp());
 }
 
@@ -61,6 +73,8 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
+if(Platform.isIOS){
+  try{
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       _handleNotificationClick(message.data);
       _storeNotification(message.notification!.title, message.notification!.body);
@@ -78,6 +92,28 @@ class _MyAppState extends State<MyApp> {
         _storeNotification(message.notification!.title, message.notification!.body);
       }
     });
+  }catch(e){
+    print("firebase messaging config error $e");
+  }
+}else{
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    _handleNotificationClick(message.data);
+    _storeNotification(message.notification!.title, message.notification!.body);
+  });
+
+  _firebaseMessaging.getInitialMessage().then((RemoteMessage? message) {
+    if (message != null) {
+      _handleNotificationClick(message.data);
+      _storeNotification(message.notification!.title, message.notification!.body);
+    }
+  });
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    if (message.notification != null) {
+      _storeNotification(message.notification!.title, message.notification!.body);
+    }
+  });
+}
   }
 
   void _handleNotificationClick(Map<String, dynamic> data)async {
@@ -90,9 +126,9 @@ class _MyAppState extends State<MyApp> {
       });
     });
     if (targetPage == 'notifications' && isAuthenticated==true) {
-      navigatorKey.currentState?.pushNamed('/notifications', );
+      navigatorKey.currentState?.push(MaterialPageRoute(builder: (context) => LandingPage2()));
     }else{
-      navigatorKey.currentState?.pushNamed('/landingTwo', );
+      navigatorKey.currentState?.push(MaterialPageRoute(builder: (context) => LandingPage2()));
     }
   }
 
@@ -133,11 +169,8 @@ class _MyAppState extends State<MyApp> {
                   : ThemeMode.dark,
               theme: lightTheme,
               darkTheme: darkTheme,
-             home: LandingPage2(),
-              routes: {
-                '/notifications': (context) => NotificationsScreen(),
-                '/landingTwo': (context) => LandingPage2(),
-              },
+             home: Platform.isAndroid?SplashScreen():LandingPage2(),
+
              //home: AdminPanelHome(adminName: 'Slovo Ulo',)
              //home: GetContact()
              //home: StructureLAstMinute()
