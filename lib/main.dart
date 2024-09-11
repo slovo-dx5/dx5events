@@ -169,7 +169,8 @@ if(Platform.isIOS){
                   : ThemeMode.dark,
               theme: lightTheme,
               darkTheme: darkTheme,
-             home: Platform.isAndroid?SplashScreen():LandingPage2(),
+             home: Platform.isAndroid?VideoSplashScreen():LandingPage2(),
+            // home: LandingPage2(),
 
              //home: AdminPanelHome(adminName: 'Slovo Ulo',)
              //home: GetContact()
