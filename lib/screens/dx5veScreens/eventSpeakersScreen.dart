@@ -50,9 +50,6 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
         neoSpeakers.add(SpeakerAssociation.fromJson(speakerData));
       }
 
-
-
-
       for (var speaker in neoSpeakers) {
         fetchSpeakerById(speaker.speaker.key).then((value) {
           speakers.add(value!);
@@ -72,7 +69,8 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
 
 
       return speakers;
-    }else{
+    }
+    else{
       print("No speakers");
     }
 
@@ -161,7 +159,7 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
         body:
         Padding(padding: EdgeInsets.only(top: 8),
           child: isFetching
-              ? speakerShimmerWidget(context: context)
+              ? Text("SPEAKERS WILL APPEAR HERE ")
               : ListView.builder(
 
             padding:  EdgeInsets.all(8),
