@@ -20,9 +20,10 @@ class SponsorScanner extends StatefulWidget {
    String lastName;
    String company;
    String email;
+   int eventId;
    String phone;
    String position;
-   SponsorScanner({required this.firstName,required this.phone, required this.lastName, required this.email,required this.company, required this.position,key});
+   SponsorScanner({required this.firstName,required this.eventId,required this.phone, required this.lastName, required this.email,required this.company, required this.position,key});
 
   @override
   State<SponsorScanner> createState() => _SponsorScannerState();
@@ -51,6 +52,7 @@ class _SponsorScannerState extends State<SponsorScanner> {
           setState(() {
             isSending = true;
           });
+          print("sending event ID as ${widget.eventId}");
           sendAttendeeData(qrContent: scanData.code);
         }
       }
@@ -89,6 +91,7 @@ class _SponsorScannerState extends State<SponsorScanner> {
   sendAttendeeData({required qrContent})async{
     final response=await DioPostService().postCheckinData(body: {
       "email": widget.email,
+      "eventId": widget.eventId,
       "printerId": qrContent,
      
     }, context: context);

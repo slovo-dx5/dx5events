@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../dioServices/dioFetchService.dart';
@@ -25,6 +26,7 @@ class EventAgendaScreen extends StatefulWidget {
   int eventDay;
   int eventMonth;
   int eventYear;
+
   String eventLocation;
   String eventDayOfWeek;
 
@@ -32,6 +34,7 @@ class EventAgendaScreen extends StatefulWidget {
   EventAgendaScreen(
       {super.key,
       required this.eventID,
+
 
       required this.eventDay,
         required this.eventDayOfWeek,
@@ -58,15 +61,27 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
   List<AgendaDay> agendaDays = [];
   bool isBookmarking = false;
   bool isFetching = true;
+  int attendeeID=0;
 
   @override
   void initState() {
-
+getAttendeeID();
   setState(() {
      _selectedDate = DateTime(widget.eventYear, widget.eventMonth, widget.eventDay);
   });
     _loadSessions();
     super.initState();
+  }
+
+  getAttendeeID()async{
+  try{  SharedPreferences prefs = await SharedPreferences.getInstance();
+  int? attendeeIDD=prefs.getInt(kUserID);
+  setState(() {
+    attendeeID=attendeeIDD!;
+    print("atendee is is $attendeeID");
+  });}catch(e){
+    print("getting id eror is $e");
+  }
   }
 
 
@@ -78,6 +93,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
     final sessions = await fetchSessions();
     setState(() {
       _sessions = sessions;
+
       isFetching = false;
       _dayToAgendaMap = { for (var item in agendaDays) (item).date : item };
     });
@@ -115,6 +131,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
       final eventData = AgendaModel.fromJson(response.data);
       setState(() {
         _sessions = eventData.days.first.sessions;
+        print("first seession is ${_sessions.first.title}");
         agendaDays = eventData.days;
         isLoading = false;
       });
@@ -241,7 +258,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                     waterDropColor: kCIOPink,
                   ),
                   onRefresh: () async {
-                    await dioCacheManager.clearAll();
+                   // await dioCacheManager.clearAll();
                     await fetchDx5veAgendaHere();
 
                     setState(() {
@@ -273,7 +290,9 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                               for(var future in futures){
                               }
 
-                              return agendaItemWithSpeakers(
+                              return
+
+                                agendaItemWithSpeakers(
                                 context: context,
                                 title: session.title,
                                 startTime: session.startTime,
@@ -291,13 +310,17 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                                   await Dx5veAnalytics().logdx5veEvent(eventName: 'agenda_bookmarked');
 
                                   await createSession(
-                                    currentUserId: profileProvider.userID!, sessionID: session.sessionId, date: _dayToAgendaMap[_selectedDate]!.date!,
-                                 
+                                    currentUserId: profileProvider.userID!, sessionID: session.sessionId,
+                                    date: _dayToAgendaMap[_selectedDate]!.date!,
+
                                   );
                                   setState(() {
                                     isBookmarking = false;
                                   });
-                                }, eventLocation: widget.eventLocation, eventYear: widget.eventYear,eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventDayOfWeek: widget.eventDayOfWeek, sessionDate: _dayToAgendaMap[_selectedDate]!.date!, sessionID: session.sessionId, eventId: widget.eventID,
+                                }, eventLocation: widget.eventLocation, eventYear: widget.eventYear,eventDay: widget.eventDay,
+                                  eventMonth: widget.eventMonth, eventDayOfWeek: widget.eventDayOfWeek,
+                                  sessionDate: _dayToAgendaMap[_selectedDate]!.date!, sessionID: session.sessionId, eventId: widget.eventID,
+                                  attendeeID: attendeeID,
                               );
                             } else {
                               return agendaItemWithoutSpeakers(
@@ -310,6 +333,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                                 userID: profileProvider.userID!,
                                 breakoutSessions: session.breakoutSessions,
                                 speakers: session.speakers!,
+                                  attendeeID: attendeeID, speakerName: "No speaker",
                                 onPressedFunction: () async {
                                   setState(() {
                                     isBookmarking = true;
@@ -335,143 +359,8 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                       : Center(
                           child: Text('No sessions available for this day')),
 
-                  // _selectedDate.day==2|| _selectedDate.day==02?ListView.builder(
-                  //   itemCount: agendaDays[0].sessions!.length,
-                  //   itemBuilder: (context, index) {
-                  //     final firstDaySession = agendaDays[0].sessions![index];
-                  //
-                  //     // Check if there are speakers for the session
-                  //     if (firstDaySession!.speakers!.isNotEmpty) {
-                  //       // Fetch all speakers' details
-                  //       final futures = firstDaySession.speakers!
-                  //           .map((speaker) =>
-                  //           fetchSpeakerById(speaker.speaker.key))
-                  //           .toList();
-                  //       return agendaItemWithSpeakers(context: context,
-                  //         title: firstDaySession.title,
-                  //         startTime: firstDaySession.startTime,
-                  //         futures: futures, endTime: firstDaySession.endTime!, sessionType: firstDaySession.sessionType!,
-                  //         summary: firstDaySession.summary, userID: profileProvider.userID!,
-                  //         breakoutSessions:firstDaySession.breakoutSessions, speakers: firstDaySession.speakers!, onPressedFunction: () async{
-                  //           setState(() {
-                  //             isBookmarking = true;
-                  //           });
-                  //
-                  //           await createSession(
-                  //           currentUserId: profileProvider.userID!,
-                  //           startTime: firstDaySession.startTime,
-                  //           endTime: firstDaySession.endTime!,
-                  //           sessionTitle: firstDaySession.title,
-                  //           sessionDescription:firstDaySession.summary,
-                  //           speakers:[],
-                  //           sessionType: firstDaySession.sessionType!,
-                  //           date: 20,
-                  //           );
-                  //           setState(() {
-                  //             isBookmarking = false;
-                  //           });
-                  //         } ,);
-                  //
-                  //
-                  //     } else {
-                  //       // If there are no speakers for the session
-                  //       return agendaItemWithoutSpeakers(context: context,
-                  //         title: firstDaySession.title,
-                  //         startTime: firstDaySession.startTime,
-                  //          endTime: firstDaySession.endTime!, type: firstDaySession.sessionType!,
-                  //         summary: firstDaySession.summary, userID: profileProvider.userID!,
-                  //         breakoutSessions:firstDaySession.breakoutSessions, speakers: firstDaySession.speakers!, onPressedFunction: () async{
-                  //           setState(() {
-                  //             isBookmarking = true;
-                  //           });
-                  //
-                  //           await createSession(
-                  //             currentUserId: profileProvider.userID!,
-                  //             startTime: firstDaySession.startTime,
-                  //             endTime: firstDaySession.endTime!,
-                  //             sessionTitle: firstDaySession.title,
-                  //             sessionDescription:firstDaySession.summary,
-                  //             speakers:[],
-                  //             sessionType: firstDaySession.sessionType!,
-                  //             date: 20,
-                  //           );
-                  //           setState(() {
-                  //             isBookmarking = false;
-                  //           });
-                  //         } ,);
-                  //
-                  //     }
-                  //   },
-                  // ):
-                  //
-                  //
-                  // ///Day 2
-                  // _selectedDate.day==21?ListView.builder(
-                  //   itemCount: agendaDays[1].sessions.length,
-                  //   itemBuilder: (context, index) {
-                  //     final secondDaySession = agendaDays[1].sessions[index];
-                  //
-                  //     // Check if there are speakers for the session
-                  //     if (secondDaySession.speakers!.isNotEmpty) {
-                  //       // Fetch all speakers' details
-                  //       final futures = secondDaySession.speakers!
-                  //           .map((speaker) =>
-                  //           fetchSpeakerById(speaker.speaker.key))
-                  //           .toList();
-                  //
-                  //       return  agendaItemWithSpeakers(context: context,
-                  //         title: secondDaySession.title,
-                  //         startTime: secondDaySession.startTime,
-                  //         futures: futures, endTime: secondDaySession.endTime!, sessionType: secondDaySession.sessionType!,
-                  //         summary: secondDaySession.summary, userID: profileProvider.userID!,
-                  //         breakoutSessions:secondDaySession.breakoutSessions, speakers: secondDaySession.speakers!, onPressedFunction: () async{
-                  //           setState(() {
-                  //             isBookmarking = true;
-                  //           });
-                  //
-                  //           await createSession(
-                  //             currentUserId: profileProvider.userID!,
-                  //             startTime: secondDaySession.startTime,
-                  //             endTime: secondDaySession.endTime!,
-                  //             sessionTitle: secondDaySession.title,
-                  //             sessionDescription:secondDaySession.summary,
-                  //             speakers:[],
-                  //             sessionType: secondDaySession.sessionType!,
-                  //             date: 20,
-                  //           );
-                  //           setState(() {
-                  //             isBookmarking = false;
-                  //           });
-                  //         } ,);
-                  //     } else {
-                  //       // If there are no speakers for the session
-                  //       return agendaItemWithoutSpeakers(context: context,
-                  //         title: secondDaySession.title,
-                  //         startTime: secondDaySession.startTime,
-                  //         endTime: secondDaySession.endTime!, type: secondDaySession.sessionType!,
-                  //         summary: secondDaySession.summary, userID: profileProvider.userID!,
-                  //         breakoutSessions:secondDaySession.breakoutSessions, speakers: secondDaySession.speakers!, onPressedFunction: () async{
-                  //           setState(() {
-                  //             isBookmarking = true;
-                  //           });
-                  //
-                  //           await createSession(
-                  //             currentUserId: profileProvider.userID!,
-                  //             startTime: secondDaySession.startTime,
-                  //             endTime: secondDaySession.endTime!,
-                  //             sessionTitle: secondDaySession.title,
-                  //             sessionDescription:secondDaySession.summary,
-                  //             speakers:[],
-                  //             sessionType: secondDaySession.sessionType!,
-                  //             date: 20,
-                  //           );
-                  //           setState(() {
-                  //             isBookmarking = false;
-                  //           });
-                  //         } ,);
-                  //     }
-                  //   },
-                  // ):null,
+
+
                 ),
               ),
             )

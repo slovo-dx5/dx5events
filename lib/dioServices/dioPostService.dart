@@ -120,7 +120,7 @@ class DioPostService extends DioClient {
     try{
       return await _client
           .init()
-          .post("https://checkinv2.cioafrica.co/api/printbadge",
+          .post("https://directcheckin.cioafrica.co/checkinPrintBadgeUsingApp",
         data: body,
 
 
@@ -134,6 +134,8 @@ class DioPostService extends DioClient {
       throw Exception("Checkin data create error: ${ex.response!.data!}");
     }
   }
+
+
 
 
   Future<Response> sendBroadcast({required Map<String, dynamic> body,required String accessToken,}) async {
@@ -170,6 +172,48 @@ class DioPostService extends DioClient {
 
         // Set headers using the 'headers' parameter
       );
+    }on DioError catch (ex) {
+      Fluttertoast.showToast(backgroundColor:kLogoutRed,msg: "Error: Check your internet connection");
+      Future.delayed(const Duration(seconds: 2),(){Navigator.of(context).pop();});
+
+
+      throw Exception("Checkin data create error: ${ex.response!.data!}");
+    }
+  }
+
+  Future<Response> postSessionRating({required BuildContext context,
+
+    required int attendeeID,
+    required int speakerRating,
+    required int sessionRating,
+    required String sessionComment,
+    required String speakerName,
+    required String sessionTitle,
+    required String speakerComment,
+
+  }) async {
+    try{
+      return await _client
+          .init()
+          .post("https://subscriptions.cioafrica.co/items/Session_Rating",
+        data: {
+            "attendeeID":attendeeID,
+            "sessionTitle":sessionTitle,
+            "sessionComment":sessionComment,
+            "sessionRating":sessionRating,
+            "speakerRating":speakerRating,
+            "speakerName":speakerName,
+            "speakerComment":speakerComment,
+
+
+
+
+        },
+
+
+        // Set headers using the 'headers' parameter
+      );
+
     }on DioError catch (ex) {
       Fluttertoast.showToast(backgroundColor:kLogoutRed,msg: "Error: Check your internet connection");
       Future.delayed(const Duration(seconds: 2),(){Navigator.of(context).pop();});

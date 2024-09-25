@@ -132,7 +132,7 @@ class BreakoutSession {
     return BreakoutSession(
       title: json['breakout_session_title'],
       type: json['breakout_session_type'],
-      summary: json['breakout_session_summary'],
+      summary: json['breakout_session_summary'] ??"Summary",
       //speakers: speakerObjects,
     );
   }

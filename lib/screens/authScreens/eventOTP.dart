@@ -18,7 +18,6 @@ import 'package:dio/dio.dart';
 
 import '../../dioServices/dioOTPService.dart';
 import '../../mainNavigationPage.dart';
-import '../../splashScreen.dart';
 import '../../testScreen.dart';
 
 class OTPScreen extends StatefulWidget {

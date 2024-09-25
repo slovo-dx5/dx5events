@@ -48,7 +48,7 @@ class HomeScreen extends GetView<MyDrawerController> {
     return GetBuilder<MyDrawerController>(
       builder: (_) => ZoomDrawer(
         controller: _.zoomDrawerController,
-        menuScreen: MenuScreen(),
+        menuScreen: MenuScreen(eventID: eventID,),
         mainScreen: MainScreen(controller: controller, coverImagePath: coverImagePath, eventLocation: eventLocation, eventName: eventName, eventDate: eventDate, 
           shortEventDescription: shortEventDescription, eventID: eventID, eventDay: eventDay, eventMonth: eventMonth, eventYear: eventYear, eventDayOfWeek: eventDayOfWeek, isCustomerEvent: isCustomerEvent,),
         androidCloseOnBackTap: true,
@@ -113,10 +113,12 @@ class MainScreen extends GetView<MyDrawerController> {
 
 
 class MenuScreen extends GetView<MyDrawerController> {
-  MenuScreen({Key? key}) : super(key: key);
+  String eventID;
+  MenuScreen({required this.eventID,Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    print("event id is $eventID");
     return buildMenu(context);
   }
 
@@ -175,7 +177,7 @@ class MenuScreen extends GetView<MyDrawerController> {
                                   lastName: profileProvider.lastName,
                                   company: profileProvider.company,
                                   position: profileProvider.role,
-                                  email: profileProvider.email,),
+                                  email: profileProvider.email, eventId: int.parse(eventID),),
                                 withNavBar: false,
                                 pageTransitionAnimation: PageTransitionAnimation.slideRight,
                               );

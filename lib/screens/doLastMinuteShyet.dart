@@ -35,7 +35,7 @@ class _StructureLAstMinuteState extends State<StructureLAstMinute> {
 
 
           // Fetch attendee details
-          var response = await DioFetchService().fetchSingleAttendeeForEvent(id: attendeeId, eventID: 8);
+          var response = await DioFetchService().fetchSingleAttendeeForEvent(id: attendeeId, eventID: 10);
           var data = response.data["data"];
 
           // Ensure the data list is not empty
