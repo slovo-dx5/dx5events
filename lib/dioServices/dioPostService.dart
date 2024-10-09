@@ -8,6 +8,7 @@ import 'dioClient.dart';
 
 class DioPostService extends DioClient {
   DioClient _client = new DioClient();
+  final baseURL="https://subscriptions.cioafrica.co/items/";
 
   Future<Response> createSession({required Map<String, dynamic> sessionBody}) async {
     print("session bosy is $sessionBody");
@@ -204,10 +205,6 @@ class DioPostService extends DioClient {
             "speakerRating":speakerRating,
             "speakerName":speakerName,
             "speakerComment":speakerComment,
-
-
-
-
         },
 
 
@@ -283,6 +280,66 @@ class DioPostService extends DioClient {
     }
 
   }
+
+
+
+  //
+  // Future<void> logUserAction({
+  //   required int userId,
+  //   required int actionId,
+  // }) async {
+  //   final String userPointsUrl = '$baseURL/items/user_points';
+  //   final String actionUrl = '$baseURL/items/point_actions/$actionId';
+  //
+  //   try {
+  //     // Get action details
+  //     final actionResponse = await http.get(
+  //       Uri.parse(actionUrl),
+  //       headers: {'Authorization': 'Bearer $apiToken', 'Content-Type': 'application/json'},
+  //     );
+  //     final actionData = jsonDecode(actionResponse.body)['data'];
+  //
+  //     // Get the user's action performance data
+  //     final userPointsResponse = await http.get(
+  //       Uri.parse('$userPointsUrl?filter[user_id][_eq]=$userId&filter[action_id][_eq]=$actionId'),
+  //       headers: {'Authorization': 'Bearer $apiToken', 'Content-Type': 'application/json'},
+  //     );
+  //     final userPointsData = jsonDecode(userPointsResponse.body)['data'];
+  //
+  //     int occurrences = userPointsData.isNotEmpty ? userPointsData[0]['occurrences'] : 0;
+  //
+  //     // Increment occurrences since the user performed the action
+  //     occurrences++;
+  //
+  //     // Check if occurrences meet or exceed the required occurrences
+  //     if (occurrences >= actionData['required_occurrences']) {
+  //       // Award points and update points_awarded flag
+  //       await http.patch(
+  //         Uri.parse('$userPointsUrl/${userPointsData[0]['id']}'),
+  //         headers: {'Authorization': 'Bearer $apiToken', 'Content-Type': 'application/json'},
+  //         body: jsonEncode({
+  //           'occurrences': occurrences,
+  //           'points_awarded': true,
+  //           'last_performed_at': DateTime.now().toIso8601String(),
+  //         }),
+  //       );
+  //       print('Points awarded!');
+  //     } else {
+  //       // Just increment occurrences
+  //       await http.patch(
+  //         Uri.parse('$userPointsUrl/${userPointsData[0]['id']}'),
+  //         headers: {'Authorization': 'Bearer $apiToken', 'Content-Type': 'application/json'},
+  //         body: jsonEncode({
+  //           'occurrences': occurrences,
+  //           'last_performed_at': DateTime.now().toIso8601String(),
+  //         }),
+  //       );
+  //       print('Action logged but not enough occurrences for points.');
+  //     }
+  //   } catch (error) {
+  //     print('Error logging user action: $error');
+  //   }
+  // }
 }
 
 

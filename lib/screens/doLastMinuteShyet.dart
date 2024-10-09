@@ -49,7 +49,7 @@ class _StructureLAstMinuteState extends State<StructureLAstMinute> {
               "Phone": attendeeDetails["phone"] ?? "missing value",
               "Company": attendeeDetails["company"],
               "Role": attendeeDetails["role"],
-              "Event_ID": 8,
+              "Event_ID": 10,
               "Attendee_ID": attendeeId,
               "Session_Name": roomData.roomName
             }, context: context);

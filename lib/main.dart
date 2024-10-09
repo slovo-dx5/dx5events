@@ -2,9 +2,11 @@ import 'package:dx5veevents/constants.dart';
 import 'package:dx5veevents/dioServices/dioPostService.dart';
 import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/providers/themeProvider.dart';
+import 'package:dx5veevents/screens/doLastMinuteShyet.dart';
 import 'package:dx5veevents/screens/dx5veScreens/notificationsScreen.dart';
 import 'package:dx5veevents/screens/dx5veScreens/videoSplash.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
+import 'package:dx5veevents/screens/rewardsPage.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -170,12 +172,14 @@ if(Platform.isIOS){
               theme: lightTheme,
               darkTheme: darkTheme,
              //home: Platform.isAndroid?VideoSplashScreen():LandingPage2(),
-             home: VideoSplashScreen()
-            // home: LandingPage2(),
+             //home: VideoSplashScreen()
+             //home: StructureLAstMinute()
+           // home: LandingPage2(),
+            home: RewardsPage(),
 
              //home: AdminPanelHome(adminName: 'Slovo Ulo',)
              //home: GetContact()
-             //home: StructureLAstMinute()
+            //home: StructureLAstMinute()
             // home: CSVHelper()
              //home: CustomerSpeakerCSVHelper()
             //  home: CISOLogin(coverImagePath: '', eventName: '', shortEventDescription: '', eventDate: '', eventLocation: '',),

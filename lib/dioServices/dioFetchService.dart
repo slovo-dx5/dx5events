@@ -56,7 +56,7 @@ class DioFetchService extends DioClient {
 
 
   Future<Response> fetchdx5veAgenda({required String eventID}) async {
-    int dodod=6;
+
     try {
       return await _client
           .init()
@@ -206,6 +206,60 @@ class DioFetchService extends DioClient {
       throw Exception("Session fetch error: ${ex.response!.data!}");
     }
   }
+
+  Future<Response> getActionDetails({required int actionId,}) async {
+    try {
+
+
+      return await _client
+          .init()
+          .get(
+        "https://subscriptions.cioafrica.co/items/point_actions/$actionId",
+        // options: buildCacheOptions(const Duration(seconds: 30,),),
+
+        // Set headers using the 'headers' parameter
+      );
+    } on DioError catch (ex) {
+      throw Exception("Session fetch error: ${ex.response!.data!}");
+    }
+  }
+
+  Future<Response> getAllActions() async {
+    try {
+
+
+      return await _client
+          .init()
+          .get(
+        "https://subscriptions.cioafrica.co/items/point_actions",
+        // options: buildCacheOptions(const Duration(seconds: 30,),),
+
+        // Set headers using the 'headers' parameter
+      );
+    } on DioError catch (ex) {
+      throw Exception("Session fetch error: ${ex.response!.data!}");
+    }
+  }
+
+  Future<Response> getUserPointsResponse({required int userId}) async {
+    try {
+
+
+      return await _client
+          .init()
+          .get(
+        "https://subscriptions.cioafrica.co/items/user_points?filter[user_id][_eq]=$userId",
+        // options: buildCacheOptions(const Duration(seconds: 30,),),
+
+        // Set headers using the 'headers' parameter
+      );
+    } on DioError catch (ex) {
+      throw Exception("Session fetch error: ${ex.response!.data!}");
+    }
+  }
+
+
+
 
   Future<Response> updateUserData({required int id,required Map<String, dynamic> body}) async {
 
