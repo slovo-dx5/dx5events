@@ -174,8 +174,8 @@ if(Platform.isIOS){
              //home: Platform.isAndroid?VideoSplashScreen():LandingPage2(),
              //home: VideoSplashScreen()
              //home: StructureLAstMinute()
-           // home: LandingPage2(),
-            home: RewardsPage(),
+           home: LandingPage2(),
+            //home: RewardsPage(),
 
              //home: AdminPanelHome(adminName: 'Slovo Ulo',)
              //home: GetContact()

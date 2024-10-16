@@ -19,6 +19,7 @@ import 'package:dio/dio.dart';
 
 import 'dioServices/dioFetchService.dart';
 import 'dioServices/dioPostService.dart';
+import 'helpers/helper_functions.dart';
 
 
 class ProfileScreen extends StatefulWidget {
@@ -100,6 +101,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       print("owner id is $ownerID");
       final patchresponse=await DioFetchService().updateUserData(id: ownerID, body: imageidDAta);
       print('Patch Response: ${patchresponse.data}');
+      UserPointsService().createOrUpdateUserPoints(ownerID, 2);
 
       print("image ID is $imageID");
     } catch (e) {

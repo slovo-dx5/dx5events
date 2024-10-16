@@ -220,6 +220,24 @@ class DioFetchService extends DioClient {
         // Set headers using the 'headers' parameter
       );
     } on DioError catch (ex) {
+      throw Exception("Action fetch error: ${ex.response!.data!}");
+    }
+  }
+
+
+Future<Response> checkUserPoints({required int actionId, required int userId}) async {
+    try {
+
+
+      return await _client
+          .init()
+          .get(
+        "https://subscriptions.cioafrica.co/items/user_points?filter[user_id][_eq]=$userId&filter[action_id][_eq]=$actionId",
+        // options: buildCacheOptions(const Duration(seconds: 30,),),
+
+        // Set headers using the 'headers' parameter
+      );
+    } on DioError catch (ex) {
       throw Exception("Session fetch error: ${ex.response!.data!}");
     }
   }

@@ -392,3 +392,69 @@ launchMailClient(
     throw 'Could not launch $emailUri';
   }
 }
+
+
+
+
+class UserPointsService {
+
+
+  // Method to create or update user_points
+  Future<void> createOrUpdateUserPoints(int userId, int actionId) async {
+    try {
+      // Step 1: Fetch action details to check required occurrences
+      final actionResponse = await DioFetchService().getActionDetails(actionId: actionId);
+
+      if (actionResponse.statusCode != 200) {
+        throw Exception('Failed to fetch action details.');
+      }else{
+        print("Got action details");
+      }
+
+      final actionData = actionResponse.data['data'];
+      final requiredOccurrences = actionData['required_occurrence'];
+      print("required occurencese ${requiredOccurrences}");
+
+      // Step 2: Check if user_points entry exists
+      final userPointsResponse = await DioFetchService().checkUserPoints(actionId: actionId, userId: userId);
+      if (userPointsResponse.statusCode != 200) {
+        throw Exception('Failed to fetch user points.');
+      }else{print("Got user points");}
+
+      final userPointsData = userPointsResponse.data['data'];
+
+      if (userPointsData.isNotEmpty) {
+        // Step 3: Update existing user_points record
+        final userPointsId = userPointsData[0]['id'];
+        final currentOccurrences = userPointsData[0]['occurences'];
+
+        if (currentOccurrences < requiredOccurrences) {
+          // Increment the occurrences if they haven't reached the required limit
+          final updatedOccurrences = currentOccurrences + 1;
+
+          await DioPostService().updateUserPoints(body: {
+            'occurrences': updatedOccurrences,
+            'points_awarded': actionData['action_points'], // Optional: Update awarded points based on action
+          }, userPointsId: userPointsId);
+
+
+        } else {
+          print('Action already completed. Max occurrences reached.');
+        }
+      } else {
+        // Step 4: Create new user_points entry
+        print("action data is ${actionData['action_points']}");
+        await DioPostService().createUserPointsEntry(body: {
+          'user_id': userId,
+          'action_id': actionId,
+          'occurences': 1,
+          'points_awarded': actionData['action_points'], // Optional: Set awarded points for the action
+        });
+
+      }
+    } catch (error) {
+      print('Error creating or updating user points: $error');
+    }
+  }
+}
+

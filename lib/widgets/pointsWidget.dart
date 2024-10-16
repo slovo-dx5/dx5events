@@ -3,44 +3,139 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class GamificationSystem {
-  userPointsWidget() {
+  userPointsWidget({required BuildContext context,required String actionDescription,required String urlString,
+    required String actionName,
+    required int pointsCarried, required int currentProgress, required int requiredProgress}) {
+
+   double percent= (currentProgress*1)/requiredProgress;
     return SizedBox(
-      height: 400,  // Set the height you need for the widget
+      height: 150,  // Set the height you need for the widget
       width: double.infinity,  // Set width to fill the grid cell
       child: Container(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
           border: Border.all(color: kPrimaryColor.withOpacity(0.5)),
         ),
-        child: Column(
+        child: Row(
           //mainAxisAlignment: MainAxisAlignment.center,
           //crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(
-                height: 75,
-                width: 75,
-                child: Image.asset("assets/images/sponsors/master.png")),
-            Text("INFLUENCER",style: TextStyle(fontWeight: FontWeight.w900,fontSize: 18),),
-            verticalSpace(height: 5),
-            SizedBox(height:35,child: Text("Update your profile picture")),
-            Text("0/1"),
-            Center(
-              child: LinearPercentIndicator(
-                animation: true,
-                animationDuration: 2000,
-                alignment: MainAxisAlignment.center,
-                width: 140.0,
-                lineHeight: 6.0,
+            ClipRRect(borderRadius: BorderRadius.circular(10),
 
-                barRadius: Radius.circular(10),
-                percent: 0.5,
-                backgroundColor: Colors.grey,
-                progressColor: kPrimaryColor,
+                child: Image.network(urlString,height: 75,width: 75,)),
+
+            horizontalSpace(width: 10),
+            Flexible(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                      children: [
+                        Flexible(
+                          child: Column(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                   Text(actionName.toUpperCase(),
+                                     style: const TextStyle(fontWeight: FontWeight.w900,fontSize: 16),),
+                                //verticalSpace(height: 10),
+                                Text(actionDescription),
+
+                              ],),
+                            ],
+                          ),
+                        ),
+
+
+                        Flexible(
+                          child: Column(children: [
+                            RichText(
+                            text: TextSpan(
+                              // Default style for non-specified TextSpans
+                              style: DefaultTextStyle.of(context).style,
+                              children: [
+                                // First variable
+                                TextSpan(
+                                  text: currentProgress.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 15, // Customize style for "0"
+
+                                  ),
+                                ),
+                                const TextSpan(
+                                  text: " | ",
+                                  style: TextStyle(
+                                    fontSize: 20, // Customize style for "one"
+
+                                  ),
+                                ),
+
+                                // Second variable
+                                TextSpan(
+                                  text: requiredProgress.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 15, // Customize style for "one"
+
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                            verticalSpace(height: 10),
+                            RichText(
+                              text: TextSpan(
+                                // Default style for non-specified TextSpans
+                                style: DefaultTextStyle.of(context).style,
+                                children: [
+                                  // First variable
+                                  const TextSpan(
+                                    text: "Points: ",
+                                    style: TextStyle(
+                                      fontSize: 13, // Customize style for "0"
+
+                                    ),
+                                  ),
+
+
+                                  // Second variable
+                                  TextSpan(
+                                    text: pointsCarried.toString(),
+                                    style: const TextStyle(
+                                      fontSize: 13, // Customize style for "one"
+
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                      ],),
+                        )
+                      ],
+                    ),
+                  ),
+                  Flexible(
+                    child: LinearPercentIndicator(
+                      animation: true,
+                      animationDuration: 2000,
+                      alignment: MainAxisAlignment.start,
+                      width: MediaQuery.of(context).size.width*0.65,
+                      lineHeight: 6.0,
+
+                      barRadius: const Radius.circular(10),
+                      percent: percent,
+                      backgroundColor: Colors.grey,
+                      progressColor: kPrimaryColor.withOpacity(0.8),
+                    ),
+                  ),
+                ],
               ),
             ),
-            verticalSpace(height: 10),
-            Text("Points: 200")
           ],
         ),
       ),

@@ -283,63 +283,24 @@ class DioPostService extends DioClient {
 
 
 
-  //
-  // Future<void> logUserAction({
-  //   required int userId,
-  //   required int actionId,
-  // }) async {
-  //   final String userPointsUrl = '$baseURL/items/user_points';
-  //   final String actionUrl = '$baseURL/items/point_actions/$actionId';
-  //
-  //   try {
-  //     // Get action details
-  //     final actionResponse = await http.get(
-  //       Uri.parse(actionUrl),
-  //       headers: {'Authorization': 'Bearer $apiToken', 'Content-Type': 'application/json'},
-  //     );
-  //     final actionData = jsonDecode(actionResponse.body)['data'];
-  //
-  //     // Get the user's action performance data
-  //     final userPointsResponse = await http.get(
-  //       Uri.parse('$userPointsUrl?filter[user_id][_eq]=$userId&filter[action_id][_eq]=$actionId'),
-  //       headers: {'Authorization': 'Bearer $apiToken', 'Content-Type': 'application/json'},
-  //     );
-  //     final userPointsData = jsonDecode(userPointsResponse.body)['data'];
-  //
-  //     int occurrences = userPointsData.isNotEmpty ? userPointsData[0]['occurrences'] : 0;
-  //
-  //     // Increment occurrences since the user performed the action
-  //     occurrences++;
-  //
-  //     // Check if occurrences meet or exceed the required occurrences
-  //     if (occurrences >= actionData['required_occurrences']) {
-  //       // Award points and update points_awarded flag
-  //       await http.patch(
-  //         Uri.parse('$userPointsUrl/${userPointsData[0]['id']}'),
-  //         headers: {'Authorization': 'Bearer $apiToken', 'Content-Type': 'application/json'},
-  //         body: jsonEncode({
-  //           'occurrences': occurrences,
-  //           'points_awarded': true,
-  //           'last_performed_at': DateTime.now().toIso8601String(),
-  //         }),
-  //       );
-  //       print('Points awarded!');
-  //     } else {
-  //       // Just increment occurrences
-  //       await http.patch(
-  //         Uri.parse('$userPointsUrl/${userPointsData[0]['id']}'),
-  //         headers: {'Authorization': 'Bearer $apiToken', 'Content-Type': 'application/json'},
-  //         body: jsonEncode({
-  //           'occurrences': occurrences,
-  //           'last_performed_at': DateTime.now().toIso8601String(),
-  //         }),
-  //       );
-  //       print('Action logged but not enough occurrences for points.');
-  //     }
-  //   } catch (error) {
-  //     print('Error logging user action: $error');
-  //   }
-  // }
+  Future<Response> updateUserPoints({required Map<String, dynamic> body, required int userPointsId}) async {
+    try {
+      return await _client.init().patch(
+          "https://subscriptions.cioafrica.co/items/user_points/$userPointsId",
+          data: body);
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+  Future<Response> createUserPointsEntry({required Map<String, dynamic> body, }) async {
+    try {
+      return await _client.init().post(
+          "https://subscriptions.cioafrica.co/items/user_points",
+          data: body);
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
 }
 
 
