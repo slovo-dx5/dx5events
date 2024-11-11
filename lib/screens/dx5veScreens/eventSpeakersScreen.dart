@@ -159,7 +159,7 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
         body:
         Padding(padding: EdgeInsets.only(top: 8),
           child: isFetching
-              ? Text("SPEAKERS WILL APPEAR HERE ")
+              ? const Center(child: CircularProgressIndicator(),)
               : ListView.builder(
 
             padding:  EdgeInsets.all(8),

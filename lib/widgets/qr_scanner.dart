@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 import '../dioServices/dioPostService.dart';
+import '../helpers/helper_functions.dart';
 import '../mainNavigationPage.dart';
 import '../providers.dart';
 import 'package:dx5veevents/constants.dart';
@@ -21,9 +22,11 @@ class SponsorScanner extends StatefulWidget {
    String company;
    String email;
    int eventId;
+   int attendeeID;
    String phone;
    String position;
-   SponsorScanner({required this.firstName,required this.eventId,required this.phone, required this.lastName, required this.email,required this.company, required this.position,key});
+   SponsorScanner({required this.firstName,required this.eventId,
+     required this.phone, required this.lastName, required this.email,required this.attendeeID,required this.company, required this.position,key});
 
   @override
   State<SponsorScanner> createState() => _SponsorScannerState();
@@ -47,7 +50,9 @@ class _SponsorScannerState extends State<SponsorScanner> {
 
             sponsorID = scanData.code!;
           });
-          sendSponsorData();
+          sendSponsorData().then(()async{  await UserPointsService().
+          createOrUpdateUserPoints(userId:widget.attendeeID!,actionId: 6);
+          });
         } else if (scanData.code!.startsWith("checkin")) {
           setState(() {
             isSending = true;

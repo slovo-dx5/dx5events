@@ -29,7 +29,9 @@ class OTPScreen extends StatefulWidget {
   String company;
   String isAdmin;
   int id;
-  String profileID; int eventDay;
+  String profileID;
+
+  int eventDay;
   int eventMonth;
   int eventYear;bool isCustomerEvent;
 
@@ -45,7 +47,10 @@ class OTPScreen extends StatefulWidget {
     required this.eventYear,required this.isCustomerEvent,
 
     required this.coverImagePath,required this.eventDayOfWeek, required this.eventName,required this.eventID,required this.shortEventDescription,required this.eventDate, required this.eventLocation,
-    required this.email,required this.isAdmin,required this.profileID,required this.company,required this.role,required this.lastName, required this.firstName, required this.phone,required this.id,
+    required this.email,required this.isAdmin,
+    required this.profileID,
+    required this.company,required this.role,required this.lastName, required this.firstName, required this.phone,
+    required this.id,
 
     Key? key}) : super(key: key);
   @override
@@ -67,6 +72,7 @@ class _OTPScreenState extends State<OTPScreen> {
 
   @override
   void initState() {
+    print("attendee id is ${widget.id}");
     super.initState();
 
   }

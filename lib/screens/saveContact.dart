@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../helpers/helper_functions.dart';
 import '../models/contactModel.dart';
 import '../widgets/cool_background.dart';
 import 'package:contacts_service/contacts_service.dart';
@@ -16,11 +17,12 @@ class SaveContact extends StatefulWidget {
   String email;
   String company;
   String role;
+  int ownerID;
 
 
 
    //
-   SaveContact({required this.email, required this.firstName, required this.company,
+   SaveContact({required this.email,required this.ownerID, required this.firstName, required this.company,
     required this.role, required this.phone,required this.lastName,super.key});
 
   @override
@@ -239,9 +241,8 @@ class _SaveContactState extends State<SaveContact> {
 
                     primaryButton2(
                       context: context,
-                      onPressedFunction: () {
-                        print("saving");
-                        saveContactToDevice(
+                      onPressedFunction: ()async {
+                        await saveContactToDevice(
                           userContact: UserContact(
                             firstName: widget.firstName,
                             lastName: widget.lastName,
@@ -251,7 +252,9 @@ class _SaveContactState extends State<SaveContact> {
                             phoneNumber: widget.phone,
                           ),
                         );
+                        await UserPointsService().createOrUpdateUserPoints(userId: widget.ownerID,actionId: 3);
                         Fluttertoast.showToast(msg: "Contact Saved");
+                        Navigator.of(context).pop();
                       },
                       buttonText: "Save Contact",
                       backgroundColor: Colors.grey,

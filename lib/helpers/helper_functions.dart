@@ -400,26 +400,29 @@ class UserPointsService {
 
 
   // Method to create or update user_points
-  Future<void> createOrUpdateUserPoints(int userId, int actionId) async {
+  Future<void> createOrUpdateUserPoints({required int userId, required int actionId}) async {
     try {
       // Step 1: Fetch action details to check required occurrences
       final actionResponse = await DioFetchService().getActionDetails(actionId: actionId);
 
       if (actionResponse.statusCode != 200) {
         throw Exception('Failed to fetch action details.');
-      }else{
+      } else {
         print("Got action details");
       }
 
       final actionData = actionResponse.data['data'];
       final requiredOccurrences = actionData['required_occurrence'];
-      print("required occurencese ${requiredOccurrences}");
+      final actionPoints = actionData['action_points'];  // Points for the action
+      print("Required occurrences: $requiredOccurrences");
 
       // Step 2: Check if user_points entry exists
       final userPointsResponse = await DioFetchService().checkUserPoints(actionId: actionId, userId: userId);
       if (userPointsResponse.statusCode != 200) {
         throw Exception('Failed to fetch user points.');
-      }else{print("Got user points");}
+      } else {
+        print("Got user points");
+      }
 
       final userPointsData = userPointsResponse.data['data'];
 
@@ -427,34 +430,51 @@ class UserPointsService {
         // Step 3: Update existing user_points record
         final userPointsId = userPointsData[0]['id'];
         final currentOccurrences = userPointsData[0]['occurences'];
+        print("current occurences are $currentOccurrences");
 
         if (currentOccurrences < requiredOccurrences) {
-          // Increment the occurrences if they haven't reached the required limit
+          // Increment occurrences only if they haven't reached the required limit
           final updatedOccurrences = currentOccurrences + 1;
 
+          // Update occurrences in the user_points entry
           await DioPostService().updateUserPoints(body: {
-            'occurrences': updatedOccurrences,
-            'points_awarded': actionData['action_points'], // Optional: Update awarded points based on action
+            'occurences': updatedOccurrences,
           }, userPointsId: userPointsId);
 
+          // Award points only if the updated occurrences match the required occurrences
+          if (updatedOccurrences == requiredOccurrences) {
+            await DioPostService().updateUserPoints(body: {
+              'points_awarded': actionPoints,  // Award the points once
+            }, userPointsId: userPointsId);
+            print("Points awarded for reaching required occurrences!");
+          } else {
+            print("Occurrences updated, but points not yet awarded.");
+          }
 
         } else {
           print('Action already completed. Max occurrences reached.');
         }
       } else {
         // Step 4: Create new user_points entry
-        print("action data is ${actionData['action_points']}");
+        print("Creating new user_points entry");
         await DioPostService().createUserPointsEntry(body: {
           'user_id': userId,
           'action_id': actionId,
           'occurences': 1,
-          'points_awarded': actionData['action_points'], // Optional: Set awarded points for the action
+          'points_awarded': (requiredOccurrences == 1) ? actionPoints : 0,  // Award points immediately if requiredOccurrences is 1
         });
 
+        // If the action can be done only once, award points immediately
+        if (requiredOccurrences == 1) {
+          print("Points awarded for one-time action.");
+        } else {
+          print("Occurrences set to 1, points will be awarded after required occurrences.");
+        }
       }
     } catch (error) {
       print('Error creating or updating user points: $error');
     }
   }
+
 }
 

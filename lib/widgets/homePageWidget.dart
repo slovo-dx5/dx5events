@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:upgrader/upgrader.dart';
@@ -12,6 +13,8 @@ import '../screens/dx5veScreens/event_sessions_screen.dart';
 import '../screens/dx5veScreens/dx5ve_sponsors_screen.dart';
 import '../screens/dx5veScreens/dx5veAttendeesScreen.dart';
 import '../screens/dx5veScreens/eventAgendaScreen.dart';
+import '../screens/contact_scanning/getContact.dart';
+import '../screens/rewardsPage.dart';
 import 'cio_widgets.dart';
 import 'clickableBanner.dart';
 
@@ -62,7 +65,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 Image.asset(
                   widget.coverImagepath,
                   width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height * 0.2,
+                  height: MediaQuery.of(context).size.height * 0.25,
                   fit: BoxFit.cover,
                 ),
               ],
@@ -73,17 +76,18 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 children: [
                   SizedBox(
                     width: MediaQuery.of(context).size.width*0.75,
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(widget.eventName,style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,crossAxisAlignment: CrossAxisAlignment.center,
+
                           children: [
                             const Icon(Icons.calendar_month),
                             horizontalSpace(width: 5),
                             Text(
                               widget.eventDate,
-                              style: const TextStyle(fontSize: 10),
+                              style: const TextStyle(fontSize: 13),
                             ),
 
                           ],
@@ -113,6 +117,49 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               child: Text( widget.shortEventDescription,),
             ),
             const Divider(color: kCIOPink),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                CIOWidgets().gradientItemWidget(
+                  firstColor: kCISOYellow,
+                  secondColor: kCISOTeal,
+                  context: context,
+                  editIcon: Image.asset(
+                    "assets/icons/social-media.png",
+                    width: 10,
+                    height: 10,
+                  ),
+                  // screen: EventSpeakersScreen(eventName: widget.eventName,eventID: widget.eventID),
+                  screen: const SocialFeed(),
+                  itemName: 'Social', analyticsActionName: 'social_page_opened',
+                ),
+                CIOWidgets().gradientItemWidget(
+                  firstColor: kCISOGreenYellow.withOpacity(0.7),
+                  secondColor: kCISOLightOrange.withOpacity(0.7),
+                  context: context,
+                  editIcon: Image.asset(
+                    "assets/icons/reward.png",
+                    width: 10,
+                    height: 10,
+                  ),
+                  screen: RewardsPage(),
+                  itemName: 'Rewards', analyticsActionName: 'rewards_page_opened',
+                ),
+                CIOWidgets().gradientItemWidget(
+                  firstColor: kGradientLightBlue.withOpacity(0.7),
+                  secondColor: kLogoutRed.withOpacity(0.7),
+                  context: context,
+                  editIcon: Image.asset(
+                    "assets/icons/scanner.png",
+                    width: 10,
+                    height: 10,
+                  ),
+                  screen: GetContact( ownerID: profileProvider.userID!,),
+                  itemName: 'Contact Scanner', analyticsActionName: 'contact_scanner_page_opened',
+                ),
+              ],
+            ),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -199,7 +246,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               ],
             ),
             //CIOWidgets().clickableWidget(context: context, assetPath: "assets/images/backgrounds/ciobanner.jpg"),
-            ClickableBannerWidget(assetPath: 'assets/images/backgrounds/ciobanner.jpg',),
+            //ClickableBannerWidget(assetPath: 'assets/images/backgrounds/ciobanner.jpg',),
             verticalSpace(height: 15),
             // SizedBox(
             //     height: 100,

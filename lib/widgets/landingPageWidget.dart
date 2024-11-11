@@ -352,7 +352,7 @@ class UpcomingEventWidget2 extends StatelessWidget {
                     ),
                   ),
                   //color:kKeyRedBG.withOpacity(0.7),
-                  width: 120,
+                  width: 200,
                   height: 120,
                 ),
                 horizontalSpace(width: 20),
@@ -382,8 +382,8 @@ class UpcomingEventWidget2 extends StatelessWidget {
                         const Icon(Icons.calendar_month,size: 15,color: kWhiteText,),horizontalSpace(width: 5),
                         AutoSizeText(
                           "$dayMonth $date -\n$endDayMonth $endDate",
-                          minFontSize: 5,
-                          maxFontSize: 10,overflow: TextOverflow.ellipsis,style: TextStyle(color: themeProvider.themeMode==ThemeModeOptions.dark?kWhiteText:kTextColorBlack),
+                          minFontSize:7,
+                          maxFontSize: 13,overflow: TextOverflow.ellipsis,style: TextStyle(color: themeProvider.themeMode==ThemeModeOptions.dark?kWhiteText:kTextColorBlack),
                         )
                       ],
                     ),

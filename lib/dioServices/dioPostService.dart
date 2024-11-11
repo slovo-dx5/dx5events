@@ -292,10 +292,30 @@ class DioPostService extends DioClient {
       throw Exception(ex);
     }
   }
+
+  Future<Response> patchComments({required Map<String, dynamic> body, required int postID}) async {
+    try {
+      return await _client.init().patch(
+          "https://subscriptions.cioafrica.co/items/Social/$postID",
+          data: body);
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
   Future<Response> createUserPointsEntry({required Map<String, dynamic> body, }) async {
     try {
       return await _client.init().post(
           "https://subscriptions.cioafrica.co/items/user_points",
+          data: body);
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> createSocialPost({required Map<String, dynamic> body, }) async {
+    try {
+      return await _client.init().post(
+          "https://subscriptions.cioafrica.co/items/Social",
           data: body);
     } on DioError catch (ex) {
       throw Exception(ex);

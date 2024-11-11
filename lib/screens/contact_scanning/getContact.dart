@@ -10,12 +10,13 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../dioServices/dioFetchService.dart';
-import '../dioServices/dioPostService.dart';
-import '../mainNavigationPage.dart';
-import '../models/contactModel.dart';
-import '../providers.dart';
+import '../../dioServices/dioFetchService.dart';
+import '../../dioServices/dioPostService.dart';
+import '../../mainNavigationPage.dart';
+import '../../models/contactModel.dart';
+import '../../providers.dart';
 import 'package:dx5veevents/constants.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -23,8 +24,8 @@ import 'package:permission_handler/permission_handler.dart';
 
 
 class GetContact extends StatefulWidget {
-
-  GetContact({key});
+int ownerID;
+  GetContact({key,required this.ownerID});
 
   @override
   State<GetContact> createState() => _GetContactState();
@@ -37,13 +38,20 @@ class _GetContactState extends State<GetContact> {
   bool isSending=false;
   String sponsorID="";
   String? lastScannedCode;
+  bool isDialogShown = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _showAlertDialogOnce();
+  }
 
   _onQRViewCreated(QRViewController controller)async {
     this.contactController = controller;
     controller.scannedDataStream.listen((scanData)async {
-      print("scandata is ${scanData.code}");
       await controller.pauseCamera();
       fetchAndSaveAttendeeInfo(attendeeDAta: scanData.code);
+      Future.delayed(const Duration(seconds: 2),(){controller.resumeCamera();});
       controller.resumeCamera();
     });
   }
@@ -58,11 +66,9 @@ class _GetContactState extends State<GetContact> {
 
   fetchAndSaveAttendeeInfo({required attendeeDAta})async{
      int AttendeeID=getAttendeeId(attendeeData: attendeeDAta);
-     print("attendee is is ${AttendeeID}");
      var response = await DioFetchService().fetchSingleAttendeeFromAttendees(id: AttendeeID);
      var data = response.data["data"];
-     //var data = response.data;
-     print("data is ${data[0]["id"]}");
+
 
      if (data != null && data.isNotEmpty) {
        var attendeeDetails = data[0];
@@ -74,7 +80,7 @@ class _GetContactState extends State<GetContact> {
            lastName:  attendeeDetails["lastName"],
            company: attendeeDetails['company'],
            role: attendeeDetails["role"],
-           email: attendeeDetails["email"],
+           email: attendeeDetails["email"], ownerID: widget.ownerID,
          ),
          withNavBar: false,
          pageTransitionAnimation: PageTransitionAnimation.slideRight,
@@ -87,6 +93,37 @@ class _GetContactState extends State<GetContact> {
 
   }
 
+  Future<void> _showAlertDialogOnce() async {
+    final prefs = await SharedPreferences.getInstance();
+    bool hasShownDialog = prefs.getBool('hasShownDialog') ?? false;
+
+    if (!hasShownDialog) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: kLightAppbar,
+              title: const Center(child: Text("Alert!",style: TextStyle(color: kKeyShadowRed,fontWeight: FontWeight.w700,),)),
+              content: const Text("Remember to notify someone before trying to get "
+                  "their details.\n\nThis message won't be shown again.",style: TextStyle(color: kToggleDark,),),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      });
+      await prefs.setBool('hasShownDialog', true);
+    }
+  }
+
+
   @override
   void dispose() {
     contactController?.dispose();
@@ -98,7 +135,7 @@ class _GetContactState extends State<GetContact> {
 
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(title: const Text("dx5ve Contact SCANNER"),automaticallyImplyLeading: true,),
+        appBar: AppBar(title: const Text("Contact Scanner"),automaticallyImplyLeading: true,),
         body: Visibility(
           replacement: const Center(child: SpinKitCircle(color: kCIOPink,size: 100,),),
           visible: isSending==false,

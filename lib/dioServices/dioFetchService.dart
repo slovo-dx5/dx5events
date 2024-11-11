@@ -130,6 +130,18 @@ class DioFetchService extends DioClient {
       throw Exception(ex);
     }
   }
+
+  Future<Response> fetchSinglePost({required int postId}) async {
+    try {
+      return await _client
+          .init()
+          .get("https://subscriptions.cioafrica.co/items/Social/$postId",
+
+           );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
   Future<Response> fetchCISOPartners() async {
     try {
       return await _client
@@ -267,6 +279,55 @@ Future<Response> checkUserPoints({required int actionId, required int userId}) a
           .init()
           .get(
         "https://subscriptions.cioafrica.co/items/user_points?filter[user_id][_eq]=$userId",
+        // options: buildCacheOptions(const Duration(seconds: 30,),),
+
+        // Set headers using the 'headers' parameter
+      );
+    } on DioError catch (ex) {
+      throw Exception("Session fetch error: ${ex.response!.data!}");
+    }
+  }
+
+  Future<Response> getAllUserPoints() async {
+    try {
+
+
+      return await _client
+          .init()
+          .get(
+        "https://subscriptions.cioafrica.co/items/user_points",
+        // options: buildCacheOptions(const Duration(seconds: 30,),),
+
+        // Set headers using the 'headers' parameter
+      );
+    } on DioError catch (ex) {
+      throw Exception("Session fetch error: ${ex.response!.data!}");
+    }
+  }
+ Future<Response> fetchUserPoints({required int userID}) async {
+    try {
+
+
+      return await _client
+          .init()
+          .get(
+        "https://subscriptions.cioafrica.co/items/user_points?filter[user_id][_eq]=$userID",
+        // options: buildCacheOptions(const Duration(seconds: 30,),),
+
+        // Set headers using the 'headers' parameter
+      );
+    } on DioError catch (ex) {
+      throw Exception("Session fetch error: ${ex.response!.data!}");
+    }
+  }
+ Future<Response> fetchSocialPosts() async {
+    try {
+
+
+      return await _client
+          .init()
+          .get(
+        "https://subscriptions.cioafrica.co/items/Social",
         // options: buildCacheOptions(const Duration(seconds: 30,),),
 
         // Set headers using the 'headers' parameter

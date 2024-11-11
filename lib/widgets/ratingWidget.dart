@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../constants.dart';
+import '../helpers/helper_functions.dart';
 
 class RatingDialog extends StatefulWidget {
 
@@ -92,12 +93,17 @@ class _RatingDialogState extends State<RatingDialog> {
         actions: [
 
           TextButton(
-            child: Text('Submit',style: TextStyle(color:kIconPurple ),),
+            child: const Text('Submit',style: TextStyle(color:kIconPurple ),),
             onPressed: ()async {
               try{
-                DioPostService().postSessionRating( context: context, attendeeID: widget.attendeeID,
+                await DioPostService().postSessionRating( context: context, attendeeID: widget.attendeeID,
                     speakerRating: _SpeakerRating, sessionRating: _SessionRating,
-                    sessionComment: _sessionCommentController.text, speakerName: widget.speakerName, speakerComment: _speakerCommentController.text, sessionTitle: widget.sessionTitle);
+                    sessionComment: _sessionCommentController.text,
+                    speakerName: widget.speakerName,
+                    speakerComment: _speakerCommentController.text,
+                    sessionTitle: widget.sessionTitle);
+                await UserPointsService().createOrUpdateUserPoints(userId: widget.attendeeID,actionId: 5);
+
                 Fluttertoast.showToast(backgroundColor:kLogoutRed,msg: "Your response has been recorded");
                 Navigator.of(context).pop();
 

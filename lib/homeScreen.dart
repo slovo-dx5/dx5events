@@ -2,7 +2,7 @@
 import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/providers/themeProvider.dart';
 import 'package:dx5veevents/screens/adminScreens/adminPanelHome.dart';
-import 'package:dx5veevents/screens/getContact.dart';
+import 'package:dx5veevents/screens/contact_scanning/getContact.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
 import 'package:dx5veevents/widgets/checkin_widget.dart';
 import 'package:dx5veevents/widgets/notifications_widget.dart';
@@ -142,7 +142,7 @@ class MenuScreen extends GetView<MyDrawerController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.only(left: 16.0),
+                  padding: const EdgeInsets.only(left: 16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -151,7 +151,7 @@ class MenuScreen extends GetView<MyDrawerController> {
                       //     radius: 22.0,
                       //     avatarRadius: 22.0,
                       //     fontSize: 12.0),
-                      if(profileProvider.profileId==null||profileProvider.profileId=="")const ProfileInitials(),
+                      if(profileProvider.profileId==null||profileProvider.profileId=="") ProfileInitials(circleRadius: 80,fontSize: 60),
                       if(profileProvider.profileId!=null&&profileProvider.profileId!="")const ProfilePicWidget(),
                       const SizedBox(height: 16.0),
                       greetingFunc(firstName: profileProvider.firstName),
@@ -177,7 +177,7 @@ class MenuScreen extends GetView<MyDrawerController> {
                                   lastName: profileProvider.lastName,
                                   company: profileProvider.company,
                                   position: profileProvider.role,
-                                  email: profileProvider.email, eventId: int.parse(eventID),),
+                                  email: profileProvider.email, eventId: int.parse(eventID), attendeeID: profileProvider.userID!,),
                                 withNavBar: false,
                                 pageTransitionAnimation: PageTransitionAnimation.slideRight,
                               );
@@ -211,7 +211,7 @@ class MenuScreen extends GetView<MyDrawerController> {
 
                             PersistentNavBarNavigator.pushNewScreen(
                               context,
-                              screen: GetContact(
+                              screen: GetContact(ownerID: profileProvider.userID!,
                                ),
                               withNavBar: false,
                               pageTransitionAnimation: PageTransitionAnimation.slideRight,

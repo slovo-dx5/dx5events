@@ -1,13 +1,17 @@
 import 'package:dx5veevents/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+
+import 'howToWidget.dart';
 
 class GamificationSystem {
   userPointsWidget({required BuildContext context,required String actionDescription,required String urlString,
     required String actionName,
+    required  screenName,
     required int pointsCarried, required int currentProgress, required int requiredProgress}) {
 
-   double percent= (currentProgress*1)/requiredProgress;
+   double percent= currentProgress/requiredProgress;
     return SizedBox(
       height: 150,  // Set the height you need for the widget
       width: double.infinity,  // Set width to fill the grid cell
@@ -114,6 +118,13 @@ class GamificationSystem {
                                 ],
                               ),
                             ),
+    //                         howToWidget(onPress: () { PersistentNavBarNavigator.pushNewScreen(
+    // context,
+    // screen: screenName
+    // ,
+    // withNavBar: false,
+    // pageTransitionAnimation: PageTransitionAnimation.slideRight,
+    // ); })
                       ],),
                         )
                       ],

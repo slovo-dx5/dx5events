@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../constants.dart';
 import 'cio_bottomsheets.dart';
 sponsorWidget({required BuildContext context ,required String sponsorName,required String sponsorAsset,required String sponsorBio,required String degree,required String sponsorURL}) {
   return
@@ -9,16 +10,25 @@ sponsorWidget({required BuildContext context ,required String sponsorName,requir
     },child: Opacity(opacity: 0.9,
       child: Container(padding: EdgeInsets.all(8),
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-        height: 160,
+        height: 250,
         width: MediaQuery.of(context).size.width,
-        child: Column(mainAxisSize: MainAxisSize.min,mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Text(degree,style: const TextStyle(color: Colors.black54,fontWeight: FontWeight.w600),),
-            Container(height: 120,width: 250,
-              child: Image.network(
-                sponsorAsset,
-                fit: BoxFit.cover,
-              ),
+            Stack(
+              children: [
+                Container(height: 200,width: 350,
+                  child: Card(color: Colors.transparent,
+                    child: SizedBox(height: 100,width: 200,
+                      child: Image.network(
+                        sponsorAsset,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(height: 10,width: 350,color:degree=="360°"?Colors.orange:degree=="180°"?kIconDeepBlue:degree=="90°"?kIconPurple:kIconPink)
+              ],
             ),
           ],
         ),

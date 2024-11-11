@@ -1,6 +1,6 @@
 
 
-class CISOAttendeeModel {
+class EventAttendeeModel {
   final int id;
 
   final String status;
@@ -19,10 +19,11 @@ class CISOAttendeeModel {
  //final String? registrantType;
 
   final int eventId;
+   int? totalPoints;
   final int attendeeId;
   final String? profilePhoto;
 
-  CISOAttendeeModel({
+  EventAttendeeModel({
     required this.id,
 
     required this.status,
@@ -33,6 +34,7 @@ class CISOAttendeeModel {
     required this.phone,
     required this.company,
     required this.role,
+     this.totalPoints,
     //required this.industry,
    // this.interests,
    // this.modeOfAttendance,
@@ -44,14 +46,15 @@ class CISOAttendeeModel {
     required this.profilePhoto,
   });
 
-  factory CISOAttendeeModel.fromJson(Map<String, dynamic> json) {
-    return CISOAttendeeModel(
+  factory EventAttendeeModel.fromJson(Map<String, dynamic> json) {
+    return EventAttendeeModel(
       id: json['id'],
 
       status: json['status'],
       firstName: json['first_name'],
       lastName: json['last_name'],
       workEmail: json['work_email'],
+      totalPoints: json["total_points"],
       //workPhone: json['work_phone'],
       phone: json['phone'],
       company: json['company'],
@@ -90,6 +93,7 @@ class CustomerAttendeeModel {
  //final String? registrantType;
 
   final int eventID;
+  final int ?totalPoints;
   final int attendeeId;
   final String? profilePhoto;
 
@@ -99,6 +103,7 @@ class CustomerAttendeeModel {
     required this.status,
      this.name,
      this.email,
+    this.totalPoints,
    // this.workPhone,
      this.phone,
      this.company_role,
@@ -120,16 +125,14 @@ class CustomerAttendeeModel {
       status: json['status'],
       name: json['name'],
       email: json['email'],
+      totalPoints: json['total_points'],
       //workPhone: json['work_phone'],
       phone: json['phone'],
       company_role: json['company_role'],
-      //industry: json['industry'],
-      //interests: json['interests'],
-      //modeOfAttendance: json['mode_of_attendance'],
+
 
 
       eventName: json['eventName'],
-      //registrantType: json['registrant_type'],
 
       eventID: json['eventID'],
       attendeeId: json['attendeeId'],

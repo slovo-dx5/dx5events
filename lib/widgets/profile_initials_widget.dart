@@ -8,7 +8,9 @@ import 'package:provider/provider.dart';
 import '../constants.dart';
 import '../providers.dart';
 class ProfileInitials extends StatefulWidget {
-  const ProfileInitials({super.key});
+  double circleRadius;
+  double fontSize;
+   ProfileInitials({super.key, required this.fontSize,required this.circleRadius});
 
   @override
   State<ProfileInitials> createState() => _ProfileInitialsState();
@@ -57,7 +59,11 @@ class _ProfileInitialsState extends State<ProfileInitials> {
   @override
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
-    return  CircleAvatar(backgroundColor:randomBackgroundColor,radius: 80,child: Center(child: Text("${profileProvider.firstName[0].toUpperCase()}${profileProvider.lastName[0].toUpperCase()}", style: const TextStyle(color: Colors.white,fontSize: 60),)),);
+    return  CircleAvatar(backgroundColor:randomBackgroundColor,
+      radius: widget.circleRadius,
+      child: Center(child: Text("${profileProvider.firstName[0].toUpperCase()}"
+          "${profileProvider.lastName[0].toUpperCase()}",
+        style:  TextStyle(color: Colors.white,fontSize: widget.fontSize),)),);
 
   }
 }

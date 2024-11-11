@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:dx5veevents/profile_screen.dart';
 import 'package:dx5veevents/screens/chats/all_chats.dart';
+import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -118,6 +119,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek:widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent ,),
       AllChatsScreen(),
       MeetingTabs(),
+      SocialFeed(),
       const ProfileScreen(),
     ];
   }
@@ -143,6 +145,14 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         PersistentBottomNavBarItem(
           icon: const Icon(Icons.meeting_room),
           title: "Meetings",
+          //  textStyle: style,
+          activeColorPrimary: kPrimaryColor,
+          inactiveColorPrimary: Colors.grey,
+        ),
+
+        PersistentBottomNavBarItem(
+          icon: const Icon(Icons.perm_media),
+          title: "Social",
           //  textStyle: style,
           activeColorPrimary: kPrimaryColor,
           inactiveColorPrimary: Colors.grey,

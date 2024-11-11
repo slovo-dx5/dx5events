@@ -7,7 +7,7 @@ import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 import '../constants.dart';
 
-import '../screens/dx5veScreens/cisoIndividualAttendee.dart';
+import '../screens/dx5veScreens/dx5veIndividualAttendee.dart';
 import '../widgets/profile_initials_widget.dart';
 
 menuItem(
@@ -61,7 +61,7 @@ attendeeWidget({
       onTap: () {
         PersistentNavBarNavigator.pushNewScreen(
           context,
-          screen: CisoIndividualAttendeeScreen(
+          screen: IndividualAttendeeScreen(
             assetName: assetName,
             FirstName: firstName,
             LastName: lastName,
@@ -117,6 +117,65 @@ attendeeWidget({
                 profileid: profileid??'', userID: userID, context: context,)
             ],
           ),
+        ),
+      ),
+    ),
+  );
+}
+
+
+
+leaderBoardWidget({
+  required String assetName,
+  required BuildContext context,
+  required String firstName,
+  required String lastName,
+  required String role,
+  required String company,
+  required String profileid,
+  required int userID,
+  required int points,
+
+}) {
+  return SizedBox(
+    height: 85,
+    width: MediaQuery.of(context).size.width,
+    child: Card(
+      elevation: 0.2,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+        child: Row(
+          children: [
+            if(profileid=="" || profileid==null) AttendeeProfileInitials(firstName: firstName??".", lastName: lastName,),
+            if(profileid!="" && profileid!=null) AttendeeProfilePicWidget(profileID: profileid,),
+            horizontalSpace(width: 20),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.4,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "$firstName $lastName",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    "$role at $company",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        color: kTextColorGrey),
+                  )
+                ],
+              ),
+            ),
+           Text("$points pts")
+          ],
         ),
       ),
     ),
@@ -378,100 +437,3 @@ nameWidget(
     ),
   );
 }
-//
-// editableProfileWidgets(
-//     {required String company,
-//     required String role,
-//     required BuildContext context}) {
-//   return SizedBox(
-//     width: MediaQuery.of(context).size.width,
-//     child: Padding(
-//       padding: const EdgeInsets.fromLTRB(8.0, 2, 8, 2),
-//       child: Card(
-//         color: kWhiteText.withOpacity(0.8),
-//         child: Padding(
-//           padding: const EdgeInsets.all(12.0),
-//           child: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.start,
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Column(
-//                     mainAxisAlignment: MainAxisAlignment.start,
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Text(
-//                         "Company",
-//                         style: Theme.of(context).textTheme.bodyMedium,
-//                       ),
-//                       verticalSpace(height: 5),
-//                       Text(
-//                         company,
-//                         style: Theme.of(context).textTheme.bodyLarge,
-//                       ),
-//                     ],
-//                   ),
-//                   Spacer(),
-//                   IconButton(
-//                       onPressed: () {
-//                         profileBottomSheet(
-//                             context,
-//                             "Edit Company",
-//                             EditCompanyBottomSheet(
-//                               userCompany: company,
-//                             ));
-//                       },
-//                       icon: Icon(Icons.edit))
-//                 ],
-//               ),
-//
-//               //ListTile(title: Text(company,style: Theme.of(context).textTheme.bodyLarge,),trailing: IconButton(onPressed: (){}, icon: const Icon(Icons.edit)),),
-//
-//               const Divider(),
-//               verticalSpace(height: 9),
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.start,
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Column(
-//                     mainAxisAlignment: MainAxisAlignment.start,
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Text(
-//                         "Role",
-//                         style: Theme.of(context).textTheme.bodyMedium,
-//                       ),
-//                       verticalSpace(height: 5),
-//                       Text(
-//                         role,
-//                         style: Theme.of(context).textTheme.bodyLarge,
-//                       ),
-//                     ],
-//                   ),
-//                   Spacer(),
-//                   IconButton(
-//                       onPressed: () {
-//                         profileBottomSheet(
-//                             context,
-//                             "Edit Role",
-//                             EditRoleBottomSheet(
-//                               userRole: role,
-//                             ));
-//                       },
-//                       icon: Icon(Icons.edit))
-//                 ],
-//               ),
-//
-//               const Divider(),
-//               verticalSpace(height: 9),
-//
-//             ],
-//           ),
-//         ),
-//       ),
-//     ),
-//   );
-// }

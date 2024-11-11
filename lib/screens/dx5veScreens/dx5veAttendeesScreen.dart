@@ -27,9 +27,9 @@ class AttendeesScreen extends StatefulWidget {
 class _AttendeesScreenState extends State<AttendeesScreen> {
   final RefreshController _refreshController = RefreshController();
 
-  List<CISOAttendeeModel>? attendeesList;
+  List<EventAttendeeModel>? attendeesList;
   List<CustomerAttendeeModel>? customerAttendeesList;
-  List<CISOAttendeeModel>? filteredAttendeesList;
+  List<EventAttendeeModel>? filteredAttendeesList;
   List<CustomerAttendeeModel>? filteredCustomerAttendeesList;
   bool isSearching = false;
   Dio dio = Dio();
@@ -59,7 +59,8 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
   }
 
   Future fetchAllAttendees() async {
-    final response = widget.isCustomerEvent==false?await DioFetchService().fetchCIOAttendees(eventID: widget.eventID):await DioFetchService().fetchCustomerEventsAttendees(eventID: widget.eventID);
+    final response = widget.isCustomerEvent==false?
+    await DioFetchService().fetchCIOAttendees(eventID: widget.eventID):await DioFetchService().fetchCustomerEventsAttendees(eventID: widget.eventID);
 
     setState(() {
       //isFetching=false;
@@ -77,7 +78,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
       return
 
         widget.isCustomerEvent==false?filteredData
-          .map((userJson) => CISOAttendeeModel.fromJson(userJson))
+          .map((userJson) => EventAttendeeModel.fromJson(userJson))
           .toList():filteredData
             .map((userJson) => CustomerAttendeeModel.fromJson(userJson))
             .toList();
@@ -180,7 +181,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
                     });
                   },
                   onLoading: () async {
-                    await Future.delayed(Duration(milliseconds: 1000));
+                    await Future.delayed(const Duration(milliseconds: 1000));
                     setState(() {
                       _refreshController.loadComplete();
                     });
@@ -212,21 +213,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
                               userID: user.id);
                     },
 
-                    // itemCount: filteredData.length,
-                    // itemBuilder: (context,index){
-                    //   final data = filteredData[index];
-                    //   return attendeeWidget(
-                    //     assetName: data['assetname']!,
-                    //     context: context,
-                    //     firstName: "${data["firstname"]}",
-                    //     lastName:  "${data["lastname"]}",
-                    //     role:data["role"]!,
-                    //     company:data["company"]!,
-                    //     bio: data["bio"]??"",
-                    //     interests: data["interests"]!,
-                    //
-                    //   );
-                    // }
+
                   ),
                 ):
           SmartRefresher(
@@ -274,21 +261,6 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
                     userID: user.id);
               },
 
-              // itemCount: filteredData.length,
-              // itemBuilder: (context,index){
-              //   final data = filteredData[index];
-              //   return attendeeWidget(
-              //     assetName: data['assetname']!,
-              //     context: context,
-              //     firstName: "${data["firstname"]}",
-              //     lastName:  "${data["lastname"]}",
-              //     role:data["role"]!,
-              //     company:data["company"]!,
-              //     bio: data["bio"]??"",
-              //     interests: data["interests"]!,
-              //
-              //   );
-              // }
             ),
           ),
         ));

@@ -106,10 +106,8 @@ flutter:
     - assets/images/
     - assets/images/backgrounds/
     - assets/images/sponsors/
-    - assets/aff.csv
-    - assets/affspeakers.csv
     - assets/serviceacc.json
-    - assets/splash2.mp4
+
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

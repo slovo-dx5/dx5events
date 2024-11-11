@@ -101,7 +101,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       print("owner id is $ownerID");
       final patchresponse=await DioFetchService().updateUserData(id: ownerID, body: imageidDAta);
       print('Patch Response: ${patchresponse.data}');
-      UserPointsService().createOrUpdateUserPoints(ownerID, 2);
+      UserPointsService().createOrUpdateUserPoints(userId: ownerID,actionId: 2);
 
       print("image ID is $imageID");
     } catch (e) {
@@ -136,7 +136,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       if (profileProvider.profileId == null ||
                           profileProvider.profileId == "")
-                        const ProfileInitials(),
+                         ProfileInitials(circleRadius: 80, fontSize: 60,),
                       if (profileProvider.profileId != null &&
                           profileProvider.profileId != "")
                         const ProfilePicWidget(),

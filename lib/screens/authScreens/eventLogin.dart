@@ -41,7 +41,7 @@ class EventLogin extends StatefulWidget {
 
 class _EventLoginState extends State<EventLogin> {
 
-  List<CISOAttendeeModel>? attendees;
+  List<EventAttendeeModel>? attendees;
   List<CustomerAttendeeModel>? customerAttendees;
   final _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
@@ -76,7 +76,7 @@ class _EventLoginState extends State<EventLogin> {
       final response=await DioOTPService().generateOTP(emailData);
 
       if(response.statusCode==200){
-        CISOAttendeeModel? attendee = findAttendeeByEmail(email);
+        EventAttendeeModel? attendee = findAttendeeByEmail(email);
         setState(() {
           isCreating=false;
         });
@@ -90,7 +90,7 @@ class _EventLoginState extends State<EventLogin> {
               company: attendee.company,
               role: attendee.role, lastName: attendee.lastName,
               firstName: attendee.firstName, phone: attendee.phone,
-              id:attendee.id, profileID: attendee.profilePhoto??"",
+              id:attendee.attendeeId, profileID: attendee.profilePhoto??"",
               coverImagePath: widget.coverImagePath, eventName: widget.eventName,
               //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
               eventDate: widget.eventDate,
@@ -123,7 +123,7 @@ class _EventLoginState extends State<EventLogin> {
             isCreating=false;
           });
          if(widget.isCustomerEvent==false){
-           CISOAttendeeModel? attendee = findAttendeeByEmail(email);
+           EventAttendeeModel? attendee = findAttendeeByEmail(email);
            if(mounted){
 
              PersistentNavBarNavigator.pushNewScreen(
@@ -131,7 +131,7 @@ class _EventLoginState extends State<EventLogin> {
                context,
                screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,isAdmin:attendee!.workEmail.endsWith("cioafrica.co")?"true":"false",
                  company: attendee!.company,
-                 role: attendee.role, lastName: attendee.lastName,firstName: attendee.firstName, phone: attendee.phone,id: attendee.id, profileID: attendee.profilePhoto??"",
+                 role: attendee.role, lastName: attendee.lastName,firstName: attendee.firstName, phone: attendee.phone,id: attendee.attendeeId, profileID: attendee.profilePhoto??"",
                  coverImagePath: widget.coverImagePath, eventName: widget.eventName,
                  //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
                  eventDate: widget.eventDate,
@@ -155,7 +155,8 @@ class _EventLoginState extends State<EventLogin> {
                context,
                screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,isAdmin:customerAttendee!.email!.endsWith("cioafrica.co")?"true":"false",
                  company: customerAttendee!.company_role!,
-                 role: ".", lastName: ".",firstName: customerAttendee.name!, phone: customerAttendee.phone!,id: customerAttendee.id, profileID: customerAttendee.profilePhoto??"",
+                 role: ".", lastName: ".",firstName: customerAttendee.name!,
+                 phone: customerAttendee.phone!,id: customerAttendee.attendeeId, profileID: customerAttendee.profilePhoto??"",
                  coverImagePath: widget.coverImagePath, eventName: widget.eventName,
                  //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
                  eventDate: widget.eventDate,
@@ -234,7 +235,7 @@ class _EventLoginState extends State<EventLogin> {
 
 
       if(widget.isCustomerEvent==false){
-        List<CISOAttendeeModel> userList = List<CISOAttendeeModel>.from(filteredData.map((user) => CISOAttendeeModel.fromJson(user)));
+        List<EventAttendeeModel> userList = List<EventAttendeeModel>.from(filteredData.map((user) => EventAttendeeModel.fromJson(user)));
         setState(() {
           attendees=userList;
           //  print(attendees![624].firstName);

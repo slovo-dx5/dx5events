@@ -8,10 +8,10 @@ import 'base_url.dart';
 class DioClient {
   Dio init() {
     Dio _dio = new Dio();
-    // _dio.interceptors.add(PrettyDioLogger(
-    //   requestHeader: true,
-    //   requestBody: true,
-    // ));
+    _dio.interceptors.add(PrettyDioLogger(
+      requestHeader: true,
+      requestBody: true,
+    ));
     //
     _dio.transformer as DefaultTransformer; //.jsonDecodeCallback = parseJson;
     _dio.options.headers["Authorization"] = "Bearer oEgjgIbG1oyqMKscjSsQLfPznOaOUzW7";

@@ -102,22 +102,22 @@ class _ActiveEventsState extends State<ActiveEvents> {
         //     'Summit', containerColor: kCISOPurple,),
 
 
-        UpcomingEventWidget2(imagePath: 'assets/images/themes/smartgov.png', dayMonth: 'WED, OCT', date: '2nd',
-          endDate: '3rd', location: 'KENYA', endDayMonth: 'THUR, OCT', onPressedFunct: (){
+        UpcomingEventWidget2(imagePath: 'assets/images/themes/cio100.jpg', dayMonth: 'WED, NOV', date: '20th',
+          endDate: '22nd', location: 'KENYA', endDayMonth: 'FRI, NOV', onPressedFunct: (){
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => InitialScreen(coverImagePath: 'assets/images/themes/smartgov.png', eventName: 'SMART GOVERNMENT\nSUMMIT',
-                eventHappeningDates: 'WED, OCT, 2nd - THUR, OCT, 3rd',
+            MaterialPageRoute(builder: (_) => InitialScreen(coverImagePath: 'assets/images/themes/cio100.jpg', eventName: 'CIO 100 SYMPOSIUM AND AWARDS',
+                eventHappeningDates: 'WED, NOV, 20th - FRI, NOV, 22nd',
 
-                shortEventDescription: "REIMAGINING GOVERNANCE: AGILE, OPEN, INCLUSIVE",
+                shortEventDescription: "Driving Business Growth Through IT Leadership",
                 eventLocation: 'KENYA'
-                ,followingScreen: EventLogin(coverImagePath: 'assets/images/themes/smartgov.png', eventName: 'SMART GOVERNMENT\nSUMMIT',
-                    eventDate: 'WED, OCT, 2nd - THUR, OCT, 3rd',
+                ,followingScreen: EventLogin(coverImagePath: 'assets/images/themes/cio100.jpg', eventName: 'CIO 100 SYMPOSIUM AND AWARDS',
+                    eventDate: 'WED, NOV, 20th - FRI, NOV, 22nd',
 
-                    shortEventDescription: "REIMAGINING GOVERNANCE: AGILE, OPEN, INCLUSIVE",
-                    eventLocation: 'KENYA', eventID: '10', eventDay: 2, eventMonth: 10, eventYear: 2024, eventDayOfWeek: 'WED',
-                isCustomerEvent: false,), eventID: '10', eventDay: 2, eventMonth: 10, eventYear: 2024, eventDayOfWeek: 'WED', isCustomerEvent: false,)),
+                    shortEventDescription: "Driving Business Growth Through IT Leadership",
+                    eventLocation: 'KENYA', eventID: '21', eventDay: 2, eventMonth: 11, eventYear: 2024, eventDayOfWeek: 'WED',
+                isCustomerEvent: false,), eventID: '21', eventDay: 2, eventMonth: 11, eventYear: 2024, eventDayOfWeek: 'WED', isCustomerEvent: false,)),
           );
-        }, eventName: 'SMART GOVERNMENT\nSUMMIT'
+        }, eventName: 'CIO 100 SYMPOSIUM\nAND AWARDS'
             , containerColor: kGradientLightBlue.withOpacity(0.7),),
       ],
     );
@@ -139,17 +139,6 @@ class _FutureEventsState extends State<FutureEvents> {
 
 
 
-      CurvedImageContainer(imagePath: 'assets/images/themes/cio100.png',
-      dayMonth: 'WED, NOV', date: '20th', endDate: '22nd',
-      endDayMonth: 'FRI, NOV', location: 'KENYA', onPressedFunct: (){
-      defaultScrollableBottomSheet(context,"",
-          PendingEventBottomSheet(imagePath: 'assets/images/themes/cio100.png', month: 11,
-            date: 20, slug: 'events/smart-government-summit',
-        eventNAme: 'CIO100 Symposium and Awards',
-            endDate: '22nd', endDay: 'FRI', endMonth: 'Nov',
-            startDate: '20th', startDay: 'WED', startMonth: 'Nov',
-            eventDesc: 'The CIO100 Symposium & Awards is a celebration of excellence in IT leadership. This prestigious event will honor 100 award recipients, highlighting their achievements in leadership, innovation, and the adoption of advanced technologies such as generative AI and Edge Computing.', ));
-    },),
 
 
     ],);

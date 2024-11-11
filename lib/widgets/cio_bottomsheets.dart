@@ -236,7 +236,7 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
     super.initState();
   }
 
-  sendMeetingNotification() async {
+  sendMeetingNotification({required int ownerID}) async {
     // get receiver token
     String? receiverToken;
     try {
@@ -261,8 +261,13 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
         });
         return documentSnapshot.get('messaging_token').toString();
       } else {
+        UserPointsService().createOrUpdateUserPoints(userId: ownerID,actionId: 10);
+
         return 'Document does not exist';
       }
+
+      
+      
     } catch (e) {
       print("Coul not get user id");
     }
@@ -373,7 +378,7 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
                           tableSlot: tableSlot,
                           requestedByID: profileProvider.userID.toString(),
                           meetingWithI: widget.otherUSerID.toString());
-                      await sendMeetingNotification();
+                      await sendMeetingNotification(ownerID: profileProvider.userID!);
                       //sendMeetingRequest();
                       setState(() {
                         isSending = false;

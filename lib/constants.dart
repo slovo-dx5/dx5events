@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dx5veevents/screens/dx5veScreens/cisoIndividualAttendee.dart';
+import 'package:dx5veevents/screens/dx5veScreens/dx5veIndividualAttendee.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
@@ -208,7 +208,7 @@ connectButton(
       onPressed: () {
         PersistentNavBarNavigator.pushNewScreen(
           context,
-          screen: CisoIndividualAttendeeScreen(
+          screen: IndividualAttendeeScreen(
             assetName: assetName,
             FirstName: firstName,
             LastName: lastName,

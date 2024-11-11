@@ -122,10 +122,13 @@ super.initState();
                                 final entry = sponsorMap.entries.elementAt(index);
                                 final category = entry.key;
                                 final sponsorrr = entry.value;
+                                final degree = sponsorrr[0];
 
 
                                 if(sponsorMap==null){return const Text("Sponsors will appear here");}else{
-                                  return Column(children: [sponsorWidget(context: context, sponsorAsset:"https://subscriptions.cioafrica.co/assets/${sponsorrr[1].transparent_logo??sponsorrr[1].logo}",
+                                  return
+
+                                    Column(children: [sponsorWidget(context: context, sponsorAsset:"https://subscriptions.cioafrica.co/assets/${sponsorrr[1].transparent_logo??sponsorrr[1].logo}",
                                     //degree: "${sponsors[index].degree!}°",
                                     degree: "${sponsorrr[0]}°",
                                     sponsorName:sponsorrr[1].sponsorName!,

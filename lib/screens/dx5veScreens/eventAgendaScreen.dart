@@ -78,9 +78,7 @@ getAttendeeID();
   int? attendeeIDD=prefs.getInt(kUserID);
   setState(() {
     attendeeID=attendeeIDD!;
-    print("atendee is is $attendeeID");
   });}catch(e){
-    print("getting id eror is $e");
   }
   }
 
@@ -146,22 +144,17 @@ getAttendeeID();
 
 
   Future<List<Session>> fetchSessions() async {
-    print("Event id is ${widget.eventID}");
     try {
       final response =
           await DioFetchService().fetchdx5veAgenda(eventID: widget.eventID);
-      print("reponse is ${response.data}");
 
       final agendaModel = AgendaModel.fromJson(response.data);
-      print("agenda model dta is $agendaModel");
       setState(() {
         agendaDays = agendaModel.days;
-        print("Agenda datys are ${agendaDays.first.date}");
       });
       return agendaModel.days.expand((day) => day.sessions).toList();
       //return agendaModel.days.expand((day) => day.sessions.where((sesh) => sesh.sessionId==13)).toList();
     } catch (e) {
-      print("session fetch error issss ${e}");
       return [];
     }
   }
@@ -314,6 +307,8 @@ getAttendeeID();
                                     date: _dayToAgendaMap[_selectedDate]!.date!,
 
                                   );
+                                  await UserPointsService().createOrUpdateUserPoints(userId: profileProvider.userID!,actionId: 7);
+
                                   setState(() {
                                     isBookmarking = false;
                                   });
@@ -344,6 +339,7 @@ getAttendeeID();
                                     currentUserId: profileProvider.userID!, sessionID: session.sessionId, date: _dayToAgendaMap[_selectedDate]!.date!,
 
                                   );
+                                  await UserPointsService().createOrUpdateUserPoints(userId: profileProvider.userID!,actionId: 7);
 
                                   setState(() {
                                     isBookmarking = false;

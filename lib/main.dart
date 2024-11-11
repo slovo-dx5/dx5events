@@ -5,6 +5,8 @@ import 'package:dx5veevents/providers/themeProvider.dart';
 import 'package:dx5veevents/screens/doLastMinuteShyet.dart';
 import 'package:dx5veevents/screens/dx5veScreens/notificationsScreen.dart';
 import 'package:dx5veevents/screens/dx5veScreens/videoSplash.dart';
+import 'package:dx5veevents/screens/dx5ve_social/createPostScreen.dart';
+import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
 import 'package:dx5veevents/screens/rewardsPage.dart';
 
@@ -146,7 +148,7 @@ if(Platform.isIOS){
   @override
   Widget build(BuildContext context) {
     precacheImage(const AssetImage("assets/images/themes/ciso.png"), context);
-    precacheImage(const AssetImage("assets/images/themes/cio100.png"), context);
+    precacheImage(const AssetImage("assets/images/themes/cio100.jpg"), context);
     precacheImage(const AssetImage("assets/images/themes/cloudsecurity.png"), context);
     precacheImage(const AssetImage("assets/images/themes/smartbanking.png"), context);
     precacheImage(const AssetImage("assets/images/themes/smartenterprise.png"), context);
@@ -174,7 +176,9 @@ if(Platform.isIOS){
              //home: Platform.isAndroid?VideoSplashScreen():LandingPage2(),
              //home: VideoSplashScreen()
              //home: StructureLAstMinute()
-           home: LandingPage2(),
+          home: LandingPage2(),
+           //home: CreatePostScreen(),
+          // home: SocialFeed(),
             //home: RewardsPage(),
 
              //home: AdminPanelHome(adminName: 'Slovo Ulo',)
