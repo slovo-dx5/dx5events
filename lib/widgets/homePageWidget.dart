@@ -78,7 +78,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     width: MediaQuery.of(context).size.width*0.75,
                     child: Column(crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(widget.eventName,style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),),
+                        Text(widget.eventName,style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,crossAxisAlignment: CrossAxisAlignment.center,
 
@@ -87,7 +87,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                             horizontalSpace(width: 5),
                             Text(
                               widget.eventDate,
-                              style: const TextStyle(fontSize: 13),
+                              style: const TextStyle(fontSize: 10),
                             ),
 
                           ],

@@ -275,8 +275,11 @@ class _SocialMediaPostState extends State<SocialMediaPost> {
                    context: context,
                    isScrollControlled: true,
                    builder: (_) {
-                     return CommentsBottomSheet(comments: widget.comments, postId: widget.postID,
-                       currentUserID: widget.currentUserID, currentUserName: widget.currentUsername,);
+                     return Container(
+                       height: MediaQuery.of(context).size.height * 0.85,
+                       child: CommentsBottomSheet(comments: widget.comments, postId: widget.postID,
+                         currentUserID: widget.currentUserID, currentUserName: widget.currentUsername,),
+                     );
                    },
                  );
                },
@@ -352,127 +355,133 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        top: 25,
+    return Column(
+      children: [
+        Flexible(
+          child: Padding(
+            padding: EdgeInsets.only(
+              top: 25,
 
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-         widget.comments.isEmpty?
-         Center(child: Column(
-           children: [
-             SizedBox(height:100,width:100,child: Image.asset("assets/icons/no_comment.png")),
-             const Text("No comments yet. Leave one",style: TextStyle(color:kScreenDark ,fontSize: 15),),
-             verticalSpace(height: 20)
-           ],
-         ),): Expanded(
-            child: ListView.builder(
-              itemCount: widget.comments.length,
-              itemBuilder: (context, index) {
-                final comment = widget.comments[index];
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      CircleAvatar(backgroundColor:kGoldColor,
-                    radius: 25,
-                    child: Text(getInitials(comment.commenterName),
-                      style:  const TextStyle(color: Colors.white,fontSize: 20),),),
-                  horizontalSpace(width: 10),
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.8,
-                    ),
-                    child: Card(
-                      color: kRightBubble.withOpacity(0.7),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
-                        child: Column(
+              bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+               widget.comments.isEmpty?
+               Center(child: Column(
+                 children: [
+                   SizedBox(height:100,width:100,child: Image.asset("assets/icons/no_comment.png")),
+                   const Text("No comments yet. Leave one",style: TextStyle(color:kScreenDark ,fontSize: 15),),
+                   verticalSpace(height: 20)
+                 ],
+               ),): Expanded(
+                  child: ListView.builder(
+                    itemCount: widget.comments.length,
+                    itemBuilder: (context, index) {
+                      final comment = widget.comments[index];
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text(
-                              comment.commenterName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 15,
-                                color: kToggleDark,
+                            CircleAvatar(backgroundColor:kGoldColor,
+                          radius: 25,
+                          child: Text(getInitials(comment.commenterName),
+                            style:  const TextStyle(color: Colors.white,fontSize: 20),),),
+                        horizontalSpace(width: 10),
+                        ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * 0.75,
+                          ),
+                          child: Card(
+                            color: kRightBubble.withOpacity(0.7),
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    comment.commenterName,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 15,
+                                      color: kToggleDark,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    comment.comment,
+                                    style: const TextStyle(fontSize: 12, color: kToggleDark,fontWeight: FontWeight.w200),
+                                    maxLines: 5, // Set a maximum number of lines
+                                    overflow: TextOverflow.ellipsis, // Show ellipsis if overflow
+                                  ),
+                                ],
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              comment.comment,
-                              style: const TextStyle(fontSize: 14, color: kToggleDark),
-                              maxLines: 5, // Set a maximum number of lines
-                              overflow: TextOverflow.ellipsis, // Show ellipsis if overflow
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  )
+                          ),
+                        )
 
-                  ],),
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                SizedBox(width: MediaQuery.of(context).size.width*0.85,
-                  child: TextFormField(
-                    keyboardType: TextInputType.multiline,
-                   // controller: _postTextController,
-                    maxLines: null,
-                    controller: commentController,
-                    decoration: const InputDecoration(
-                      labelText: 'Add a comment...',
-                      border: OutlineInputBorder(),
-                    ),
-
+                        ],),
+                      );
+                    },
                   ),
                 ),
-                IconButton(onPressed: ()async{
-                 if(commentController.text.isNotEmpty ){
-                   await addCommentToPost(postId: widget.postId, newComment: CommentModel(
-                     comment: commentController.text,
-                     commenterId: widget.currentUserID, // ID of the user making the comment
-                     postId: widget.postId, // ID of the post being commented on
-                     commenterName: widget.currentUserName, // Name of the user making the comment
-                   ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      SizedBox(width: MediaQuery.of(context).size.width*0.75,
+                        child: TextFormField(
+                          keyboardType: TextInputType.multiline,
+                         // controller: _postTextController,
+                          maxLines: null,
+                          controller: commentController,
+                          decoration: const InputDecoration(
+                            labelText: 'Add a comment...',
+                            border: OutlineInputBorder(),
+                          ),
 
-                   );
+                        ),
+                      ),
+                      IconButton(onPressed: ()async{
+                       if(commentController.text.isNotEmpty ){
+                         await addCommentToPost(postId: widget.postId, newComment: CommentModel(
+                           comment: commentController.text,
+                           commenterId: widget.currentUserID, // ID of the user making the comment
+                           postId: widget.postId, // ID of the post being commented on
+                           commenterName: widget.currentUserName, // Name of the user making the comment
+                         ),
 
-                   await UserPointsService().
-                   createOrUpdateUserPoints(userId: widget.currentUserID,actionId: 12);
+                         );
 
-                   Fluttertoast.showToast(msg: "Comment submitted");
-                   commentController.clear();
-                   Navigator.pushReplacement(
-                       context,
-                       MaterialPageRoute(
-                           builder: (BuildContext context) => SocialFeed()));
-                   await DioFetchService().fetchSocialPosts();
-                   setState(() {
+                         await UserPointsService().
+                         createOrUpdateUserPoints(userId: widget.currentUserID,actionId: 12);
 
-                   });
+                         Fluttertoast.showToast(msg: "Comment submitted");
+                         commentController.clear();
+                         Navigator.pushReplacement(
+                             context,
+                             MaterialPageRoute(
+                                 builder: (BuildContext context) => SocialFeed()));
+                         await DioFetchService().fetchSocialPosts();
+                         setState(() {
 
-                 }else{
-                   Fluttertoast.showToast(msg: "Cannot send empty text");
-                 }
-                }, icon: const Icon(Icons.send,size: 40,color: kCIOPink,))
+                         });
+
+                       }else{
+                         Fluttertoast.showToast(msg: "Cannot send empty text");
+                       }
+                      }, icon: const Icon(Icons.send,size: 40,color: kCIOPink,))
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

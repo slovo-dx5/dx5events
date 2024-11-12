@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:dx5veevents/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -45,10 +46,11 @@ class GamificationSystem {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                   Text(actionName.toUpperCase(),
-                                     style: const TextStyle(fontWeight: FontWeight.w900,fontSize: 16),),
+                                   AutoSizeText(actionName.toUpperCase(),
+                                     minFontSize: 12,
+                                     style: const TextStyle(fontWeight: FontWeight.w900,),),
                                 //verticalSpace(height: 10),
-                                Text(actionDescription),
+                                AutoSizeText(minFontSize: 10,actionDescription,style: TextStyle(fontSize: 10),),
 
                               ],),
                             ],

@@ -141,6 +141,7 @@ leaderBoardWidget({
     height: 85,
     width: MediaQuery.of(context).size.width,
     child: Card(
+      color: kCIOPink.withOpacity(0.5),
       elevation: 0.2,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),

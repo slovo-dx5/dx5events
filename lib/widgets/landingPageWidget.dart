@@ -337,9 +337,9 @@ class UpcomingEventWidget2 extends StatelessWidget {
 
               // borderRadius: BorderRadius.circular(5)
             ),
-            height: 150,
+            height: MediaQuery.of(context).size.height*0.5,
             width: MediaQuery.of(context).size.width,
-            child: Row(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Text widget occupies a quarter of the container width
@@ -352,36 +352,37 @@ class UpcomingEventWidget2 extends StatelessWidget {
                     ),
                   ),
                   //color:kKeyRedBG.withOpacity(0.7),
-                  width: 200,
-                  height: 120,
+                  width: MediaQuery.of(context).size.width,
+                  height: 250,
                 ),
                 horizontalSpace(width: 20),
                 // Image occupies the remaining three-quarters of the width
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     AutoSizeText(
                       eventName,
-                      minFontSize: 10,
+                      textAlign: TextAlign.center,
+                      minFontSize: 18,
                       maxFontSize: 25,
                       style:  TextStyle(
                            fontWeight: FontWeight.w600,color: themeProvider.themeMode==ThemeModeOptions.dark?kWhiteText:kTextColorBlack),
                     ),
                     verticalSpace(height: 10),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Icon(Icons.location_on_sharp,size: 15,color: kWhiteText,),horizontalSpace(width: 10),
                         Text(location,style: TextStyle(color:themeProvider.themeMode==ThemeModeOptions.dark?kWhiteText:kTextColorBlack ),)
                       ],
                     ),
                     verticalSpace(height: 5),
-                    Row(
+                    Row(mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Icon(Icons.calendar_month,size: 15,color: kWhiteText,),horizontalSpace(width: 5),
                         AutoSizeText(
-                          "$dayMonth $date -\n$endDayMonth $endDate",
+                          "$dayMonth $date - $endDayMonth $endDate",
                           minFontSize:7,
                           maxFontSize: 13,overflow: TextOverflow.ellipsis,style: TextStyle(color: themeProvider.themeMode==ThemeModeOptions.dark?kWhiteText:kTextColorBlack),
                         )

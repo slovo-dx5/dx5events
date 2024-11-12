@@ -147,14 +147,8 @@ if(Platform.isIOS){
   }
   @override
   Widget build(BuildContext context) {
-    precacheImage(const AssetImage("assets/images/themes/ciso.png"), context);
     precacheImage(const AssetImage("assets/images/themes/cio100.jpg"), context);
-    precacheImage(const AssetImage("assets/images/themes/cloudsecurity.png"), context);
-    precacheImage(const AssetImage("assets/images/themes/smartbanking.png"), context);
-    precacheImage(const AssetImage("assets/images/themes/smartenterprise.png"), context);
-    precacheImage(const AssetImage("assets/images/themes/smartgov.png"), context);
-    precacheImage(const AssetImage("assets/images/themes/smarthealth.png"), context);
-    precacheImage(const AssetImage("assets/images/logos/cisologo.png"), context);
+
 
     return MultiProvider(
       providers: [

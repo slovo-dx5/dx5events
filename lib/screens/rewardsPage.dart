@@ -131,7 +131,7 @@ class _RewardsPageState extends State<RewardsPage> {
     for (var userID in userIDs) {
       var response = await DioFetchService().fetchSingleAttendeeForEvent(
         id: userID,
-        eventID: 10, // Replace with your actual event ID
+        eventID: 21, // Replace with your actual event ID
       );
 
       if (response.statusCode == 200) {
@@ -209,6 +209,8 @@ class _RewardsPageState extends State<RewardsPage> {
 
   SafeArea(
     child: Scaffold(
+      appBar: AppBar(title: Text("Rewards"),leading: IconButton(onPressed: (){Navigator.of(context).pop();}, icon: Icon(Icons.arrow_back),color: kCIOPink,),
+      ),
       body: SingleChildScrollView(
         child: DefaultTabController(
           length: 2,

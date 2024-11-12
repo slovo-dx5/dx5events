@@ -135,7 +135,10 @@ class _GetContactState extends State<GetContact> {
 
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(title: const Text("Contact Scanner"),automaticallyImplyLeading: true,),
+        appBar: AppBar(title: const Text("Contact Scanner"),
+          leading: IconButton(onPressed: (){Navigator.of(context).pop();}, icon: Icon(Icons.arrow_back),color: kCIOPink,),
+
+          automaticallyImplyLeading: true,),
         body: Visibility(
           replacement: const Center(child: SpinKitCircle(color: kCIOPink,size: 100,),),
           visible: isSending==false,

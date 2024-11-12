@@ -96,6 +96,7 @@ class _SocialFeedState extends State<SocialFeed> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(centerTitle: true,
+        leading: IconButton(onPressed: (){Navigator.of(context).pop();}, icon: Icon(Icons.arrow_back),color: kCIOPink,),
         automaticallyImplyLeading: true,
         title: const Text("Social Feed"),
       ),
