@@ -11,9 +11,9 @@ import '../providers/themeProvider.dart';
 import '../widgets/pointsWidget.dart';
 
 class RewardsPage extends StatefulWidget {
-  //String eventID;
-   RewardsPage({
-     //required this.eventID,
+  int eventID;
+  int userID;
+   RewardsPage({required this.eventID,required this.userID,
 
      super.key});
 
@@ -87,7 +87,7 @@ class _RewardsPageState extends State<RewardsPage> {
 
       // Fetch user points
       final userPointsResponse =
-          await DioFetchService().getUserPointsResponse(userId: 4897);
+          await DioFetchService().getUserPointsResponse(userId: widget.userID);
 
       if (userPointsResponse.statusCode == 200) {
         List<dynamic> userPoints = userPointsResponse.data['data'];
@@ -131,7 +131,7 @@ class _RewardsPageState extends State<RewardsPage> {
     for (var userID in userIDs) {
       var response = await DioFetchService().fetchSingleAttendeeForEvent(
         id: userID,
-        eventID: 21, // Replace with your actual event ID
+        eventID: widget.eventID, // Replace with your actual event ID
       );
 
       if (response.statusCode == 200) {
@@ -349,7 +349,7 @@ class _RewardsPageState extends State<RewardsPage> {
                                         lastName: user.lastName ?? 'N/A',  // Safely handle null values
                                         role: user.role ?? 'Unknown Role',  // Safely handle null values
                                         company: user.company ?? 'Unknown Company',  // Safely handle null values
-                                        profileid: user.profilePhoto ?? 'default_profile.png', // Fallback for null photo
+                                        profileid: user.profilePhoto , // Fallback for null photo
                                         userID: user.id,
                                         points: user.totalPoints ?? 0,  // Default to 0 if points are null
                                       ),

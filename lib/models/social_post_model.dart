@@ -22,7 +22,7 @@ class PostData {
   final int userId;
   final String pictureLink;
   final String postDescription;
-  final List<Like>? likes;
+  final List<LikesModel>? likes;
   final List<CommentModel>? comments;
   final String userName;
 
@@ -45,7 +45,7 @@ class PostData {
       pictureLink: json['picture_link'],
       postDescription: json['post_description'],
       likes: json['likes'] != null
-          ? List<Like>.from(json['likes'].map((like) => Like.fromJson(like)))
+          ? List<LikesModel>.from(json['likes'].map((like) => LikesModel.fromJson(like)))
           : null,
       comments: json['Comments'] != null
           ? List<CommentModel>.from(json['Comments'].map((comment) => CommentModel.fromJson(comment)))
@@ -68,17 +68,17 @@ class PostData {
   }
 }
 
-class Like {
+class LikesModel {
   final int likerId;
   final int postId;
 
-  Like({
+  LikesModel({
     required this.likerId,
     required this.postId,
   });
 
-  factory Like.fromJson(Map<String, dynamic> json) {
-    return Like(
+  factory LikesModel.fromJson(Map<String, dynamic> json) {
+    return LikesModel(
       likerId: json['liker_id'],
       postId: json['post_id'],
     );

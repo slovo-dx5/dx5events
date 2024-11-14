@@ -48,6 +48,57 @@ class _SocialMediaPostState extends State<SocialMediaPost> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkTextOverflow(contentText: widget.description));
   }
 
+  addLikeToPost({required int postId, required int userID, required LikesModel newLike}) async {
+    try {
+      // Step 1: Fetch the post to get existing comments
+      final response = await DioFetchService().fetchSinglePost(postId: postId);
+      print("got post details");
+
+      if (response.statusCode == 200) {
+        // Step 2: Parse the existing comments
+        var existingLikes = <LikesModel>[];
+
+        // Access the nested 'data' key first
+        final postData = response.data['data'];
+
+        // Check if 'Comments' exists and is a list
+        if (postData != null && postData['likes'] is List) {
+          existingLikes = List<LikesModel>.from(
+            (postData['likes'] as List<dynamic>).map((data) => LikesModel.fromJson(data)),
+          );
+        }
+        if(existingLikes.any((like) => like.likerId == userID)){
+          Fluttertoast.showToast(msg: "You already liked this post");
+          return;
+        }else{
+          print("liking post");
+
+          existingLikes.add(newLike);
+          // Step 4: Send PATCH request with updated comments list
+          final likeBody = {
+            "likes": existingLikes.map((like) => like.toJson()).toList(),
+          };
+         final likeResponse= await DioPostService().patchComments(
+            body: likeBody,
+            postID: postId,
+          );
+          await UserPointsService().
+          createOrUpdateUserPoints(userId: widget.currentUserID,actionId: 13);
+          Fluttertoast.showToast(msg: "Post liked successfully");
+         print("Like response is ${likeResponse.data}");
+
+        }
+
+        // Step 3: Add the new comment to the list
+
+
+
+      }
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Error:Check your internet and retry");
+    }
+  }
+
  
 
 
@@ -264,7 +315,16 @@ class _SocialMediaPostState extends State<SocialMediaPost> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.favorite, color: kPrimaryColor, size: 20),
+                  GestureDetector(
+                      onTap: ()async{
+                       await addLikeToPost(postId: widget.postID,
+                           userID: widget.currentUserID, newLike: LikesModel(
+                           // ID of the user making the comment
+                           postId: widget.postID, // ID of the post being commented on
+                   likerId: widget.currentUserID, // Name of the user making the comment
+                         ),);
+                      },
+                      child: const Icon(Icons.favorite, color: kPrimaryColor, size: 25)),
                   const SizedBox(width: 4),
                   Text(widget.likes.toString()),
                 ],
@@ -447,7 +507,8 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                       ),
                       IconButton(onPressed: ()async{
                        if(commentController.text.isNotEmpty ){
-                         await addCommentToPost(postId: widget.postId, newComment: CommentModel(
+                         await addCommentToPost(postId: widget.postId,
+                           newComment: CommentModel(
                            comment: commentController.text,
                            commenterId: widget.currentUserID, // ID of the user making the comment
                            postId: widget.postId, // ID of the post being commented on
