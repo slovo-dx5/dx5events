@@ -438,7 +438,7 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                   child: ListView.builder(
                     itemCount: widget.comments.length,
                     itemBuilder: (context, index) {
-                      final comment = widget.comments[index];
+                      final comment = widget.comments.reversed.toList()[index];
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(

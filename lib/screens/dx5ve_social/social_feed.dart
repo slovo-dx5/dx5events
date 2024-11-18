@@ -139,7 +139,7 @@ class _SocialFeedState extends State<SocialFeed> {
                 replacement: const Center(child: SpinKitFadingCircle(size: 100,color: kPrimaryColor,)),
                 child: ListView.builder( itemCount: _futurePosts.length,
                   itemBuilder: (context, index) {
-                    final post = _futurePosts[index];
+                    final post = _futurePosts.reversed.toList()[index];
                     return SocialMediaPost(
                       userName: post.userName,
                       description: post.postDescription,
