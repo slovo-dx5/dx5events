@@ -22,6 +22,8 @@ class _SocialFeedState extends State<SocialFeed> {
   String ?firstName;
   String ?lastName;
   int? currentUserID;
+  PostData ?pinnedPost;
+  List <PostData> otherPosts =[];
 
   @override
   void initState() {
@@ -45,7 +47,12 @@ class _SocialFeedState extends State<SocialFeed> {
         // Map the JSON response to a list of PostData
         _futurePosts = List<PostData>.from(
           rawData.map((postJson) => PostData.fromJson(postJson)),
+
         );
+        pinnedPost = _futurePosts.firstWhere((post) => post.pictureLink=="a89bfa2b-b9de-41de-a20e-223cac4cdcf6", );
+        otherPosts= pinnedPost != null
+            ? _futurePosts.where((post) => post != pinnedPost).toList()
+            : _futurePosts;
         print("Posts are ${_futurePosts.first}");
         isFetchingPosts = false;
       });
@@ -94,6 +101,8 @@ class _SocialFeedState extends State<SocialFeed> {
 
   @override
   Widget build(BuildContext context) {
+    //final pinnedPost = _futurePosts.firstWhere((post) => post.pictureLink=="a89bfa2b-b9de-41de-a20e-223cac4cdcf6", );
+
     return Scaffold(
       appBar: AppBar(centerTitle: true,
         leading: IconButton(onPressed: (){Navigator.of(context).pop();}, icon: Icon(Icons.arrow_back),color: kCIOPink,),
@@ -136,19 +145,61 @@ class _SocialFeedState extends State<SocialFeed> {
           Expanded(
             child: Visibility(
                 visible: isFetchingPosts==false,
-                replacement: const Center(child: SpinKitFadingCircle(size: 100,color: kPrimaryColor,)),
-                child: ListView.builder( itemCount: _futurePosts.length,
-                  itemBuilder: (context, index) {
-                    final post = _futurePosts.reversed.toList()[index];
-                    return SocialMediaPost(
-                      userName: post.userName,
-                      description: post.postDescription,
-                      imageUrl: post.pictureLink, likes: post.likes?.length??0,
-                      comments: post.comments??[], dateString: post.dateCreated,
-                      currentUserID: currentUserID!, postID: post.id,
-                      currentUsername: "$firstName $lastName", );
-                  },
-                )),
+                replacement: const Center(child: SpinKitFadingCircle(size: 50,color: kPrimaryColor,)),
+                child:
+                 ListView(
+            children: [
+            if (pinnedPost != null)
+            SocialMediaPost(
+            userName: pinnedPost!.userName,
+            description: pinnedPost!.postDescription,
+            imageUrl: pinnedPost!.pictureLink,
+            likes: pinnedPost!.likes?.length ?? 0,
+            comments: pinnedPost!.comments ?? [],
+            dateString: pinnedPost!.dateCreated,
+            currentUserID: currentUserID!,
+            postID: pinnedPost!.id,
+            currentUsername: "$firstName $lastName",
+          ),
+          ListView.builder(
+            itemCount: otherPosts.length,
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) {
+              final post = otherPosts.reversed.toList()[index];
+              return SocialMediaPost(
+                userName: post.userName,
+                description: post.postDescription,
+                imageUrl: post.pictureLink,
+                likes: post.likes?.length ?? 0,
+                comments: post.comments ?? [],
+                dateString: post.dateCreated,
+                currentUserID: currentUserID!,
+                postID: post.id,
+                currentUsername: "$firstName $lastName",
+              );
+            },
+          ),
+        ],
+      )
+
+
+
+                // ListView.builder( itemCount: _futurePosts.length,
+                //   itemBuilder: (context, index) {
+                //     final post = _futurePosts.reversed.toList()[index];
+                //     return SocialMediaPost(
+                //       userName: post.userName,
+                //       description: post.postDescription,
+                //       imageUrl: post.pictureLink, likes: post.likes?.length??0,
+                //       comments: post.comments??[], dateString: post.dateCreated,
+                //       currentUserID: currentUserID!, postID: post.id,
+                //       currentUsername: "$firstName $lastName", );
+                //   },
+                // )
+
+
+            ),
           )
         ],
       ),

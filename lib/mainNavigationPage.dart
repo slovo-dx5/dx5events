@@ -119,7 +119,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek:widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent ,),
       AllChatsScreen(),
       MeetingTabs(),
-      SocialFeed(),
+      //SocialFeed(),
       const ProfileScreen(),
     ];
   }
@@ -150,13 +150,13 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
           inactiveColorPrimary: Colors.grey,
         ),
 
-        PersistentBottomNavBarItem(
-          icon: const Icon(Icons.perm_media),
-          title: "Social",
-          //  textStyle: style,
-          activeColorPrimary: kPrimaryColor,
-          inactiveColorPrimary: Colors.grey,
-        ),
+        // PersistentBottomNavBarItem(
+        //   icon: const Icon(Icons.perm_media),
+        //   title: "Social",
+        //   //  textStyle: style,
+        //   activeColorPrimary: kPrimaryColor,
+        //   inactiveColorPrimary: Colors.grey,
+        // ),
         PersistentBottomNavBarItem(
           icon: const Icon(Icons.person),
           title: ("Profile"),

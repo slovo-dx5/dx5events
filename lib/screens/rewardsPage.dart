@@ -24,7 +24,7 @@ class RewardsPage extends StatefulWidget {
 class _RewardsPageState extends State<RewardsPage> {
   List<dynamic> actions = [];
   List<dynamic> userIDs = [];
-  List<EventAttendeeModel>? leaderboardList;
+  List<EventAttendeeModel> leaderboardList=[];
   Map<int, dynamic> userPointsMap = {};
 
   @override
@@ -125,6 +125,7 @@ class _RewardsPageState extends State<RewardsPage> {
 
   Future<List<EventAttendeeModel>> fetchUserDetails() async {
     List<EventAttendeeModel> tempList = [];
+
     await getAllUserIds();
 
     // Loop through all user IDs
@@ -294,10 +295,10 @@ class _RewardsPageState extends State<RewardsPage> {
                           child:Padding(
                             padding: const EdgeInsets.only(bottom: 40.0),
                             child: ListView.builder(
-                              itemCount: leaderboardList?.length ?? 0, // Safely handle null or empty leaderboardList
+                              itemCount:leaderboardList!.length<10?leaderboardList?.length :10 ??0, // Safely handle null or empty leaderboardList
                               itemBuilder: (context, index) {
                                 if (leaderboardList == null || index >= leaderboardList!.length) {
-                                  return const SizedBox(); // Return an empty widget if index is out of bounds
+                                  return const SizedBox(child: Center(child: SizedBox(height: 40,width: 40,child: CircularProgressIndicator(),),),); // Return an empty widget if index is out of bounds
                                 }
 
                                 final user = leaderboardList![index];

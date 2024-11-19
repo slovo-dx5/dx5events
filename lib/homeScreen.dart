@@ -4,6 +4,7 @@ import 'package:dx5veevents/providers/themeProvider.dart';
 import 'package:dx5veevents/screens/adminScreens/adminPanelHome.dart';
 import 'package:dx5veevents/screens/contact_scanning/getContact.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
+import 'package:dx5veevents/screens/pdfAGenda.dart';
 import 'package:dx5veevents/widgets/checkin_widget.dart';
 import 'package:dx5veevents/widgets/notifications_widget.dart';
 import 'package:dx5veevents/widgets/qr_scanner.dart';
@@ -124,7 +125,7 @@ class MenuScreen extends GetView<MyDrawerController> {
 
   Widget buildMenu(context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    //final themeProvider = Provider.of<ThemeProvider>(context);
 
     return UpgradeAlert(
       upgrader: Upgrader(
@@ -133,7 +134,9 @@ class MenuScreen extends GetView<MyDrawerController> {
           //     : UpgradeDialogStyle.cupertino,
           // showIgnore: false,
           durationUntilAlertAgain: const Duration(hours: 1)),
-      child: Scaffold(backgroundColor: themeProvider.themeMode==ThemeModeOptions.dark?kTextColorBlack:Colors.white54,
+      child: Scaffold(
+        //backgroundColor: themeProvider.themeMode==ThemeModeOptions.dark?kTextColorBlack:Colors.white54,
+        backgroundColor:Colors.white54,
         body: SafeArea(
           child: SingleChildScrollView(
 
@@ -156,16 +159,16 @@ class MenuScreen extends GetView<MyDrawerController> {
                       const SizedBox(height: 16.0),
                       greetingFunc(firstName: profileProvider.firstName),
                       const Divider(),
-                      Row(mainAxisAlignment:MainAxisAlignment.spaceBetween,children: [const Text("Dark mode",
-                      //  style: settingsTextStyle(),
-                      ),Switch(
-                        inactiveTrackColor: kWhiteText,
-                        value: themeProvider.themeMode == ThemeModeOptions.dark,
-                        onChanged: (value) {
-                          final newTheme = value ? ThemeModeOptions.dark : ThemeModeOptions.light;
-                          themeProvider.setThemeMode(newTheme);
-                        }
-                      ),],),
+                      // Row(mainAxisAlignment:MainAxisAlignment.spaceBetween,children: [const Text("Dark mode",
+                      // //  style: settingsTextStyle(),
+                      // ),Switch(
+                      //   inactiveTrackColor: kWhiteText,
+                      //   value: themeProvider.themeMode == ThemeModeOptions.dark,
+                      //   onChanged: (value) {
+                      //     final newTheme = value ? ThemeModeOptions.dark : ThemeModeOptions.light;
+                      //     themeProvider.setThemeMode(newTheme);
+                      //   }
+                      // ),],),
                       menuItem(menuText: 'Scan QR',
                           widgetIcon: Icons.qr_code_2, iconColor: kCIOPink, onPressedFunction: () {
 
@@ -189,9 +192,20 @@ class MenuScreen extends GetView<MyDrawerController> {
                       //   logOut(context);
                       // }),
 
-                      const CheckInWidget(),
+                    //  const CheckInWidget(),
 
-                      menuItem(menuText: 'Events Menu',
+                      menuItem(menuText: 'Agenda PDF',
+                          widgetIcon: Icons.picture_as_pdf, iconColor: kCIOPink, onPressedFunction: () {
+
+                            PersistentNavBarNavigator.pushNewScreen(
+                              context,
+                              screen:  PDFViewerScreen(pdfAssetPath: 'assets/CIO100 AGENDA.pdf',
+                            ),
+                              withNavBar: false,
+                              pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                            );
+
+                          }),  menuItem(menuText: 'Events Menu',
                           widgetIcon: Icons.qr_code_2, iconColor: kCIOPink, onPressedFunction: () {
 
                             PersistentNavBarNavigator.pushNewScreen(

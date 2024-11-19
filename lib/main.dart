@@ -162,11 +162,12 @@ if(Platform.isIOS){
             return MaterialApp(
               navigatorKey: navigatorKey, // Assign the navigatorKey to the MaterialApp
               debugShowCheckedModeBanner: false,
-              themeMode: themeProvider.themeMode == ThemeModeOptions.light
-                  ? ThemeMode.light
-                  : ThemeMode.dark,
+              // themeMode: themeProvider.themeMode == ThemeModeOptions.light
+              //     ? ThemeMode.light
+              //     : ThemeMode.dark,
+              themeMode: ThemeMode.light,
               theme: lightTheme,
-              darkTheme: darkTheme,
+              //darkTheme: darkTheme,
              //home: Platform.isAndroid?VideoSplashScreen():LandingPage2(),
              //home: VideoSplashScreen()
              //home: StructureLAstMinute()

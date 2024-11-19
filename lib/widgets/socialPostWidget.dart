@@ -34,6 +34,7 @@ class SocialMediaPost extends StatefulWidget {
 class _SocialMediaPostState extends State<SocialMediaPost> {
   bool _isExpanded=false;
   bool _showReadMore = false;
+
   Random random = Random();
   final int randomIndex = Random().nextInt(predefinedColors.length);
   late Color randomBackgroundColor;
@@ -374,6 +375,8 @@ class CommentsBottomSheet extends StatefulWidget {
 
 class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
   TextEditingController commentController=TextEditingController();
+  bool isSubmittingComment = false;
+
 
   addCommentToPost({required int postId, required CommentModel newComment}) async {
     try {
@@ -492,7 +495,7 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                     children: [
-                      SizedBox(width: MediaQuery.of(context).size.width*0.75,
+                      Flexible(
                         child: TextFormField(
                           keyboardType: TextInputType.multiline,
                          // controller: _postTextController,
@@ -505,8 +508,11 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
 
                         ),
                       ),
-                      IconButton(onPressed: ()async{
+                      !isSubmittingComment?IconButton(onPressed: ()async{
                        if(commentController.text.isNotEmpty ){
+                         setState(() {
+                           isSubmittingComment=true;
+                         });
                          await addCommentToPost(postId: widget.postId,
                            newComment: CommentModel(
                            comment: commentController.text,
@@ -519,6 +525,9 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
 
                          await UserPointsService().
                          createOrUpdateUserPoints(userId: widget.currentUserID,actionId: 12);
+                         setState(() {
+                           isSubmittingComment=false;
+                         });
 
                          Fluttertoast.showToast(msg: "Comment submitted");
                          commentController.clear();
@@ -534,7 +543,7 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                        }else{
                          Fluttertoast.showToast(msg: "Cannot send empty text");
                        }
-                      }, icon: const Icon(Icons.send,size: 40,color: kCIOPink,))
+                      }, icon: const Icon(Icons.send,size: 40,color: kCIOPink,)): const SizedBox(height: 25 ,width: 25,child: CircularProgressIndicator(),)
                     ],
                   ),
                 ),
