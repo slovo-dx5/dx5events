@@ -11,7 +11,7 @@ import 'package:dx5veevents/widgets/qr_scanner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:get/get.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:upgrader/upgrader.dart';
 
@@ -199,7 +199,7 @@ class MenuScreen extends GetView<MyDrawerController> {
 
                             PersistentNavBarNavigator.pushNewScreen(
                               context,
-                              screen:  PDFViewerScreen(pdfAssetPath: 'assets/CIO100 AGENDA.pdf',
+                              screen:  PDFViewerScreen(pdfAssetPath: 'assets/Africa CISO Summit 2025 Agenda.pdf',
                             ),
                               withNavBar: false,
                               pageTransitionAnimation: PageTransitionAnimation.slideRight,

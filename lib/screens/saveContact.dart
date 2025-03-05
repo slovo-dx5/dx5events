@@ -6,7 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../helpers/helper_functions.dart';
 import '../models/contactModel.dart';
 import '../widgets/cool_background.dart';
-import 'package:contacts_service/contacts_service.dart';
+import 'package:flutter_contacts_service/flutter_contacts_service.dart'as fc;
 
 import '../widgets/textStyles.dart';
 
@@ -32,17 +32,17 @@ Future<void> saveContactToDevice({required UserContact userContact}) async {
   // Request permissions
   if (await Permission.contacts.request().isGranted) {
     // Create a new contact
-    Contact newContact = Contact(
+    fc.ContactInfo newContact = fc.ContactInfo(
       givenName: userContact.firstName,
       familyName: userContact.lastName,
-      emails: [Item(label: 'work', value: userContact.email)],
+      emails: [fc.ValueItem(label: 'work', value: userContact.email)],
       company: userContact.company,
       jobTitle: userContact.role,
-      phones: [Item(label: 'mobile', value: userContact.phoneNumber)],
+      phones: [fc.ValueItem(label: 'mobile', value: userContact.phoneNumber)],
     );
 
     // Save the contact
-    await ContactsService.addContact(newContact);
+    await fc.FlutterContactsService. addContact(newContact);
   } else {
     // Handle permission denial
     print('Permission to access contacts was denied');

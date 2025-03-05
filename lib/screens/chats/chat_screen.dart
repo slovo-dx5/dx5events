@@ -147,7 +147,7 @@ class _CioChatScreenState extends State<CioChatScreen> {
      // await getLastMessage();
 
       //if senders doc does not exist
-      Contact receiverContact=Contact(
+      ChatContactModel receiverContact=ChatContactModel(
           otherpersonuid:otherpersonId,
           addedOn:currentTime,
           sentto:widget.chattingWithName,
@@ -177,7 +177,7 @@ class _CioChatScreenState extends State<CioChatScreen> {
       await readLocal();
 
       //if senders doc does not exist
-      Contact senderContact=Contact(
+      ChatContactModel senderContact=ChatContactModel(
         otherpersonuid:otherpersonId,
         addedOn:currentTime,
         sentto:sentToname!,

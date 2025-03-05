@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis/apigeeregistry/v1.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 import '../constants.dart';
 import '../helpers/analytics_helper.dart';
@@ -11,7 +11,7 @@ class CIOWidgets {
 
 
   gradientItemWidget({ required BuildContext context,required Color firstColor, required String analyticsActionName, required Color secondColor,required Widget editIcon,
-    required Widget screen,
+     Widget ?screen,
     required String itemName,}){
       return Column(
         children: [
@@ -19,7 +19,7 @@ class CIOWidgets {
             await Dx5veAnalytics().logdx5veEvent(eventName: analyticsActionName);
             PersistentNavBarNavigator.pushNewScreen(
               context,
-              screen: screen,
+              screen: screen!,
               withNavBar: false,
               pageTransitionAnimation: PageTransitionAnimation.slideRight,
             );

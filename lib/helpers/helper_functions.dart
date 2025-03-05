@@ -304,33 +304,33 @@ requestMeeting(
 
     required String requestedByID,
     required String meetingWithI,
-    required String company}) {
+    required String company}) async{
   String meetingID = const Uuid().v4();
 
   ///Create meeting in senders collection
-  usersRef.doc(currentUserID.toString()).collection("meetings").doc(meetingID).set({
-    "id": meetingID,
-
-    "requested_by": requestedBy, ///The person requesting the meeting
-    "requested_by_id": requestedByID, ///The person requesting the meeting
-    "wants_to_meet_with": meetingWith, ///The person they want to meet with
-    "wants_to_meet_with_id": meetingWithI,
-    "isAccepted": false,
-    "isCancelled": false,
-    "isDeclined": false,
-    "isDefault": false,
-    "date_requested": Timestamp.now(),
-    "message": message,
-    "tableSlot": tableSlot,
-    "startTime": startTime,
-
-
-    "company": company,
-
-  });
+  // await usersRef.doc(currentUserID.toString()).collection("meetings").doc(meetingID).set({
+  //   "id": meetingID,
+  //
+  //   "requested_by": requestedBy, ///The person requesting the meeting
+  //   "requested_by_id": requestedByID, ///The person requesting the meeting
+  //   "wants_to_meet_with": meetingWith, ///The person they want to meet with
+  //   "wants_to_meet_with_id": meetingWithI,
+  //   "isAccepted": false,
+  //   "isCancelled": false,
+  //   "isDeclined": false,
+  //   "isDefault": false,
+  //   "date_requested": Timestamp.now(),
+  //   "message": message,
+  //   "tableSlot": tableSlot,
+  //   "startTime": startTime,
+  //
+  //
+  //   "company": company,
+  //
+  // });
 
   ///Create meeting in other persons collection
-  usersRef
+  await usersRef
       .doc(otherUserID.toString())
       .collection("meetings")
       .doc(meetingID)
@@ -360,6 +360,8 @@ requestMeeting(
 
     "company": company,
   });
+  
+  print("Other persons ID is ${meetingWithI}");
 }
 
 

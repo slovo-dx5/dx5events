@@ -142,7 +142,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     width: 10,
                     height: 10,
                   ),
-                  screen: RewardsPage(eventID: int.parse(widget.eventID), userID: profileProvider.userID!,),
+                  //screen: RewardsPage(eventID: int.parse(widget.eventID), userID: profileProvider.userID!,),
                   itemName: 'Rewards', analyticsActionName: 'rewards_page_opened',
                 ),
                 CIOWidgets().gradientItemWidget(

@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'mainNavigationPage.dart';
@@ -44,6 +44,7 @@ class _InitialScreenState extends State<InitialScreen> {
   checkIfHasSignedIn()async{
     SharedPreferences prefs=await SharedPreferences.getInstance();
     int initialValue=prefs.getInt("isFirstTime")??0;
+    print("initial value is $initialValue");
 
     if(initialValue==1){
       if(mounted){

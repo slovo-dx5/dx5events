@@ -19,14 +19,14 @@ class _StructureLAstMinuteState extends State<StructureLAstMinute> {
   @override
   void initState() {
     // TODO: implement initState
-    fetchCheckins();
+    fetchCheckins(eventId: 21);
 
     super.initState();
   }
 
 
-  fetchCheckins()async{
-    final response = await DioFetchService().fetchLastMinuteCheckins();
+  fetchCheckins({required int eventId})async{
+    final response = await DioFetchService().fetchLastMinuteCheckins(eventID: eventId);
     ConferenceRoom conferenceRoom = ConferenceRoom.fromJson(response.data);
 
       for (var roomData in conferenceRoom.data) {
@@ -35,7 +35,7 @@ class _StructureLAstMinuteState extends State<StructureLAstMinute> {
 
 
           // Fetch attendee details
-          var response = await DioFetchService().fetchSingleAttendeeForEvent(id: attendeeId, eventID: 10);
+          var response = await DioFetchService().fetchSingleAttendeeForEvent(id: attendeeId, eventID: eventId);
           var data = response.data["data"];
 
           // Ensure the data list is not empty
@@ -49,7 +49,7 @@ class _StructureLAstMinuteState extends State<StructureLAstMinute> {
               "Phone": attendeeDetails["phone"] ?? "missing value",
               "Company": attendeeDetails["company"],
               "Role": attendeeDetails["role"],
-              "Event_ID": 10,
+              "Event_ID": eventId,
               "Attendee_ID": attendeeId,
               "Session_Name": roomData.roomName
             }, context: context);

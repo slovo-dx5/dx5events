@@ -6,8 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
-
+import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import '../dioServices/dioPostService.dart';
 import '../helpers/helper_functions.dart';
 import '../mainNavigationPage.dart';

@@ -1,9 +1,14 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 import '../constants.dart';
+import '../initialScreen.dart';
+import '../mainNavigationPage.dart';
 import '../providers/themeProvider.dart';
+import '../screens/authScreens/eventLogin.dart';
+import '../screens/pastEvents/past_navigation.dart';
 
 // Custom CurvedImageContainer widget
 class CurvedImageContainer extends StatelessWidget {
@@ -235,7 +240,7 @@ class UpcomingEventWidget extends StatelessWidget {
                               children: [
                             TextSpan(
                                 text: "$endDayMonth\n",
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 9, color: kLightNormalText)),
                             TextSpan(
                               text: endDate,
@@ -295,6 +300,7 @@ class UpcomingEventWidget2 extends StatelessWidget {
   final String location;
   final String date;
   final String eventName;
+  final String shortDescription;
   final String endDate;
   final double height;
   final double width;
@@ -305,6 +311,7 @@ class UpcomingEventWidget2 extends StatelessWidget {
   UpcomingEventWidget2({
     Key? key,
     required this.imagePath,
+    required this.shortDescription,
     required this.dayMonth,
     required this.date,
     required this.endDate,
@@ -324,74 +331,181 @@ class UpcomingEventWidget2 extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: GestureDetector(
-        onTap: () {
-          onPressedFunct();
-        },
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(borderRadius),
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: containerColor,
-
-              // borderRadius: BorderRadius.circular(5)
-            ),
-            height: MediaQuery.of(context).size.height*0.5,
-            width: MediaQuery.of(context).size.width,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Text widget occupies a quarter of the container width
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    image: DecorationImage(
-                      image: AssetImage(imagePath),
-                      fit: BoxFit.fill,
-                    ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Background image
+          Image.asset(
+            imagePath, // Replace with your image path
+            fit: BoxFit.cover,
+          ),
+          // Semi-transparent overlay
+          Container(
+            color: Colors.black.withOpacity(0.5), // Adjust opacity as needed
+          ),
+          // Centered text
+          Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_on,
+                        color: Colors.white.withOpacity(0.75),
+                      ),
+                      Text(
+                        location,
+                        style: TextStyle(
+                            color: Colors.white.withOpacity(0.75),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15),
+                      ),
+                    ],
                   ),
-                  //color:kKeyRedBG.withOpacity(0.7),
-                  width: MediaQuery.of(context).size.width,
-                  height: 250,
+                  Column(
+                    children: [
+                      verticalSpace(height: 10),
+                      Text(
+                        "Starting: $dayMonth $date",
+                        style: TextStyle(
+                            color: Colors.white.withOpacity(0.75),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15),
+                      ),
+                      verticalSpace(height: 10),
+                      Text(
+                        "Ending: $endDayMonth $endDate",
+                        style: TextStyle(
+                            color: Colors.white.withOpacity(0.75),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+              const Spacer(),
+              Text(
+                eventName,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 55,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white.withOpacity(0.8),
                 ),
-                horizontalSpace(width: 20),
-                // Image occupies the remaining three-quarters of the width
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    AutoSizeText(
-                      eventName,
-                      textAlign: TextAlign.center,
-                      minFontSize: 18,
-                      maxFontSize: 25,
-                      style:  TextStyle(
-                           fontWeight: FontWeight.w600,color: themeProvider.themeMode==ThemeModeOptions.dark?kWhiteText:kTextColorBlack),
-                    ),
-                    verticalSpace(height: 10),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.location_on_sharp,size: 15,color: kWhiteText,),horizontalSpace(width: 10),
-                        Text(location,style: TextStyle(color:themeProvider.themeMode==ThemeModeOptions.dark?kWhiteText:kTextColorBlack ),)
-                      ],
-                    ),
-                    verticalSpace(height: 5),
-                    Row(mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.calendar_month,size: 15,color: kWhiteText,),horizontalSpace(width: 5),
-                        AutoSizeText(
-                          "$dayMonth $date - $endDayMonth $endDate",
-                          minFontSize:7,
-                          maxFontSize: 13,overflow: TextOverflow.ellipsis,style: TextStyle(color: themeProvider.themeMode==ThemeModeOptions.dark?kWhiteText:kTextColorBlack),
-                        )
-                      ],
-                    ),
-                  ],
-                )
-              ],
-            ),
+              ),
+              verticalSpace(height: 15),
+              Text(
+                shortDescription,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white70,
+                ),
+              ),
+              verticalSpace(height: 35),
+              primaryButton(
+                  context: context,
+                  onPressedFunction: () {onPressedFunct();},
+                  buttonText: "Explore More"),
+              verticalSpace(height: 40)
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class PastEventWidget extends StatefulWidget {
+  String eventName;
+  String eventAssetPath;
+  String year;
+  int eventID;
+  PastEventWidget({super.key,required this.eventName,
+    required this.year,required this.eventAssetPath, required this.eventID});
+
+  @override
+  State<PastEventWidget> createState() => _PastEventWidgetState();
+}
+
+class _PastEventWidgetState extends State<PastEventWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: GestureDetector(onTap: (){
+        PersistentNavBarNavigator.pushNewScreen(context, screen:
+        PastNavigationPage(eventName: widget.eventName, eventID: widget.eventID,));
+      },
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(
+              border: Border.all(color: kPastEventBorder),
+              borderRadius: BorderRadius.circular(10),
+              color: kPastEventColor),
+          padding: EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: MediaQuery.of(context).size.height * 0.25,
+                width: MediaQuery.of(context).size.width * 0.9,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    image:  DecorationImage(
+                      image: AssetImage(widget.eventAssetPath),
+                      fit: BoxFit.fill,
+                    )),
+              ),
+              verticalSpace(height: 20),
+               Text(
+                widget.eventName+widget.year,
+                style: TextStyle(fontSize: 20),
+              ),
+              verticalSpace(height: 30),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Column( crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.location_on,
+                            color: Colors.black54,
+                          ),
+                          Text(
+                            "Naivasha",
+                            style: TextStyle(fontSize: 14),
+                          )
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.calendar_month,
+                            color: Colors.black54,
+                          ),
+                          Text("22nd Nov- 24th Nov")
+                        ],
+                      ),
+                    ],
+                  ),
+                  Container(
+                      height: 40,
+                      width: 100,
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(60),border: Border.all(
+                        color: kPrimaryColor
+                      )),
+                      child: Center(child: Text("Explore")))
+                ],
+              )
+            ],
           ),
         ),
       ),

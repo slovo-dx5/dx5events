@@ -23,16 +23,17 @@ import 'helpers/helper_functions.dart';
 
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  int eventId;
+
+   ProfileScreen({super.key,required this.eventId});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  XFile? _imageFile;
-  String? imageID;
 
+  String? imageID;
   // Function to pick an image from the device's gallery
   Future<XFile?> pickImage() async {
     final picker = ImagePicker();
@@ -99,7 +100,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ///Update user data
       ///
       print("owner id is $ownerID");
-      final patchresponse=await DioFetchService().updateUserData(id: ownerID, body: imageidDAta);
+      final patchresponse=await DioFetchService().updateUserData(id: ownerID, body: imageidDAta, eventId: widget.eventId);
       print('Patch Response: ${patchresponse.data}');
       UserPointsService().createOrUpdateUserPoints(userId: ownerID,actionId: 2);
 

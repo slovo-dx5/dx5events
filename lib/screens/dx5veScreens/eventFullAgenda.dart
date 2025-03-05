@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 import '../../constants.dart';
 import '../../helpers/helper_functions.dart';
@@ -287,7 +287,8 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
                                     ...speakerWidgets,
                                   ],
                                 );
-                              } else if (snapshot.connectionState ==
+                              }
+                              else if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
                                 return const Text('Loading speakers...');
                               } else {

@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dx5veevents/screens/dx5veScreens/dx5veIndividualAttendee.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
@@ -35,6 +35,8 @@ const kKeyRedBG = Color(0xFFff0000);
 const kKeyShadowRed = Color(0xFF93261a);
 const kLightGrayishOrange = Color(0xFFeae3dc);
 const kGrayishOrange = Color(0xFFb4a597);
+const kPastEventColor = Color(0xFFE8DBC9);
+const kPastEventBorder = Color(0xFFCE8D51);
 const kRightBubble = Color(0xFFdfdff6);
 const kLeftBubble = Color(0xFFe9ebef);
 
@@ -221,9 +223,9 @@ connectButton(
         );
       },
       style: ButtonStyle(
-          backgroundColor: const MaterialStatePropertyAll<Color>(kCIOPink),
+          backgroundColor:  MaterialStatePropertyAll<Color>(kCIOPink.withOpacity(0.8)),
           textStyle: const MaterialStatePropertyAll<TextStyle>(TextStyle(
-              fontWeight: FontWeight.w200, fontSize: 13, color: Colors.white)),
+              fontWeight: FontWeight.w700, fontSize: 13, color: Colors.black)),
           shape: MaterialStatePropertyAll<RoundedRectangleBorder>(
               RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(7.0)))),

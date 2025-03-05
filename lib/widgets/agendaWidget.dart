@@ -3,7 +3,8 @@ import 'package:dx5veevents/constants.dart';
 import 'package:dx5veevents/models/agendaModel.dart';
 import 'package:dx5veevents/widgets/ratingWidget.dart';
 import 'package:flutter/material.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 import '../models/speakersModel.dart';

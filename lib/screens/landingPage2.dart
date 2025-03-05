@@ -9,43 +9,47 @@ import '../widgets/landingPageWidget.dart';
 import 'authScreens/eventLogin.dart';
 
 class LandingPage2 extends StatefulWidget {
-
-  LandingPage2({
-
-
-
-    Key? key}) : super(key: key);
+  LandingPage2({Key? key}) : super(key: key);
   @override
   State<LandingPage2> createState() => _LandingPage2State();
 }
 
 class _LandingPage2State extends State<LandingPage2> {
-
-
-
-List <String> items=["ACTIVE","FUTURE" ];
-  int current=0;
+  List<String> items = ["PAST","ACTIVE", "FUTURE"];
+  int current = 1;
   customAppbar() {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return SizedBox(
       height: 60,
       width: MediaQuery.of(context).size.width,
       child: ListView.builder(
-        physics: const BouncingScrollPhysics(),
-        itemCount: items.length,
+          physics: const BouncingScrollPhysics(),
+          itemCount: items.length,
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) {
-            return GestureDetector(onTap: (){
-              setState(() {
-                current=index;
-              });
-            },
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  current = index;
+                });
+              },
               child: Container(
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(30),color:current==index? kGradientLightBlue:kTextColorGrey),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color:
+                        current == index ? kGradientLightBlue : kTextColorGrey),
                 margin: const EdgeInsets.all(5),
-                width: MediaQuery.of(context).size.width*0.45,
+                width: MediaQuery.of(context).size.width * 0.3,
                 height: 45,
-                child: Center(child: Text(items[index],style: TextStyle(color: themeProvider.themeMode==ThemeModeOptions.dark?kWhiteText:kTextColorBlack),),),
+                child: Center(
+                  child: Text(
+                    items[index],
+                    style: TextStyle(
+                        color: themeProvider.themeMode == ThemeModeOptions.dark
+                            ? kWhiteText
+                            : kTextColorBlack),
+                  ),
+                ),
               ),
             );
           }),
@@ -54,26 +58,23 @@ List <String> items=["ACTIVE","FUTURE" ];
 
   @override
   Widget build(BuildContext context) {
-    return  SafeArea(
+    return SafeArea(
       child: Scaffold(
-
-        body: Column(children: [customAppbar(),
-        //if (current==0) FutureEvents(),
-        if(current==0)ActiveEvents(),if (current==1)FutureEvents()],)
-      ),
+          body: Column(
+        children: [
+          customAppbar(),
+          //if (current==0) FutureEvents(),
+          if (current == 0) PastEvents(),
+          if (current == 1) ActiveEvents(),
+          if (current == 2) FutureEvents()
+        ],
+      )),
     );
   }
 }
 
-
 class ActiveEvents extends StatefulWidget {
-
-  ActiveEvents({
-
-
-
-
-    Key? key}) : super(key: key);
+  ActiveEvents({Key? key}) : super(key: key);
 
   @override
   State<ActiveEvents> createState() => _ActiveEventsState();
@@ -82,45 +83,28 @@ class ActiveEvents extends StatefulWidget {
 class _ActiveEventsState extends State<ActiveEvents> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // UpcomingEventWidget2(imagePath: 'assets/images/themes/cloudsecurity.png', dayMonth: 'THUR, MAY', date: '2nd', endDate: '3rd', location: 'NIGERIA', endDayMonth: 'FRIDAY, MAY', onPressedFunct: (){
-        //
-        //   Navigator.of(context).pushReplacement(
-        //     MaterialPageRoute(builder: (_) => InitialScreen(eventDay: 2, eventMonth: 5, eventYear: 2024,coverImagePath: 'assets/images/themes/cloudsecurity.png', eventName: "AFRICA CLOUD AND SECURITY SUMMIT",
-        //         eventDate: 'THUR, MAY 2nd - FRIDAY MAY 3rd',
-        //
-        //         shortEventDescription: 'Digital Transformation Through Cloud Security.',
-        //         eventLocation: 'Nigeria'
-        //         ,followingScreen: CISOLogin(eventDay: 2, eventMonth: 5, eventYear: 2024,coverImagePath: 'assets/images/themes/cloudsecurity.png', eventName: "AFRICA CLOUD AND SECURITY SUMMIT",
-        //             eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
-        //
-        //             shortEventDescription: 'Digital Transformation Through Cloud Security',
-        //             eventLocation: 'Nigeria', eventID: '6',), eventID: '6',)),
-        //   );
-        // }, eventName: 'Cloud and Security\n'
-        //     'Summit', containerColor: kCISOPurple,),
+    return SizedBox(
+      height: MediaQuery.of(context).size.height *0.9,
+      child:
 
+      UpcomingEventWidget2(imagePath: 'assets/images/themes/ciso_portrait.jpg', dayMonth: 'WED, MAR', date: '19th',
+        endDate: '20th', location: 'KENYA', endDayMonth: 'THUR, MAR', onPressedFunct: (){
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => InitialScreen(coverImagePath: 'assets/images/themes/ciso.png', eventName: 'AFRICA CISO SUMMIT',
+              eventHappeningDates: 'WED, MAR, 19TH - THUR, MAR, 20TH',
 
-        UpcomingEventWidget2(imagePath: 'assets/images/themes/cio100.jpg', dayMonth: 'WED, NOV', date: '20th',
-          endDate: '22nd', location: 'KENYA', endDayMonth: 'FRI, NOV', onPressedFunct: (){
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => InitialScreen(coverImagePath: 'assets/images/themes/cio100.jpg', eventName: 'CIO 100 SYMPOSIUM AND AWARDS',
-                eventHappeningDates: 'WED, NOV, 20th - FRI, NOV, 22nd',
+              shortEventDescription: "Driving Business Growth Through IT Leadership",
+              eventLocation: 'KENYA'
+              ,followingScreen: EventLogin(coverImagePath: 'assets/images/themes/ciso.png',
+              eventName: 'AFRICA CISO SUMMIT',
+                  eventDate: 'WED, MAR, 19TH - THUR, MAR, 20TH',
 
-                shortEventDescription: "Driving Business Growth Through IT Leadership",
-                eventLocation: 'KENYA'
-                ,followingScreen: EventLogin(coverImagePath: 'assets/images/themes/cio100.jpg', eventName: 'CIO 100 SYMPOSIUM AND AWARDS',
-                    eventDate: 'WED, NOV, 20th - FRI, NOV, 22nd',
-
-                    shortEventDescription: "Driving Business Growth Through IT Leadership",
-                    eventLocation: 'KENYA', eventID: '21', eventDay: 2, eventMonth: 11, eventYear: 2024, eventDayOfWeek: 'WED',
-                isCustomerEvent: false,), eventID: '21', eventDay: 2, eventMonth: 11, eventYear: 2024, eventDayOfWeek: 'WED', isCustomerEvent: false,)),
-          );
-        }, eventName: 'CIO 100 SYMPOSIUM\nAND AWARDS'
-            , containerColor: kGradientLightBlue.withOpacity(0.7),),
-      ],
-    );
+                  shortEventDescription: "Driving Business Growth Through IT Leadership",
+                  eventLocation: 'KENYA', eventID: '46', eventDay: 19, eventMonth: 3, eventYear: 2025, eventDayOfWeek: 'WED',
+              isCustomerEvent: false,), eventID: '46', eventDay: 19, eventMonth: 3, eventYear: 2025, eventDayOfWeek: 'WED', isCustomerEvent: false,)),
+        );
+      }, eventName: 'AFRICA CISO SUMMIT'
+          , containerColor: kGradientLightBlue.withOpacity(0.7), shortDescription: 'Driving Business Growth Through IT Leadership',));
   }
 }
 
@@ -134,15 +118,32 @@ class FutureEvents extends StatefulWidget {
 class _FutureEventsState extends State<FutureEvents> {
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-
-
-
-
-
-
-    ],);
+    return Column(
+      children: [],
+    );
   }
 }
 
+class PastEvents extends StatefulWidget {
+  const PastEvents({super.key});
+
+  @override
+  State<PastEvents> createState() => _PastEventsState();
+}
+
+class _PastEventsState extends State<PastEvents> {
+  @override
+  Widget build(BuildContext context) {
+    return  Align(alignment: Alignment.bottomCenter,
+      child: const Center(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(8.0,300,8,150),
+          child: Text("Information on Past Events Will Appear Here",style: TextStyle(fontSize: 25,fontWeight: FontWeight.w700),textAlign: TextAlign.center,),
+        ),
+      ),
+    );
+      // PastEventWidget(eventName: 'CIO 100 SYMPOSIUM AND AWARDS', year: ' 2024',
+      // eventAssetPath: 'assets/images/themes/cio100.jpg', eventID: 21,);
+  }
+}
 

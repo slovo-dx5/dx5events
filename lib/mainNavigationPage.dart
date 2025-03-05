@@ -5,10 +5,9 @@ import 'package:dx5veevents/screens/chats/all_chats.dart';
 import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'dart:io';
 
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:showcaseview/showcaseview.dart';
 
 import '../../constants.dart';
 
@@ -120,7 +119,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
       AllChatsScreen(),
       MeetingTabs(),
       //SocialFeed(),
-      const ProfileScreen(),
+       ProfileScreen(eventId: int.parse(widget.eventID),),
     ];
   }
 
@@ -175,7 +174,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                 eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,),
               '/second': (context) => MeetingTabs(),
               '/third': (context) => const GalleryScreen(),
-              '/fourth': (context) => const ProfileScreen(),
+              '/fourth': (context) =>  ProfileScreen(eventId: int.parse(widget.eventID),),
             },
           ),
         ),
@@ -184,44 +183,28 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     }
 
     return Scaffold(
-      body: ShowCaseWidget(
-        onStart: (index, key) {},
-        onComplete: (index, key){},
-        blurValue: 1,
-        builder: Builder(builder: (context)=> PersistentTabView(
-          context,
-          controller: controller,
-          screens: _buildScreens(),
-          items: _navBarsItems(),
-          confineInSafeArea: true,
-          backgroundColor: kLightAppbar, // Default is Colors.white.
-          handleAndroidBackButtonPress: true, // Default is true.
-          resizeToAvoidBottomInset:
-          true, // This needs to be true if you want to move up the screen when keyboard appears. Default is true.
-          stateManagement: true, // Default is true.
-          hideNavigationBarWhenKeyboardShows:
-          true, // Recommended to set 'resizeToAvoidBottomInset' as true while using this argument. Default is true.
-          decoration: NavBarDecoration(
-            borderRadius: BorderRadius.circular(10.0),
-            //colorBehindNavBar: Colors.white,
-          ),
-          popAllScreensOnTapOfSelectedTab: true,
-          popActionScreens: PopActionScreensType.all,
-          itemAnimationProperties: const ItemAnimationProperties(
-            // Navigation Bar's items animation properties.
-            duration: Duration(milliseconds: 200),
-            curve: Curves.ease,
-          ),
-          screenTransitionAnimation: const ScreenTransitionAnimation(
-            // Screen transition animation on change of selected tab.
-            animateTabTransition: true,
-            curve: Curves.ease,
-            duration: Duration(milliseconds: 200),
-          ),
-          navBarStyle:
-          NavBarStyle.style6, // Choose the nav bar style with this property.
-        ),),
-      ),
+      body: PersistentTabView(
+        context,
+        controller: controller,
+        screens: _buildScreens(),
+        items: _navBarsItems(),
+        confineToSafeArea: true,
+        backgroundColor: kLightAppbar, // Default is Colors.white.
+        handleAndroidBackButtonPress: true, // Default is true.
+        resizeToAvoidBottomInset:
+        true, // This needs to be true if you want to move up the screen when keyboard appears. Default is true.
+        stateManagement: true, // Default is true.
+        hideNavigationBarWhenKeyboardAppears:
+        true, // Recommended to set 'resizeToAvoidBottomInset' as true while using this argument. Default is true.
+        decoration: NavBarDecoration(
+          borderRadius: BorderRadius.circular(10.0),
+          //colorBehindNavBar: Colors.white,
+        ),
+        popBehaviorOnSelectedNavBarItemPress: PopBehavior.all,
+
+        navBarStyle:
+        NavBarStyle.style6, // Choose the nav bar style with this property.
+      )
     );
 
   }

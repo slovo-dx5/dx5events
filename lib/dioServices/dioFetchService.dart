@@ -93,6 +93,17 @@ class DioFetchService extends DioClient {
       throw Exception(ex);
     }
   }
+  Future<Response> fetchPresentationPDF({required String presentationURL}) async {
+    try {
+      return await _client
+          .init()
+          .get(presentationURL,
+        options: buildCacheOptions(const Duration(minutes: 30)),
+           );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
 
   Future<Response> fetchEventPartners() async {
     try {
@@ -106,6 +117,7 @@ class DioFetchService extends DioClient {
     }
   }
 
+
   Future<Response> fetchEvents({required String eventID}) async {
     try {
       return await _client
@@ -116,14 +128,24 @@ class DioFetchService extends DioClient {
     } on DioError catch (ex) {
       throw Exception(ex);
     }
-  }
-
-
-  Future<Response> fetchLastMinuteCheckins() async {
+  } Future<Response> fetchPresentation({required int eventID}) async {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/last_minute_checkins?limit=500",
+          .get("https://subscriptions.cioafrica.co/items/presentations?filter[event_id][_eq]=$eventID",
+        //options: buildCacheOptions(const Duration(minutes: 30)),
+           );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+
+  Future<Response> fetchLastMinuteCheckins({required int eventID}) async {
+    try {
+      return await _client
+          .init()
+          .get("https://subscriptions.cioafrica.co/items/last_minute_checkins?limit=500&filter[event_id][_eq]=$eventID",
         options: buildCacheOptions(const Duration(minutes: 2)),
            );
     } on DioError catch (ex) {
@@ -340,14 +362,14 @@ Future<Response> checkUserPoints({required int actionId, required int userId}) a
 
 
 
-  Future<Response> updateUserData({required int id,required Map<String, dynamic> body}) async {
+  Future<Response> updateUserData({required int id,required int eventId,required Map<String, dynamic> body}) async {
 
 
 
     return await _client
         .init()
         .patch(
-      "https://subscriptions.cioafrica.co/items/event_registrations/$id",
+      "https://subscriptions.cioafrica.co/items/event_registrations?filter[attendeeId][_eq]=$id&filter[eventId][_eq]=$eventId",
       data: body,
 
 
@@ -356,5 +378,22 @@ Future<Response> checkUserPoints({required int actionId, required int userId}) a
     );
 
   }
+
+  // Future<Response> updateUserData({required int id,required int eventId,required Map<String, dynamic> body}) async {
+  //
+  //
+  //
+  //   return await _client
+  //       .init()
+  //       .patch(
+  //     "https://subscriptions.cioafrica.co/items/checkins?filter[checkins_plain_format][_eq]=day1,day2,day3&filter[eventId][_eq]=21",
+  //     data: body,
+  //
+  //
+  //
+  //     // Set headers using the 'headers' parameter
+  //   );
+  //
+  // }
 
 }
