@@ -46,10 +46,10 @@ dependency_overrides:
   fluttertoast: ^8.2.4
   email_validator: ^2.1.17
   firebase_auth: ^4.16.0
-  firebase_core: ^2.24.2
+  firebase_core: ^3.12.1
   get: ^4.6.6
   shared_preferences: ^2.2.2
-  cloud_firestore: ^4.14.0
+  cloud_firestore: 5.6.4
   firebase_messaging: ^14.7.10
   provider: ^6.1.2
 
@@ -58,7 +58,7 @@ dependency_overrides:
   intl: ^0.19.0
   image_picker: ^1.0.7
   qr_flutter: ^4.1.0
-  image_cropper: ^9.0.0
+  image_cropper: any
   cached_network_image: ^3.3.1
   upgrader: ^9.0.0
   firebase_storage: ^11.6.0
@@ -67,26 +67,25 @@ dependency_overrides:
   table_calendar: ^3.1.0
   pull_to_refresh: ^2.0.0
   shimmer: ^3.0.0
-  qr_code_scanner_plus: ^2.0.10+1
+  qr_code_scanner_plus: any
   flutter_widget_from_html: ^0.14.11
   firebase_analytics: ^10.8.0
   csv: ^6.0.0
-  flutter_contacts_service: ^0.0.2
+  flutter_contacts_service: any
   permission_handler: ^11.0.0
   googleapis_auth: ^1.0.0
   googleapis: any
-  pretty_dio_logger: ^1.2.0-beta-1
   percent_indicator: ^4.2.3
   flutter_pdfview: ^1.4.0
   flutter_cached_pdfview: ^0.4.3
-  flutter_downloader: any
   win32: ^5.5.4
+  flutter_downloader: any
+
 
   #persistent_bottom_nav_bar_v2: ^5.3.0
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
