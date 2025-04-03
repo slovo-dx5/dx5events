@@ -71,7 +71,12 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
       List<dynamic> filteredData = rawData
           .where((item) =>
 
-              item['status'] == "approved")
+              item['status'] == "approved"
+                  //&&
+              //&&item['app_sign_in'] == true,
+
+
+      )
           .toList();
 
 
@@ -210,7 +215,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
                               company: user.company,
                               interests: [],
                               profileid: user.profilePhoto ?? "",
-                              userID: user.id);
+                              userID: user.attendeeId);
                     },
 
 

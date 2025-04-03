@@ -341,71 +341,71 @@ class UpcomingEventWidget2 extends StatelessWidget {
           ),
           // Semi-transparent overlay
           Container(
-            color: Colors.black.withOpacity(0.5), // Adjust opacity as needed
+            //color: Colors.black.withOpacity(0.5), // Adjust opacity as needed
           ),
           // Centered text
           Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.location_on,
-                        color: Colors.white.withOpacity(0.75),
-                      ),
-                      Text(
-                        location,
-                        style: TextStyle(
-                            color: Colors.white.withOpacity(0.75),
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      verticalSpace(height: 10),
-                      Text(
-                        "Starting: $dayMonth $date",
-                        style: TextStyle(
-                            color: Colors.white.withOpacity(0.75),
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15),
-                      ),
-                      verticalSpace(height: 10),
-                      Text(
-                        "Ending: $endDayMonth $endDate",
-                        style: TextStyle(
-                            color: Colors.white.withOpacity(0.75),
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15),
-                      ),
-                    ],
-                  )
-                ],
-              ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //   children: [
+              //     Row(
+              //       children: [
+              //         Icon(
+              //           Icons.location_on,
+              //           color: Colors.white.withOpacity(0.75),
+              //         ),
+              //         Text(
+              //           location,
+              //           style: TextStyle(
+              //               color: Colors.white.withOpacity(0.75),
+              //               fontWeight: FontWeight.w700,
+              //               fontSize: 15),
+              //         ),
+              //       ],
+              //     ),
+              //     Column(
+              //       children: [
+              //         verticalSpace(height: 10),
+              //         Text(
+              //           "Starting: $dayMonth $date",
+              //           style: TextStyle(
+              //               color: Colors.white.withOpacity(0.75),
+              //               fontWeight: FontWeight.w700,
+              //               fontSize: 15),
+              //         ),
+              //         verticalSpace(height: 10),
+              //         Text(
+              //           "Ending: $endDayMonth $endDate",
+              //           style: TextStyle(
+              //               color: Colors.white.withOpacity(0.75),
+              //               fontWeight: FontWeight.w700,
+              //               fontSize: 15),
+              //         ),
+              //       ],
+              //     )
+              //   ],
+              // ),
               const Spacer(),
-              Text(
-                eventName,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 55,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white.withOpacity(0.8),
-                ),
-              ),
+              // Text(
+              //   eventName,
+              //   textAlign: TextAlign.center,
+              //   style: TextStyle(
+              //     fontSize: 55,
+              //     fontWeight: FontWeight.w700,
+              //     color: Colors.white.withOpacity(0.8),
+              //   ),
+              // ),
               verticalSpace(height: 15),
-              Text(
-                shortDescription,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white70,
-                ),
-              ),
+              // Text(
+              //   shortDescription,
+              //   textAlign: TextAlign.center,
+              //   style: const TextStyle(
+              //     fontSize: 15,
+              //     fontWeight: FontWeight.bold,
+              //     color: Colors.white70,
+              //   ),
+              // ),
               verticalSpace(height: 35),
               primaryButton(
                   context: context,

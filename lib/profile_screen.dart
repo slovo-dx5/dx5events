@@ -34,7 +34,22 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
 
   String? imageID;
+  ProfileProvider? profileProvider;
+  int ?recordId;
   // Function to pick an image from the device's gallery
+  @override
+  void initState() {
+    Future.delayed(Duration.zero, () async {
+      profileProvider = Provider.of<ProfileProvider>(context, listen: false);
+      await profileProvider?.loadUserProfile();  // Ensure profile is loaded
+      if (profileProvider?.userID != null) {
+        fetchSingleAtendee(userid: profileProvider!.userID!);
+      }
+    });
+  
+    
+    super.initState();
+  }
   Future<XFile?> pickImage() async {
     final picker = ImagePicker();
     final pickedImage = await picker.pickImage(
@@ -52,6 +67,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
       contentType:
           MediaType("image", fileExtension), // Specify the content type
     );
+  }
+
+  fetchSingleAtendee({required int userid})async{
+    final profileProvider = ProfileProvider().userID;
+    var response = await DioFetchService().fetchSingleAttendeeForEvent(id: userid!, eventID: widget.eventId);
+    var data = response.data["data"];
+    setState(() {
+      recordId=data[0]["id"];
+    });
+    print("record id is $recordId");
+
   }
 
   Future<void> uploadImage(ownerName, ownerID) async {
@@ -91,6 +117,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         imageID = jsonResponse['data']['id'];
       });
+      print("image id is $imageID");
       Map<String, dynamic> imageidDAta = {
         "profile_photo": imageID,
 
@@ -100,7 +127,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ///Update user data
       ///
       print("owner id is $ownerID");
-      final patchresponse=await DioFetchService().updateUserData(id: ownerID, body: imageidDAta, eventId: widget.eventId);
+      final patchresponse=await DioFetchService().updateUserData(body: imageidDAta, eventId: widget.eventId, recordid: recordId!);
       print('Patch Response: ${patchresponse.data}');
       UserPointsService().createOrUpdateUserPoints(userId: ownerID,actionId: 2);
 
@@ -119,6 +146,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
+    print("Profile id is ${profileProvider.profileId}");
+    print("user id is ${profileProvider.userID}");
 
     return SafeArea(
       child: Scaffold(
@@ -146,7 +175,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: IconButton(
                             onPressed: () async {
                               await uploadImage(profileProvider.firstName,
-                                  profileProvider.userID);
+                                  profileProvider.userID,);
                               profileProvider.editProfile(newProfileId: imageID!);
                             },
                             icon: const Icon(

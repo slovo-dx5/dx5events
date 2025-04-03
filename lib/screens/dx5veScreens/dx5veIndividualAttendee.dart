@@ -31,7 +31,8 @@ class IndividualAttendeeScreen extends StatefulWidget {
       required this.Company,
       required this.profileid,
       required this.Bio,
-      required this.id});
+      required this.id
+      });
 
   @override
   State<IndividualAttendeeScreen> createState() =>
@@ -62,8 +63,8 @@ class _IndividualAttendeeScreenState
                 fontWeight: FontWeight.bold, fontSize: 34.0, ),
           ),
           Text(
-            //"${widget.Role} at ${widget.Company}",
-            " ${widget.Company}",
+            "${widget.Role} at ${widget.Company}",
+            // " ${widget.Company}",
 
           ),verticalSpace(height: 10),
 
@@ -73,7 +74,10 @@ class _IndividualAttendeeScreenState
                 context: context,
                 onPressedFunction: () {},
                 buttonText: "MEET",
-                backgroundColor: kCISOPurple) ,), SizedBox(width: MediaQuery.of(context).size.width*0.35,child:   primaryButton2(
+                backgroundColor: kCISOPurple) ,),
+
+
+              SizedBox(width: MediaQuery.of(context).size.width*0.35,child:   primaryButton2(
                 context: context,
                 onPressedFunction: () {     if(mounted){
                   PersistentNavBarNavigator.pushNewScreen(

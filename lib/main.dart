@@ -22,6 +22,7 @@ import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'backendOps/sendBroadcast.dart';
+import 'cooking/cookFigures.dart';
 import 'firebase_options.dart';
 import 'helpers/CustomerAttendeeCSVHelper.dart';
 import 'helpers/CustomerSpeakerCSVHelper.dart';
@@ -176,6 +177,8 @@ if(Platform.isIOS){
               //darkTheme: darkTheme,
 
           home: LandingPage2(),
+         // home: StructureLAstMinute(),
+          //home: CookFigures(),
 
             //home: PastNavigationPage(eventName: 'CIO 100', eventID: 21,)
 

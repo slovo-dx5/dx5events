@@ -5,6 +5,7 @@ import 'package:dx5veevents/dioServices/dioPostService.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart' as intl;
+import '../dioServices/base_url.dart';
 import '../helpers/helper_functions.dart';
 import '../models/social_post_model.dart';
 
@@ -302,7 +303,7 @@ class _SocialMediaPostState extends State<SocialMediaPost> {
           if(widget.imageUrl!="no image")ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
             child: Image.network(
-              "https://subscriptions.cioafrica.co/assets/${widget.imageUrl}",
+              "${BaseURL.Baseurl}/assets/${widget.imageUrl}",
               height: 180,
               width: double.infinity,
               fit: BoxFit.cover,

@@ -71,7 +71,8 @@ dependency_overrides:
   flutter_widget_from_html: ^0.14.11
   firebase_analytics: ^10.8.0
   csv: ^6.0.0
-  flutter_contacts_service: ^0.0.2
+  flutter_contacts: ^1.1.9+2
+  #flutter_contacts_service: ^0.0.2
   permission_handler: ^11.0.0
   googleapis_auth: ^1.0.0
   googleapis: any

@@ -89,7 +89,7 @@ class _EventLoginState extends State<EventLogin> {
               isAdmin:emailController.text.endsWith("cioafrica.co")?"true":"false",
               company: attendee.company,
               role: attendee.role, lastName: attendee.lastName,
-              firstName: attendee.firstName, phone: attendee.phone,
+              firstName: attendee.firstName, phone: attendee.phone,recordID: attendee.id,
               id:attendee.attendeeId, profileID: attendee.profilePhoto??"",
               coverImagePath: widget.coverImagePath, eventName: widget.eventName,
               //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
@@ -138,7 +138,7 @@ class _EventLoginState extends State<EventLogin> {
                  //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
                  shortEventDescription: widget.shortEventDescription,
                  //eventLocation: 'Nigeria',);
-                 eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,
+                 eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent, recordID: attendee.id,
 
                ),
                withNavBar: false,
@@ -163,7 +163,7 @@ class _EventLoginState extends State<EventLogin> {
                  //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
                  shortEventDescription: widget.shortEventDescription,
                  //eventLocation: 'Nigeria',);
-                 eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,
+                 eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent, recordID: customerAttendee.id,
 
                ),
                withNavBar: false,
@@ -223,9 +223,7 @@ class _EventLoginState extends State<EventLogin> {
   Future fetchAllAttendees() async {
     final response = widget.isCustomerEvent==true?await DioFetchService().fetchCustomerEventsAttendees(eventID: widget.eventID):await DioFetchService().fetchCIOAttendees(eventID: widget.eventID);
 
-    setState(() {
-      //isFetching=false;
-    });
+
 
 
     if (response.statusCode == 200) {
@@ -355,7 +353,7 @@ class _EventLoginState extends State<EventLogin> {
                                             //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
                                             shortEventDescription: widget.shortEventDescription,
                                             //eventLocation: 'Nigeria',);
-                                            eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,
+                                            eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent, recordID: 625,
 
                                           ),
                                           withNavBar: false,

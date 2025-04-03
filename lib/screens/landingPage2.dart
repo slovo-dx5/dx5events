@@ -87,24 +87,24 @@ class _ActiveEventsState extends State<ActiveEvents> {
       height: MediaQuery.of(context).size.height *0.9,
       child:
 
-      UpcomingEventWidget2(imagePath: 'assets/images/themes/ciso_portrait.jpg', dayMonth: 'WED, MAR', date: '19th',
-        endDate: '20th', location: 'KENYA', endDayMonth: 'THUR, MAR', onPressedFunct: (){
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => InitialScreen(coverImagePath: 'assets/images/themes/ciso.png', eventName: 'AFRICA CISO SUMMIT',
-              eventHappeningDates: 'WED, MAR, 19TH - THUR, MAR, 20TH',
+      UpcomingEventWidget2(imagePath: 'assets/images/themes/connected_portrait.jpg', dayMonth: 'THUR, MAY', date: '26th',
+        endDate: '29th', location: 'KENYA', endDayMonth: 'SUN, MAY', onPressedFunct: (){
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => InitialScreen(coverImagePath: 'assets/images/themes/connected_bg.jpg', eventName: 'CONNECTED AFRICA SUMMIT',
+              eventHappeningDates: 'THUR, MAY, 26TH - THUR, MAY, 29TH',
 
-              shortEventDescription: "Driving Business Growth Through IT Leadership",
+              shortEventDescription: "A summit for digital transformation in Africa",
               eventLocation: 'KENYA'
-              ,followingScreen: EventLogin(coverImagePath: 'assets/images/themes/ciso.png',
-              eventName: 'AFRICA CISO SUMMIT',
+              ,followingScreen: EventLogin(coverImagePath: 'assets/images/themes/connected_bg.jpg',
+              eventName: 'CONNECTED AFRICA SUMMIT',
                   eventDate: 'WED, MAR, 19TH - THUR, MAR, 20TH',
 
-                  shortEventDescription: "Driving Business Growth Through IT Leadership",
+                  shortEventDescription: "A summit for digital transformation in Africa",
                   eventLocation: 'KENYA', eventID: '46', eventDay: 19, eventMonth: 3, eventYear: 2025, eventDayOfWeek: 'WED',
               isCustomerEvent: false,), eventID: '46', eventDay: 19, eventMonth: 3, eventYear: 2025, eventDayOfWeek: 'WED', isCustomerEvent: false,)),
         );
-      }, eventName: 'AFRICA CISO SUMMIT'
-          , containerColor: kGradientLightBlue.withOpacity(0.7), shortDescription: 'Driving Business Growth Through IT Leadership',));
+      }, eventName: 'CONNECTED AFRICA SUMMIT'
+          , containerColor: kGradientLightBlue.withOpacity(0.7), shortDescription: 'A summit for digital transformation in Africa',));
   }
 }
 
@@ -135,15 +135,17 @@ class _PastEventsState extends State<PastEvents> {
   @override
   Widget build(BuildContext context) {
     return  Align(alignment: Alignment.bottomCenter,
-      child: const Center(
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(8.0,300,8,150),
-          child: Text("Information on Past Events Will Appear Here",style: TextStyle(fontSize: 25,fontWeight: FontWeight.w700),textAlign: TextAlign.center,),
-        ),
-      ),
+      // child: Center(
+      //   child: Padding(
+      //     padding: EdgeInsets.fromLTRB(8.0,300,8,150),
+      //     child: Text("Information on Past Events Will Appear Here",style: TextStyle(fontSize: 25,fontWeight: FontWeight.w700),textAlign: TextAlign.center,),
+      //   ),
+      // ),
+      child:  PastEventWidget(eventName: 'CIO 100 SYMPOSIUM AND AWARDS', year: ' 2024',
+        eventAssetPath: 'assets/images/themes/cio100.jpg', eventID: 21,),
     );
-      // PastEventWidget(eventName: 'CIO 100 SYMPOSIUM AND AWARDS', year: ' 2024',
-      // eventAssetPath: 'assets/images/themes/cio100.jpg', eventID: 21,);
+      PastEventWidget(eventName: 'CIO 100 SYMPOSIUM AND AWARDS', year: ' 2024',
+      eventAssetPath: 'assets/images/themes/cio100.jpg', eventID: 21,);
   }
 }
 

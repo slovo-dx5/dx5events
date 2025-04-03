@@ -7,6 +7,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 import '../../constants.dart';
+import '../../dioServices/base_url.dart';
 import '../../helpers/helper_functions.dart';
 import '../../models/image_model.dart';
 import '../../models/speakersModel.dart';
@@ -232,7 +233,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
                                                 CachedNetworkImage(
                                                   fit: BoxFit.cover,
                                                   imageUrl:
-                                                      "https://subscriptions.cioafrica.co/assets/${speaker!.photo}",
+                                                      "${BaseURL.Baseurl}/assets/${speaker!.photo}",
                                                   // placeholder: (context, url) => CircularProgressIndicator(), // Optional
                                                   // errorWidget: (context, url, error) =>  ProfileInitials(),
                                                   progressIndicatorBuilder: (context,
@@ -332,7 +333,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
                         //       //               fit:
                         //       //               BoxFit.cover,
                         //       //               imageUrl:
-                        //       //               "https://subscriptions.cioafrica.co/assets/${speaker!.photo!}",
+                        //       //               "${BaseURL.Baseurl}/assets/${speaker!.photo!}",
                         //       //               // placeholder: (context, url) => CircularProgressIndicator(), // Optional
                         //       //               // errorWidget: (context, url, error) =>  ProfileInitials(),
                         //       //               progressIndicatorBuilder: (context, url, downloadProgress) => SizedBox(

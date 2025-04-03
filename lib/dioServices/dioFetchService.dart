@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
+import 'package:dx5veevents/dioServices/base_url.dart';
 
 import 'dioClient.dart';
 import 'endpoints/endpoint.dart';
@@ -11,7 +12,7 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/event_registrations?filter[eventId][_eq]=$eventID&filter[status][_eq]=approved&limit=2500",
+          .get("${BaseURL.Baseurl}/items/event_registrations?filter[eventId][_eq]=$eventID&filter[status][_eq]=approved&limit=2500",
      //   options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
@@ -23,7 +24,7 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/Customer_Event_Registrations?filter[eventID][_eq]=$eventID&filter[status][_eq]=approved&limit=800",
+          .get("${BaseURL.Baseurl}/items/Customer_Event_Registrations?filter[eventID][_eq]=$eventID&filter[status][_eq]=approved&limit=800",
      //   options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
@@ -35,7 +36,7 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/event_registrations?filter[attendeeId][_eq]=$id&filter[eventId][_eq]=$eventID",
+          .get("${BaseURL.Baseurl}/items/event_registrations?filter[attendeeId][_eq]=$id&filter[eventId][_eq]=$eventID",
         //   options: buildCacheOptions(const Duration(minutes: 30)),
       );
     } on DioError catch (ex) {
@@ -46,7 +47,7 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/attendees?filter[id][_eq]=$id",
+          .get("${BaseURL.Baseurl}/items/attendees?filter[id][_eq]=$id",
         //   options: buildCacheOptions(const Duration(minutes: 30)),
       );
     } on DioError catch (ex) {
@@ -60,8 +61,8 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-         // .get("https://subscriptions.cioafrica.co/items/agenda?filter[event_id][_eq]=$eventID",
-          .get("https://subscriptions.cioafrica.co/items/agenda?filter[event_id][_eq]=$eventID",
+         // .get("${BaseURL.Baseurl}/items/agenda?filter[event_id][_eq]=$eventID",
+          .get("${BaseURL.Baseurl}/items/agenda?filter[event_id][_eq]=$eventID",
         //options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
@@ -74,8 +75,8 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-         // .get("https://subscriptions.cioafrica.co/items/agenda?filter[event_id][_eq]=$eventID",
-          .get("https://subscriptions.cioafrica.co/items/user_sessions?filter[attendee_id][_eq]=$attendeeID",
+         // .get("${BaseURL.Baseurl}/items/agenda?filter[event_id][_eq]=$eventID",
+          .get("${BaseURL.Baseurl}/items/user_sessions?filter[attendee_id][_eq]=$attendeeID",
         //options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
@@ -86,7 +87,7 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/sponsors",
+          .get("${BaseURL.Baseurl}/items/sponsors",
         options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
@@ -109,7 +110,7 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/partners",
+          .get("${BaseURL.Baseurl}/items/partners",
         options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
@@ -122,7 +123,7 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/events/$eventID",
+          .get("${BaseURL.Baseurl}/items/events/$eventID",
         //options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
@@ -132,7 +133,7 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/presentations?filter[event_id][_eq]=$eventID",
+          .get("${BaseURL.Baseurl}/items/presentations?filter[event_id][_eq]=$eventID",
         //options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
@@ -145,7 +146,7 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/last_minute_checkins?limit=500&filter[event_id][_eq]=$eventID",
+          .get("${BaseURL.Baseurl}/items/last_minute_checkins?limit=500&filter[event_id][_eq]=$eventID",
         options: buildCacheOptions(const Duration(minutes: 2)),
            );
     } on DioError catch (ex) {
@@ -157,7 +158,7 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/Social/$postId",
+          .get("${BaseURL.Baseurl}/items/Social/$postId",
 
            );
     } on DioError catch (ex) {
@@ -168,7 +169,7 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/partners",
+          .get("${BaseURL.Baseurl}/items/partners",
         options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
@@ -180,7 +181,7 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/speakers",
+          .get("${BaseURL.Baseurl}/items/speakers",
         options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
@@ -192,7 +193,7 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/speakers?filter[id][_eq]=$speakerKey",
+          .get("${BaseURL.Baseurl}/items/speakers?filter[id][_eq]=$speakerKey",
       //  options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
@@ -204,7 +205,7 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-          .get("https://subscriptions.cioafrica.co/items/event_speaker_topics",
+          .get("${BaseURL.Baseurl}/items/event_speaker_topics",
         options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {
@@ -231,7 +232,7 @@ class DioFetchService extends DioClient {
       return await _client
           .init()
           .get(
-        "https://subscriptions.cioafrica.co/items/user_sessions",
+        "${BaseURL.Baseurl}/items/user_sessions",
         // options: buildCacheOptions(const Duration(seconds: 30,),),
 
         // Set headers using the 'headers' parameter
@@ -248,7 +249,7 @@ class DioFetchService extends DioClient {
       return await _client
           .init()
           .get(
-        "https://subscriptions.cioafrica.co/items/point_actions/$actionId",
+        "${BaseURL.Baseurl}/items/point_actions/$actionId",
         // options: buildCacheOptions(const Duration(seconds: 30,),),
 
         // Set headers using the 'headers' parameter
@@ -266,7 +267,7 @@ Future<Response> checkUserPoints({required int actionId, required int userId}) a
       return await _client
           .init()
           .get(
-        "https://subscriptions.cioafrica.co/items/user_points?filter[user_id][_eq]=$userId&filter[action_id][_eq]=$actionId",
+        "${BaseURL.Baseurl}/items/user_points?filter[user_id][_eq]=$userId&filter[action_id][_eq]=$actionId",
         // options: buildCacheOptions(const Duration(seconds: 30,),),
 
         // Set headers using the 'headers' parameter
@@ -283,7 +284,7 @@ Future<Response> checkUserPoints({required int actionId, required int userId}) a
       return await _client
           .init()
           .get(
-        "https://subscriptions.cioafrica.co/items/point_actions",
+        "${BaseURL.Baseurl}/point_actions",
         // options: buildCacheOptions(const Duration(seconds: 30,),),
 
         // Set headers using the 'headers' parameter
@@ -300,7 +301,7 @@ Future<Response> checkUserPoints({required int actionId, required int userId}) a
       return await _client
           .init()
           .get(
-        "https://subscriptions.cioafrica.co/items/user_points?filter[user_id][_eq]=$userId",
+        "${BaseURL.Baseurl}/items/user_points?filter[user_id][_eq]=$userId",
         // options: buildCacheOptions(const Duration(seconds: 30,),),
 
         // Set headers using the 'headers' parameter
@@ -317,7 +318,7 @@ Future<Response> checkUserPoints({required int actionId, required int userId}) a
       return await _client
           .init()
           .get(
-        "https://subscriptions.cioafrica.co/items/user_points",
+        "${BaseURL.Baseurl}/items/user_points",
         // options: buildCacheOptions(const Duration(seconds: 30,),),
 
         // Set headers using the 'headers' parameter
@@ -333,7 +334,7 @@ Future<Response> checkUserPoints({required int actionId, required int userId}) a
       return await _client
           .init()
           .get(
-        "https://subscriptions.cioafrica.co/items/user_points?filter[user_id][_eq]=$userID",
+        "${BaseURL.Baseurl}/items/user_points?filter[user_id][_eq]=$userID",
         // options: buildCacheOptions(const Duration(seconds: 30,),),
 
         // Set headers using the 'headers' parameter
@@ -349,7 +350,7 @@ Future<Response> checkUserPoints({required int actionId, required int userId}) a
       return await _client
           .init()
           .get(
-        "https://subscriptions.cioafrica.co/items/Social",
+        "${BaseURL.Baseurl}/items/Social",
         // options: buildCacheOptions(const Duration(seconds: 30,),),
 
         // Set headers using the 'headers' parameter
@@ -362,14 +363,15 @@ Future<Response> checkUserPoints({required int actionId, required int userId}) a
 
 
 
-  Future<Response> updateUserData({required int id,required int eventId,required Map<String, dynamic> body}) async {
+  Future<Response> updateUserData({required int recordid,required int eventId,required Map<String, dynamic> body}) async {
 
 
 
     return await _client
         .init()
         .patch(
-      "https://subscriptions.cioafrica.co/items/event_registrations?filter[attendeeId][_eq]=$id&filter[eventId][_eq]=$eventId",
+     // "${BaseURL.Baseurl}/items/event_registrations?filter[attendeeId][_eq]=$id&filter[eventId][_eq]=$eventId",
+      "${BaseURL.Baseurl}/items/event_registrations/$recordid",
       data: body,
 
 
@@ -386,7 +388,7 @@ Future<Response> checkUserPoints({required int actionId, required int userId}) a
   //   return await _client
   //       .init()
   //       .patch(
-  //     "https://subscriptions.cioafrica.co/items/checkins?filter[checkins_plain_format][_eq]=day1,day2,day3&filter[eventId][_eq]=21",
+  //     "${BaseURL.Baseurl}/items/checkins?filter[checkins_plain_format][_eq]=day1,day2,day3&filter[eventId][_eq]=21",
   //     data: body,
   //
   //

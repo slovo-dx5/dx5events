@@ -4,6 +4,7 @@ import 'package:dx5veevents/models/eventModel.dart';
 import 'package:dx5veevents/models/partners_model.dart';
 import 'package:flutter/material.dart';
 
+import '../../dioServices/base_url.dart';
 import '../../dioServices/dioFetchService.dart';
 import '../../models/sponsor_data_model.dart';
 import '../../widgets/cool_background.dart';
@@ -136,7 +137,7 @@ class _CISOPartnersScreenState extends State<CISOPartnersScreen> {
                                 return sponsorWidget(
                                   context: context,
                                   sponsorAsset:
-                                      "https://subscriptions.cioafrica.co/assets/${partnerList[index].transparent_Logo ?? partnerList[index].logo}",
+                                      "${BaseURL.Baseurl}/assets/${partnerList[index].transparent_Logo ?? partnerList[index].logo}",
                                   degree: "",
                                   sponsorName: partnerList[index].partnerName!,
                                   sponsorBio: partnerList[index].about ?? "",

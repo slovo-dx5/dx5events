@@ -60,13 +60,17 @@ class _InitialScreenState extends State<InitialScreen> {
 
       }
     }else if(initialValue==0){
+
       if(mounted){
-        PersistentNavBarNavigator.pushNewScreen(
-          context,
-          screen:widget.followingScreen,
-          withNavBar: false,
-          pageTransitionAnimation: PageTransitionAnimation.slideRight,
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => widget.followingScreen),
         );
+        // PersistentNavBarNavigator.pushNewScreen(
+        //   context,
+        //   screen:widget.followingScreen,
+        //   withNavBar: false,
+        //   pageTransitionAnimation: PageTransitionAnimation.slideRight,
+        // );
       }
     }
   }

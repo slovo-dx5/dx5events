@@ -4,6 +4,7 @@ import 'package:dx5veevents/models/presentation_model.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants.dart';
+import '../../dioServices/base_url.dart';
 import '../../models/speakersModel.dart';
 import '../../widgets/pdf_preview.dart';
 
@@ -181,7 +182,7 @@ class _PastPresentationsScreenState extends State<PastPresentationsScreen> {
                   CachedNetworkImage(
                     fit: BoxFit.cover,
                     imageUrl:
-                    "https://subscriptions.cioafrica.co/assets/${speaker.photo}",
+                    "${BaseURL.Baseurl}/assets/${speaker.photo}",
                     progressIndicatorBuilder: (context, url, downloadProgress) =>
                         SizedBox(
                             height: 20,
@@ -223,7 +224,7 @@ class _PastPresentationsScreenState extends State<PastPresentationsScreen> {
 verticalSpace(height: 15),
             PdfViewerPage(
               pdfUrl:
-              "https://subscriptions.cioafrica.co/assets/${presentation.presentationPdf}",
+              "${BaseURL.Baseurl}/assets/${presentation.presentationPdf}",
               speaker: speaker?.firstName ?? 'Unknown',
               eventName: widget.eventName,
             ),

@@ -119,7 +119,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
       AllChatsScreen(),
       MeetingTabs(),
       //SocialFeed(),
-       ProfileScreen(eventId: int.parse(widget.eventID),),
+       ProfileScreen(eventId: int.parse(widget.eventID), ),
     ];
   }
 
