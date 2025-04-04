@@ -53,10 +53,10 @@ class _IndividualAttendeeScreenState
       body: SingleChildScrollView(
         child: Column(children: <Widget>[
           verticalSpace(height: 40),
-          IndividualAttendeeProfileInitials(
+          widget.profileid==""?IndividualAttendeeProfileInitials(
             firstName: widget.FirstName,
             lastName: widget.LastName,
-          ),verticalSpace(height: 8),
+          ):IndividualAttendeeProfilePicWidget(profileID: widget.profileid,),verticalSpace(height: 8),
           Text(
             "${widget.FirstName} ${widget.LastName}",
             style: const TextStyle(
