@@ -257,7 +257,7 @@ class _OTPScreenState extends State<OTPScreen> {
               children: <Widget>[
                 Column(
                   children: [
-                    Align(
+                    const Align(
                       alignment: Alignment.center,
                       child: SizedBox(
                         height: 200,
