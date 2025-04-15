@@ -10,11 +10,12 @@ import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
 import 'package:dx5veevents/screens/pastEvents/past_navigation.dart';
 import 'package:dx5veevents/screens/rewardsPage.dart';
+import 'package:dx5veevents/test.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
+//import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:provider/provider.dart';
@@ -58,10 +59,10 @@ void main() async{
       print(("firebase messaging error is? $e"));
     }
   }
-  await FlutterDownloader.initialize(
-      debug: true, // optional: set to false to disable printing logs to console (default: true)
-      ignoreSsl: true // option: set to false to disable working with http links (default: false)
-  );
+  // await FlutterDownloader.initialize(
+  //     debug: true, // optional: set to false to disable printing logs to console (default: true)
+  //     ignoreSsl: true // option: set to false to disable working with http links (default: false)
+  // );
 
   runApp(const MyApp());
 }
@@ -176,6 +177,7 @@ if(Platform.isIOS){
               //darkTheme: darkTheme,
 
           home: LandingPage2(),
+          //home: teste(),
 
             //home: PastNavigationPage(eventName: 'CIO 100', eventID: 21,)
 

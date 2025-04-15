@@ -5,7 +5,6 @@ import 'package:dx5veevents/widgets/profile_initials_widget.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:http_parser/http_parser.dart';
-import 'package:image_cropper/image_cropper.dart';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -43,7 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<MultipartFile> convertToMultipartFile(
-      CroppedFile imageFile, ownerName) async {
+      File imageFile, ownerName) async {
     final fileExtension = imageFile.path.split('.').last;
     final file = imageFile.path;
     return MultipartFile.fromFile(
@@ -59,17 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       var pickedImage = await pickImage();
       if (pickedImage == null) return; // User canceled image selection
-      CroppedFile? croppedFile = await ImageCropper().cropImage(
-          sourcePath: pickedImage.path,
-          aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),
-          uiSettings: [AndroidUiSettings(
-              toolbarTitle: 'Crop Image',
-              toolbarColor: Colors.blue,
-              toolbarWidgetColor: Colors.white,
-              initAspectRatio: CropAspectRatioPreset.square,
-              lockAspectRatio: true),IOSUiSettings(title: 'Crop Image',)]
-
-      );
+      File? croppedFile = File(pickedImage.path);
 
 
       final imageFile = await convertToMultipartFile(croppedFile!, ownerName);

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
@@ -55,7 +54,7 @@ class _ProposeToSpeakPageState extends State<ProposeToSpeakPage> {
   }
 
   Future<MultipartFile> convertToMultipartFile(
-      CroppedFile imageFile, ownerName) async {
+      File imageFile, ownerName) async {
     final fileExtension = imageFile.path.split('.').last;
     final file = imageFile.path;
     return MultipartFile.fromFile(
@@ -71,17 +70,7 @@ class _ProposeToSpeakPageState extends State<ProposeToSpeakPage> {
     try {
       var pickedImage = await pickImage();
       if (pickedImage == null) return; // User canceled image selection
-      CroppedFile? croppedFile = await ImageCropper().cropImage(
-          sourcePath: pickedImage.path,
-          aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-          uiSettings: [AndroidUiSettings(
-              toolbarTitle: 'Crop Image',
-              toolbarColor: Colors.blue,
-              toolbarWidgetColor: Colors.white,
-              initAspectRatio: CropAspectRatioPreset.square,
-              lockAspectRatio: true),IOSUiSettings(title: 'Crop Image',)]
-
-      ); setState(() {
+      File? croppedFile = File(pickedImage.path); setState(() {
         _image = File(croppedFile!.path!);
       });
 

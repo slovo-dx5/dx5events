@@ -16,7 +16,7 @@ class CIOWidgets {
       return Column(
         children: [
           GestureDetector(onTap: ()async{
-            await Dx5veAnalytics().logdx5veEvent(eventName: analyticsActionName);
+            //await Dx5veAnalytics().logdx5veEvent(eventName: analyticsActionName);
             PersistentNavBarNavigator.pushNewScreen(
               context,
               screen: screen!,

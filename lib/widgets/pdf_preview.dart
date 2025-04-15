@@ -10,7 +10,7 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import '../constants.dart';
 import '../screens/pastEvents/cachedPDFView.dart';
 import '../screens/pdfAGenda.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
+//import 'package:flutter_downloader/flutter_downloader.dart';
 
 
 class PdfViewerPage extends StatelessWidget {
@@ -53,13 +53,18 @@ class PdfViewerPage extends StatelessWidget {
         }
       }
     }
-    await FlutterDownloader.enqueue(
-      url: pdfUrl,
-      savedDir: '/storage/emulated/0/Download',
-      showNotification: true, // show download progress in status bar (for Android)
-      openFileFromNotification: true, // click on notification to open downloaded file (for Android)
-      saveInPublicStorage: true
-    );
+    // await FlutterDownloader.enqueue(
+    //   url: pdfUrl,
+    //   savedDir: '/storage/emulated/0/Download',
+    //   showNotification: true, // show download progress in status bar (for Android)
+    //   openFileFromNotification: true, // click on notification to open downloaded file (for Android)
+    //   saveInPublicStorage: true
+    // );
+
+
+
+
+
     // try {
     //   final response = await DioFetchService().fetchPresentationPDF(presentationURL: pdfUrl);
     //   if (response.statusCode == 200) {
