@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
@@ -16,7 +15,7 @@ import '../helpers/helper_functions.dart';
 class ProposeToSpeakPage extends StatefulWidget {
   String eventID;
   String eventName;
-   ProposeToSpeakPage({super.key,required this.eventID,required this.eventName});
+  ProposeToSpeakPage({super.key,required this.eventID,required this.eventName});
 
   @override
   State<ProposeToSpeakPage> createState() => _ProposeToSpeakPageState();
@@ -66,12 +65,17 @@ class _ProposeToSpeakPageState extends State<ProposeToSpeakPage> {
     );
   }
 
-  uploadImage(ownerName, ownerID,File croppedFile) async {
+  uploadImage(ownerName, ) async {
     ///1.Upload picture to directus
     try {
+      var pickedImage = await pickImage();
+      if (pickedImage == null) return; // User canceled image selection
+      File? croppedFile = File(pickedImage.path); setState(() {
+        _image = File(croppedFile!.path!);
+      });
 
 
-      final imageFile = await convertToMultipartFile(croppedFile, ownerName);
+      final imageFile = await convertToMultipartFile(croppedFile!, ownerName);
 
       final formData = FormData.fromMap({
         'folder': '4b5625d4-8ff7-4af0-bad2-caa451357e17',
@@ -90,7 +94,6 @@ class _ProposeToSpeakPageState extends State<ProposeToSpeakPage> {
       setState(() {
         imageID = jsonResponse['data']['id'];
       });
-
       return imageID;
 
 
@@ -130,14 +133,14 @@ class _ProposeToSpeakPageState extends State<ProposeToSpeakPage> {
                     ),
                     const TextSpan(style: TextStyle(fontSize: 11),
                       text: 'Grow your professional profile and brand as a thought leader\n• '
-                        'Get direct access to connect with the right people, build relationships and learn from your peers.\n• '
-                    'Attract new business opportunities by showcasing your work, knowledge and value.',
+                          'Get direct access to connect with the right people, build relationships and learn from your peers.\n• '
+                          'Attract new business opportunities by showcasing your work, knowledge and value.',
                     ),
 
                   ],
                 ),
               ),verticalSpace(height: 10),
-                         verticalSpace(height: 10),
+              verticalSpace(height: 10),
 
               TextFormField(
                 controller: firstNameController,
@@ -274,31 +277,31 @@ class _ProposeToSpeakPageState extends State<ProposeToSpeakPage> {
                 decoration: const InputDecoration(labelText: "Personal website (optional)",     ),
 
               ),verticalSpace(height: 20),
-              
-             Visibility(
-               visible: isSubmitting==false,
-               replacement: const SizedBox(height: 100,width: 100,child: SpinKitCircle(color: kCISOPurple,size: 50,),),
-               child:  primaryButton2(context: context, onPressedFunction: ()async{
-                 setState(() {
-                   isSubmitting=true;
-                 });
-               proposedTopics.add(topicController.text);
-               if(topicController2.text!=null || topicController2.text=="")proposedTopics.add(topicController2.text);
-               if(topicController3.text!=null || topicController3.text=="")proposedTopics.add(topicController3.text);
-               proposedTopics.add(topicController.text);
 
-               await submitProposalToSPeak(firstName: firstNameController.text,
-                   lastName: lastNameController.text, workEmail: workEmailController.text,
-                   workPhone: phoneController.text,
-                   company: companyController.text, role: roleController.text,
-                   bio: bioController.text, linkedinProfileLink: linkedinController.text, eventId: '8',
-                   reasonsForProposal: reasonController.text,
-                   proposedTopics: proposedTopics, imageID: imageID!);
+              Visibility(
+                visible: isSubmitting==false,
+                replacement: const SizedBox(height: 100,width: 100,child: SpinKitCircle(color: kCISOPurple,size: 50,),),
+                child:  primaryButton2(context: context, onPressedFunction: ()async{
+                  setState(() {
+                    isSubmitting=true;
+                  });
+                  proposedTopics.add(topicController.text);
+                  if(topicController2.text!=null || topicController2.text=="")proposedTopics.add(topicController2.text);
+                  if(topicController3.text!=null || topicController3.text=="")proposedTopics.add(topicController3.text);
+                  proposedTopics.add(topicController.text);
 
-                 setState(() {
-                   isSubmitting=false;
-                 });
-             }, buttonText: "SUBMIT PROPOSAL", backgroundColor: kPrimaryColor),),
+                  await submitProposalToSPeak(firstName: firstNameController.text,
+                      lastName: lastNameController.text, workEmail: workEmailController.text,
+                      workPhone: phoneController.text,
+                      company: companyController.text, role: roleController.text,
+                      bio: bioController.text, linkedinProfileLink: linkedinController.text, eventId: '8',
+                      reasonsForProposal: reasonController.text,
+                      proposedTopics: proposedTopics, imageID: imageID!);
+
+                  setState(() {
+                    isSubmitting=false;
+                  });
+                }, buttonText: "SUBMIT PROPOSAL", backgroundColor: kPrimaryColor),),
 
               verticalSpace(height: 20)
 
