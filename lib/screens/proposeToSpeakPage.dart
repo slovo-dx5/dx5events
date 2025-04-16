@@ -55,7 +55,7 @@ class _ProposeToSpeakPageState extends State<ProposeToSpeakPage> {
   }
 
   Future<MultipartFile> convertToMultipartFile(
-      CroppedFile imageFile, ownerName) async {
+      File imageFile, ownerName) async {
     final fileExtension = imageFile.path.split('.').last;
     final file = imageFile.path;
     return MultipartFile.fromFile(
@@ -66,27 +66,12 @@ class _ProposeToSpeakPageState extends State<ProposeToSpeakPage> {
     );
   }
 
-   uploadImage(ownerName, ) async {
+  uploadImage(ownerName, ownerID,File croppedFile) async {
     ///1.Upload picture to directus
     try {
-      var pickedImage = await pickImage();
-      if (pickedImage == null) return; // User canceled image selection
-      CroppedFile? croppedFile = await ImageCropper().cropImage(
-          sourcePath: pickedImage.path,
-          aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-          uiSettings: [AndroidUiSettings(
-              toolbarTitle: 'Crop Image',
-              toolbarColor: Colors.blue,
-              toolbarWidgetColor: Colors.white,
-              initAspectRatio: CropAspectRatioPreset.square,
-              lockAspectRatio: true),IOSUiSettings(title: 'Crop Image',)]
-
-      ); setState(() {
-        _image = File(croppedFile!.path!);
-      });
 
 
-      final imageFile = await convertToMultipartFile(croppedFile!, ownerName);
+      final imageFile = await convertToMultipartFile(croppedFile, ownerName);
 
       final formData = FormData.fromMap({
         'folder': '4b5625d4-8ff7-4af0-bad2-caa451357e17',
@@ -105,6 +90,7 @@ class _ProposeToSpeakPageState extends State<ProposeToSpeakPage> {
       setState(() {
         imageID = jsonResponse['data']['id'];
       });
+
       return imageID;
 
 

@@ -5,7 +5,6 @@ import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 //import 'package:googleapis/chat/v1.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
@@ -31,7 +30,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   XFile? _pickedImage;
   bool? hasPickedImage=false;
   int? userID;
-  CroppedFile? crpdFIle;
+  File? crpdFIle;
   bool isCreatingPost=false;
   String? imageID;
 
@@ -54,7 +53,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     return pickedImage;
   }
   Future<MultipartFile> convertToMultipartFile(
-      CroppedFile imageFile, ownerName) async {
+      File imageFile, ownerName) async {
     final fileExtension = imageFile.path.split('.').last;
     final file = imageFile.path;
     return MultipartFile.fromFile(
@@ -65,25 +64,16 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     );
   }
 
-  selectImage()async{
+  selectImage() async {
+    // Picking the image using the ImagePicker
     var pickedImage = await pickImage();
     if (pickedImage == null) return;
-    // User canceled image selection
-    CroppedFile? croppedFile = await ImageCropper().cropImage(
-        sourcePath: pickedImage.path,
-        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-        uiSettings: [AndroidUiSettings(
-            toolbarTitle: 'Crop Image',
-            toolbarColor: Colors.blue,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.square,
-            lockAspectRatio: true),IOSUiSettings(title: 'Crop Image',)]
 
-    );
-    return croppedFile;
+    // Return the picked image as a File
+    File imageFile = File(pickedImage.path);
+    return imageFile;
   }
-
-   uploadImage(ownerName, ownerID,CroppedFile croppedFile) async {
+   uploadImage(ownerName, ownerID,File croppedFile) async {
     ///1.Upload picture to directus
     try {
 
