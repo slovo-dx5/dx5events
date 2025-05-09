@@ -282,6 +282,28 @@ class DioPostService extends DioClient {
 
   }
 
+sendMeetingEmail({required Map<String, dynamic> body}) async {
+    try{
+      return await _client
+          .init()
+          .post(BaseURL.MailerBaseurl,
+        data: body,
+
+
+        // Set headers using the 'headers' parameter
+      ).then((onValue){
+        print("Email sent succssfully");
+
+      });
+
+    } catch (ex) {
+
+      Fluttertoast.showToast(msg: "Error: Check your internet");
+      throw Exception("Sponsor data create error: ${ex}");
+    }
+
+  }
+
 
 
   Future<Response> updateUserPoints({required Map<String, dynamic> body, required int userPointsId}) async {

@@ -34,6 +34,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
 
   String? imageID;
+  String? qrURL;
   ProfileProvider? profileProvider;
   int ?recordId;
   // Function to pick an image from the device's gallery
@@ -56,6 +57,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
         source: ImageSource.gallery); // or ImageSource.camera
     return pickedImage;
   }
+  Widget _buildQrCodeSection() {
+    return Container(
+      margin: const EdgeInsets.only(top: 16, bottom: 24),
+      padding: const EdgeInsets.all(16),
+      color: Colors.white,
+      child: Column(
+        children: [
+          const Text(
+            'My QR Code',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // QR Code
+          Center(
+            child: QrImageView(
+              data: qrURL!,
+              version: QrVersions.auto,
+              size: 200,
+              backgroundColor: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          Text(
+            'Scan to view my profile',
+            style: TextStyle(
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+
+        ],
+      ),
+    );
+  }
 
   Future<MultipartFile> convertToMultipartFile(
       CroppedFile imageFile, ownerName) async {
@@ -75,6 +116,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     var data = response.data["data"];
     setState(() {
       recordId=data[0]["id"];
+      qrURL=data[0]["checkin_qr_code_jpeg_url"];
+      print("qr code url is $qrURL");
     });
     print("record id is $recordId");
 
@@ -187,7 +230,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 )),
               ),
-              verticalSpace(height: 45),
+              verticalSpace(height: 30),
               nameWidget(
                   name:
                       "${profileProvider.firstName} ${profileProvider.lastName}",
@@ -195,7 +238,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   phone: profileProvider.phone,
                   email: profileProvider.email, company: profileProvider.company,role: profileProvider.role),
 
-              verticalSpace(height: 20),
+              verticalSpace(height: 10),
+              _buildQrCodeSection()
 
             ],
           ),

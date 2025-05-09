@@ -14,6 +14,7 @@ import '../chats/chat_screen.dart';
 
 class IndividualAttendeeScreen extends StatefulWidget {
   String assetName;
+  String email;
   String FirstName;
   String LastName;
   String Role;
@@ -25,6 +26,7 @@ class IndividualAttendeeScreen extends StatefulWidget {
   IndividualAttendeeScreen(
       {super.key,
       required this.assetName,
+      required this.email,
       required this.FirstName,
       required this.LastName,
       required this.Role,
@@ -47,8 +49,21 @@ class _IndividualAttendeeScreenState
 
     return SafeArea(
         child: Scaffold(
-      appBar: AppBar(centerTitle: true,
-        title: const Text("ATTENDEE"),
+          backgroundColor: Colors.grey.shade50,
+
+          appBar: AppBar(centerTitle: true,
+              title: const Text(
+                'ATTENDEE PROFILE',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                // Navigation logic
+              },
+            ),
+            elevation: 0,
+            backgroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         child: Column(children: <Widget>[
@@ -56,17 +71,25 @@ class _IndividualAttendeeScreenState
           widget.profileid==""?IndividualAttendeeProfileInitials(
             firstName: widget.FirstName,
             lastName: widget.LastName,
-          ):IndividualAttendeeProfilePicWidget(profileID: widget.profileid,),verticalSpace(height: 8),
+          ):IndividualAttendeeProfilePicWidget(profileID: widget.profileid,),
+          verticalSpace(height: 16),
           Text(
             "${widget.FirstName} ${widget.LastName}",
             style: const TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 34.0, ),
+              fontSize: 28,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF333333),
+            ),
           ),
+          verticalSpace(height: 4),
           Text(
             "${widget.Role} at ${widget.Company}",
-            // " ${widget.Company}",
+            style: const TextStyle(
+              fontSize: 16,
+              color: Color(0xFF666666),
+            ),
 
-          ),verticalSpace(height: 10),
+          ),verticalSpace(height: 24),
 
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -94,7 +117,7 @@ class _IndividualAttendeeScreenState
           ),verticalSpace(height: 10),
     MeetingRequestBottomSheet(userName: widget.FirstName,
     meetingWith: "${widget.FirstName} ${widget.LastName}",
-    otherUSerID: widget.id,),
+    otherUSerID: widget.id, company: widget.Company, recipientEmail: widget.email,),
 
 
         ]),

@@ -1,0 +1,1 @@
+C:\dev\dx5\dx5events\main app\build\app\intermediates\cxx\RelWithDebInfo\61392n4j\obj\armeabi-v7a

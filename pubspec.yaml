@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  go_router: ^15.1.1
 
 dependency_overrides:
   flutter_widget_from_html_core: ^0.15.2
@@ -52,6 +53,7 @@ dependency_overrides:
   cloud_firestore: ^4.14.0
   firebase_messaging: ^14.7.10
   provider: ^6.1.2
+  #uni_links5: ^0.5.4
 
   url_launcher: ^6.2.4
   uuid: ^4.2.2

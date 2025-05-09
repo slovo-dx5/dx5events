@@ -103,7 +103,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                       children: [
                         const Icon(
                           Icons.location_on_sharp,
-                          color: kCISOPurple,
+                          color: kConnectedBlue,
                         ),Flexible(child: AutoSizeText(widget.eventLocation, maxFontSize: 10,minFontSize: 5,))
                       ],
                     ),
@@ -116,13 +116,13 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               padding: const EdgeInsets.only(left:8.0, right: 8.0),
               child: Text( widget.shortEventDescription,),
             ),
-            const Divider(color: kCIOPink),
+            const Divider(color: kConnectedBlue),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 CIOWidgets().gradientItemWidget(
-                  firstColor: kCISOYellow,
-                  secondColor: kCISOTeal,
+                  firstColor: kConnectedGreen,
+                  secondColor: kConnectedGreen,
                   context: context,
                   editIcon: Image.asset(
                     "assets/icons/social-media.png",
@@ -146,8 +146,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 //   itemName: 'Rewards', analyticsActionName: 'rewards_page_opened',
                 // ),
                 CIOWidgets().gradientItemWidget(
-                  firstColor: kGradientLightBlue.withOpacity(0.7),
-                  secondColor: kLogoutRed.withOpacity(0.7),
+                  firstColor: kConnectedRed,
+                  secondColor: kConnectedRed,
                   context: context,
                   editIcon: Image.asset(
                     "assets/icons/scanner.png",
@@ -164,8 +164,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 CIOWidgets().gradientItemWidget(
-                  firstColor: kCISOOrange,
-                  secondColor: kCISOLightOrange,
+                  firstColor: kConnectedBlue,
+                  secondColor: kConnectedBlue,
                   context: context,
                   editIcon: Image.asset(
                     "assets/icons/speaker.png",
@@ -177,8 +177,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                   itemName: 'Speakers', analyticsActionName: 'speakers_page_opened',
                 ),
                 CIOWidgets().gradientItemWidget(
-                  firstColor: kCISOTeal.withOpacity(0.7),
-                  secondColor: kCISOBlue.withOpacity(0.7),
+                  firstColor: kConnectedOrange,
+                  secondColor: kConnectedOrange,
                   context: context,
                   editIcon: Image.asset(
                     "assets/icons/sponsors.png",
@@ -189,8 +189,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                   itemName: 'Sponsors', analyticsActionName: 'sponsors_page_opened',
                 ),
                 CIOWidgets().gradientItemWidget(
-                  firstColor: kCISOYellow.withOpacity(0.7),
-                  secondColor: kCISOGreenYellow.withOpacity(0.7),
+                  firstColor: kConnectedGreen,
+                  secondColor: kConnectedGreen,
                   context: context,
                   editIcon: Image.asset(
                     "assets/icons/agenda.png",
@@ -206,8 +206,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 CIOWidgets().gradientItemWidget(
-                  firstColor: kCISOTeal,
-                  secondColor: kCISOPurple,
+                  firstColor: kConnectedOrange,
+                  secondColor: kConnectedOrange,
                   context: context,
                   editIcon: Image.asset(
                     "assets/icons/attendee.png",
@@ -230,8 +230,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 //   itemName: 'Partners', analyticsActionName: 'partners_page_opened',
                 // ),
                 CIOWidgets().gradientItemWidget(
-                  firstColor: kCISOPink.withOpacity(0.9),
-                  secondColor: kCISOPurple.withOpacity(0.9),
+                  firstColor: kConnectedBlue,
+                  secondColor:kConnectedBlue,
                   context: context,
                   editIcon: Image.asset(
                     "assets/icons/sessions.png",

@@ -115,36 +115,40 @@ super.initState();
                             visible:isFetching==false,
                             replacement: CircularProgressIndicator(),
 
-                            child: ListView.builder(
-
-                              padding:  const EdgeInsets.all(8),
+                            child:GridView.builder(
+                              padding: const EdgeInsets.all(8),
                               itemCount: sponsorMap.length,
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2, // You can adjust the number of columns
+                                mainAxisSpacing: 10,
+                                crossAxisSpacing: 10,
+                                childAspectRatio: 0.75, // Adjust based on your widget layout
+                              ),
                               itemBuilder: (context, index) {
-                                final entry = sponsorMap.entries.elementAt(index);
-                                final category = entry.key;
-                                final sponsorrr = entry.value;
-                                final degree = sponsorrr[0];
+                                if (sponsorMap == null) {
+                                  return const Text("Sponsors will appear here");
+                                } else {
+                                  final entry = sponsorMap.entries.elementAt(index);
+                                  final sponsorrr = entry.value;
 
-
-                                if(sponsorMap==null){return const Text("Sponsors will appear here");}else{
-                                  return
-
-                                    Column(children: [sponsorWidget(context: context, sponsorAsset:"${BaseURL.Baseurl}/assets/${sponsorrr[1].transparent_logo??sponsorrr[1].logo}",
-                                    //degree: "${sponsors[index].degree!}°",
-                                    degree: "${sponsorrr[0]}°",
-                                    sponsorName:sponsorrr[1].sponsorName!,
-                                    sponsorBio:sponsorrr[1].about!, sponsorURL: sponsorrr[1].websites!.first.link!,
-
-                                  ),
-                                    Divider(),
-                                    verticalSpace(height: 10),],);
+                                  return Column(
+                                    children: [
+                                      sponsorWidget(
+                                        context: context,
+                                        sponsorAsset: "${BaseURL.Baseurl}/assets/${sponsorrr[1].transparent_logo ?? sponsorrr[1].logo}",
+                                        degree: "${sponsorrr[0]}°",
+                                        sponsorName: sponsorrr[1].sponsorName!,
+                                        sponsorBio: sponsorrr[1].about!,
+                                        sponsorURL: sponsorrr[1].websites!.first.link!,
+                                      ),
+                                      const Divider(),
+                                      verticalSpace(height: 10),
+                                    ],
+                                  );
                                 }
-
-                                //   speakerWidget(context: context, name: speaker.name,
-                                //     title: speaker.title, bio: speaker.bio,imageURL: url
-                                // );
                               },
-                            ),
+                            )
+
                           ),
                         ),
 

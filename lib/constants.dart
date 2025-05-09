@@ -108,6 +108,13 @@ const kCISOYellow = Color(0xFFefc315);
 const kCISOPurple = Color(0xFF8458ac);
 const kCISOGreenYellow = Color(0xFFd4e001);
 
+///Connected summit colors
+const kConnectedGreen = Color(0xFF4C9B46);
+const kConnectedOrange = Color(0xFFF79016);
+const kConnectedBlue = Color(0xFF44A0D3);
+const kConnectedRed = Color(0xFFEC3C3A);
+
+
 final kCISOToday = DateTime(2024, 03, 20);
 final kCISOFirstDay =
     DateTime(kCISOToday.year, kCISOToday.month - 30, kCISOToday.day);
@@ -202,6 +209,7 @@ connectButton(
     required String role,
     required String company,
     required String profileid,
+    required String email,
     required int userID,
     required BuildContext context}) {
   return SizedBox(
@@ -216,7 +224,7 @@ connectButton(
             LastName: lastName,
             Role: role,
             Company: company,
-            profileid: profileid, id: userID, Bio: '',
+            profileid: profileid, id: userID, Bio: '', email: email,
           ),
           withNavBar: false,
           pageTransitionAnimation: PageTransitionAnimation.slideRight,

@@ -61,9 +61,9 @@ class HomeScreen extends GetView<MyDrawerController> {
         moveMenuScreen: false,
         mainScreenScale: 0.2,
         style: DrawerStyle.defaultStyle,
-        shadowLayer1Color: kCIOPurple.withOpacity(0.5),
-        shadowLayer2Color: kPrimaryColor.withOpacity(0.8),
-        menuBackgroundColor: kCIOPink.withOpacity(0.4),
+        shadowLayer1Color: kConnectedGreen,
+        shadowLayer2Color: kConnectedOrange,
+        menuBackgroundColor: kConnectedRed.withOpacity(0.3)
       ),
     );
   }
@@ -102,7 +102,7 @@ class MainScreen extends GetView<MyDrawerController> {
             Icons.menu,size: 40,
           ),
         ) ,
-        backgroundColor: kCIOPurple.withOpacity(0.5),centerTitle: true,
+        backgroundColor: kConnectedBlue,centerTitle: true,
         title:  const Text("DX5VE EVENTS",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),),
         actions: [NotificationIconButton()],
         // actions:  [Icon(Icons.notification_important_rounded,color: kTextColorBlackLighter,)],
@@ -136,7 +136,7 @@ class MenuScreen extends GetView<MyDrawerController> {
           durationUntilAlertAgain: const Duration(hours: 1)),
       child: Scaffold(
         //backgroundColor: themeProvider.themeMode==ThemeModeOptions.dark?kTextColorBlack:Colors.white54,
-        backgroundColor:Colors.white54,
+        backgroundColor:Colors.white70,
         body: SafeArea(
           child: SingleChildScrollView(
 

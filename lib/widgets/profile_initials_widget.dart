@@ -172,9 +172,13 @@ class _IndividualAttendeeProfileInitialsState extends State<IndividualAttendeePr
 
   @override
   Widget build(BuildContext context) {
-    return  CircleAvatar(
-      radius: 70,
-      backgroundColor:randomBackgroundColor,child: Center(child: Text("${widget.firstName[0].toUpperCase()}${widget.lastName[0].toUpperCase()}", style: const TextStyle(color: Colors.white,fontSize: 80),)),);
+    return  Container(
+      width: 120,
+      height: 120,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary,
+        shape: BoxShape.circle,
+      ),child: Center(child: Text("${widget.firstName[0].toUpperCase()}${widget.lastName[0].toUpperCase()}", style: const TextStyle(color: Colors.white,fontSize: 48),)),);
 
   }
 }
