@@ -1,3 +1,4 @@
+import 'package:dx5veevents/mainNavigationPage.dart';
 import 'package:dx5veevents/meetings/pending_Meetings.dart';
 import 'package:flutter/material.dart';
 
@@ -15,8 +16,8 @@ class MeetingTabs extends StatefulWidget {
 
 class _MeetingTabsState extends State<MeetingTabs> {
   final List<Tab> tabs = <Tab>[
-    Tab(child: Text("Confirmed",style: TextStyle(color:kCIOPink ),)),
-    Tab(child: Text("Pending",style: TextStyle(color:kCIOPink ),),),
+    const Tab(child: Text("Confirmed",style: TextStyle(color:kConnectedBlue ),)),
+    const Tab(child: Text("Pending",style: TextStyle(color:kConnectedBlue ),),),
   ];
 
 
@@ -43,8 +44,23 @@ class _MeetingTabsState extends State<MeetingTabs> {
         tabs: tabs,
         labelStyle: TextStyle(color: kTextColorBlackLighter),
       ),),
-      body:  TabBarView(
-        children: pages,
+      body:  PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result){
+          if (!didPop) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute<dynamic>(
+                builder: (BuildContext context) =>  MainNavigationPage(),
+              ),
+            );
+          }
+
+          // Prevent default pop
+        },
+        child: TabBarView(
+          children: pages,
+        ),
       ),
 
     ));

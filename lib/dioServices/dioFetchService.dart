@@ -8,15 +8,64 @@ import 'endpoints/endpoint.dart';
 class DioFetchService extends DioClient {
   DioClient _client = new DioClient();
 
-  Future<Response> fetchCIOAttendees({required String eventID}) async {
+  // Future<Response> fetchCIOAttendees({required String eventID}) async {
+  //   try {
+  //     return await _client
+  //         .init()
+  //         .get("${BaseURL.Baseurl}/items/event_registrations?filter[eventId][_eq]=$eventID&filter[status][_eq]=approved&limit=2500",
+  //    //   options: buildCacheOptions(const Duration(minutes: 30)),
+  //          );
+  //   } on DioError catch (ex) {
+  //     throw Exception(ex);
+  //   }
+  // }
+  Future<Response> fetchCIOAttendees({
+    required String eventID,
+    int page = 1,
+    int pageSize = 20,
+    String searchQuery = '',
+  }) async {
     try {
-      return await _client
-          .init()
-          .get("${BaseURL.Baseurl}/items/event_registrations?filter[eventId][_eq]=$eventID&filter[status][_eq]=approved&limit=2500",
-     //   options: buildCacheOptions(const Duration(minutes: 30)),
-           );
+      // Calculate offset based on page and pageSize
+      final int offset = (page - 1) * pageSize;
+
+      // Start with base filters
+      String filterParams = "&filter[eventId][_eq]=$eventID&filter[status][_eq]=approved";
+
+      // Add search query if provided
+      if (searchQuery.isNotEmpty) {
+        // Add OR conditions for search across multiple fields
+        filterParams += "&filter[_or][0][first_name][_contains]=$searchQuery";
+        filterParams += "&filter[_or][1][last_name][_contains]=$searchQuery";
+        filterParams += "&filter[_or][2][role][_contains]=$searchQuery";
+        filterParams += "&filter[_or][3][company][_contains]=$searchQuery";
+      }
+
+      // Build final URL with pagination and filters
+      final String url =
+          "${BaseURL.Baseurl}/items/event_registrations?limit=$pageSize&offset=$offset$filterParams";
+
+      // Construct cache options with appropriate keys and TTL
+      final Options cacheOptions = buildCacheOptions(
+        const Duration(minutes: 30),
+        maxStale: const Duration(days: 1),
+        // Include pagination and search parameters in the cache key for proper caching
+        primaryKey: 'event_attendees_${eventID}_${page}_${pageSize}_${searchQuery.isEmpty ? "no_search" : searchQuery}',
+      );
+
+      return await _client.init().get(
+        url,
+        options: cacheOptions,
+      );
     } on DioError catch (ex) {
-      throw Exception(ex);
+      // Consider more specific error handling for different error types
+      if (ex.type == DioErrorType.connectTimeout ||
+          ex.type == DioErrorType.receiveTimeout) {
+        throw Exception("Connection timeout. Please check your internet connection.");
+      } else if (ex.response != null) {
+        throw Exception("Server returned status code ${ex.response?.statusCode}");
+      }
+      throw Exception("Failed to fetch attendees: ${ex.message}");
     }
   }
 
@@ -43,6 +92,8 @@ class DioFetchService extends DioClient {
       throw Exception(ex);
     }
   }
+
+
  Future<Response> fetchSingleAttendeeFromAttendees({required int id,}) async {
     try {
       return await _client

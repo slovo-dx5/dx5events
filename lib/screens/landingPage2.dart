@@ -79,12 +79,12 @@ class ActiveEvents extends StatefulWidget {
   @override
   State<ActiveEvents> createState() => _ActiveEventsState();
 }
-
+//kdkk
 class _ActiveEventsState extends State<ActiveEvents> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height *0.9,
+      height: MediaQuery.of(context).size.height *0.85,
       child:
 
       UpcomingEventWidget2(imagePath: 'assets/images/themes/connected_portrait.jpg', dayMonth: 'THUR, MAY', date: '26th',

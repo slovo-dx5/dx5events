@@ -1,0 +1,9 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.cioafrica.dx5veevents",
+    "sha256_cert_fingerprints":
+    ["E8:8D:88:E7:7B:E4:45:EC:3F:29:EB:27:8F:2C:43:EF:EB:C6:8C:5A:90:77:97:98:E7:F6:BE:D7:CC:88:21:04"]
+  }
+}]

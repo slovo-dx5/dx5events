@@ -59,7 +59,7 @@ class _TimeDropdownState extends State<TimeDropdown> {
   @override
   Widget build(BuildContext context) {
     return DropdownButton<String?>(
-      style: const TextStyle(color: kPrimaryColor),
+      style: const TextStyle(color: kConnectedBlue),
       //dropdownColor: kDarkScaffold,
       value: time,
       items:  getDropdownItems(),

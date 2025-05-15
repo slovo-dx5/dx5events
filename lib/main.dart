@@ -1,5 +1,8 @@
 import 'package:dx5veevents/constants.dart';
 import 'package:dx5veevents/dioServices/dioPostService.dart';
+import 'package:dx5veevents/mainNavigationPage.dart';
+import 'package:dx5veevents/meetings/accepted_meetings_screen.dart';
+import 'package:dx5veevents/profile_screen.dart';
 import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/providers/themeProvider.dart';
 import 'package:dx5veevents/screens/doLastMinuteShyet.dart';
@@ -8,8 +11,16 @@ import 'package:dx5veevents/screens/dx5veScreens/videoSplash.dart';
 import 'package:dx5veevents/screens/dx5ve_social/createPostScreen.dart';
 import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
+import 'package:dx5veevents/screens/map/event_map.dart';
 import 'package:dx5veevents/screens/pastEvents/past_navigation.dart';
 import 'package:dx5veevents/screens/rewardsPage.dart';
+import 'package:dx5veevents/test.dart';
+import 'package:dx5veevents/widgets/deepLinkHandler.dart';
+import 'package:dx5veevents/widgets/meeting_card.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+import 'dart:async';
+import 'package:flutter/services.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -27,6 +38,7 @@ import 'helpers/CustomerAttendeeCSVHelper.dart';
 import 'helpers/CustomerSpeakerCSVHelper.dart';
 import 'helpers/themeData.dart';
 import 'homeScreen.dart';
+import 'meetings/meeting_tabs.dart';
 import 'notifications/pushNotifications.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message ) async {
@@ -35,6 +47,32 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message ) async {
   // _notificationSetup.eventListenerCallback();
   print("Handling a background message: $message");
 }
+final router = GoRouter(
+  routes: [
+    GoRoute(
+      path: '/',
+     builder: (context, state) =>  LandingPage2(),
+     //builder: (context, state) =>  MapIframePage(),
+      //builder: (context, state) =>  ProfileScreen(),
+    ),
+    GoRoute(
+      path: '/meetings',
+      //builder: (context, state) => MainNavigationPage(initialTabIndex: 2),
+      builder: (context, state) => MeetingTabs(),
+    ),
+    GoRoute(
+      path: '/notifications',
+      builder: (context, state) => NotificationsScreen(),
+    ),
+    // GoRoute(
+    //   path: '/meetings/:id',
+    //   builder: (context, state) {
+    //     final meetingId = state.pathParameters['id'];
+    //     return MeetingsDetailScreen(meetingId: meetingId);
+    //   },
+    // ),
+  ],
+);
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   Get.put<MyDrawerController>(MyDrawerController());
@@ -63,7 +101,7 @@ void main() async{
   //     ignoreSsl: true // option: set to false to disable working with http links (default: false)
   // );
 
-  runApp(const MyApp());
+  runApp( MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -82,6 +120,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    initDeepLinks();
 
 if(Platform.isIOS){
   try{
@@ -125,6 +164,44 @@ if(Platform.isIOS){
   });
 }
   }
+  Future<void> initDeepLinks() async {
+    // Handle deep links when app is started from terminated state
+    final  response = await SystemChannels.platform.invokeMethod('initialRoute');
+    final String? initialLink = response as String?;
+
+    if (initialLink != null) {
+      _handleDeepLink(initialLink);
+    }
+
+    // Handle deep links when app is in background or foreground
+    SystemChannels.platform.setMethodCallHandler((MethodCall call) async {
+      if (call.method == 'pushRoute') {
+        final String? link = call.arguments as String?;
+        if (link != null) {
+          _handleDeepLink(link);
+        }
+      }
+      return null;
+    });
+  }
+
+  void _handleDeepLink(String link) {
+    if (link.startsWith('https://')) {
+      // Extract the path from the URI
+      final uri = Uri.parse(link);
+      final path = uri.path;
+
+      // If it's a meetings link with an ID
+      if (path.startsWith('/meetings') && uri.queryParameters.containsKey('id')) {
+        final id = uri.queryParameters['id'];
+        router.go('/meetings/$id');
+      }
+      // If it's just a meetings link without ID
+      else if (path.startsWith('/meetings')) {
+        router.go('/meetings');
+      }
+    }
+  }
 
   void _handleNotificationClick(Map<String, dynamic> data)async {
     String? targetPage = data['targetPage'];
@@ -153,7 +230,6 @@ if(Platform.isIOS){
   }
   @override
   Widget build(BuildContext context) {
-    precacheImage(const AssetImage("assets/images/themes/cio100.jpg"), context);
 
 
     return MultiProvider(
@@ -165,8 +241,9 @@ if(Platform.isIOS){
       builder: (context, _) {
         return Consumer<ThemeProvider>(
           builder: (context, themeProvider, _) {
-            return MaterialApp(
-              navigatorKey: navigatorKey, // Assign the navigatorKey to the MaterialApp
+            return MaterialApp.router(
+              routerConfig: router,
+              //navigatorKey: navigatorKey, // Assign the navigatorKey to the MaterialApp
               debugShowCheckedModeBanner: false,
               // themeMode: themeProvider.themeMode == ThemeModeOptions.light
               //     ? ThemeMode.light
@@ -175,7 +252,7 @@ if(Platform.isIOS){
               theme: lightTheme,
               //darkTheme: darkTheme,
 
-          home: LandingPage2(),
+         // home: LandingPage2(),
          // home: StructureLAstMinute(),
           //home: CookFigures(),
 

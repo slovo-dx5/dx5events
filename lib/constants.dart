@@ -108,6 +108,13 @@ const kCISOYellow = Color(0xFFefc315);
 const kCISOPurple = Color(0xFF8458ac);
 const kCISOGreenYellow = Color(0xFFd4e001);
 
+///Connected summit colors
+const kConnectedGreen = Color(0xFF4C9B46);
+const kConnectedOrange = Color(0xFFF79016);
+const kConnectedBlue = Color(0xFF44A0D3);
+const kConnectedRed = Color(0xFFEC3C3A);
+
+
 final kCISOToday = DateTime(2024, 03, 20);
 final kCISOFirstDay =
     DateTime(kCISOToday.year, kCISOToday.month - 30, kCISOToday.day);
@@ -202,12 +209,18 @@ connectButton(
     required String role,
     required String company,
     required String profileid,
+    required String email,
+      required String requestedByphone,
+      required String meetingWithPhone,
     required int userID,
     required BuildContext context}) {
   return SizedBox(
-    height: 30,
-    child: ElevatedButton(
-      onPressed: () {
+    height: 35,
+    width: 145,
+    child: primaryButton2(
+      backgroundColor: kConnectedBlue,
+      context: context,
+      onPressedFunction: () {
         PersistentNavBarNavigator.pushNewScreen(
           context,
           screen: IndividualAttendeeScreen(
@@ -216,20 +229,15 @@ connectButton(
             LastName: lastName,
             Role: role,
             Company: company,
-            profileid: profileid, id: userID, Bio: '',
+            profileid: profileid, id: userID, Bio: '', email: email,
+            requestedByphone: requestedByphone, meetingWithPhone: meetingWithPhone,
           ),
           withNavBar: false,
           pageTransitionAnimation: PageTransitionAnimation.slideRight,
         );
       },
-      style: ButtonStyle(
-          backgroundColor:  MaterialStatePropertyAll<Color>(kCIOPink.withOpacity(0.8)),
-          textStyle: const MaterialStatePropertyAll<TextStyle>(TextStyle(
-              fontWeight: FontWeight.w700, fontSize: 13, color: Colors.black)),
-          shape: MaterialStatePropertyAll<RoundedRectangleBorder>(
-              RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(7.0)))),
-      child: const Text("Connect"),
+
+      buttonText: "Connect",
     ),
   );
 }

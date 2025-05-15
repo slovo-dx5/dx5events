@@ -1,0 +1,2 @@
+C:/dev/dx5/dx5events/main app/android/app/.cxx/Debug/3s2b4p49/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/dev/dx5/dx5events/main app/android/app/.cxx/Debug/3s2b4p49/arm64-v8a/CMakeFiles/rebuild_cache.dir

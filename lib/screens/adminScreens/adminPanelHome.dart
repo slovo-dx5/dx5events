@@ -1,4 +1,5 @@
 import 'package:dx5veevents/constants.dart';
+import 'package:dx5veevents/meetings/coincierge/concierge_meeting_tabs.dart';
 import 'package:flutter/material.dart';
 
 import '../../widgets/cio_widgets.dart';
@@ -20,9 +21,11 @@ class _AdminPanelHomeState extends State<AdminPanelHome> {
         verticalSpace(height: 20),
         const Text("CAUTION!! Use responsibly.\nYour name and actions are being recorded"),
         CIOWidgets().adminWidget( actionTitle: 'New Broadcast',
-          actionDescription: 'Send a notification to all users', context: context, assetPath: "assets/icons/broadcast.png", screen: BroadCastMessageToAll(),),
+          actionDescription: 'Send a notification to all users', context: context, assetPath: "assets/icons/broadcast.png", screen: BroadCastMessageToAll(), widgetColor: kConnectedRed,),
         CIOWidgets().adminWidget( actionTitle: 'Scan QR',
-          actionDescription: 'Scan attendees badge to check them in', context: context, assetPath: "assets/icons/qr.png", screen: BroadCastMessageToAll(),)
+          actionDescription: 'Scan attendees badge to check them in', context: context, assetPath: "assets/icons/qr.png", screen: BroadCastMessageToAll(), widgetColor: kConnectedGreen,),
+ CIOWidgets().adminWidget( actionTitle: 'Meetings Concierge',
+          actionDescription: 'Arrange Meetings between delegates', context: context, assetPath: "assets/icons/concierge.png", screen: ConciergeMeetingTabs(), widgetColor: kConnectedBlue,)
 
 
     ],),),);

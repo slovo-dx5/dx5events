@@ -68,7 +68,7 @@ class CIOWidgets {
     );
   }
 
-  adminWidget({required String assetPath,required BuildContext context,required Widget screen, required String actionTitle,
+  adminWidget({required String assetPath,required Color widgetColor,required BuildContext context,required Widget screen, required String actionTitle,
     required String actionDescription}){
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -84,7 +84,7 @@ class CIOWidgets {
         child: Card(
           shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(12.0),
             side:  BorderSide(
-              color: Colors.red.withOpacity(0.2),
+              color: widgetColor.withOpacity(0.7),
               width: 0.5,
             ),
           ),
