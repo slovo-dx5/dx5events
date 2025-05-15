@@ -4,6 +4,7 @@ import 'package:dx5veevents/models/eventModel.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants.dart';
+import '../../dioServices/base_url.dart';
 import '../../dioServices/dioFetchService.dart';
 import '../../helpers/helper_widgets.dart';
 import '../../models/image_model.dart';
@@ -176,7 +177,7 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
 
                   bio: speaker!.bio! ?? "",
 
-                  imageURL: "https://subscriptions.cioafrica.co/assets/${speaker!.photo!}",
+                  imageURL: "${BaseURL.Baseurl}/assets/${speaker!.photo!}",
                   linkedinurl: speaker.linkedinProfile ??"linkedin.com"), verticalSpace(height: 10)],);
 
               //   speakerWidget(context: context, name: speaker.name,

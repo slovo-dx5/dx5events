@@ -7,6 +7,7 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
+import '../dioServices/base_url.dart';
 import '../models/speakersModel.dart';
 import '../providers/themeProvider.dart';
 import '../screens/dx5veScreens/eventFullAgenda.dart';
@@ -132,7 +133,7 @@ agendaItemWithSpeakers({required BuildContext context,
                                     children: [
                                       CachedNetworkImage(
                                         fit: BoxFit.cover,
-                                        imageUrl: "https://subscriptions.cioafrica.co/assets/${speaker!.photo}",
+                                        imageUrl: "${BaseURL.Baseurl}/assets/${speaker!.photo}",
                                         progressIndicatorBuilder: (context, url, downloadProgress) => SizedBox(
                                             height: 20,
                                             width: 20,

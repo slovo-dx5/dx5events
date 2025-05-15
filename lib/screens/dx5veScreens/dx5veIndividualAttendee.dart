@@ -31,7 +31,8 @@ class IndividualAttendeeScreen extends StatefulWidget {
       required this.Company,
       required this.profileid,
       required this.Bio,
-      required this.id});
+      required this.id
+      });
 
   @override
   State<IndividualAttendeeScreen> createState() =>
@@ -52,18 +53,18 @@ class _IndividualAttendeeScreenState
       body: SingleChildScrollView(
         child: Column(children: <Widget>[
           verticalSpace(height: 40),
-          IndividualAttendeeProfileInitials(
+          widget.profileid==""?IndividualAttendeeProfileInitials(
             firstName: widget.FirstName,
             lastName: widget.LastName,
-          ),verticalSpace(height: 8),
+          ):IndividualAttendeeProfilePicWidget(profileID: widget.profileid,),verticalSpace(height: 8),
           Text(
             "${widget.FirstName} ${widget.LastName}",
             style: const TextStyle(
                 fontWeight: FontWeight.bold, fontSize: 34.0, ),
           ),
           Text(
-            //"${widget.Role} at ${widget.Company}",
-            " ${widget.Company}",
+            "${widget.Role} at ${widget.Company}",
+            // " ${widget.Company}",
 
           ),verticalSpace(height: 10),
 
@@ -73,7 +74,10 @@ class _IndividualAttendeeScreenState
                 context: context,
                 onPressedFunction: () {},
                 buttonText: "MEET",
-                backgroundColor: kCISOPurple) ,), SizedBox(width: MediaQuery.of(context).size.width*0.35,child:   primaryButton2(
+                backgroundColor: kCISOPurple) ,),
+
+
+              SizedBox(width: MediaQuery.of(context).size.width*0.35,child:   primaryButton2(
                 context: context,
                 onPressedFunction: () {     if(mounted){
                   PersistentNavBarNavigator.pushNewScreen(

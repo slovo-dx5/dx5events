@@ -73,7 +73,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     File imageFile = File(pickedImage.path);
     return imageFile;
   }
-
    uploadImage(ownerName, ownerID,File croppedFile) async {
     ///1.Upload picture to directus
     try {

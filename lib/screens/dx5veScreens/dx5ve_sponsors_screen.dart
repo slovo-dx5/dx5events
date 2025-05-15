@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:dx5veevents/constants.dart';
 import 'package:flutter/material.dart';
 
+import '../../dioServices/base_url.dart';
 import '../../dioServices/dioFetchService.dart';
 import '../../models/eventModel.dart';
 import '../../models/sponsor_data_model.dart';
@@ -128,7 +129,7 @@ super.initState();
                                 if(sponsorMap==null){return const Text("Sponsors will appear here");}else{
                                   return
 
-                                    Column(children: [sponsorWidget(context: context, sponsorAsset:"https://subscriptions.cioafrica.co/assets/${sponsorrr[1].transparent_logo??sponsorrr[1].logo}",
+                                    Column(children: [sponsorWidget(context: context, sponsorAsset:"${BaseURL.Baseurl}/assets/${sponsorrr[1].transparent_logo??sponsorrr[1].logo}",
                                     //degree: "${sponsors[index].degree!}°",
                                     degree: "${sponsorrr[0]}°",
                                     sponsorName:sponsorrr[1].sponsorName!,

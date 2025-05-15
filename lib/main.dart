@@ -10,12 +10,10 @@ import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
 import 'package:dx5veevents/screens/pastEvents/past_navigation.dart';
 import 'package:dx5veevents/screens/rewardsPage.dart';
-import 'package:dx5veevents/test.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-//import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +21,7 @@ import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'backendOps/sendBroadcast.dart';
+import 'cooking/cookFigures.dart';
 import 'firebase_options.dart';
 import 'helpers/CustomerAttendeeCSVHelper.dart';
 import 'helpers/CustomerSpeakerCSVHelper.dart';
@@ -177,7 +176,8 @@ if(Platform.isIOS){
               //darkTheme: darkTheme,
 
           home: LandingPage2(),
-          //home: teste(),
+         // home: StructureLAstMinute(),
+          //home: CookFigures(),
 
             //home: PastNavigationPage(eventName: 'CIO 100', eventID: 21,)
 

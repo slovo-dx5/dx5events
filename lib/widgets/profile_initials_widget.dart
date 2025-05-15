@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../constants.dart';
+import '../dioServices/base_url.dart';
 import '../providers.dart';
 class ProfileInitials extends StatefulWidget {
   double circleRadius;
@@ -82,17 +83,17 @@ class _ProfilePicWidgetState extends State<ProfilePicWidget> {
     final profileProvider = Provider.of<ProfileProvider>(context);
     return
       // CircleAvatar(radius: 80,backgroundColor: kCIOPink.withOpacity(0.5),
-      // backgroundImage: NetworkImage("https://subscriptions.cioafrica.co/assets/${profileProvider.profileId}"),
+      // backgroundImage: NetworkImage("${BaseURL.Baseurl}/assets/${profileProvider.profileId}"),
       // );
 
     // CachedNetworkImage(
-    //   imageUrl:"https://subscriptions.cioafrica.co/assets/${profileProvider.profileId}",
+    //   imageUrl:"${BaseURL.Baseurl}/assets/${profileProvider.profileId}",
     //   progressIndicatorBuilder: (context, url, downloadProgress) =>
     //       CircularProgressIndicator(value: downloadProgress.progress),
     //   errorWidget: (context, url, error) => const ProfileInitials(),
     // );
       CachedNetworkImage(
-        imageUrl: "https://subscriptions.cioafrica.co/assets/${profileProvider.profileId}",
+        imageUrl: "${BaseURL.Baseurl}/assets/${profileProvider.profileId}",
         // placeholder: (context, url) => CircularProgressIndicator(), // Optional
         // errorWidget: (context, url, error) =>  ProfileInitials(),
         progressIndicatorBuilder: (context, url, downloadProgress) =>
@@ -194,17 +195,17 @@ class _AttendeeProfilePicWidgetState extends State<AttendeeProfilePicWidget> {
 
     return
       // CircleAvatar(radius: 80,backgroundColor: kCIOPink.withOpacity(0.5),
-      // backgroundImage: NetworkImage("https://subscriptions.cioafrica.co/assets/${profileProvider.profileId}"),
+      // backgroundImage: NetworkImage("${BaseURL.Baseurl}/assets/${profileProvider.profileId}"),
       // );
 
       // CachedNetworkImage(
-      //   imageUrl:"https://subscriptions.cioafrica.co/assets/${profileProvider.profileId}",
+      //   imageUrl:"${BaseURL.Baseurl}/assets/${profileProvider.profileId}",
       //   progressIndicatorBuilder: (context, url, downloadProgress) =>
       //       CircularProgressIndicator(value: downloadProgress.progress),
       //   errorWidget: (context, url, error) => const ProfileInitials(),
       // );
       CachedNetworkImage(
-        imageUrl: "https://subscriptions.cioafrica.co/assets/${widget.profileID}",
+        imageUrl: "${BaseURL.Baseurl}/assets/${widget.profileID}",
         // placeholder: (context, url) => CircularProgressIndicator(), // Optional
         // errorWidget: (context, url, error) =>  ProfileInitials(),
         progressIndicatorBuilder: (context, url, downloadProgress) =>
@@ -233,17 +234,17 @@ class _IndividualAttendeeProfilePicWidgetState extends State<IndividualAttendeeP
 
     return
       // CircleAvatar(radius: 80,backgroundColor: kCIOPink.withOpacity(0.5),
-      // backgroundImage: NetworkImage("https://subscriptions.cioafrica.co/assets/${profileProvider.profileId}"),
+      // backgroundImage: NetworkImage("${BaseURL.Baseurl}/assets/${profileProvider.profileId}"),
       // );
 
       // CachedNetworkImage(
-      //   imageUrl:"https://subscriptions.cioafrica.co/assets/${profileProvider.profileId}",
+      //   imageUrl:"${BaseURL.Baseurl}/assets/${profileProvider.profileId}",
       //   progressIndicatorBuilder: (context, url, downloadProgress) =>
       //       CircularProgressIndicator(value: downloadProgress.progress),
       //   errorWidget: (context, url, error) => const ProfileInitials(),
       // );
       CachedNetworkImage(
-        imageUrl: "https://subscriptions.cioafrica.co/assets/${widget.profileID}",
+        imageUrl: "${BaseURL.Baseurl}/assets/${widget.profileID}",
         // placeholder: (context, url) => CircularProgressIndicator(), // Optional
         // errorWidget: (context, url, error) =>  ProfileInitials(),
         progressIndicatorBuilder: (context, url, downloadProgress) =>

@@ -6,7 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../helpers/helper_functions.dart';
 import '../models/contactModel.dart';
 import '../widgets/cool_background.dart';
-import 'package:flutter_contacts_service/flutter_contacts_service.dart'as fc;
+import 'package:flutter_contacts/flutter_contacts.dart';
 
 import '../widgets/textStyles.dart';
 
@@ -28,21 +28,26 @@ class SaveContact extends StatefulWidget {
   @override
   State<SaveContact> createState() => _SaveContactState();
 }
-Future<void> saveContactToDevice({required UserContact userContact}) async {
+Future<void> saveContactToDevice({required String firstName,
+  required String lastName,required String role,required String company,required String phoneNumber, required String email}) async {
   // Request permissions
   if (await Permission.contacts.request().isGranted) {
     // Create a new contact
-    fc.ContactInfo newContact = fc.ContactInfo(
-      givenName: userContact.firstName,
-      familyName: userContact.lastName,
-      emails: [fc.ValueItem(label: 'work', value: userContact.email)],
-      company: userContact.company,
-      jobTitle: userContact.role,
-      phones: [fc.ValueItem(label: 'mobile', value: userContact.phoneNumber)],
-    );
+    // Insert new contact
+    final newContact = Contact()
+      ..name.first = firstName
+      ..name.last = lastName
+      ..emails=[Email(email)]
+      ..organizations=[Organization(company:company,title: role)]
+      ..phones = [Phone(phoneNumber)];
+
 
     // Save the contact
-    await fc.FlutterContactsService. addContact(newContact);
+   try{ await newContact.insert();
+     print("contact added successfully");
+   }catch(e){
+     print("Contact error is $e");
+   }
   } else {
     // Handle permission denial
     print('Permission to access contacts was denied');
@@ -174,7 +179,7 @@ class _SaveContactState extends State<SaveContact> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      "New contact Details",
+                      "New Contact Details",
                       style: TextStyle(fontSize: 17),
                     ),
                     verticalSpace(height: 40),
@@ -243,14 +248,13 @@ class _SaveContactState extends State<SaveContact> {
                       context: context,
                       onPressedFunction: ()async {
                         await saveContactToDevice(
-                          userContact: UserContact(
+
                             firstName: widget.firstName,
                             lastName: widget.lastName,
                             email: widget.email,
                             company: widget.company,
                             role: widget.role,
                             phoneNumber: widget.phone,
-                          ),
                         );
                         await UserPointsService().createOrUpdateUserPoints(userId: widget.ownerID,actionId: 3);
                         Fluttertoast.showToast(msg: "Contact Saved");

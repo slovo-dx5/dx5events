@@ -4,18 +4,19 @@ import 'package:dio/dio.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../constants.dart';
+import 'base_url.dart';
 import 'dioClient.dart';
 
 class DioPostService extends DioClient {
   DioClient _client = new DioClient();
-  final baseURL="https://subscriptions.cioafrica.co/items/";
+  final baseURL="${BaseURL.Baseurl}/items/";
 
   Future<Response> createSession({required Map<String, dynamic> sessionBody}) async {
     print("session bosy is $sessionBody");
     try {
       return await _client
           .init()
-          .post("https://subscriptions.cioafrica.co/items/user_sessions",
+          .post("${BaseURL.Baseurl}/items/user_sessions",
         data: sessionBody,);
     }  on DioError catch (ex) {
       throw Exception("Session create error: ${ex.response!.data!}");
@@ -26,7 +27,7 @@ class DioPostService extends DioClient {
     try {
       return await _client
           .init()
-          .post("https://subscriptions.cioafrica.co/items/sponsor_registrations",
+          .post("${BaseURL.Baseurl}/items/sponsor_registrations",
         data: sessionBody,);
     }  on DioError catch (ex) {
       throw Exception("Session create error: ${ex.response!.data!}");
@@ -49,7 +50,7 @@ class DioPostService extends DioClient {
     try{
       return await _client
           .init()
-          .post("https://subscriptions.cioafrica.co/files",
+          .post("${BaseURL.Baseurl}/files",
           data: formData,
           options: Options(headers: {
             'Content-Type': 'multipart/form-data',
@@ -86,7 +87,7 @@ class DioPostService extends DioClient {
       print("sending notif");
       return await _client
           .init()
-          .post("https://subscriptions.cioafrica.co/items/filtered_chekins",
+          .post("${BaseURL.Baseurl}/items/filtered_chekins",
           data: messageData,
           options: Options(headers: {
             'Authorization': 'Bearer AAAAQrAxy0I:APA91bGrDqULJNq_hEZtUIgmv-gJfxXcgaDLCHCACiPqWablKBu-vy0qscT_raEr4C3dEtQQX2m1ocAYCjTm9po3mjaPMUeNN21ffeIXAz1afO_XE2k1chbSoe3iUv0Pd0Y3ry2SQDnd',
@@ -104,7 +105,7 @@ class DioPostService extends DioClient {
     try{
       return await _client
           .init()
-          .post("https://subscriptions.cioafrica.co/items/sponsordata",
+          .post("${BaseURL.Baseurl}/items/sponsordata",
         data: body,
 
 
@@ -167,7 +168,7 @@ class DioPostService extends DioClient {
     try{
       return await _client
           .init()
-          .post("https://subscriptions.cioafrica.co/items/Customer_Event_Registrations",
+          .post("${BaseURL.Baseurl}/items/Customer_Event_Registrations",
         data: body,
 
 
@@ -196,7 +197,7 @@ class DioPostService extends DioClient {
     try{
       return await _client
           .init()
-          .post("https://subscriptions.cioafrica.co/items/Session_Rating",
+          .post("${BaseURL.Baseurl}/items/Session_Rating",
         data: {
             "attendeeID":attendeeID,
             "sessionTitle":sessionTitle,
@@ -224,7 +225,7 @@ class DioPostService extends DioClient {
     try{
       return await _client
           .init()
-          .post("https://subscriptions.cioafrica.co/items/speakers",
+          .post("${BaseURL.Baseurl}/items/speakers",
         data: body,
 
 
@@ -242,7 +243,7 @@ class DioPostService extends DioClient {
     try{
       return await _client
           .init()
-          .post("https://subscriptions.cioafrica.co/items/filtered_chekins",
+          .post("${BaseURL.Baseurl}/items/filtered_chekins",
         data: body,
 
 
@@ -286,17 +287,29 @@ class DioPostService extends DioClient {
   Future<Response> updateUserPoints({required Map<String, dynamic> body, required int userPointsId}) async {
     try {
       return await _client.init().patch(
-          "https://subscriptions.cioafrica.co/items/user_points/$userPointsId",
+          "${BaseURL.Baseurl}/items/user_points/$userPointsId",
           data: body);
     } on DioError catch (ex) {
       throw Exception(ex);
     }
   }
 
+  updateSignIn({required Map<String, dynamic> body, required int recordID}) async {
+    print("trying to update sign in");
+    try {
+       await _client.init().patch(
+          "${BaseURL.Baseurl}/items/event_registrations/$recordID",
+          data: body);
+      print("update successful sign in");
+    }  catch (ex) {
+      print("Eroror updatinf sign in is $ex");
+    }
+  }
+
   Future<Response> patchComments({required Map<String, dynamic> body, required int postID}) async {
     try {
       return await _client.init().patch(
-          "https://subscriptions.cioafrica.co/items/Social/$postID",
+          "${BaseURL.Baseurl}/items/Social/$postID",
           data: body);
     } on DioError catch (ex) {
       throw Exception(ex);
@@ -305,7 +318,7 @@ class DioPostService extends DioClient {
   Future<Response> createUserPointsEntry({required Map<String, dynamic> body, }) async {
     try {
       return await _client.init().post(
-          "https://subscriptions.cioafrica.co/items/user_points",
+          "${BaseURL.Baseurl}/items/user_points",
           data: body);
     } on DioError catch (ex) {
       throw Exception(ex);
@@ -315,7 +328,7 @@ class DioPostService extends DioClient {
   Future<Response> createSocialPost({required Map<String, dynamic> body, }) async {
     try {
       return await _client.init().post(
-          "https://subscriptions.cioafrica.co/items/Social",
+          "${BaseURL.Baseurl}/items/Social",
           data: body);
     } on DioError catch (ex) {
       throw Exception(ex);

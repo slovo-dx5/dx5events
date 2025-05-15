@@ -6,6 +6,7 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 import '../constants.dart';
+import '../dioServices/base_url.dart';
 import '../helpers/helper_functions.dart';
 
 import '../models/agendaModel.dart';
@@ -404,7 +405,7 @@ class _SessionItemWithSpeakersState extends State<SessionItemWithSpeakers> {
                                           fit:
                                           BoxFit.cover,
                                           imageUrl:
-                                          "https://subscriptions.cioafrica.co/assets/${speaker!.photo}",
+                                          "${BaseURL.Baseurl}/assets/${speaker!.photo}",
                                           // placeholder: (context, url) => CircularProgressIndicator(), // Optional
                                           // errorWidget: (context, url, error) =>  ProfileInitials(),
                                           progressIndicatorBuilder: (context, url, downloadProgress) => SizedBox(

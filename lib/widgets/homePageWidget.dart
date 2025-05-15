@@ -65,7 +65,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 Image.asset(
                   widget.coverImagepath,
                   width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height * 0.25,
+                  height: MediaQuery.of(context).size.height * 0.3,
                   fit: BoxFit.cover,
                 ),
               ],
@@ -133,18 +133,18 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                   screen: const SocialFeed(),
                   itemName: 'Social', analyticsActionName: 'social_page_opened',
                 ),
-                CIOWidgets().gradientItemWidget(
-                  firstColor: kCISOGreenYellow.withOpacity(0.7),
-                  secondColor: kCISOLightOrange.withOpacity(0.7),
-                  context: context,
-                  editIcon: Image.asset(
-                    "assets/icons/reward.png",
-                    width: 10,
-                    height: 10,
-                  ),
-                  //screen: RewardsPage(eventID: int.parse(widget.eventID), userID: profileProvider.userID!,),
-                  itemName: 'Rewards', analyticsActionName: 'rewards_page_opened',
-                ),
+                // CIOWidgets().gradientItemWidget(
+                //   firstColor: kCISOGreenYellow.withOpacity(0.7),
+                //   secondColor: kCISOLightOrange.withOpacity(0.7),
+                //   context: context,
+                //   editIcon: Image.asset(
+                //     "assets/icons/reward.png",
+                //     width: 10,
+                //     height: 10,
+                //   ),
+                //   //screen: RewardsPage(eventID: int.parse(widget.eventID), userID: profileProvider.userID!,),
+                //   itemName: 'Rewards', analyticsActionName: 'rewards_page_opened',
+                // ),
                 CIOWidgets().gradientItemWidget(
                   firstColor: kGradientLightBlue.withOpacity(0.7),
                   secondColor: kLogoutRed.withOpacity(0.7),
@@ -217,18 +217,18 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                   screen: AttendeesScreen(eventID: widget.eventID, isCustomerEvent: widget.isCustomerEvent,),
                   itemName: 'Attendees', analyticsActionName: 'attendees_page_opened',
                 ),
-                CIOWidgets().gradientItemWidget(
-                  firstColor: kCISOOrange,
-                  secondColor: kCISOPurple,
-                  context: context,
-                  editIcon: Image.asset(
-                    "assets/icons/exhibitors.png",
-                    width: 10,
-                    height: 10,
-                  ),
-                  screen: CISOPartnersScreen(eventID: widget.eventID,),
-                  itemName: 'Partners', analyticsActionName: 'partners_page_opened',
-                ),
+                // CIOWidgets().gradientItemWidget(
+                //   firstColor: kCISOOrange,
+                //   secondColor: kCISOPurple,
+                //   context: context,
+                //   editIcon: Image.asset(
+                //     "assets/icons/exhibitors.png",
+                //     width: 10,
+                //     height: 10,
+                //   ),
+                //   screen: CISOPartnersScreen(eventID: widget.eventID,),
+                //   itemName: 'Partners', analyticsActionName: 'partners_page_opened',
+                // ),
                 CIOWidgets().gradientItemWidget(
                   firstColor: kCISOPink.withOpacity(0.9),
                   secondColor: kCISOPurple.withOpacity(0.9),

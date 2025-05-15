@@ -19,7 +19,7 @@ class _StructureLAstMinuteState extends State<StructureLAstMinute> {
   @override
   void initState() {
     // TODO: implement initState
-    fetchCheckins(eventId: 21);
+    fetchCheckins(eventId: 46);
 
     super.initState();
   }

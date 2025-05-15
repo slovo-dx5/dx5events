@@ -87,24 +87,24 @@ class _ActiveEventsState extends State<ActiveEvents> {
       height: MediaQuery.of(context).size.height *0.9,
       child:
 
-      UpcomingEventWidget2(imagePath: 'assets/images/themes/ciso_portrait.jpg', dayMonth: 'WED, MAR', date: '19th',
-        endDate: '20th', location: 'KENYA', endDayMonth: 'THUR, MAR', onPressedFunct: (){
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => InitialScreen(coverImagePath: 'assets/images/themes/ciso.png', eventName: 'AFRICA CISO SUMMIT',
-              eventHappeningDates: 'WED, MAR, 19TH - THUR, MAR, 20TH',
+      UpcomingEventWidget2(imagePath: 'assets/images/themes/connected_portrait.jpg', dayMonth: 'THUR, MAY', date: '26th',
+        endDate: '29th', location: 'KENYA', endDayMonth: 'SUN, MAY', onPressedFunct: (){
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => InitialScreen(coverImagePath: 'assets/images/themes/connected_bg.jpg', eventName: 'CONNECTED AFRICA SUMMIT',
+              eventHappeningDates: 'THUR, MAY, 26TH - THUR, MAY, 29TH',
 
-              shortEventDescription: "Driving Business Growth Through IT Leadership",
+              shortEventDescription: "A summit for digital transformation in Africa",
               eventLocation: 'KENYA'
-              ,followingScreen: EventLogin(coverImagePath: 'assets/images/themes/ciso.png',
-              eventName: 'AFRICA CISO SUMMIT',
+              ,followingScreen: EventLogin(coverImagePath: 'assets/images/themes/connected_bg.jpg',
+              eventName: 'CONNECTED AFRICA SUMMIT',
                   eventDate: 'WED, MAR, 19TH - THUR, MAR, 20TH',
 
-                  shortEventDescription: "Driving Business Growth Through IT Leadership",
+                  shortEventDescription: "A summit for digital transformation in Africa",
                   eventLocation: 'KENYA', eventID: '46', eventDay: 19, eventMonth: 3, eventYear: 2025, eventDayOfWeek: 'WED',
               isCustomerEvent: false,), eventID: '46', eventDay: 19, eventMonth: 3, eventYear: 2025, eventDayOfWeek: 'WED', isCustomerEvent: false,)),
         );
-      }, eventName: 'AFRICA CISO SUMMIT'
-          , containerColor: kGradientLightBlue.withOpacity(0.7), shortDescription: 'Driving Business Growth Through IT Leadership',));
+      }, eventName: 'CONNECTED AFRICA SUMMIT'
+          , containerColor: kGradientLightBlue.withOpacity(0.7), shortDescription: 'A summit for digital transformation in Africa',));
   }
 }
 
@@ -119,7 +119,35 @@ class _FutureEventsState extends State<FutureEvents> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: [],
+      children: [
+
+        CurvedImageContainer(imagePath: 'assets/images/themes/ciso.png',
+          dayMonth: 'WED, OCT', date: '2nd', endDate: '3rd',
+          endDayMonth: 'THUR, OCT', location: 'KENYA', onPressedFunct: (){
+            defaultScrollableBottomSheet(context,"",
+                PendingEventBottomSheet(imagePath: 'assets/images/themes/smartgov.png', month: 7,
+                  date: 24, slug: 'events/smart-government-summit',
+                  eventNAme: 'Smart Government Summit',
+                  endDate: '3rd', endDay: 'THUR', endMonth: 'October',
+                  startDate: '2nd', startDay: 'WED', startMonth: 'October',
+                  eventDesc: 'The Smart Government Summit stands at the forefront of Africa’s digital transformation, bridging the gap between advanced digital technologies and government operations. This pivotal event comes at a time when Africa’s digital landscape is witnessing exponential growth, with increasing internet access and mobile connectivity shaping public sector innovation. The summit is a critical confluence for discussing the integration of digital solutions in government, offering a unique perspective on the future of digital government in Africa.', ));
+          },),
+
+        verticalSpace(height: 10),
+
+        CurvedImageContainer(imagePath: 'assets/images/themes/cio100.jpg',
+          dayMonth: 'WED, NOV', date: '20th', endDate: '22nd',
+          endDayMonth: 'FRI, NOV', location: 'KENYA', onPressedFunct: (){
+            defaultScrollableBottomSheet(context,"",
+                PendingEventBottomSheet(imagePath: 'assets/images/themes/cio100.jpg', month: 11,
+                  date: 20, slug: 'events/smart-government-summit',
+                  eventNAme: 'CIO100 Symposium and Awards',
+                  endDate: '22nd', endDay: 'FRI', endMonth: 'Nov',
+                  startDate: '20th', startDay: 'WED', startMonth: 'Nov',
+                  eventDesc: 'The CIO100 Symposium & Awards is a celebration of excellence in IT leadership. This prestigious event will honor 100 award recipients, highlighting their achievements in leadership, innovation, and the adoption of advanced technologies such as generative AI and Edge Computing.', ));
+          },),
+
+      ],
     );
   }
 }
@@ -135,15 +163,17 @@ class _PastEventsState extends State<PastEvents> {
   @override
   Widget build(BuildContext context) {
     return  Align(alignment: Alignment.bottomCenter,
-      child: const Center(
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(8.0,300,8,150),
-          child: Text("Information on Past Events Will Appear Here",style: TextStyle(fontSize: 25,fontWeight: FontWeight.w700),textAlign: TextAlign.center,),
-        ),
-      ),
+      // child: Center(
+      //   child: Padding(
+      //     padding: EdgeInsets.fromLTRB(8.0,300,8,150),
+      //     child: Text("Information on Past Events Will Appear Here",style: TextStyle(fontSize: 25,fontWeight: FontWeight.w700),textAlign: TextAlign.center,),
+      //   ),
+      // ),
+      child:  PastEventWidget(eventName: 'CIO 100 SYMPOSIUM AND AWARDS', year: ' 2024',
+        eventAssetPath: 'assets/images/themes/cio100.jpg', eventID: 21,),
     );
-      // PastEventWidget(eventName: 'CIO 100 SYMPOSIUM AND AWARDS', year: ' 2024',
-      // eventAssetPath: 'assets/images/themes/cio100.jpg', eventID: 21,);
+      PastEventWidget(eventName: 'CIO 100 SYMPOSIUM AND AWARDS', year: ' 2024',
+      eventAssetPath: 'assets/images/themes/cio100.jpg', eventID: 21,);
   }
 }
 

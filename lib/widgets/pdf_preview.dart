@@ -60,11 +60,6 @@ class PdfViewerPage extends StatelessWidget {
     //   openFileFromNotification: true, // click on notification to open downloaded file (for Android)
     //   saveInPublicStorage: true
     // );
-
-
-
-
-
     // try {
     //   final response = await DioFetchService().fetchPresentationPDF(presentationURL: pdfUrl);
     //   if (response.statusCode == 200) {

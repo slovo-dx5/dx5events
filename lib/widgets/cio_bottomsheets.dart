@@ -557,7 +557,7 @@ class _PendingEventBottomSheetState extends State<PendingEventBottomSheet> {
   }
 
   void _updateTime() {
-    final DateTime _targetDate = DateTime(2024, widget.month, widget.date);
+    final DateTime _targetDate = DateTime(2025, widget.month, widget.date);
     final now = DateTime.now();
     final difference = _targetDate.difference(now);
     setState(() {

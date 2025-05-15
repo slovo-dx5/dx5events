@@ -300,7 +300,7 @@ getAttendeeID();
                                   setState(() {
                                     isBookmarking = true;
                                   });
-                                  // await Dx5veAnalytics().logdx5veEvent(eventName: 'agenda_bookmarked');
+                                  await Dx5veAnalytics().logdx5veEvent(eventName: 'agenda_bookmarked');
 
                                   await createSession(
                                     currentUserId: profileProvider.userID!, sessionID: session.sessionId,
@@ -333,7 +333,7 @@ getAttendeeID();
                                   setState(() {
                                     isBookmarking = true;
                                   });
-                                 // await Dx5veAnalytics().logdx5veEvent(eventName: 'agenda_bookmarked');
+                                  await Dx5veAnalytics().logdx5veEvent(eventName: 'agenda_bookmarked');
 
                                   await createSession(
                                     currentUserId: profileProvider.userID!, sessionID: session.sessionId, date: _dayToAgendaMap[_selectedDate]!.date!,

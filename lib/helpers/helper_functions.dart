@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 import '../constants.dart';
+import '../dioServices/base_url.dart';
 import '../dioServices/dioFetchService.dart';
 import '../dioServices/dioPostService.dart';
 import '../dioServices/dio_delete_service.dart';
@@ -159,7 +160,7 @@ submitProposalToSPeak(
     "company": company,
     "role": role,
     "bio": bio,
-    "profilePhotoUrl": "https://subscriptions.cioafrica.co/assets/$imageID",
+    "profilePhotoUrl": "${BaseURL.Baseurl}/assets/$imageID",
     "linkedinProfileLink": linkedinProfileLink,
     //"websiteLink": "https://johndoe-professional.com",
     "eventId": eventId,
@@ -307,27 +308,27 @@ requestMeeting(
     required String company}) async{
   String meetingID = const Uuid().v4();
 
-  ///Create meeting in senders collection
-  // await usersRef.doc(currentUserID.toString()).collection("meetings").doc(meetingID).set({
-  //   "id": meetingID,
-  //
-  //   "requested_by": requestedBy, ///The person requesting the meeting
-  //   "requested_by_id": requestedByID, ///The person requesting the meeting
-  //   "wants_to_meet_with": meetingWith, ///The person they want to meet with
-  //   "wants_to_meet_with_id": meetingWithI,
-  //   "isAccepted": false,
-  //   "isCancelled": false,
-  //   "isDeclined": false,
-  //   "isDefault": false,
-  //   "date_requested": Timestamp.now(),
-  //   "message": message,
-  //   "tableSlot": tableSlot,
-  //   "startTime": startTime,
-  //
-  //
-  //   "company": company,
-  //
-  // });
+ //Create meeting in senders collection
+  await usersRef.doc(currentUserID.toString()).collection("meetings").doc(meetingID).set({
+    "id": meetingID,
+
+    "requested_by": requestedBy, ///The person requesting the meeting
+    "requested_by_id": requestedByID, ///The person requesting the meeting
+    "wants_to_meet_with": meetingWith, ///The person they want to meet with
+    "wants_to_meet_with_id": otherUserID,
+    "isAccepted": false,
+    "isCancelled": false,
+    "isDeclined": false,
+    "isDefault": false,
+    "date_requested": Timestamp.now(),
+    "message": message,
+    "tableSlot": tableSlot,
+    "startTime": startTime,
+
+
+    "company": company,
+
+  });
 
   ///Create meeting in other persons collection
   await usersRef
@@ -346,7 +347,7 @@ requestMeeting(
     "wants_to_meet_with": meetingWith,
 
     ///The person they want to meet with
-    "wants_to_meet_with_id": meetingWithI,
+    "wants_to_meet_with_id": otherUserID,
 
     ///The person they want to meet with
     "isAccepted": false,
