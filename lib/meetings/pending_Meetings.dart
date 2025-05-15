@@ -13,6 +13,7 @@ import '../../../providers.dart';
 import '../../widgets/meeting_widget.dart';
 import '../../widgets/outgoing_meeting_widget.dart';
 import '../constants.dart';
+import '../dioServices/dioPostService.dart';
 
 class PendingMeetingsScreen extends StatefulWidget {
   @override
@@ -164,6 +165,12 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                                 "company": items["company"],
 
                               });
+                                await DioPostService().sendMeetingEmail(body: {
+                                  "emailAddress": items["requested_by_email"],
+                                  "subject": "Meeting request accepted" ,
+                                  "body": "<p>Hello ${items["wants_to_meet_with"]}. ${items["wants_to_meet_with"]} has accepted your meeting request</p>",
+                                  "cc": ["slovoulo@gmail.com"]
+                                });
                                 setState(() {
                                   isAccepting=false;
                                 });

@@ -298,6 +298,8 @@ requestMeeting(
     {required int currentUserID,
     required int otherUserID,
     required String requestedBy,
+    required String requestedByEmail,
+    required String meetingWithEmail,
     required String meetingWith,
     required String message,
     required String startTime,
@@ -313,8 +315,10 @@ requestMeeting(
     "id": meetingID,
 
     "requested_by": requestedBy, ///The person requesting the meeting
+    "requested_by_email": requestedByEmail, ///The person requesting the meeting
     "requested_by_id": requestedByID, ///The person requesting the meeting
     "wants_to_meet_with": meetingWith, ///The person they want to meet with
+    "wants_to_meet_with_email": meetingWithEmail, ///The person they want to meet with
     "wants_to_meet_with_id": otherUserID,
     "isAccepted": false,
     "isCancelled": false,

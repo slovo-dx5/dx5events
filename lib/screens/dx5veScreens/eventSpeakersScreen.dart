@@ -168,7 +168,8 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
             itemBuilder: (context, index) {
               final IndividualSpeaker speaker = filteredSpeakers[index];
 
-              return Column(children: [speakerWidget(context: context,
+              return Column(children: [
+                speakerWidget(context: context,
 
                   name: "${speaker.firstName} ${speaker.lastName}",
 
@@ -178,7 +179,9 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
                   bio: speaker!.bio! ?? "",
 
                   imageURL: "${BaseURL.Baseurl}/assets/${speaker!.photo!}",
-                  linkedinurl: speaker.linkedinProfile ??"linkedin.com"), verticalSpace(height: 10)],);
+                  linkedinurl: speaker.linkedinProfile ??"linkedin.com"),
+                Divider(color: Colors.green,),
+                verticalSpace(height: 10)],);
 
               //   speakerWidget(context: context, name: speaker.name,
               //     title: speaker.title, bio: speaker.bio,imageURL: url

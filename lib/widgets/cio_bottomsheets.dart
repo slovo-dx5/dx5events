@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:intl/intl.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -53,16 +54,28 @@ class _SponsorBottomSheetState extends State<SponsorBottomSheet> {
                   },
                   child: SizedBox(
                       height: 120, child: Image.network(widget.SponsorImage))),
-              verticalSpace(height: 30),
+              verticalSpace(height: 20),
               SizedBox(height: 150,
                 child: SingleChildScrollView(
                   child: HtmlWidget(
                     widget.SponsorAbout,
-                    textStyle: const TextStyle(color: kTextColorBlack),
+                    textStyle: const TextStyle(color: kTextColorBlack,fontSize: 13),
                     // style: TextStyle(color: kTextColorBlack, fontSize: 14),
                   ),
                 ),
-              )
+              ),
+              verticalSpace(height: 20),
+      GestureDetector(onTap: (){
+        visitSponsor(url: widget.SponsorURL);
+      },
+        child: Container(
+          height: 50,
+          width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),color: kIconPink
+          ),child:  Center(child: Text("Visit Site",style: kFutureTextStyle(fontsiZe: 14),)),
+        ),
+      )
             ],
           ),
         ));
@@ -200,12 +213,16 @@ class _EditRoleBottomSheetState extends State<EditRoleBottomSheet> {
 
 class MeetingRequestBottomSheet extends StatefulWidget {
   String userName;
+  String company;
   String meetingWith;
+  String recipientEmail;
   int otherUSerID;
 
   MeetingRequestBottomSheet(
       {required this.userName,
       required this.meetingWith,
+      required this.company,
+      required this.recipientEmail,
       required this.otherUSerID,
       super.key});
 
@@ -219,6 +236,7 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
   bool isEditing = false;
   bool isSending = false;
   String startTime = "";
+  String  formattedEndTime = "";
   String tableSlot = "";
 
   String placeholderText = "";
@@ -226,20 +244,53 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
   @override
   void initState() {
     // TODO: implement initState
-    setState(() {
-      placeholderText =
-          "Hello ${widget.userName}. I'd like to have a meeting with you.";
+    super.initState();
 
-      textEditingController.text = placeholderText;
+    placeholderText =
+    "Hello ${widget.userName}. I'd like to have a 30 minute meeting with you.\n\nFrom: $startTime\n";
+
+    textEditingController.text = placeholderText;
+
+    textEditingController.addListener(() {
+      setState(() {
+        placeholderText = textEditingController.text;
+      });
     });
-
     super.initState();
   }
 
   sendMeetingNotification({required int ownerID}) async {
     // get receiver token
     String? receiverToken;
+    String htmlBody = (
+        "$placeholderText.\n\n"
+            "Proposed time:\n"
+            "Start time: $startTime\n"
+            "End time: $formattedEndTime\n"
+    ).replaceAll('\n', '<br>');
+
     try {
+      await DioPostService().sendMeetingEmail(body: {
+        "emailAddress": widget.recipientEmail,
+        "subject": "Meeting Requested by ${widget.meetingWith} from ${widget.company}",
+        "body": """
+    <p>${placeholderText.replaceAll('\n', '<br>')}</p>
+    <p><strong>Proposed time:</strong><br>
+    Start time: $startTime<br>
+    End time: $formattedEndTime</p>
+
+
+
+    <p>
+      <a href="https://cioafrica.co/meetings" 
+         style="display: inline-block; padding: 10px 20px; background-color: #007BFF; 
+                color: white; text-decoration: none; border-radius: 4px;">
+         Accept Request
+      </a>
+    </p>
+  """,
+      });
+
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
           .collection("users")
           .doc(widget.otherUSerID.toString())
@@ -266,8 +317,8 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
         return 'Document does not exist';
       }
 
-      
-      
+
+
     } catch (e) {
       print("Coul not get user id");
     }
@@ -278,11 +329,20 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    return Container(
+      padding: const EdgeInsets.all(24.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          verticalSpace(height: 10),
+          const Text(
+            'Schedule a Meeting',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF333333),
+            ),
+          ),
+          verticalSpace(height: 8),
           Text("You can request a 30 minute meeting with ${widget.userName}",style: TextStyle(fontSize: 15),),verticalSpace(height: 10),
           TextFormField(
             textCapitalization: TextCapitalization.sentences,
@@ -293,7 +353,7 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
               labelText: "Message",
               contentPadding:
                   new EdgeInsets.symmetric(vertical: 30.0, horizontal: 10.0),
-              hintText: placeholderText,
+                hintText: 'Type your meeting purpose here...',
             ),
             validator: (value) {
               if (value!.isEmpty) {
@@ -301,8 +361,9 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
               }
               return null;
             },
+
           ),
-          verticalSpace(height: 25),
+          verticalSpace(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -321,48 +382,35 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
               const Text("Starting time: ", style: TextStyle(fontSize: 15)),
               TimeDropdown(
                 onTimePicked: (String? value) {
-                  setState(() {
-                    startTime = value!;
-                  });
+                  if (value != null) {
+                    setState(() {
+                      startTime = value;
+
+                      // Parse the selected start time
+                      DateFormat format = DateFormat("h:mm a");
+                      DateTime parsedStart = format.parse(startTime);
+
+                      // Add 30 minutes to get end time
+                      DateTime endTime = parsedStart.add(Duration(minutes: 30));
+                       formattedEndTime = format.format(endTime);
+
+                      // Build the updated message
+
+                    });
+                  }
                 },
               ),
-            ],
-          ), Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: IconButton(
-                      onPressed: () {
-                        infoDialog(
-                            context: context,
-                            dialogText:
-                          "Use this dropdown to select the table within the event venue that you would like to have the meeting with ${widget.meetingWith}. (Limited slots available)."
-                        );
-                      },
-                      icon: const Icon(
-                          Icons.info_outline_rounded))),
-              const Text("Meeting Slot: ", style: TextStyle(fontSize: 15)),
-              VenueDropdown(
-                onVenuePicked: (String? value) {
-                  setState(() {
-                    tableSlot = value!;
-                  });
-                },
-              ),
+
             ],
           ),
-          verticalSpace(height: 50),
+
+
           SizedBox(
               height: 40,
               width: 135,
               child: ElevatedButton(
                   onPressed: () async {
-                    if (tableSlot == "") {
-                      Fluttertoast.showToast(
-                          msg: "You must select a meeting location",
-                          backgroundColor: kLogoutRed);
-                    } else {
+
                       setState(() {
                         isSending = true;
                       });
@@ -371,13 +419,17 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
                           requestedBy:
                               "${profileProvider.firstName} ${profileProvider.lastName}",
                           meetingWith: widget.meetingWith,
-                          message: textEditingController.text,
+                          message: "$placeholderText.\n\n"
+                              "Proposed time:\n"
+                              "Start time: $startTime\n"
+                              "End time: $formattedEndTime\n",
                           company: profileProvider.company,
                           otherUserID: widget.otherUSerID,
                           startTime: startTime,
                           tableSlot: tableSlot,
                           requestedByID: profileProvider.userID.toString(),
-                          meetingWithI: widget.otherUSerID.toString());
+                          meetingWithI: widget.otherUSerID.toString(), requestedByEmail: profileProvider.email,
+                          meetingWithEmail: widget.recipientEmail);
                       await sendMeetingNotification(ownerID: profileProvider.userID!);
                       //sendMeetingRequest();
                       setState(() {
@@ -387,7 +439,7 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
                           backgroundColor: kSuccessGreen,
                           msg: "Meeting request sent");
                       Navigator.of(context).pop();
-                    }
+
                   },
                   child: isSending
                       ? const SpinKitCircle(
@@ -470,9 +522,9 @@ defaultScrollableBottomSheet(
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
       builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.99,
+        initialChildSize: 0.6,
         minChildSize: 0.4,
-        maxChildSize: 0.99,
+        maxChildSize: 0.6,
         expand: false,
         builder: (_, controller) => Column(
           mainAxisSize: MainAxisSize.min,

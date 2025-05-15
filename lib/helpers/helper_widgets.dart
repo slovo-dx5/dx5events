@@ -51,6 +51,7 @@ attendeeWidget({
   required String role,
   required String company,
   required String profileid,
+  required String attendeeEmail,
   required int userID,
   required List<String> interests,
 }) {
@@ -68,7 +69,7 @@ attendeeWidget({
             Role: role,
             Company: company,
             Bio: "",
-           profileid: profileid??'', id: userID,
+           profileid: profileid??'', id: userID, email: attendeeEmail,
           ),
           withNavBar: false,
           pageTransitionAnimation: PageTransitionAnimation.slideRight,
@@ -114,7 +115,7 @@ attendeeWidget({
                 role: role,
                 company: company,
 
-                profileid: profileid??'', userID: userID, context: context,)
+                profileid: profileid??'', userID: userID, context: context, email: attendeeEmail,)
             ],
           ),
         ),
