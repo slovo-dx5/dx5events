@@ -85,8 +85,9 @@ class _AcceptedMeetingsScreenState extends State<AcceptedMeetingsScreen> {
 
                   // Check if this meeting should be displayed based on conditions
                   if (items["isAccepted"] == true &&
-                      items["isDeleted"] == false &&
-                      !isMeetingExpired) {
+                      items["isDeleted"] == false
+                      && !isMeetingExpired
+                  ) {
 
                     if (items["requested_by_id"] != profileProvider.userID.toString()) {
                       meetingWidgets.add(

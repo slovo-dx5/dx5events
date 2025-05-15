@@ -170,7 +170,7 @@ class MenuScreen extends GetView<MyDrawerController> {
                       //   }
                       // ),],),
                       menuItem(menuText: 'Scan QR',
-                          widgetIcon: Icons.qr_code_2, iconColor: kCIOPink, onPressedFunction: () {
+                          widgetIcon: Icons.qr_code_2, iconColor: kConnectedGreen, onPressedFunction: () {
 
                               PersistentNavBarNavigator.pushNewScreen(
                                 context,
@@ -195,7 +195,8 @@ class MenuScreen extends GetView<MyDrawerController> {
                     //  const CheckInWidget(),
 
                       menuItem(menuText: 'Agenda PDF',
-                          widgetIcon: Icons.picture_as_pdf, iconColor: kCIOPink, onPressedFunction: () {
+                          widgetIcon: Icons.picture_as_pdf,
+                          iconColor: kConnectedBlue, onPressedFunction: () {
 
                             PersistentNavBarNavigator.pushNewScreen(
                               context,
@@ -221,7 +222,7 @@ class MenuScreen extends GetView<MyDrawerController> {
 
 
                       menuItem(menuText: 'Get Contact',
-                          widgetIcon: Icons.contacts, iconColor: kCIOPink, onPressedFunction: () {
+                          widgetIcon: Icons.contacts, iconColor: kConnectedOrange, onPressedFunction: () {
 
                             PersistentNavBarNavigator.pushNewScreen(
                               context,
@@ -251,7 +252,7 @@ class MenuScreen extends GetView<MyDrawerController> {
                       verticalSpace(height: 30),
 
                       menuItem(menuText: 'Need an app?',
-                          widgetIcon: Icons.touch_app, iconColor: kCIOPink, onPressedFunction: () {
+                          widgetIcon: Icons.touch_app, iconColor: kConnectedRed, onPressedFunction: () {
 
                             launchMailClient(emailAddress: 'dev@dx5ve.com', subject: 'APP DEVELOPMENT PROPOSAL', body: '');
 

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -293,6 +294,29 @@ chatInitials({required String name}) {
     ]),
   );
 }
+openWhatsapp({required String contactNumber, required BuildContext context}) async {
+  // Replace starting 0 with 254
+  String contact = contactNumber.startsWith('0')
+      ? '254${contactNumber.substring(1)}'
+      : contactNumber;
+
+  var message = "Hello, this is Connected Africa Summit Concierge service. I'm messaging you regarding a pending meeting.";
+  var androidUrl = "whatsapp://send?phone=$contact&text=$message";
+  var iosUrl = "https://wa.me/$contact?text=${Uri.encodeComponent(message)}";
+
+  try {
+    if (Platform.isIOS) {
+      await launchUrl(Uri.parse(iosUrl));
+    } else {
+      await launchUrl(Uri.parse(androidUrl));
+    }
+  } on Exception {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('WhatsApp not installed')),
+    );
+  }
+}
+
 
 requestMeeting(
     {required int currentUserID,
@@ -300,6 +324,8 @@ requestMeeting(
     required String requestedBy,
     required String requestedByEmail,
     required String meetingWithEmail,
+    required String requestedByPhone,
+    required String meetingWithPhone,
     required String meetingWith,
     required String message,
     required String startTime,
@@ -315,10 +341,14 @@ requestMeeting(
     "id": meetingID,
 
     "requested_by": requestedBy, ///The person requesting the meeting
-    "requested_by_email": requestedByEmail, ///The person requesting the meeting
+    "requested_by_email": requestedByEmail,
+    "wants_to_meet_with_email": meetingWithEmail,
+    "requested_by_phone": requestedByPhone,
+    "wants_to_meet_with_phone": meetingWithPhone,
     "requested_by_id": requestedByID, ///The person requesting the meeting
     "wants_to_meet_with": meetingWith, ///The person they want to meet with
-    "wants_to_meet_with_email": meetingWithEmail, ///The person they want to meet with
+    ///The person they want to meet with
+    ///The person they want to meet with
     "wants_to_meet_with_id": otherUserID,
     "isAccepted": false,
     "isCancelled": false,
@@ -343,12 +373,16 @@ requestMeeting(
     "id": meetingID,
 
     "requested_by": requestedBy,
+    "requested_by_phone": requestedByPhone,
+    "wants_to_meet_with_phone": meetingWithPhone,
 
     ///The person requesting the meeting
     "requested_by_id": requestedByID,
 
     ///The person requesting the meeting
     "wants_to_meet_with": meetingWith,
+    "requested_by_email": requestedByEmail,
+    "wants_to_meet_with_email": meetingWithEmail,
 
     ///The person they want to meet with
     "wants_to_meet_with_id": otherUserID,

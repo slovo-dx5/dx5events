@@ -19,6 +19,8 @@ class IndividualAttendeeScreen extends StatefulWidget {
   String LastName;
   String Role;
   String Company;
+  String requestedByphone;
+  String meetingWithPhone;
   String Bio;
   String profileid;
   int id;
@@ -27,6 +29,8 @@ class IndividualAttendeeScreen extends StatefulWidget {
       {super.key,
       required this.assetName,
       required this.email,
+      required this.requestedByphone,
+      required this.meetingWithPhone,
       required this.FirstName,
       required this.LastName,
       required this.Role,
@@ -97,10 +101,11 @@ class _IndividualAttendeeScreenState
                 context: context,
                 onPressedFunction: () {},
                 buttonText: "MEET",
-                backgroundColor: kCISOPurple) ,),
+                backgroundColor: kConnectedBlue) ,),
 
 
-              SizedBox(width: MediaQuery.of(context).size.width*0.35,child:   primaryButton2(
+              SizedBox(width: MediaQuery.of(context).size.width*0.35,
+                child:   primaryButton2(
                 context: context,
                 onPressedFunction: () {     if(mounted){
                   PersistentNavBarNavigator.pushNewScreen(
@@ -117,7 +122,8 @@ class _IndividualAttendeeScreenState
           ),verticalSpace(height: 10),
     MeetingRequestBottomSheet(userName: widget.FirstName,
     meetingWith: "${widget.FirstName} ${widget.LastName}",
-    otherUSerID: widget.id, company: widget.Company, recipientEmail: widget.email,),
+    otherUSerID: widget.id, company: widget.Company, recipientEmail: widget.email,
+      requestedByphone:widget.requestedByphone, meetingWithPhone: widget.meetingWithPhone ,),
 
 
         ]),
