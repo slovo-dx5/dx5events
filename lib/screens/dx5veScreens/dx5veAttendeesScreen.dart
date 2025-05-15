@@ -227,14 +227,14 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
         child: (_attendeesList.isEmpty && _customerAttendeesList.isEmpty && _isLoading)
             ? const Center(
           child: SpinKitCircle(
-            color: kCIOPink,
+            color: kConnectedBlue,
           ),
         )
             : SmartRefresher(
           controller: _refreshController,
           enablePullDown: true,
           header: const WaterDropHeader(
-            waterDropColor: kCIOPink,
+            waterDropColor: kConnectedBlue,
           ),
           onRefresh: _refreshData,
           child: ListView.builder(
@@ -282,7 +282,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
                   interests: [],
                   profileid: user.profilePhoto ?? "",
                   userID: user.id,
-                  attendeeEmail: user.email!,
+                  attendeeEmail: user.email!, requestedByphone: profileProvider.phone, meetingWithPhone: user.phone!,
                 );
               } else {
                 final user = _attendeesList[index];
@@ -308,7 +308,8 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
                   company: user.company,
                   interests: [],
                   profileid: user.profilePhoto ?? "",
-                  userID: user.attendeeId,
+                  userID: user.attendeeId, requestedByphone: profileProvider.phone,
+                  meetingWithPhone: user.phone,
                 );
               }
             },

@@ -11,6 +11,7 @@ import 'package:dx5veevents/screens/dx5veScreens/videoSplash.dart';
 import 'package:dx5veevents/screens/dx5ve_social/createPostScreen.dart';
 import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
+import 'package:dx5veevents/screens/map/event_map.dart';
 import 'package:dx5veevents/screens/pastEvents/past_navigation.dart';
 import 'package:dx5veevents/screens/rewardsPage.dart';
 import 'package:dx5veevents/test.dart';
@@ -52,6 +53,7 @@ final router = GoRouter(
     GoRoute(
       path: '/',
      builder: (context, state) =>  LandingPage2(),
+     //builder: (context, state) =>  MapIframePage(),
       //builder: (context, state) =>  ProfileScreen(),
     ),
     GoRoute(
@@ -229,7 +231,6 @@ if(Platform.isIOS){
   }
   @override
   Widget build(BuildContext context) {
-    precacheImage(const AssetImage("assets/images/themes/cio100.jpg"), context);
 
 
     return MultiProvider(

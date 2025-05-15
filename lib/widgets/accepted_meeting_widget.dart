@@ -48,8 +48,7 @@ class _MeetingWidgetState extends State<AcceptedMeetingWidget> {
             Text(widget.message,style: const TextStyle(fontSize: 15,color: kToggleDark),),
             verticalSpace(height: 10),
 
-            Text("Time: Today ${widget.startTime} to ${addThirtyMinutes(time: widget.startTime)}"),
-            verticalSpace(height: 15),
+
             Align(alignment: Alignment.bottomCenter,
               child: SizedBox(
                   width: MediaQuery.of(context).size.width * 0.3,

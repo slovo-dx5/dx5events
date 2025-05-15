@@ -72,7 +72,7 @@ class _SponsorBottomSheetState extends State<SponsorBottomSheet> {
           height: 50,
           width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),color: kIconPink
+              borderRadius: BorderRadius.circular(5),color: kConnectedBlue
           ),child:  Center(child: Text("Visit Site",style: kFutureTextStyle(fontsiZe: 14),)),
         ),
       )
@@ -216,12 +216,16 @@ class MeetingRequestBottomSheet extends StatefulWidget {
   String company;
   String meetingWith;
   String recipientEmail;
+  String requestedByphone;
+  String meetingWithPhone;
   int otherUSerID;
 
   MeetingRequestBottomSheet(
       {required this.userName,
       required this.meetingWith,
       required this.company,
+      required this.requestedByphone,
+      required this.meetingWithPhone,
       required this.recipientEmail,
       required this.otherUSerID,
       super.key});
@@ -247,7 +251,7 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
     super.initState();
 
     placeholderText =
-    "Hello ${widget.userName}. I'd like to have a 30 minute meeting with you.\n\nFrom: $startTime\n";
+    "Hello ${widget.userName}. I'd like to have a 30 minute meeting with you.";
 
     textEditingController.text = placeholderText;
 
@@ -272,23 +276,25 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
     try {
       await DioPostService().sendMeetingEmail(body: {
         "emailAddress": widget.recipientEmail,
-        "subject": "Meeting Requested by ${widget.meetingWith} from ${widget.company}",
+        "subject": "Meeting Requested by ${widget.userName} from ${widget.company}",
         "body": """
-    <p>${placeholderText.replaceAll('\n', '<br>')}</p>
-    <p><strong>Proposed time:</strong><br>
-    Start time: $startTime<br>
-    End time: $formattedEndTime</p>
+  <div style="max-width: 100%;">
+    <img src="https://admin.connected.go.ke/assets/a14f7470-d026-4d56-848e-4e0d5e0ebc18?email_banner.jpg" alt="Meeting Banner" style="width: 100%; max-width: 600px; height: auto; margin-bottom: 20px;">
+  </div>
+  
+  <p>${placeholderText.replaceAll('\n', '<br>')}</p>
+  <p><strong>Proposed time:</strong><br>
+  Start time: $startTime<br>
+  End time: $formattedEndTime</p>
 
-
-
-    <p>
-      <a href="https://cioafrica.co/meetings" 
-         style="display: inline-block; padding: 10px 20px; background-color: #007BFF; 
-                color: white; text-decoration: none; border-radius: 4px;">
-         Accept Request
-      </a>
-    </p>
-  """,
+  <p>
+    <a href="https://cioafrica.co/meetings" 
+       style="display: inline-block; padding: 10px 20px; background-color: #007BFF; 
+              color: white; text-decoration: none; border-radius: 4px;">
+       Accept Request
+    </a>
+  </p>
+""",
       });
 
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
@@ -349,7 +355,7 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
             maxLines: null,
             controller: textEditingController,
             decoration: InputDecoration(
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
               labelText: "Message",
               contentPadding:
                   new EdgeInsets.symmetric(vertical: 30.0, horizontal: 10.0),
@@ -403,52 +409,54 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
 
             ],
           ),
+verticalSpace(height: 50),
 
+          Center(
+            child: SizedBox(
+                height: 40,
+                width: 135,
+                child: isSending
+                    ? const SpinKitCircle(
+                  color: kConnectedBlue,
+                ): primaryButton2(
+                  buttonText: "Send",
+                  context: context,
+                    onPressedFunction: () async {
 
-          SizedBox(
-              height: 40,
-              width: 135,
-              child: ElevatedButton(
-                  onPressed: () async {
+                        setState(() {
+                          isSending = true;
+                        });
+                        await requestMeeting(
+                            currentUserID: profileProvider.userID!,
+                            requestedBy:
+                                "${profileProvider.firstName} ${profileProvider.lastName}",
+                            meetingWith: widget.meetingWith,
+                            message: "$placeholderText.\n\n"
+                                "Proposed time:\n"
+                                "Start time: $startTime\n"
+                                "End time: $formattedEndTime\n",
+                            company: profileProvider.company,
+                            otherUserID: widget.otherUSerID,
+                            startTime: startTime,
+                            tableSlot: tableSlot,
+                            requestedByID: profileProvider.userID.toString(),
+                            meetingWithI: widget.otherUSerID.toString(), requestedByEmail: profileProvider.email,
+                            meetingWithEmail: widget.recipientEmail,
+                            requestedByPhone: widget.requestedByphone,
+                            meetingWithPhone:  widget.meetingWithPhone);
+                        await sendMeetingNotification(ownerID: profileProvider.userID!);
+                        //sendMeetingRequest();
+                        setState(() {
+                          isSending = false;
+                        });
+                        Fluttertoast.showToast(
+                            backgroundColor: kSuccessGreen,
+                            msg: "Meeting request sent");
+                        Navigator.of(context).pop();
 
-                      setState(() {
-                        isSending = true;
-                      });
-                      await requestMeeting(
-                          currentUserID: profileProvider.userID!,
-                          requestedBy:
-                              "${profileProvider.firstName} ${profileProvider.lastName}",
-                          meetingWith: widget.meetingWith,
-                          message: "$placeholderText.\n\n"
-                              "Proposed time:\n"
-                              "Start time: $startTime\n"
-                              "End time: $formattedEndTime\n",
-                          company: profileProvider.company,
-                          otherUserID: widget.otherUSerID,
-                          startTime: startTime,
-                          tableSlot: tableSlot,
-                          requestedByID: profileProvider.userID.toString(),
-                          meetingWithI: widget.otherUSerID.toString(), requestedByEmail: profileProvider.email,
-                          meetingWithEmail: widget.recipientEmail);
-                      await sendMeetingNotification(ownerID: profileProvider.userID!);
-                      //sendMeetingRequest();
-                      setState(() {
-                        isSending = false;
-                      });
-                      Fluttertoast.showToast(
-                          backgroundColor: kSuccessGreen,
-                          msg: "Meeting request sent");
-                      Navigator.of(context).pop();
-
-                  },
-                  child: isSending
-                      ? const SpinKitCircle(
-                          color: kWhiteColor,
-                        )
-                      : const Text(
-                          "Send",
-                          style: TextStyle(fontSize: 14),
-                        )))
+                    },
+                   backgroundColor: kConnectedBlue)),
+          )
         ],
       ),
     );

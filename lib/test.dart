@@ -1,222 +1,210 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
-enum MeetingStatus {
-  accepted,
-  pending,
-}
+class OutgoingMeetingWidget extends StatelessWidget {
+  final String startTime;
+  final String message;
+  final String wantsToMeetWithName;
+  final bool isAccepting;
+  final VoidCallback acceptMeetingFunc;
+  final VoidCallback declineMeetingFunc;
 
-class MeetingData {
-  final DateTime meetingTime;
-  final String topic;
-  final MeetingStatus status;
-  final List<String> participants;
-
-  MeetingData({
-    required this.meetingTime,
-    required this.topic,
-    required this.status,
-    required this.participants,
-  });
-}
-
-class MeetingCard extends StatelessWidget {
-  final MeetingData meeting;
-  final VoidCallback? onTap;
-
-  const MeetingCard({
+  const OutgoingMeetingWidget({
     Key? key,
-    required this.meeting,
-    this.onTap,
+    required this.startTime,
+    required this.isAccepting,
+    required this.acceptMeetingFunc,
+    required this.declineMeetingFunc,
+    required this.message,
+    required this.wantsToMeetWithName,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Card(
       elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      meeting.topic,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  _buildStatusChip(),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  const Icon(Icons.access_time, size: 16, color: Colors.grey),
-                  const SizedBox(width: 8),
-                  Text(
-                    _formatDateTime(meeting.meetingTime),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Participants',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _buildParticipantsList(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatusChip() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: meeting.status == MeetingStatus.accepted
-            ? Colors.green.shade50
-            : Colors.orange.shade50,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: meeting.status == MeetingStatus.accepted
-              ? Colors.green.shade300
-              : Colors.orange.shade300,
-        ),
       ),
-      child: Text(
-        meeting.status == MeetingStatus.accepted ? 'Accepted' : 'Pending',
-        style: TextStyle(
-          fontSize: 12,
-          color: meeting.status == MeetingStatus.accepted
-              ? Colors.green.shade700
-              : Colors.orange.shade700,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildParticipantsList() {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: meeting.participants.map((participant) {
-        return _buildParticipantChip(participant);
-      }).toList(),
-    );
-  }
-
-  Widget _buildParticipantChip(String name) {
-    final initials = name.split(' ')
-        .map((part) => part.isNotEmpty ? part[0].toUpperCase() : '')
-        .join('')
-        .substring(0, name.split(' ').length > 1 ? 2 : 1);
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        CircleAvatar(
-          radius: 14,
-          backgroundColor: Colors.blue.shade100,
-          child: Text(
-            initials,
-            style: TextStyle(
-              color: Colors.blue.shade700,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header with status badge
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF0EA), // Light version of kCIOPink
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.schedule_send,
+                        size: 16,
+                        color: Color(0xFFE94E77), // kCIOPink
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        "Request sent",
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: const Color(0xFFE94E77), // kCIOPink
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                // Time badge
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.access_time, size: 14, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Text(
+                        "Today, $startTime - ${_addThirtyMinutes(startTime)}",
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ),
+
+            const SizedBox(height: 16),
+
+            // Recipient info
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: const Color(0xFFE94E77).withOpacity(0.2),
+                  child: Text(
+                    wantsToMeetWithName[0].toUpperCase(),
+                    style: const TextStyle(
+                      color: Color(0xFFE94E77),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        wantsToMeetWithName,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "Meeting request recipient",
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 16),
+
+            // Message section
+            Text(
+              "Your message",
+              style: theme.textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[800],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey.withOpacity(0.2)),
+              ),
+              child: Text(
+                message,
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Actions
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: declineMeetingFunc,
+                  icon: const Icon(Icons.close, size: 18),
+                  label: const Text("Cancel Request"),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red[700],
+                    side: BorderSide(color: Colors.red[300]!),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton.icon(
+                  onPressed: acceptMeetingFunc,
+                  icon: const Icon(Icons.edit, size: 18),
+                  label: const Text("Edit Request"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF53BFA1), // A nice teal color
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-        const SizedBox(width: 4),
-        Text(
-          name,
-          style: const TextStyle(fontSize: 14),
-        ),
-      ],
+      ),
     );
   }
 
-  String _formatDateTime(DateTime dateTime) {
-    final dateFormat = DateFormat('EEE, MMM d');
-    final timeFormat = DateFormat('h:mm a');
-    return '${dateFormat.format(dateTime)} at ${timeFormat.format(dateTime)}';
-  }
-}
+  String _addThirtyMinutes(String time) {
+    // This is a placeholder for the original addThirtyMinutes function
+    // Assuming the original function logic is implemented elsewhere
+    // Just for demonstration, we'll make a simple implementation
+    final parts = time.split(':');
+    if (parts.length != 2) return time;
 
-// Example usage
-class MeetingCardExample extends StatelessWidget {
-  const MeetingCardExample({Key? key}) : super(key: key);
+    int hour = int.tryParse(parts[0]) ?? 0;
+    int minute = int.tryParse(parts[1]) ?? 0;
 
-  @override
-  Widget build(BuildContext context) {
-    // Sample meeting data
-    final MeetingData sampleMeeting = MeetingData(
-      meetingTime: DateTime.now().add(const Duration(days: 2, hours: 3)),
-      topic: "Q2 Product Strategy",
-      status: MeetingStatus.accepted,
-      participants: [
-        "Jane Smith",
-        "John Doe",
-        "Alice Johnson",
-        "Bob Williams"
-      ],
-    );
+    minute += 30;
+    if (minute >= 60) {
+      minute -= 60;
+      hour += 1;
+    }
+    if (hour >= 24) {
+      hour -= 24;
+    }
 
-    final MeetingData pendingMeeting = MeetingData(
-      meetingTime: DateTime.now().add(const Duration(days: 1)),
-      topic: "Budget Review",
-      status: MeetingStatus.pending,
-      participants: [
-        "Michael Chen",
-        "Sarah Lee",
-        "David Wong",
-      ],
-    );
-
-    return Column(
-      children: [
-        MeetingCard(
-          meeting: sampleMeeting,
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Accepted meeting tapped')),
-            );
-          },
-        ),
-        MeetingCard(
-          meeting: pendingMeeting,
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Pending meeting tapped')),
-            );
-          },
-        ),
-      ],
-    );
+    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
   }
 }

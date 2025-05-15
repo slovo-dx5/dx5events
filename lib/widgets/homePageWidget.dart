@@ -1,12 +1,11 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:upgrader/upgrader.dart';
 
 import '../constants.dart';
 import '../providers.dart';
-
+import '../screens/dx5ve_social/social_feed.dart';
 import '../screens/dx5veScreens/eventSpeakersScreen.dart';
 import '../screens/dx5veScreens/dx5ve_partners_screen.dart';
 import '../screens/dx5veScreens/event_sessions_screen.dart';
@@ -25,19 +24,26 @@ class HomePageWidget extends StatefulWidget {
   String eventDayOfWeek;
   String eventDate;
   String eventLocation;
-  String eventID;int eventDay;
+  String eventID;
+  int eventDay;
   int eventMonth;
   int eventYear;
   bool isCustomerEvent;
-  HomePageWidget(
-      {super.key,
-        required this.isCustomerEvent,
-      required this.coverImagepath,
-      required this.eventName,required this.eventDate,
-      required this.eventDayOfWeek,required this.eventLocation,required this.eventID,
-      required this.shortEventDescription , required this.eventDay,
-        required this.eventMonth,
-        required this.eventYear});
+
+  HomePageWidget({
+    super.key,
+    required this.isCustomerEvent,
+    required this.coverImagepath,
+    required this.eventName,
+    required this.eventDate,
+    required this.eventDayOfWeek,
+    required this.eventLocation,
+    required this.eventID,
+    required this.shortEventDescription,
+    required this.eventDay,
+    required this.eventMonth,
+    required this.eventYear
+  });
 
   @override
   State<HomePageWidget> createState() => _HomePageWidgetState();
@@ -47,214 +53,284 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   @override
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return UpgradeAlert(
       upgrader: Upgrader(
-          // dialogStyle: Platform.isAndroid
-          //     ? UpgradeDialogStyle.material
-          //     : UpgradeDialogStyle.cupertino,
-          // showIgnore: false,
-          durationUntilAlertAgain: const Duration(hours: 1)),
+          durationUntilAlertAgain: const Duration(hours: 1)
+      ),
       child: Scaffold(
-          body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Stack(
-              alignment: Alignment.bottomLeft,
-              children: [
-                Image.asset(
-                  widget.coverImagepath,
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height * 0.3,
-                  fit: BoxFit.cover,
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(15.0, 15, 15, 0),
-              child: Row(crossAxisAlignment: CrossAxisAlignment.start,
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Hero Section with improved overlay for better text readability
+              Stack(
                 children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width*0.75,
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,
+                  // Cover Image
+                  Image.asset(
+                    "assets/images/themes/home_bg.jpg",
+                    width: screenWidth,
+                    height: screenHeight * 0.35, // Made taller for more visual impact
+                    fit: BoxFit.cover,
+                  ),
+                  // Gradient overlay for better text visibility
+                  Container(
+                    width: screenWidth,
+                    height: screenHeight * 0.35,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.1),
+                          Colors.black.withOpacity(0.7),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Event title overlay
+                  Positioned(
+                    bottom: 20,
+                    left: 20,
+                    right: 20,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(widget.eventName,style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),),
+                        Text(
+                          widget.eventName.toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.center,crossAxisAlignment: CrossAxisAlignment.center,
-
                           children: [
-                            const Icon(Icons.calendar_month),
-                            horizontalSpace(width: 5),
+                            const Icon(Icons.calendar_month, color: Colors.white, size: 16),
+                            const SizedBox(width: 5),
                             Text(
                               widget.eventDate,
-                              style: const TextStyle(fontSize: 10),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-
+                            const SizedBox(width: 15),
+                            const Icon(Icons.location_on, color: Colors.white, size: 16),
+                            const SizedBox(width: 5),
+                            Text(
+                              widget.eventLocation,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ],
                         ),
                       ],
                     ),
                   ),
-                  Container(padding: EdgeInsets.all(5),
-                    height: 50,
-                    width: 60,
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(5),),
-                    child: Column(
-                      children: [
-                        const Icon(
-                          Icons.location_on_sharp,
-                          color: kConnectedBlue,
-                        ),Flexible(child: AutoSizeText(widget.eventLocation, maxFontSize: 10,minFontSize: 5,))
-                      ],
-                    ),
-                  )
                 ],
               ),
-            ),verticalSpace(height: 10),
-            //Text(widget.eventDescription),
-            Padding(
-              padding: const EdgeInsets.only(left:8.0, right: 8.0),
-              child: Text( widget.shortEventDescription,),
-            ),
-            const Divider(color: kConnectedBlue),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                CIOWidgets().gradientItemWidget(
-                  firstColor: kConnectedGreen,
-                  secondColor: kConnectedGreen,
-                  context: context,
-                  editIcon: Image.asset(
-                    "assets/icons/social-media.png",
-                    width: 10,
-                    height: 10,
-                  ),
-                  // screen: EventSpeakersScreen(eventName: widget.eventName,eventID: widget.eventID),
-                  screen: const SocialFeed(),
-                  itemName: 'Social', analyticsActionName: 'social_page_opened',
-                ),
-                // CIOWidgets().gradientItemWidget(
-                //   firstColor: kCISOGreenYellow.withOpacity(0.7),
-                //   secondColor: kCISOLightOrange.withOpacity(0.7),
-                //   context: context,
-                //   editIcon: Image.asset(
-                //     "assets/icons/reward.png",
-                //     width: 10,
-                //     height: 10,
-                //   ),
-                //   //screen: RewardsPage(eventID: int.parse(widget.eventID), userID: profileProvider.userID!,),
-                //   itemName: 'Rewards', analyticsActionName: 'rewards_page_opened',
-                // ),
-                CIOWidgets().gradientItemWidget(
-                  firstColor: kConnectedRed,
-                  secondColor: kConnectedRed,
-                  context: context,
-                  editIcon: Image.asset(
-                    "assets/icons/scanner.png",
-                    width: 10,
-                    height: 10,
-                  ),
-                  screen: GetContact( ownerID: profileProvider.userID!,),
-                  itemName: 'Contact Scanner', analyticsActionName: 'contact_scanner_page_opened',
-                ),
-              ],
-            ),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                CIOWidgets().gradientItemWidget(
-                  firstColor: kConnectedBlue,
-                  secondColor: kConnectedBlue,
-                  context: context,
-                  editIcon: Image.asset(
-                    "assets/icons/speaker.png",
-                    width: 10,
-                    height: 10,
+              // Event Description Section
+              Container(
+                padding: const EdgeInsets.all(20),
+                child: Text(
+                  widget.shortEventDescription,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    height: 1.5,
+                    color: Colors.black87,
                   ),
-                  // screen: EventSpeakersScreen(eventName: widget.eventName,eventID: widget.eventID),
-                  screen: EventSpeakersScreen(eventID: widget.eventID,),
-                  itemName: 'Speakers', analyticsActionName: 'speakers_page_opened',
+                  textAlign: TextAlign.center,
                 ),
-                CIOWidgets().gradientItemWidget(
-                  firstColor: kConnectedOrange,
-                  secondColor: kConnectedOrange,
-                  context: context,
-                  editIcon: Image.asset(
-                    "assets/icons/sponsors.png",
-                    width: 10,
-                    height: 10,
-                  ),
-                  screen: CISOSponsorsScreen(eventID: widget.eventID,),
-                  itemName: 'Sponsors', analyticsActionName: 'sponsors_page_opened',
+              ),
+
+              const Divider(),
+
+              // Main Navigation Grid - Redesigned with card approach
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        _buildFeatureCard(
+                          context,
+                          'Social',
+                          'assets/icons/social-media.png',
+                          kConnectedGreen,
+                          const SocialFeed(),
+                          'social_page_opened',
+                        ),
+                        const SizedBox(width: 12),
+                        _buildFeatureCard(
+                          context,
+                          'Contact Scanner',
+                          'assets/icons/scanner.png',
+                          kConnectedRed,
+                          GetContact(ownerID: profileProvider.userID!),
+                          'contact_scanner_page_opened',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        _buildFeatureCard(
+                          context,
+                          'Speakers',
+                          'assets/icons/speaker.png',
+                          kConnectedBlue,
+                          EventSpeakersScreen(eventID: widget.eventID),
+                          'speakers_page_opened',
+                        ),
+                        const SizedBox(width: 12),
+                        _buildFeatureCard(
+                          context,
+                          'Sponsors',
+                          'assets/icons/sponsors.png',
+                          kConnectedOrange,
+                          CISOSponsorsScreen(eventID: widget.eventID),
+                          'sponsors_page_opened',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        _buildFeatureCard(
+                          context,
+                          'Agenda',
+                          'assets/icons/agenda.png',
+                          kConnectedGreen,
+                          EventAgendaScreen(
+                            eventID: widget.eventID,
+                            eventDay: widget.eventDay,
+                            eventMonth: widget.eventMonth,
+                            eventYear: widget.eventYear,
+                            eventLocation: widget.eventLocation,
+                            eventDayOfWeek: widget.eventDayOfWeek,
+                          ),
+                          'agenda_page_opened',
+                        ),
+                        const SizedBox(width: 12),
+                        _buildFeatureCard(
+                          context,
+                          'Attendees',
+                          'assets/icons/attendee.png',
+                          kConnectedOrange,
+                          AttendeesScreen(
+                            eventID: widget.eventID,
+                            isCustomerEvent: widget.isCustomerEvent,
+                          ),
+                          'attendees_page_opened',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        _buildFeatureCard(
+                          context,
+                          'My Sessions',
+                          'assets/icons/sessions.png',
+                          kConnectedBlue,
+                          UserSessionsScreen(
+                            userid: profileProvider.userID!,
+                            eventID: widget.eventID,
+                            eventDay: widget.eventDay,
+                            eventLocation: widget.eventLocation,
+                            eventMonth: widget.eventMonth,
+                            eventYear: widget.eventYear,
+                            eventDayOfWeek: widget.eventDayOfWeek,
+                          ),
+                          'sessions_page_opened',
+                        ),
+                        // Empty space for the second column to maintain layout
+                        const Expanded(child: SizedBox()),
+                      ],
+                    ),
+                  ],
                 ),
-                CIOWidgets().gradientItemWidget(
-                  firstColor: kConnectedGreen,
-                  secondColor: kConnectedGreen,
-                  context: context,
-                  editIcon: Image.asset(
-                    "assets/icons/agenda.png",
-                    width: 10,
-                    height: 10,
-                  ),
-                  screen: EventAgendaScreen(eventID: widget.eventID, eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear, eventLocation: widget.eventLocation, eventDayOfWeek: widget.eventDayOfWeek,),
-                  itemName: 'Agenda', analyticsActionName: 'agenda_page_opened',
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                CIOWidgets().gradientItemWidget(
-                  firstColor: kConnectedOrange,
-                  secondColor: kConnectedOrange,
-                  context: context,
-                  editIcon: Image.asset(
-                    "assets/icons/attendee.png",
-                    width: 10,
-                    height: 10,
-                  ),
-                  screen: AttendeesScreen(eventID: widget.eventID, isCustomerEvent: widget.isCustomerEvent,),
-                  itemName: 'Attendees', analyticsActionName: 'attendees_page_opened',
-                ),
-                // CIOWidgets().gradientItemWidget(
-                //   firstColor: kCISOOrange,
-                //   secondColor: kCISOPurple,
-                //   context: context,
-                //   editIcon: Image.asset(
-                //     "assets/icons/exhibitors.png",
-                //     width: 10,
-                //     height: 10,
-                //   ),
-                //   screen: CISOPartnersScreen(eventID: widget.eventID,),
-                //   itemName: 'Partners', analyticsActionName: 'partners_page_opened',
-                // ),
-                CIOWidgets().gradientItemWidget(
-                  firstColor: kConnectedBlue,
-                  secondColor:kConnectedBlue,
-                  context: context,
-                  editIcon: Image.asset(
-                    "assets/icons/sessions.png",
-                    width: 10,
-                    height: 10,
-                  ),
-                  screen: UserSessionsScreen(
-                    userid: profileProvider.userID!,
-                    eventID: widget.eventID,eventDay: widget.eventDay, eventLocation: widget.eventLocation, eventMonth: widget.eventMonth,eventYear: widget.eventYear, eventDayOfWeek: widget.eventDayOfWeek,                ),
-                  itemName: 'My Sessions', analyticsActionName: 'sessions_page_opened',
-                ),
-              ],
-            ),
-            //CIOWidgets().clickableWidget(context: context, assetPath: "assets/images/backgrounds/ciobanner.jpg"),
-            //ClickableBannerWidget(assetPath: 'assets/images/backgrounds/ciobanner.jpg',),
-            verticalSpace(height: 15),
-            // SizedBox(
-            //     height: 100,
-            //     width: MediaQuery.of(context).size.width,
-            //     child: HorizontalCardScroll())
-          ],
+              ),
+
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
-      )),
+      ),
+    );
+  }
+
+  // Enhanced feature card widget
+  Widget _buildFeatureCard(
+      BuildContext context,
+      String title,
+      String iconPath,
+      Color color,
+      Widget screen,
+      String analyticsAction,
+      ) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          // Add your analytics tracking here if needed
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => screen),
+          );
+        },
+        child: Container(
+          height: 110,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                spreadRadius: 1,
+                blurRadius: 6,
+                offset: const Offset(0, 3),
+              ),
+            ],
+            border: Border.all(color: color.withOpacity(0.3), width: 1.5),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Image.asset(
+                  iconPath,
+                  width: 24,
+                  height: 24,
+                  color: color,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

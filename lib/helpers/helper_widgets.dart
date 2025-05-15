@@ -48,7 +48,10 @@ attendeeWidget({
   required BuildContext context,
   required String firstName,
   required String lastName,
+  required String requestedByphone,
+  required String meetingWithPhone,
   required String role,
+
   required String company,
   required String profileid,
   required String attendeeEmail,
@@ -69,7 +72,7 @@ attendeeWidget({
             Role: role,
             Company: company,
             Bio: "",
-           profileid: profileid??'', id: userID, email: attendeeEmail,
+           profileid: profileid??'', id: userID, email: attendeeEmail, requestedByphone: requestedByphone, meetingWithPhone: meetingWithPhone,
           ),
           withNavBar: false,
           pageTransitionAnimation: PageTransitionAnimation.slideRight,
@@ -115,7 +118,9 @@ attendeeWidget({
                 role: role,
                 company: company,
 
-                profileid: profileid??'', userID: userID, context: context, email: attendeeEmail,)
+                profileid: profileid??'', userID: userID,
+                context: context, email: attendeeEmail,
+                requestedByphone: requestedByphone, meetingWithPhone: meetingWithPhone,)
             ],
           ),
         ),
