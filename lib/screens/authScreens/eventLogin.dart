@@ -56,15 +56,9 @@ class _EventLoginState extends State<EventLogin> {
     super.initState();
   }
   findAttendeeByEmail(String emailToCheck) {
-    return widget.isCustomerEvent==false? attendees!.firstWhere(
+    return attendees!.firstWhere(
           (attendee) => attendee.workEmail.toLowerCase() == emailToCheck.toLowerCase(),
-
-    ):customerAttendees!.firstWhere(
-          (attendee) => attendee.email!.toLowerCase() == emailToCheck.toLowerCase(),
-
-    )
-
-    ;
+    );
   }
   sendOTP({required String email})async{
     Map<String, dynamic> emailData = {
@@ -221,7 +215,8 @@ class _EventLoginState extends State<EventLogin> {
 
 
   Future fetchAllAttendees() async {
-    final response = widget.isCustomerEvent==true?await DioFetchService().fetchCustomerEventsAttendees(eventID: widget.eventID):await DioFetchService().fetchCIOAttendees(eventID: widget.eventID);
+
+    final response = widget.isCustomerEvent==true?await DioFetchService().fetchCustomerEventsAttendees(eventID: widget.eventID):await DioFetchService().fetchAllCIOAttendees(eventID: widget.eventID);
 
 
 

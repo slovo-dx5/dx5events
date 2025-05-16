@@ -68,12 +68,23 @@ class DioFetchService extends DioClient {
       throw Exception("Failed to fetch attendees: ${ex.message}");
     }
   }
+  Future<Response> fetchAllCIOAttendees({required String eventID}) async {
+    try {
+      return await _client
+          .init()
+          .get("${BaseURL.Baseurl}/items/event_registrations?filter[eventId][_eq]=$eventID&filter[status][_eq]=approved&limit=2500",
+        //   options: buildCacheOptions(const Duration(minutes: 30)),
+      );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
 
   Future<Response> fetchCustomerEventsAttendees({required String eventID}) async {
     try {
       return await _client
           .init()
-          .get("${BaseURL.Baseurl}/items/Customer_Event_Registrations?filter[eventID][_eq]=$eventID&filter[status][_eq]=approved&limit=800",
+          .get("${BaseURL.Baseurl}/items/event_Registrations?filter[eventID][_eq]=$eventID&filter[status][_eq]=approved&limit=4000",
      //   options: buildCacheOptions(const Duration(minutes: 30)),
            );
     } on DioError catch (ex) {

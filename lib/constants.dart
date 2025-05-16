@@ -73,11 +73,12 @@ const kLightNormalText = Color(0xFF656565);
 const kSuccessGreen = Color(0xFF4CAF50);
 const kLogoutRed = Color(0xFFFF7171);
 
-const kPrimaryColor = Color(0xFFa14ea5);
+const kPrimaryColor = Color(0xFF44A0D3);
+
 const kGoldColor = Color(0xFFd4af37);
 const kScaffoldBackground = Color(0xFFF3F3F8);
 const kLightAppbar = Color(0xFFF5F6FA);
-Color kPrimaryColorLight = const Color(0xFFa14ea5).withOpacity(0.25);
+Color kPrimaryColorLight = const Color(0xFF44A0D3).withOpacity(0.25);
 
 const kWhiteColor = Colors.white;
 
@@ -89,7 +90,7 @@ Color kTextColorBlackLighter = const Color(0xFF000000).withOpacity(0.75);
 const kTextColorGrey = Color(0xFF757575);
 const kTextColorNavy = Color(0xFF003665);
 
-const kCIOPink = Color(0xFFa14ea5);
+const kCIOPink = Color(0xFF44A0D3);
 const kCIOPurple = Color(0xFF3e7eb8);
 const kNashPurple = Color(0xFF5927FF);
 
