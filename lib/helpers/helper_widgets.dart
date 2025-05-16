@@ -43,7 +43,7 @@ menuItem(
   );
 }
 
-attendeeWidget({
+Widget attendeeWidget({
   required String assetName,
   required BuildContext context,
   required String firstName,
@@ -51,7 +51,6 @@ attendeeWidget({
   required String requestedByphone,
   required String meetingWithPhone,
   required String role,
-
   required String company,
   required String profileid,
   required String attendeeEmail,
@@ -60,7 +59,7 @@ attendeeWidget({
 }) {
   return SizedBox(
     height: 85,
-    width: MediaQuery.of(context).size.width,
+    width: double.infinity,
     child: GestureDetector(
       onTap: () {
         PersistentNavBarNavigator.pushNewScreen(
@@ -72,7 +71,11 @@ attendeeWidget({
             Role: role,
             Company: company,
             Bio: "",
-           profileid: profileid??'', id: userID, email: attendeeEmail, requestedByphone: requestedByphone, meetingWithPhone: meetingWithPhone,
+            profileid: profileid,
+            id: userID,
+            email: attendeeEmail,
+            requestedByphone: requestedByphone,
+            meetingWithPhone: meetingWithPhone,
           ),
           withNavBar: false,
           pageTransitionAnimation: PageTransitionAnimation.slideRight,
@@ -81,14 +84,22 @@ attendeeWidget({
       child: Card(
         elevation: 0.2,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Row(
             children: [
-             if(profileid=="" || profileid==null) AttendeeProfileInitials(firstName: firstName??".", lastName: lastName,),
-             if(profileid!="" && profileid!=null) AttendeeProfilePicWidget(profileID: profileid,),
-              horizontalSpace(width: 20),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.4,
+              // Profile Image or Initials
+              profileid.isEmpty
+                  ? AttendeeProfileInitials(
+                firstName: firstName,
+                lastName: lastName,
+              )
+                  : AttendeeProfilePicWidget(profileID: profileid),
+
+              const SizedBox(width: 12),
+
+              // Name and Role (flexible space)
+              Expanded(
+                flex: 3,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,29 +109,44 @@ attendeeWidget({
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w500),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     Text(
                       "$role at $company",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400,
-                          color: kTextColorGrey),
-                    )
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        color: kTextColorGrey,
+                      ),
+                    ),
                   ],
                 ),
               ),
-              connectButton( assetName: assetName,
-                firstName: firstName,
-                lastName: lastName,
-                role: role,
-                company: company,
 
-                profileid: profileid??'', userID: userID,
-                context: context, email: attendeeEmail,
-                requestedByphone: requestedByphone, meetingWithPhone: meetingWithPhone,)
+              // Spacer between text and button
+              const SizedBox(width: 8),
+
+              // Connect Button
+              Flexible(
+                flex: 2,
+                child: connectButton(
+                  assetName: assetName,
+                  firstName: firstName,
+                  lastName: lastName,
+                  role: role,
+                  company: company,
+                  profileid: profileid,
+                  userID: userID,
+                  context: context,
+                  email: attendeeEmail,
+                  requestedByphone: requestedByphone,
+                  meetingWithPhone: meetingWithPhone,
+                ),
+              ),
             ],
           ),
         ),
@@ -128,6 +154,7 @@ attendeeWidget({
     ),
   );
 }
+
 
 
 

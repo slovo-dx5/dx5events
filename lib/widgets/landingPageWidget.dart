@@ -207,46 +207,7 @@ class UpcomingEventWidget2 extends StatelessWidget {
           // Centered text
           Column(
             children: [
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   children: [
-              //     Row(
-              //       children: [
-              //         Icon(
-              //           Icons.location_on,
-              //           color: Colors.white.withOpacity(0.75),
-              //         ),
-              //         Text(
-              //           location,
-              //           style: TextStyle(
-              //               color: Colors.white.withOpacity(0.75),
-              //               fontWeight: FontWeight.w700,
-              //               fontSize: 15),
-              //         ),
-              //       ],
-              //     ),
-              //     Column(
-              //       children: [
-              //         verticalSpace(height: 10),
-              //         Text(
-              //           "Starting: $dayMonth $date",
-              //           style: TextStyle(
-              //               color: Colors.white.withOpacity(0.75),
-              //               fontWeight: FontWeight.w700,
-              //               fontSize: 15),
-              //         ),
-              //         verticalSpace(height: 10),
-              //         Text(
-              //           "Ending: $endDayMonth $endDate",
-              //           style: TextStyle(
-              //               color: Colors.white.withOpacity(0.75),
-              //               fontWeight: FontWeight.w700,
-              //               fontSize: 15),
-              //         ),
-              //       ],
-              //     )
-              //   ],
-              // ),
+
               const Spacer(),
               // Text(
               //   eventName,

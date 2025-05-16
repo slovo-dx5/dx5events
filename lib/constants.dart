@@ -195,52 +195,58 @@ primaryButton2(
         child: Text(
           buttonText,
           style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              fontSize: 12.5,
               color: kTextColorBlack),
         )),
   );
 }
 
-connectButton(
-    {required String assetName,
-    required String firstName,
-    required String lastName,
-    required String role,
-    required String company,
-    required String profileid,
-    required String email,
-      required String requestedByphone,
-      required String meetingWithPhone,
-    required int userID,
-    required BuildContext context}) {
-  return SizedBox(
-    height: 35,
-    width: 145,
-    child: primaryButton2(
-      backgroundColor: kConnectedBlue,
-      context: context,
-      onPressedFunction: () {
-        PersistentNavBarNavigator.pushNewScreen(
-          context,
-          screen: IndividualAttendeeScreen(
-            assetName: assetName,
-            FirstName: firstName,
-            LastName: lastName,
-            Role: role,
-            Company: company,
-            profileid: profileid, id: userID, Bio: '', email: email,
-            requestedByphone: requestedByphone, meetingWithPhone: meetingWithPhone,
-          ),
-          withNavBar: false,
-          pageTransitionAnimation: PageTransitionAnimation.slideRight,
-        );
-      },
-
-      buttonText: "Connect",
+Widget connectButton({
+  required String assetName,
+  required String firstName,
+  required String lastName,
+  required String role,
+  required String company,
+  required String profileid,
+  required String email,
+  required String requestedByphone,
+  required String meetingWithPhone,
+  required int userID,
+  required BuildContext context,
+}) {
+  return IntrinsicWidth(
+    child: SizedBox(
+      height: 35,
+      child: primaryButton2(
+        backgroundColor: kConnectedBlue,
+        context: context,
+        onPressedFunction: () {
+          PersistentNavBarNavigator.pushNewScreen(
+            context,
+            screen: IndividualAttendeeScreen(
+              assetName: assetName,
+              FirstName: firstName,
+              LastName: lastName,
+              Role: role,
+              Company: company,
+              profileid: profileid,
+              id: userID,
+              Bio: '',
+              email: email,
+              requestedByphone: requestedByphone,
+              meetingWithPhone: meetingWithPhone,
+            ),
+            withNavBar: false,
+            pageTransitionAnimation: PageTransitionAnimation.slideRight,
+          );
+        },
+        buttonText: "Connect",
+      ),
     ),
   );
 }
+
 
 Future checkContainsKey(key, Function keyFunction) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
