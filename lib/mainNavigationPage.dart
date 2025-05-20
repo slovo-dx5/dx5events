@@ -130,7 +130,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     List<PersistentBottomNavBarItem> _navBarsItems() {
       return [
         PersistentBottomNavBarItem(
-          icon: const Icon(Icons.video_settings),
+          icon: const Icon(Icons.home),
           title: "Home",
           //  textStyle: style,
           activeColorPrimary: kConnectedBlue,

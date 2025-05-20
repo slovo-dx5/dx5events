@@ -281,6 +281,23 @@ class DioPostService extends DioClient {
     }
 
   }
+  Future<Response> sendFeedback({required Map<String, dynamic> body}) async {
+    try{
+      return await _client
+          .init()
+          .post("${BaseURL.Baseurl}/items/Feedback",
+        data: body,
+
+
+        // Set headers using the 'headers' parameter
+      );
+    } catch (ex) {
+
+      Fluttertoast.showToast(msg: "Error: Check your internet");
+      throw Exception("Feedback create error: ${ex}");
+    }
+
+  }
 
 sendMeetingEmail({required Map<String, dynamic> body}) async {
     try{

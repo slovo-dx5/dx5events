@@ -15,7 +15,7 @@ class LandingPage2 extends StatefulWidget {
 }
 
 class _LandingPage2State extends State<LandingPage2> {
-  List<String> items = ["PAST","ACTIVE", "FUTURE"];
+  List<String> items = ["PAST", "ACTIVE", "FUTURE"];
   int current = 1;
   customAppbar() {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -79,32 +79,58 @@ class ActiveEvents extends StatefulWidget {
   @override
   State<ActiveEvents> createState() => _ActiveEventsState();
 }
+
 //kdkk
 class _ActiveEventsState extends State<ActiveEvents> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height *0.85,
-      child:
-
-      UpcomingEventWidget2(imagePath: 'assets/images/themes/connected_portrait.jpg', dayMonth: 'THUR, MAY', date: '26th',
-        endDate: '29th', location: 'KENYA', endDayMonth: 'SUN, MAY', onPressedFunct: (){
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => InitialScreen(coverImagePath: 'assets/images/themes/connected_bg.jpg', eventName: 'CONNECTED AFRICA SUMMIT',
-              eventHappeningDates: 'THUR, MAY, 26TH - THUR, MAY, 29TH',
-
-              shortEventDescription: "A summit for digital transformation in Africa",
-              eventLocation: 'KENYA'
-              ,followingScreen: EventLogin(coverImagePath: 'assets/images/themes/connected_bg.jpg',
-              eventName: 'CONNECTED AFRICA SUMMIT',
-                  eventDate: 'WED, MAR, 19TH - THUR, MAR, 20TH',
-
-                  shortEventDescription: "A summit for digital transformation in Africa",
-                  eventLocation: 'KENYA', eventID: '46', eventDay: 19, eventMonth: 3, eventYear: 2025, eventDayOfWeek: 'WED',
-              isCustomerEvent: false,), eventID: '46', eventDay: 19, eventMonth: 3, eventYear: 2025, eventDayOfWeek: 'WED', isCustomerEvent: false,)),
-        );
-      }, eventName: 'CONNECTED AFRICA SUMMIT'
-          , containerColor: kGradientLightBlue.withOpacity(0.7), shortDescription: 'A summit for digital transformation in Africa',));
+        height: MediaQuery.of(context).size.height * 0.85,
+        child: UpcomingEventWidget2(
+          imagePath: 'assets/images/themes/connected_portrait.jpg',
+          dayMonth: 'MON, MAY',
+          date: '26th',
+          endDate: '29th',
+          location: 'KENYA',
+          endDayMonth: 'THUR, MAY',
+          onPressedFunct: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                  builder: (_) => InitialScreen(
+                        coverImagePath: 'assets/images/themes/connected_bg.jpg',
+                        eventName: 'CONNECTED AFRICA SUMMIT',
+                        eventHappeningDates: 'MON, MAY, 26TH - THUR, MAY, 29TH',
+                        shortEventDescription:
+                            "A summit for digital transformation in Africa",
+                        eventLocation: 'KENYA',
+                        followingScreen: EventLogin(
+                          coverImagePath:
+                              'assets/images/themes/connected_bg.jpg',
+                          eventName: 'CONNECTED AFRICA SUMMIT',
+                          eventDate: 'MON, MAY, 26TH - THUR, MAY, 29TH',
+                          shortEventDescription:
+                              "A summit for digital transformation in Africa",
+                          eventLocation: 'KENYA',
+                          eventID: '60',
+                          eventDay: 26,
+                          eventMonth: 5,
+                          eventYear: 2025,
+                          eventDayOfWeek: 'MON',
+                          isCustomerEvent: false,
+                        ),
+                        eventID: '60',
+                        eventDay: 26,
+                        eventMonth: 5,
+                        eventYear: 2025,
+                        eventDayOfWeek: 'MON',
+                        isCustomerEvent: false,
+                      )),
+            );
+          },
+          eventName: 'CONNECTED AFRICA SUMMIT',
+          containerColor: kGradientLightBlue.withOpacity(0.7),
+          shortDescription: 'A summit for digital transformation in Africa',
+        ));
   }
 }
 
@@ -163,18 +189,26 @@ class PastEvents extends StatefulWidget {
 class _PastEventsState extends State<PastEvents> {
   @override
   Widget build(BuildContext context) {
-    return  Align(alignment: Alignment.bottomCenter,
+    return Align(
+      alignment: Alignment.bottomCenter,
       // child: Center(
       //   child: Padding(
       //     padding: EdgeInsets.fromLTRB(8.0,300,8,150),
       //     child: Text("Information on Past Events Will Appear Here",style: TextStyle(fontSize: 25,fontWeight: FontWeight.w700),textAlign: TextAlign.center,),
       //   ),
       // ),
-      child:  PastEventWidget(eventName: 'CIO 100 SYMPOSIUM AND AWARDS', year: ' 2024',
-        eventAssetPath: 'assets/images/themes/cio100.jpg', eventID: 21,),
+      child: PastEventWidget(
+        eventName: 'CIO 100 SYMPOSIUM AND AWARDS',
+        year: ' 2024',
+        eventAssetPath: 'assets/images/themes/cio100.jpg',
+        eventID: 21,
+      ),
     );
-      PastEventWidget(eventName: 'CIO 100 SYMPOSIUM AND AWARDS', year: ' 2024',
-      eventAssetPath: 'assets/images/themes/cio100.jpg', eventID: 21,);
+    PastEventWidget(
+      eventName: 'CIO 100 SYMPOSIUM AND AWARDS',
+      year: ' 2024',
+      eventAssetPath: 'assets/images/themes/cio100.jpg',
+      eventID: 21,
+    );
   }
 }
-

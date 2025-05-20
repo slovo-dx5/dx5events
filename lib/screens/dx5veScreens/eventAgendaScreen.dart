@@ -117,28 +117,30 @@ getAttendeeID();
     }
   }
 
-  Future fetchDx5veAgendaHere() async {
-    final response =
-        await DioFetchService().fetchdx5veAgenda(eventID: widget.eventID);
-
-    setState(() {
-      //isFetching=false;
-    });
-
-    if (response.statusCode == 200) {
-      final eventData = AgendaModel.fromJson(response.data);
-      setState(() {
-        _sessions = eventData.days.first.sessions;
-        print("first seession is ${_sessions.first.title}");
-        agendaDays = eventData.days;
-        isLoading = false;
-      });
-
-      // return jsonData.map((userJson) => AttendeeModel.fromJson(userJson)).toList();
-    } else {
-      throw Exception('Failed to load data');
-    }
-  }
+  // Future fetchDx5veAgendaHere() async {
+  //   print("event idddddd is ${widget.eventID}");
+  //   final response =
+  //       await DioFetchService().fetchdx5veAgenda(eventID: widget.eventID);
+  //   print("respobse is ${response.data}");
+  //
+  //   setState(() {
+  //     //isFetching=false;
+  //   });
+  //
+  //   if (response.statusCode == 200) {
+  //     final eventData = AgendaModel.fromJson(response.data);
+  //     setState(() {
+  //       _sessions = eventData.days.first.sessions;
+  //       print("first seession is ${_sessions.first.title}");
+  //       agendaDays = eventData.days;
+  //       isLoading = false;
+  //     });
+  //
+  //     // return jsonData.map((userJson) => AttendeeModel.fromJson(userJson)).toList();
+  //   } else {
+  //     throw Exception('Failed to load data');
+  //   }
+  // }
 
 
 
@@ -147,14 +149,19 @@ getAttendeeID();
     try {
       final response =
           await DioFetchService().fetchdx5veAgenda(eventID: widget.eventID);
+      debugPrint("data is ${response.data}");
+
 
       final agendaModel = AgendaModel.fromJson(response.data);
+      print("agenda model is $agendaModel");
       setState(() {
         agendaDays = agendaModel.days;
+        print("agenda days count are ${agendaDays.length}");
       });
       return agendaModel.days.expand((day) => day.sessions).toList();
       //return agendaModel.days.expand((day) => day.sessions.where((sesh) => sesh.sessionId==13)).toList();
     } catch (e) {
+      print("dayes error is ${e}");
       return [];
     }
   }
@@ -196,8 +203,8 @@ getAttendeeID();
           children: [
             TableCalendar(
               weekendDays: const [
+                DateTime.saturday,
                 DateTime.sunday,
-                DateTime.monday,
                 // DateTime.tuesday,
                 // DateTime.friday,
                 // DateTime.saturday
@@ -252,7 +259,7 @@ getAttendeeID();
                   ),
                   onRefresh: () async {
                    // await dioCacheManager.clearAll();
-                    await fetchDx5veAgendaHere();
+                    //await fetchDx5veAgendaHere();
 
                     setState(() {
                       _refreshController.refreshCompleted();

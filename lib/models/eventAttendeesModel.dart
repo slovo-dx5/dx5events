@@ -7,6 +7,9 @@ class EventAttendeeModel {
   final String firstName;
   final String lastName;
   final String workEmail;
+  final bool hasDownloadedApp;
+
+
 //  final String? workPhone;
   final String phone;
   final String company;
@@ -27,6 +30,7 @@ class EventAttendeeModel {
     required this.id,
 
     required this.status,
+    required this.hasDownloadedApp,
     required this.firstName,
     required this.lastName,
     required this.workEmail,
@@ -51,6 +55,7 @@ class EventAttendeeModel {
       id: json['id'],
 
       status: json['status'],
+      hasDownloadedApp: json['app_sign_in'],
       firstName: json['first_name'],
       lastName: json['last_name'],
       workEmail: json['work_email'],
@@ -76,68 +81,4 @@ class EventAttendeeModel {
 }
 
 
-class CustomerAttendeeModel {
-  final int id;
 
-  final String status;
-  final String? name;
-  final String? email;
-//  final String? workPhone;
-  final String? phone;
-  final String? company_role;
- // final String industry;
- // final String? interests;
- // final String? modeOfAttendance;
-
-  final String eventName;
- //final String? registrantType;
-
-  final int eventID;
-  final int ?totalPoints;
-  final int attendeeId;
-  final String? profilePhoto;
-
-  CustomerAttendeeModel({
-    required this.id,
-
-    required this.status,
-     this.name,
-     this.email,
-    this.totalPoints,
-   // this.workPhone,
-     this.phone,
-     this.company_role,
-    //required this.industry,
-   // this.interests,
-   // this.modeOfAttendance,
-
-    required this.eventName,
-  ////  this.registrantType,
-    required this.eventID,
-    required this.attendeeId,
-     this.profilePhoto,
-  });
-
-  factory CustomerAttendeeModel.fromJson(Map<String, dynamic> json) {
-    return CustomerAttendeeModel(
-      id: json['id'],
-
-      status: json['status'],
-      name: json['name'],
-      email: json['email'],
-      totalPoints: json['total_points'],
-      //workPhone: json['work_phone'],
-      phone: json['phone'],
-      company_role: json['company_role'],
-
-
-
-      eventName: json['eventName'],
-
-      eventID: json['eventID'],
-      attendeeId: json['attendeeId'],
-
-      profilePhoto: json['profile_photo'],
-    );
-  }
-}

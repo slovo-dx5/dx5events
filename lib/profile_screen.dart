@@ -61,7 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       margin: const EdgeInsets.only(top: 16, bottom: 24),
       padding: const EdgeInsets.all(16),
       color: Colors.white,
-      child: Column(
+      child: qrURL==null?CircularProgressIndicator():Column(
         children: [
           const Text(
             'My QR Code',

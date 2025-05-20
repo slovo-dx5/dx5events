@@ -3,7 +3,8 @@ class BaseURL {
   static const String API_ENDPOINT = "/cio100.cioafrica.co";
 
 
-  static const String Baseurl = "https://subscriptions.cioafrica.co";
+  //static const String Baseurl = "https://subscriptions.cioafrica.co";
+  static const String Baseurl = "https://admin.connected.go.ke";
   //static const String OTPBaseurl = "https://otpapi.cioafrica.co";
   static const String OTPBaseurl = "https://otpapi.connected.go.ke";
  // static const String MailerBaseurl = "https://mailer.connected.cioafrica.co";

@@ -23,6 +23,7 @@ class IndividualAttendeeScreen extends StatefulWidget {
   String meetingWithPhone;
   String Bio;
   String profileid;
+  bool hasDownloadedApp;
   int id;
 
   IndividualAttendeeScreen(
@@ -33,6 +34,7 @@ class IndividualAttendeeScreen extends StatefulWidget {
       required this.meetingWithPhone,
       required this.FirstName,
       required this.LastName,
+      required this.hasDownloadedApp,
       required this.Role,
       required this.Company,
       required this.profileid,
@@ -123,7 +125,7 @@ class _IndividualAttendeeScreenState
     MeetingRequestBottomSheet(userName: widget.FirstName,
     meetingWith: "${widget.FirstName} ${widget.LastName}",
     otherUSerID: widget.id, company: widget.Company, recipientEmail: widget.email,
-      requestedByphone:widget.requestedByphone, meetingWithPhone: widget.meetingWithPhone ,),
+      requestedByphone:widget.requestedByphone, meetingWithPhone: widget.meetingWithPhone, hasDownloadedApp: widget.hasDownloadedApp ,),
 
 
         ]),

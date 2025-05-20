@@ -113,15 +113,15 @@ class SpeakerReference {
 }
 
 class BreakoutSession {
-  final String title;
-  final String type;
-  final String summary;
+  var title;
+ var type;
+  var summary;
   final List<Speaker>? speakers;
 
   BreakoutSession({
-    required this.title,
-    required this.type,
-    required this.summary,
+    this.title,
+     this.type,
+     this.summary,
      this.speakers,
   });
 
@@ -140,10 +140,10 @@ class BreakoutSession {
 
 class Speaker {
   var key;
-  final String collection;
-  final String assumedRole;
+  var collection;
+  var assumedRole;
 
-  Speaker({required this.key, required this.collection, required this.assumedRole});
+  Speaker({required this.key,  this.collection,  this.assumedRole});
 
   factory Speaker.fromJson(Map<String, dynamic> json) {
     return Speaker(

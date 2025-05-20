@@ -17,8 +17,8 @@ import '../../widgets/search_debouncer.dart';
 
 class AttendeesScreen extends StatefulWidget {
   final String eventID;
-  final bool isCustomerEvent;
-  const AttendeesScreen({super.key, required this.isCustomerEvent, required this.eventID});
+
+  const AttendeesScreen({super.key, required this.eventID});
 
   @override
   State<AttendeesScreen> createState() => _AttendeesScreenState();
@@ -45,7 +45,6 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
 
   // Attendees data
   List<EventAttendeeModel> _attendeesList = [];
-  List<CustomerAttendeeModel> _customerAttendeesList = [];
   final _searchDebouncer = SearchDebouncer();
 
   @override
@@ -117,7 +116,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
             .where((item) => item['status'] == "approved")
             .toList();
 
-        if (widget.isCustomerEvent == false) {
+
           List<EventAttendeeModel> fetchedAttendees = filteredData
               .map((userJson) => EventAttendeeModel.fromJson(userJson))
               .toList();
@@ -131,21 +130,8 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
             _hasMore = fetchedAttendees.length >= _pageSize;
             _currentPage++;
           });
-        } else {
-          List<CustomerAttendeeModel> fetchedAttendees = filteredData
-              .map((userJson) => CustomerAttendeeModel.fromJson(userJson))
-              .toList();
 
-          setState(() {
-            if (_currentPage == 1) {
-              _customerAttendeesList = fetchedAttendees;
-            } else {
-              _customerAttendeesList.addAll(fetchedAttendees);
-            }
-            _hasMore = fetchedAttendees.length >= _pageSize;
-            _currentPage++;
-          });
-        }
+
       }
     } catch (e) {
       debugPrint('Error fetching attendees: $e');
@@ -224,7 +210,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8),
-        child: (_attendeesList.isEmpty && _customerAttendeesList.isEmpty && _isLoading)
+        child: (_attendeesList.isEmpty &&  _isLoading)
             ? const Center(
           child: SpinKitCircle(
             color: kConnectedBlue,
@@ -239,13 +225,11 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
           onRefresh: _refreshData,
           child: ListView.builder(
             controller: _scrollController,
-            itemCount: widget.isCustomerEvent
-                ? _customerAttendeesList.length + (_hasMore ? 1 : 0)
-                : _attendeesList.length + (_hasMore ? 1 : 0),
+            itemCount:  _attendeesList.length + (_hasMore ? 1 : 0),
             itemBuilder: (context, index) {
               // Show loading indicator at the end if more items are available
-              if (widget.isCustomerEvent && index >= _customerAttendeesList.length ||
-                  !widget.isCustomerEvent && index >= _attendeesList.length) {
+              if (
+                index >= _attendeesList.length) {
                 return const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Center(
@@ -258,33 +242,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
                 );
               }
 
-              if (widget.isCustomerEvent) {
-                final user = _customerAttendeesList[index];
-                return profileProvider.userID == user.id
-                    ? meWidget(
-                  assetName: "assetName",
-                  context: context,
-                  firstName: user.name ?? "User ${user.id}",
-                  lastName: ".",
-                  company: user.company_role ?? "Unspecified",
-                  interests: [],
-                  profileid: user.profilePhoto ?? "",
-                  userID: user.id,
-                  role: '.',
-                )
-                    : attendeeWidget(
-                  assetName: "assetName",
-                  context: context,
-                  firstName: user.name ?? "User ${user.id}",
-                  lastName: ".",
-                  role: ".",
-                  company: user.company_role ?? "Unspecified",
-                  interests: [],
-                  profileid: user.profilePhoto ?? "",
-                  userID: user.id,
-                  attendeeEmail: user.email!, requestedByphone: profileProvider.phone, meetingWithPhone: user.phone!,
-                );
-              } else {
+              {
                 final user = _attendeesList[index];
                 return profileProvider.userID == user.id
                     ? meWidget(
@@ -309,7 +267,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
                   interests: [],
                   profileid: user.profilePhoto ?? "",
                   userID: user.attendeeId, requestedByphone: profileProvider.phone,
-                  meetingWithPhone: user.phone,
+                  meetingWithPhone: user.phone, hasDownloadedApp: user.hasDownloadedApp,
                 );
               }
             },

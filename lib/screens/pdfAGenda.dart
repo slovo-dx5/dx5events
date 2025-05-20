@@ -44,7 +44,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     return Scaffold(
       appBar: AppBar(centerTitle: true,
         leading: IconButton(onPressed: () { Navigator.of(context).pop(); }, icon: Icon(Icons.arrow_back_ios),color: kPrimaryColor,),
-        title: const Text("2024 Africa CISO Summit AGENDA"),
+        title: const Text("2025 CONNECTED AFRICA SUMMIT AGENDA"),
       ),
       body: _localPDFPath == null
           ? const Center(child: CircularProgressIndicator())

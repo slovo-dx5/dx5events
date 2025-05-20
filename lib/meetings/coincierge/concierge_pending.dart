@@ -51,11 +51,9 @@ class _ConciergePendingMeetingsState extends State<ConciergePendingMeetings> {
                 onTap: ()async {
                   String phoneNumber = phone;
                   final uri = Uri.parse("tel:$phoneNumber");
-                  if (await canLaunchUrl(uri)) {
+
                   await launchUrl(uri);
-                  } else {
-                  throw 'Could not launch $uri';
-                  }
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Calling $phone')),
                   );

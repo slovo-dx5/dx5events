@@ -73,7 +73,8 @@ agendaItemWithSpeakers({required BuildContext context,
           child: IntrinsicHeight(
             child: Container(padding: const EdgeInsets.only(top: 20,bottom: 10),
             //  height:  speakers.length>4?360:190,
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: themeProvider.themeMode==ThemeModeOptions.dark?kGreyAgenda:kGradientLighterBlue.withOpacity(0.4),),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),
+                color: kGradientLighterBlue.withOpacity(0.4),),
 
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -93,14 +94,14 @@ agendaItemWithSpeakers({required BuildContext context,
 
                         const Spacer(),
 
-
-                        Padding(
-                          padding:  const EdgeInsets.only(right:10,),
-                          child: GestureDetector(onTap:
-
-                          onPressedFunction
-                              ,child: const Icon(Icons.bookmark,color: kIconDeepBlue,)),
-                        )
+                        //
+                        // Padding(
+                        //   padding:  const EdgeInsets.only(right:10,),
+                        //   child: GestureDetector(onTap:
+                        //
+                        //   onPressedFunction
+                        //       ,child: const Icon(Icons.bookmark,color: kIconDeepBlue,)),
+                        // )
                       ],
                     ),
                     Expanded(
@@ -272,7 +273,7 @@ agendaItemWithoutSpeakers({required BuildContext context,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Container(
-            height: 130,decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: themeProvider.themeMode==ThemeModeOptions.dark?kGreyAgenda:kGradientLighterBlue.withOpacity(0.5),),
+            height: 130,decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color:kGradientLighterBlue.withOpacity(0.5),),
 
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -293,13 +294,13 @@ agendaItemWithoutSpeakers({required BuildContext context,
                    const Spacer(),
 
 
-                      Padding(
-                        padding:  const EdgeInsets.only(right:10,),
-                        child: GestureDetector(onTap:
-
-                        onPressedFunction
-                        ,child: const Icon(Icons.bookmark,color: kIconDeepBlue,)),
-                      )
+                      // Padding(
+                      //   padding:  const EdgeInsets.only(right:10,),
+                      //   child: GestureDetector(onTap:
+                      //
+                      //   onPressedFunction
+                      //   ,child: const Icon(Icons.bookmark,color: kIconDeepBlue,)),
+                      // )
                     ],
                   ),Column(
                     mainAxisAlignment:

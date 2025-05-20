@@ -1,169 +1,174 @@
-
-import 'dart:convert';
-
-import 'package:dx5veevents/constants.dart';
 import 'package:flutter/material.dart';
 
+import '../../constants.dart';
 import '../../dioServices/base_url.dart';
 import '../../dioServices/dioFetchService.dart';
 import '../../models/eventModel.dart';
 import '../../models/sponsor_data_model.dart';
-import '../../widgets/cool_background.dart';
 import '../../widgets/sponsor_widget.dart';
+
 class CISOSponsorsScreen extends StatefulWidget {
-  String eventID;
-   CISOSponsorsScreen({required this.eventID,super.key});
+  final String eventID;
+  const CISOSponsorsScreen({required this.eventID, super.key});
 
   @override
   State<CISOSponsorsScreen> createState() => _CISOSponsorsScreenState();
 }
 
 class _CISOSponsorsScreenState extends State<CISOSponsorsScreen> {
-
-  List<SponsorAssociation> neosponsors = [];
-  Map <int, List<dynamic>> sponsorMap={};
-  bool isFetching=false;
-  int index = 0;
+  // Single future to handle all data loading
+  late Future<Map<int, List<dynamic>>> _sponsorDataFuture;
 
   @override
   void initState() {
-    fetchEventData();
-super.initState();
+    super.initState();
+    _sponsorDataFuture = _loadSponsorsData();
   }
 
+  // Combined data loading function that returns a single Future
+  Future<Map<int, List<dynamic>>> _loadSponsorsData() async {
+    // Load event and sponsors data in parallel
+    final eventFuture = DioFetchService().fetchEvents(eventID: widget.eventID);
+    final sponsorsFuture = DioFetchService().fetchEventSponsors();
 
+    // Wait for both futures to complete
+    final results = await Future.wait([eventFuture, sponsorsFuture]);
 
+    final eventResponse = results[0];
+    final sponsorsResponse = results[1];
 
+    // Process event data
+    final Map<String, dynamic> eventData = eventResponse.data['data'];
+    final List<dynamic> sponsorsData = eventData['sponsors'];
+    final List<SponsorAssociation> eventSponsors = sponsorsData
+        .map((sponsorData) => SponsorAssociation.fromJson(sponsorData))
+        .toList();
 
-  Future fetchSponsorById({required int key}) async {
-    try {
-      final response = await DioFetchService().fetchEventSponsors();
-      final sponsorsModel = RootSponsorDataModel.fromJson(response.data);
+    // Process all sponsors data
+    final sponsorsModel = RootSponsorDataModel.fromJson(sponsorsResponse.data);
+    final Map<int, dynamic> sponsorsById = {};
 
-      // Manually find the speaker to allow returning null.
+    // Create a lookup map for sponsors by ID for O(1) access
+    if (sponsorsModel.data != null) {
       for (var sponsor in sponsorsModel.data!) {
-        if (sponsor.id == key) {
-          return sponsor;
-        }
-      }
-      return null; // Explicitly return null if no speaker matches the key.
-    } catch (e) {
-      print(e);
-      return null;
-    }
-  }
-
-  fetchEventData()async{
-    setState(() {
-      isFetching=true;
-    });
-    final response= await DioFetchService().fetchEvents(eventID: widget.eventID);
-    final Map<String, dynamic> responseData = response.data['data'];
-
-    final List<dynamic> sponsorsData = responseData['sponsors'];
-
-
-
-    for (var sponsorData in sponsorsData) {
-      neosponsors.add(SponsorAssociation.fromJson(sponsorData));
-    }
-
-    for (var sponsor in neosponsors) {
-      try {
-        var receivedSponsor = await fetchSponsorById(key: sponsor.sponsor.key);
-        sponsorMap[index] = [sponsor.category, receivedSponsor];
-        index++; // Increment index for the next sponsor
-      } catch (e) {
-        print("fetch error is $e");
+        sponsorsById[sponsor.id!] = sponsor;
       }
     }
-    setState(() {
-      isFetching=false;
-    });
-    print("SPonsor data is ${sponsorMap.length}");
 
+    // Match event sponsors with full sponsor details
+    final Map<int, List<dynamic>> result = {};
+    int index = 0;
+
+    for (var association in eventSponsors) {
+      final sponsorDetails = sponsorsById[association.sponsor.key];
+      if (sponsorDetails != null) {
+        result[index] = [association.category, sponsorDetails];
+        index++;
+      }
+    }
+
+    return result;
   }
-
 
   @override
   Widget build(BuildContext context) {
-    return  SafeArea(
+    return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white.withOpacity(0.7),
         body: Stack(
-        children: [
-         
-          Container(height: MediaQuery.of(context).size.height,
-            child: Column(
-              children: [
-                Container(height:55,width:MediaQuery.of(context).size.width,child: Row(children: [
-                  IconButton(onPressed: (){Navigator.of(context).pop();}, icon: Icon(Icons.chevron_left,color: Colors.black54,size: 35,)),
-                  Spacer(),
-                  const Text("MEET OUR SPONSORS", style: TextStyle(fontSize:17,fontWeight: FontWeight.w600 ,color:  Colors.black54),)
-                  ,Spacer(),
-
-                ],),),
-                const Divider(color: Colors.black,),
-                Flexible(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child:Column(
+          children: [
+            Container(
+              height: MediaQuery.of(context).size.height,
+              child: Column(
+                children: [
+                  Container(
+                    height: 55,
+                    width: MediaQuery.of(context).size.width,
+                    child: Row(
                       children: [
-
-                        Flexible(
-                          child: Visibility(
-                            visible:isFetching==false,
-                            replacement: CircularProgressIndicator(),
-
-                            child:GridView.builder(
-                              padding: const EdgeInsets.all(8),
-                              itemCount: sponsorMap.length,
-                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2, // You can adjust the number of columns
-                                mainAxisSpacing: 10,
-                                crossAxisSpacing: 10,
-                                childAspectRatio: 0.75, // Adjust based on your widget layout
-                              ),
-                              itemBuilder: (context, index) {
-                                if (sponsorMap == null) {
-                                  return const Text("Sponsors will appear here");
-                                } else {
-                                  final entry = sponsorMap.entries.elementAt(index);
-                                  final sponsorrr = entry.value;
-
-                                  return Column(
-                                    children: [
-                                      sponsorWidget(
-                                        context: context,
-                                        sponsorAsset: "${BaseURL.Baseurl}/assets/${sponsorrr[1].transparent_logo ?? sponsorrr[1].logo}",
-                                        degree: "${sponsorrr[0]}°",
-                                        sponsorName: sponsorrr[1].sponsorName!,
-                                        sponsorBio: sponsorrr[1].about!,
-                                        sponsorURL: sponsorrr[1].websites!.first.link!,
-                                      ),
-                                      const Divider(),
-                                      verticalSpace(height: 10),
-                                    ],
-                                  );
-                                }
-                              },
-                            )
-
+                        IconButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          icon: Icon(Icons.chevron_left, color: Colors.black54, size: 35),
+                        ),
+                        Spacer(),
+                        const Text(
+                          "MEET OUR SPONSORS",
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black54,
                           ),
                         ),
-
-
-
-
+                        Spacer(),
                       ],
                     ),
                   ),
-                ),
-              ],
+                  const Divider(color: Colors.black),
+                  Flexible(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          Flexible(
+                            child: FutureBuilder<Map<int, List<dynamic>>>(
+                              future: _sponsorDataFuture,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return Center(child: CircularProgressIndicator());
+                                } else if (snapshot.hasError) {
+                                  return Center(
+                                    child: Text('Error loading sponsors: ${snapshot.error}'),
+                                  );
+                                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                  return const Center(
+                                    child: Text("No sponsors available"),
+                                  );
+                                } else {
+                                  final sponsorMap = snapshot.data!;
+                                  return GridView.builder(
+                                    padding: const EdgeInsets.all(8),
+                                    itemCount: sponsorMap.length,
+                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      mainAxisSpacing: 10,
+                                      crossAxisSpacing: 10,
+                                      childAspectRatio: 0.75,
+                                    ),
+                                    itemBuilder: (context, index) {
+                                      final entry = sponsorMap.entries.elementAt(index);
+                                      final sponsorData = entry.value;
+
+                                      return Column(
+                                        children: [
+                                          sponsorWidget(
+                                            context: context,
+                                            sponsorAsset: "${BaseURL.Baseurl}/assets/${sponsorData[1].transparent_logo ?? sponsorData[1].logo}",
+                                            degree: "${sponsorData[0]}°",
+                                            sponsorName: sponsorData[1].sponsorName!,
+                                            sponsorBio: sponsorData[1].about??"",
+                                            sponsorURL: sponsorData[1].websites!.first.link!,
+                                          ),
+                                          const Divider(),
+                                          verticalSpace(height: 10),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                }
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),),
+          ],
+        ),
+      ),
     );
   }
 }

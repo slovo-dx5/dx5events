@@ -15,7 +15,7 @@ class _CookFiguresState extends State<CookFigures> {
   List<EventAttendeeModel>? attendees;
 
   Future fetchAllAttendees() async {
-    final response = await DioFetchService().fetchCIOAttendees(eventID: "46");
+    final response = await DioFetchService().fetchCIOAttendees(eventID: "60");
 
     if (response.statusCode == 200) {
       List<dynamic> filteredData = response.data['data'].toList();
@@ -51,7 +51,7 @@ class _CookFiguresState extends State<CookFigures> {
       int attendeeId = attendee.attendeeId;
 
       var response =
-      await DioFetchService().fetchSingleAttendeeForEvent(id: attendeeId, eventID: 46);
+      await DioFetchService().fetchSingleAttendeeForEvent(id: attendeeId, eventID: 60);
       var data = response.data["data"];
 
       if (data != null && data.isNotEmpty) {
@@ -64,7 +64,7 @@ class _CookFiguresState extends State<CookFigures> {
           "Phone": attendeeDetails["phone"] ?? "missing value",
           "Company": attendeeDetails["company"],
           "Role": attendeeDetails["role"],
-          "Event_ID": 46,
+          "Event_ID": 60,
           "Attendee_ID": attendeeId,
           "Session_Name": sessionName
         }, context: context);

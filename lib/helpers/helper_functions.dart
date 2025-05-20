@@ -47,12 +47,20 @@ workWithUs() async {
 //  await launchUrl(workWithUsURL);
 }
 
-openLinkedin({required String linkedinURL}) async {
-  Uri parsedURL = Uri.parse(linkedinURL);
+Future<void> openLinkedin({required String linkedinURL}) async {
+  // Ensure the URL has the correct scheme
+  if (!linkedinURL.startsWith('http://') && !linkedinURL.startsWith('https://')) {
+    linkedinURL = 'https://$linkedinURL';
+  }
 
-  await launch(linkedinURL);
+  final Uri parsedURL = Uri.parse(linkedinURL);
+
+  if (await canLaunchUrl(parsedURL)) {
+    await launchUrl(parsedURL, mode: LaunchMode.externalApplication);
+  } else {
+    throw 'Could not launch $linkedinURL';
+  }
 }
-
 openTicketURL({required String slug}) async {
   // Uri parsedURL = Uri.parse("https://tickets.cioafrica.co/");
 

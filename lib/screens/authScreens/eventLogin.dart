@@ -42,7 +42,7 @@ class EventLogin extends StatefulWidget {
 class _EventLoginState extends State<EventLogin> {
 
   List<EventAttendeeModel>? attendees;
-  List<CustomerAttendeeModel>? customerAttendees;
+
   final _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
 
@@ -140,32 +140,8 @@ class _EventLoginState extends State<EventLogin> {
              );
            }
 
-         }else{
-           CustomerAttendeeModel customerAttendee = findAttendeeByEmail(email);
-           if(mounted){
-
-             PersistentNavBarNavigator.pushNewScreen(
-
-               context,
-               screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,isAdmin:customerAttendee!.email!.endsWith("cioafrica.co")?"true":"false",
-                 company: customerAttendee!.company_role!,
-                 role: ".", lastName: ".",firstName: customerAttendee.name!,
-                 phone: customerAttendee.phone!,id: customerAttendee.attendeeId, profileID: customerAttendee.profilePhoto??"",
-                 coverImagePath: widget.coverImagePath, eventName: widget.eventName,
-                 //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
-                 eventDate: widget.eventDate,
-                 //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
-                 shortEventDescription: widget.shortEventDescription,
-                 //eventLocation: 'Nigeria',);
-                 eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent, recordID: customerAttendee.id,
-
-               ),
-               withNavBar: false,
-               pageTransitionAnimation: PageTransitionAnimation.slideRight,
-             );
-           }
-
          }
+
         } else {
           print('Error: ${e.message}');
         }
@@ -206,8 +182,7 @@ class _EventLoginState extends State<EventLogin> {
     );
   }
   bool doesEmailExist(String emailToCheck) {
-    return widget.isCustomerEvent==false? attendees!.any((attendee) => attendee.workEmail.toLowerCase() == emailToCheck.toLowerCase()):
-    customerAttendees!.any((attendee) => attendee.email!.toLowerCase() == emailToCheck.toLowerCase());
+    return  attendees!.any((attendee) => attendee.workEmail.toLowerCase() == emailToCheck.toLowerCase());
   }
 
 
@@ -233,15 +208,6 @@ class _EventLoginState extends State<EventLogin> {
           attendees=userList;
           //  print(attendees![624].firstName);
           print(attendees!.last.firstName);
-
-        });
-
-      }else{
-        List<CustomerAttendeeModel> userList = List<CustomerAttendeeModel>.from(filteredData.map((user) => CustomerAttendeeModel.fromJson(user)));
-        setState(() {
-          customerAttendees=userList;
-            print(attendees!.first.firstName);
-        //  print("last attendee is ${customerAttendees!.last.email}");
 
         });
 

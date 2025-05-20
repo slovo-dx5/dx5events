@@ -10,6 +10,7 @@ import 'package:dx5veevents/screens/dx5veScreens/notificationsScreen.dart';
 import 'package:dx5veevents/screens/dx5veScreens/videoSplash.dart';
 import 'package:dx5veevents/screens/dx5ve_social/createPostScreen.dart';
 import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
+import 'package:dx5veevents/screens/feedback_page.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
 import 'package:dx5veevents/screens/map/event_map.dart';
 import 'package:dx5veevents/screens/pastEvents/past_navigation.dart';
@@ -52,7 +53,9 @@ final router = GoRouter(
     GoRoute(
       path: '/',
      builder: (context, state) =>  LandingPage2(),
-     //builder: (context, state) =>  MapIframePage(),
+     //builder: (context, state) =>  FeedbackPage(),
+     //builder: (context, state) =>  ExamplePage(),
+    // builder: (context, state) =>  MapScreen(),
       //builder: (context, state) =>  ProfileScreen(),
     ),
     GoRoute(
@@ -82,14 +85,14 @@ void main() async{
 
   );
   if(Platform.isAndroid){
-    await FirebaseMessaging.instance.subscribeToTopic("dx5veNewBroadcast");
+    await FirebaseMessaging.instance.subscribeToTopic("connectedAfricaBroadcast");
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }else if(Platform.isIOS){
     try{ await NotificationSetup().getIOSPermission();
     await FirebaseMessaging.instance.getAPNSToken();
 
     await FirebaseMessaging.instance.getAPNSToken().then((value)async{
-      await FirebaseMessaging.instance.subscribeToTopic("dx5veNewBroadcast");
+      await FirebaseMessaging.instance.subscribeToTopic("connectedAfricaBroadcast");
     } );
 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);}catch(e){

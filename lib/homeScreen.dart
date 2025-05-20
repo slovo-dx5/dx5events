@@ -103,7 +103,7 @@ class MainScreen extends GetView<MyDrawerController> {
           ),
         ) ,
         backgroundColor: kConnectedBlue,centerTitle: true,
-        title:  const Text("DX5VE EVENTS",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),),
+        title:  const Text("CONNECTED AFRICA",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),),
         actions: [NotificationIconButton()],
         // actions:  [Icon(Icons.notification_important_rounded,color: kTextColorBlackLighter,)],
       ),
@@ -200,7 +200,7 @@ class MenuScreen extends GetView<MyDrawerController> {
 
                             PersistentNavBarNavigator.pushNewScreen(
                               context,
-                              screen:  PDFViewerScreen(pdfAssetPath: 'assets/Africa CISO Summit 2025 Agenda.pdf',
+                              screen:  PDFViewerScreen(pdfAssetPath: 'assets/connected agenda.pdf',
                             ),
                               withNavBar: false,
                               pageTransitionAnimation: PageTransitionAnimation.slideRight,
