@@ -9,6 +9,8 @@ import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
 
 import '../constants.dart';
 import '../helpers/helper_widgets.dart';
@@ -74,11 +76,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           // QR Code
           Center(
-            child: QrImageView(
-              data: qrURL!,
-              version: QrVersions.auto,
-              size: 200,
-              backgroundColor: Colors.white,
+            child: CachedNetworkImage(
+              fit: BoxFit.cover,
+              imageUrl: qrURL!,
+              progressIndicatorBuilder: (context, url, downloadProgress) =>
+                  SizedBox(
+                      height: 200,
+                      width: 200,
+                      child: CircularProgressIndicator(
+                          value: downloadProgress.progress)),
+              imageBuilder: (context, imageProvider) => SizedBox(
+                height: 400,
+                width: 400,
+                child: ClipPath(
+                  clipper: MyCustomClipper(), // Define your custom clipper
+                  child: Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: imageProvider,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -235,4 +256,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+}
+class MyCustomClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    // Create a crop that takes the center 80% of the image
+    path.moveTo(size.width * 0.1, size.height * 0.1);
+    path.lineTo(size.width * 0.9, size.height * 0.1);
+    path.lineTo(size.width * 0.9, size.height * 0.9);
+    path.lineTo(size.width * 0.1, size.height * 0.9);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
