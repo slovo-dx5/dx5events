@@ -436,36 +436,42 @@ verticalSpace(height: 50),
                   context: context,
                     onPressedFunction: () async {
 
-                        setState(() {
-                          isSending = true;
-                        });
-                        await requestMeeting(
-                            currentUserID: profileProvider.userID!,
-                            requestedBy:
-                                "${profileProvider.firstName} ${profileProvider.lastName}",
-                            meetingWith: widget.meetingWith,
-                            message: "$placeholderText.\n\n"
-                                "Proposed time:\n"
-                                "Start time: $startTime\n"
-                                "End time: $formattedEndTime\n",
-                            company: profileProvider.company,
-                            otherUserID: widget.otherUSerID,
-                            startTime: startTime,
-                            tableSlot: tableSlot,
-                            requestedByID: profileProvider.userID.toString(),
-                            meetingWithI: widget.otherUSerID.toString(), requestedByEmail: profileProvider.email,
-                            meetingWithEmail: widget.recipientEmail,
-                            requestedByPhone: widget.requestedByphone,
-                            meetingWithPhone:  widget.meetingWithPhone);
-                        await sendMeetingNotification(ownerID: profileProvider.userID!);
-                        //sendMeetingRequest();
-                        setState(() {
-                          isSending = false;
-                        });
-                        Fluttertoast.showToast(
-                            backgroundColor: kSuccessGreen,
-                            msg: "Meeting request sent");
-                        Navigator.of(context).pop();
+                     if(startTime!=""){
+                       setState(() {
+                         isSending = true;
+                       });
+                       await requestMeeting(
+                           currentUserID: profileProvider.userID!,
+                           requestedBy:
+                           "${profileProvider.firstName} ${profileProvider.lastName}",
+                           meetingWith: widget.meetingWith,
+                           message: "$placeholderText.\n\n"
+                               "Proposed time:\n"
+                               "Start time: $startTime\n"
+                               "End time: $formattedEndTime\n",
+                           company: profileProvider.company,
+                           otherUserID: widget.otherUSerID,
+                           startTime: startTime,
+                           tableSlot: tableSlot,
+                           requestedByID: profileProvider.userID.toString(),
+                           meetingWithI: widget.otherUSerID.toString(), requestedByEmail: profileProvider.email,
+                           meetingWithEmail: widget.recipientEmail,
+                           requestedByPhone: widget.requestedByphone,
+                           meetingWithPhone:  widget.meetingWithPhone);
+                       await sendMeetingNotification(ownerID: profileProvider.userID!);
+                       //sendMeetingRequest();
+                       setState(() {
+                         isSending = false;
+                       });
+                       Fluttertoast.showToast(
+                           backgroundColor: kSuccessGreen,
+                           msg: "Meeting request sent");
+                       Navigator.of(context).pop();
+                     }else{
+                       Fluttertoast.showToast(
+                           backgroundColor: kSuccessGreen,
+                           msg: "You must select meeting time");
+                     }
 
                     },
                    backgroundColor: kConnectedBlue)),
