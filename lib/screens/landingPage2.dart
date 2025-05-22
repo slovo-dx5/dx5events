@@ -189,20 +189,20 @@ class PastEvents extends StatefulWidget {
 class _PastEventsState extends State<PastEvents> {
   @override
   Widget build(BuildContext context) {
-    return Align(
+    return const Align(
       alignment: Alignment.bottomCenter,
-      // child: Center(
-      //   child: Padding(
-      //     padding: EdgeInsets.fromLTRB(8.0,300,8,150),
-      //     child: Text("Information on Past Events Will Appear Here",style: TextStyle(fontSize: 25,fontWeight: FontWeight.w700),textAlign: TextAlign.center,),
-      //   ),
-      // ),
-      child: PastEventWidget(
-        eventName: 'CIO 100 SYMPOSIUM AND AWARDS',
-        year: ' 2024',
-        eventAssetPath: 'assets/images/themes/cio100.jpg',
-        eventID: 21,
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(8.0,300,8,150),
+          child: Text("Information on Past Events Will Appear Here",style: TextStyle(fontSize: 25,fontWeight: FontWeight.w700),textAlign: TextAlign.center,),
+        ),
       ),
+      // child: PastEventWidget(
+      //   eventName: 'CIO 100 SYMPOSIUM AND AWARDS',
+      //   year: ' 2024',
+      //   eventAssetPath: 'assets/images/themes/cio100.jpg',
+      //   eventID: 21,
+      // ),
     );
     PastEventWidget(
       eventName: 'CIO 100 SYMPOSIUM AND AWARDS',
