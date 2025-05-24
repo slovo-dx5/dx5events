@@ -304,7 +304,7 @@ class _SocialMediaPostState extends State<SocialMediaPost> {
             borderRadius: BorderRadius.circular(8.0),
             child: Image.network(
               "${BaseURL.Baseurl}/assets/${widget.imageUrl}",
-              height: 180,
+             // height: 300,
               width: double.infinity,
               fit: BoxFit.cover,
             ),
