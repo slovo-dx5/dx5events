@@ -1,14 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 
 import '../../../providers.dart';
 import '../../constants.dart';
@@ -23,6 +21,9 @@ class ConciergeAcceptedMeetings extends StatefulWidget {
 }
 
 class _ConciergeAcceptedMeetingsState extends State<ConciergeAcceptedMeetings> {
+  // Track done status for multiple items
+  Map<String, bool> doneStatusMap = {};
+
   @override
   void initState() {
     super.initState();
@@ -48,7 +49,7 @@ class _ConciergeAcceptedMeetingsState extends State<ConciergeAcceptedMeetings> {
               ListTile(
                 leading: const Icon(Icons.phone),
                 title: Text(phone),
-                onTap: ()async {
+                onTap: () async {
                   String phoneNumber = phone;
                   final uri = Uri.parse("tel:$phoneNumber");
                   if (await canLaunchUrl(uri)) {
@@ -61,9 +62,10 @@ class _ConciergeAcceptedMeetingsState extends State<ConciergeAcceptedMeetings> {
                   );
                 },
               ),
-              GestureDetector(onTap: ()async{
-                await openWhatsapp(contactNumber: phone, context: context);
-              },
+              GestureDetector(
+                onTap: () async {
+                  await openWhatsapp(contactNumber: phone, context: context);
+                },
                 child: Row(
                   children: [
                     Padding(
@@ -71,19 +73,40 @@ class _ConciergeAcceptedMeetingsState extends State<ConciergeAcceptedMeetings> {
                       child: SizedBox(
                         height: 35,
                         width: 35,
-                        child:
-                        Image.asset("assets/icons/whatsapp.png"),
+                        child: Image.asset("assets/icons/whatsapp.png"),
                       ),
-                    ), horizontalSpace(width: 20),Text("Whatsapp",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w700),)
+                    ),
+                    horizontalSpace(width: 20),
+                    Text(
+                      "Whatsapp",
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                    )
                   ],
                 ),
               ),
-
             ],
           ),
         );
       },
     );
+  }
+
+  Future<void> _loadDoneStatus(String itemId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'done_$itemId';
+    final status = prefs.getBool(key) ?? false;
+    setState(() {
+      doneStatusMap[itemId] = status;
+    });
+  }
+
+  Future<void> _saveDoneStatus(String itemId, bool status) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'done_$itemId';
+    await prefs.setBool(key, status);
+    setState(() {
+      doneStatusMap[itemId] = status;
+    });
   }
 
   @override
@@ -96,8 +119,6 @@ class _ConciergeAcceptedMeetingsState extends State<ConciergeAcceptedMeetings> {
         child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collectionGroup("meetings")
-            // .orderBy('timeStamp', descending: true)
-            //.orderBy('timeStamp', descending: true)
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
@@ -106,19 +127,19 @@ class _ConciergeAcceptedMeetingsState extends State<ConciergeAcceptedMeetings> {
                 List<DocumentSnapshot> uniqueMeetings = [];
 
                 for (var doc in docList) {
-                  final meetingId = doc['id']; // adjust this if your ID field is named differently
+                  final meetingId = doc['id'];
                   if (!seenIds.contains(meetingId)) {
                     seenIds.add(meetingId);
                     uniqueMeetings.add(doc);
                   }
                 }
-                print("items lenght is ${uniqueMeetings.length}");
+                print("items length is ${uniqueMeetings.length}");
+
                 if (uniqueMeetings.isEmpty) {
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 25),
                       child: Container(
-                        //color: UniversalVariables.separatorColor,
                         padding: const EdgeInsets.symmetric(
                             vertical: 35, horizontal: 25),
                         child: const Column(
@@ -130,7 +151,6 @@ class _ConciergeAcceptedMeetingsState extends State<ConciergeAcceptedMeetings> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                // fontSize: 30,
                               ),
                             ),
                           ],
@@ -139,15 +159,21 @@ class _ConciergeAcceptedMeetingsState extends State<ConciergeAcceptedMeetings> {
                     ),
                   );
                 }
-                // Filter pending (and non-expired) meetings
+
+                // Filter accepted meetings that are not expired
                 List<DocumentSnapshot> acceptedMeetings = uniqueMeetings.where((items) {
                   DateTime now = DateTime.now();
                   DateTime meetingDateTime = items["date_requested"].toDate();
-                  bool isMeetingExpired = meetingDateTime
-                      .add(const Duration(hours: 24))
-                      .isBefore(now);
-                  return items["isAccepted"] == true;
-                  //&& !isMeetingExpired;
+
+                  // Get date only (without time) for comparison
+                  DateTime nowDateOnly = DateTime(now.year, now.month, now.day);
+                  DateTime meetingDateOnly = DateTime(meetingDateTime.year, meetingDateTime.month, meetingDateTime.day);
+
+                  // Meeting is expired only if it's from a previous day
+                  bool isMeetingExpired = meetingDateOnly.isBefore(nowDateOnly);
+
+                  // Only show meetings that are accepted AND not expired
+                  return items["isAccepted"] == true && !isMeetingExpired;
                 }).toList();
 
                 if (acceptedMeetings.isEmpty) {
@@ -175,16 +201,25 @@ class _ConciergeAcceptedMeetingsState extends State<ConciergeAcceptedMeetings> {
                   itemCount: acceptedMeetings.length,
                   itemBuilder: (context, index) {
                     final items = acceptedMeetings[index];
+                    final itemId = items['id']; // Use the meeting ID as unique identifier
                     final formatter = DateFormat('MMM d, yyyy - h:mm a');
                     DateTime dateReq = items["date_requested"].toDate();
                     final formattedTime = formatter.format(dateReq);
+
+                    // Load done status for this item if not loaded yet
+                    if (!doneStatusMap.containsKey(itemId)) {
+                      _loadDoneStatus(itemId);
+                    }
+
+                    final isDone = doneStatusMap[itemId] ?? false;
+
                     print("items are ${items.data()}");
-                    print("meeting with by ${items["wants_to_meet_with_phone"]}");
 
                     return Card(
                       margin: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 8),
                       elevation: 2,
+                      color: isDone ? Colors.grey[100] : null,
                       child: InkWell(
                         onTap: () {},
                         child: Padding(
@@ -201,36 +236,51 @@ class _ConciergeAcceptedMeetingsState extends State<ConciergeAcceptedMeetings> {
                                       children: [
                                         Text(
                                           items["message"],
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
+                                            decoration: isDone
+                                                ? TextDecoration.lineThrough
+                                                : null,
+                                            color: isDone ? Colors.grey : null,
                                           ),
                                         ),
                                         const SizedBox(height: 4),
                                         Row(
                                           children: [
-                                            const Icon(
+                                            Icon(
                                               Icons.calendar_today,
                                               size: 16,
-                                              color: kConnectedBlue,
+                                              color: isDone
+                                                  ? Colors.grey
+                                                  : kConnectedBlue,
                                             ),
                                             const SizedBox(width: 4),
                                             Text(
                                               formattedTime,
-                                              style: const TextStyle(
-                                                color: kConnectedBlue,
+                                              style: TextStyle(
+                                                color: isDone
+                                                    ? Colors.grey
+                                                    : kConnectedBlue,
                                               ),
                                             ),
-                                            // if (isPastMeeting) ...[
-                                            // const SizedBox(width: 4),
-                                            // const Text(
-                                            // '(Past)',
-                                            // style: TextStyle(
-                                            // color: Colors.red,
-                                            // fontStyle: FontStyle.italic,
-                                            // ),
-                                            // ),
-                                            // ],
+                                            if (isDone) ...[
+                                              const SizedBox(width: 8),
+                                              const Icon(
+                                                Icons.check_circle,
+                                                size: 16,
+                                                color: Colors.green,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              const Text(
+                                                'Done',
+                                                style: TextStyle(
+                                                  color: Colors.green,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
                                           ],
                                         ),
                                       ],
@@ -254,7 +304,12 @@ class _ConciergeAcceptedMeetingsState extends State<ConciergeAcceptedMeetings> {
                                           color: Colors.grey,
                                         ),
                                       ),
-                                      Text(items["requested_by"]),
+                                      Text(
+                                        items["requested_by"],
+                                        style: TextStyle(
+                                          color: isDone ? Colors.grey : null,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                   Column(
@@ -268,7 +323,12 @@ class _ConciergeAcceptedMeetingsState extends State<ConciergeAcceptedMeetings> {
                                           color: Colors.grey,
                                         ),
                                       ),
-                                      Text(items["wants_to_meet_with"]),
+                                      Text(
+                                        items["wants_to_meet_with"],
+                                        style: TextStyle(
+                                          color: isDone ? Colors.grey : null,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -282,7 +342,9 @@ class _ConciergeAcceptedMeetingsState extends State<ConciergeAcceptedMeetings> {
                                     icon: const Icon(Icons.person_outline,
                                         size: 16),
                                     label: const Text('Contact Sender'),
-                                    onPressed: () => _contactPerson(
+                                    onPressed: isDone
+                                        ? null
+                                        : () => _contactPerson(
                                       context,
                                       items["requested_by"],
                                       items["requested_by_phone"],
@@ -299,13 +361,36 @@ class _ConciergeAcceptedMeetingsState extends State<ConciergeAcceptedMeetings> {
                                       'Contact Recipient',
                                       style: TextStyle(color: kConnectedBlue),
                                     ),
-                                    onPressed: () => _contactPerson(
+                                    onPressed: isDone
+                                        ? null
+                                        : () => _contactPerson(
                                       context,
                                       items["wants_to_meet_with"],
                                       items["wants_to_meet_with_phone"],
                                     ),
                                   ),
                                 ],
+                              ),
+                              const SizedBox(height: 8),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  icon: Icon(
+                                    isDone ? Icons.undo : Icons.check,
+                                    size: 16,
+                                  ),
+                                  label: Text(isDone
+                                      ? 'Mark as Pending'
+                                      : 'Mark as Done'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                    isDone ? Colors.orange : Colors.green,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  onPressed: () {
+                                    _saveDoneStatus(itemId, !isDone);
+                                  },
+                                ),
                               ),
                             ],
                           ),
