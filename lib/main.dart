@@ -5,7 +5,7 @@ import 'package:dx5veevents/meetings/accepted_meetings_screen.dart';
 import 'package:dx5veevents/profile_screen.dart';
 import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/providers/themeProvider.dart';
-import 'package:dx5veevents/screens/doLastMinuteShyet.dart';
+import 'package:dx5veevents/scripts/doLastMinuteShyet.dart';
 import 'package:dx5veevents/screens/dx5veScreens/notificationsScreen.dart';
 import 'package:dx5veevents/screens/dx5veScreens/videoSplash.dart';
 import 'package:dx5veevents/screens/dx5ve_social/createPostScreen.dart';
@@ -40,6 +40,7 @@ import 'helpers/CustomerSpeakerCSVHelper.dart';
 import 'helpers/themeData.dart';
 import 'homeScreen.dart';
 import 'meetings/meeting_tabs.dart';
+import 'scripts/meetings_csv.dart';
 import 'notifications/pushNotifications.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message ) async {
@@ -53,7 +54,7 @@ final router = GoRouter(
     GoRoute(
       path: '/',
      builder: (context, state) =>  LandingPage2(),
-     //builder: (context, state) =>  FeedbackPage(),
+     //builder: (context, state) =>  StructureLAstMinute(),
      //builder: (context, state) =>  ExamplePage(),
     // builder: (context, state) =>  MapScreen(),
       //builder: (context, state) =>  ProfileScreen(),

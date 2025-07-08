@@ -103,7 +103,7 @@ class MainScreen extends GetView<MyDrawerController> {
           ),
         ) ,
         backgroundColor: kConnectedBlue,centerTitle: true,
-        title:  const Text("CONNECTED AFRICA",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),),
+        title:  const Text("SMART GOVERNMENT SUMMIT",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),),
         actions: [NotificationIconButton()],
         // actions:  [Icon(Icons.notification_important_rounded,color: kTextColorBlackLighter,)],
       ),

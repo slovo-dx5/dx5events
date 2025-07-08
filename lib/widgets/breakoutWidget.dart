@@ -15,68 +15,66 @@ class _BreakOutWidgetState extends State<BreakOutWidget> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Container(height: 400,
+      child: Container(height: MediaQuery.of(context).size.height*0.76,
         child: ListView.builder(
             itemCount: widget.breakOutSessions.length,
             itemBuilder: (context,index){
               final breakOut=widget.breakOutSessions[index];
 
-              return Expanded(
-                child: Column(
-                  children: [
-                    Container(padding: const EdgeInsets.only(top: 20,bottom: 20,left: 5,right: 5),
-                     // height: firstDaySession.speakers!.length>=2?250:160,
-                      color: kGradientLightBlue.withOpacity(0.1
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-
-                              Expanded(
-                                child: Column(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.start,
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                                  children: [
-                                    verticalSpace(height: 10),
-                                    Container(padding:const EdgeInsets.all(5),decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),color: kCISOOrange.withOpacity(0.5)
-                                    ),child: Text(breakOut.type,),),
-                                    verticalSpace(height: 15),
-                                    Text(
-                                      breakOut.title,
-                                      style: const TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w700),
-                                    ),
-                                    verticalSpace(height: 10),
-                                    Text(
-                                      breakOut.summary,
-                                      style: const TextStyle(color: kTextColorGrey,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-
-
-                                  ],
-                                ),
-                              ),
-
-
-                            ],
-                          ),
-                        ],
-                      ),
+              return Column(
+                children: [
+                  Container(padding: const EdgeInsets.only(top: 20,bottom: 20,left: 5,right: 5),
+                   // height: firstDaySession.speakers!.length>=2?250:160,
+                    color: kGradientLightBlue.withOpacity(0.1
                     ),
-                    verticalSpace(height: 10)
-                  ],
-                ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment:
+                                MainAxisAlignment.start,
+                                crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                                children: [
+                                  verticalSpace(height: 10),
+                                  Container(padding:const EdgeInsets.all(5),decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),color: kCISOOrange.withOpacity(0.5)
+                                  ),child: Text(breakOut.type,),),
+                                  verticalSpace(height: 15),
+                                  Text(
+                                    breakOut.title,
+                                    style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700),
+                                  ),
+                                  verticalSpace(height: 10),
+                                  Text(
+                                    breakOut.summary,
+                                    style: const TextStyle(color: kTextColorGrey,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+
+
+                                ],
+                              ),
+                            ),
+
+
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  verticalSpace(height: 10)
+                ],
               );
             }),
       ),

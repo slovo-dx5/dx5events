@@ -87,49 +87,50 @@ class _ActiveEventsState extends State<ActiveEvents> {
     return SizedBox(
         height: MediaQuery.of(context).size.height * 0.85,
         child: UpcomingEventWidget2(
-          imagePath: 'assets/images/themes/connected_portrait.jpg',
-          dayMonth: 'MON, MAY',
-          date: '26th',
-          endDate: '29th',
+          imagePath: 'assets/images/themes/smart-portrait.jpg',
+          dayMonth: 'WED, JULY',
+          date: '16th',
+          endDate: '16th',
           location: 'KENYA',
-          endDayMonth: 'THUR, MAY',
+          endDayMonth: 'WED, JULY',
           onPressedFunct: () {
             Navigator.of(context).push(
               MaterialPageRoute(
                   builder: (_) => InitialScreen(
-                        coverImagePath: 'assets/images/themes/connected_bg.jpg',
-                        eventName: 'CONNECTED AFRICA SUMMIT',
-                        eventHappeningDates: 'MON, MAY, 26TH - THUR, MAY, 29TH',
+                        coverImagePath: 'assets/images/themes/smart-landscape.jpg',
+                        eventName: 'SMART GOVERNMENT SUMMIT',
+                        //eventHappeningDates: 'WED, JULY, 16TH - THUR, MAY, 29TH',
+                        eventHappeningDates: 'WED, JULY, 16TH',
                         shortEventDescription:
-                            "A summit for digital transformation in Africa",
+                            "Reimagining Governance: Agile, Open, Inclusive",
                         eventLocation: 'KENYA',
                         followingScreen: EventLogin(
                           coverImagePath:
-                              'assets/images/themes/connected_bg.jpg',
-                          eventName: 'CONNECTED AFRICA SUMMIT',
-                          eventDate: 'MON, MAY, 26TH - THUR, MAY, 29TH',
+                              'assets/images/themes/smart-landscape.jpg',
+                          eventName: 'SMART GOVERNMENT SUMMIT',
+                          eventDate: 'WED, JULY, 16TH',
                           shortEventDescription:
-                              "A summit for digital transformation in Africa",
+                              "Reimagining Governance: Agile, Open, Inclusive",
                           eventLocation: 'KENYA',
-                          eventID: '60',
-                          eventDay: 26,
-                          eventMonth: 5,
+                          eventID: '74',
+                          eventDay: 16,
+                          eventMonth: 7,
                           eventYear: 2025,
-                          eventDayOfWeek: 'MON',
+                          eventDayOfWeek: 'WED',
                           isCustomerEvent: false,
                         ),
-                        eventID: '60',
-                        eventDay: 26,
-                        eventMonth: 5,
+                        eventID: '74',
+                        eventDay: 16,
+                        eventMonth: 7,
                         eventYear: 2025,
-                        eventDayOfWeek: 'MON',
+                        eventDayOfWeek: 'WED',
                         isCustomerEvent: false,
                       )),
             );
           },
-          eventName: 'CONNECTED AFRICA SUMMIT',
+          eventName: 'SMART GOVERNMENT SUMMIT',
           containerColor: kGradientLightBlue.withOpacity(0.7),
-          shortDescription: 'A summit for digital transformation in Africa',
+          shortDescription: 'Reimagining Governance: Agile, Open, Inclusive',
         ));
   }
 }

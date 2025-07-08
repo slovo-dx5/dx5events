@@ -74,7 +74,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 children: [
                   // Cover Image
                   Image.asset(
-                    "assets/images/themes/home_bg.jpg",
+                    "assets/images/themes/smart-landscape.jpg",
                     width: screenWidth,
                     height: screenHeight * 0.3, // Made taller for more visual impact
                     fit: BoxFit.fill,
@@ -244,10 +244,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
 
                     Row(
                       children: [
-                    _buildFeatureCard(context,
-                        "Event Map", "assets/icons/map.png",
-                        kConnectedBlue, MapScreen(), "Maps page opened")
-                        , const SizedBox(width: 12),
+                   const SizedBox(width: 12),
                          _buildFeatureCard(
                           context,
                           'Feedback',

@@ -105,42 +105,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () async {
-      //     if (widget.isFromSession) {
-      //       setState(() {
-      //         isBookmarking = true;
-      //       });
-      //       await deleteSession(sessionID: widget.sessionId!);
-      //       Navigator.of(context).pop();
-      //
-      //       setState(() {
-      //         isBookmarking = false;
-      //       });
-      //     } else {
-      //       setState(() {
-      //         isBookmarking = true;
-      //       });
-      //       await createSession(
-      //         currentUserId: widget.userID,
-      //         sessionID: widget.sessionId,
-      //         date: widget.sessionDate,
-      //       );
-      //       setState(() {
-      //         isBookmarking = false;
-      //       });
-      //     }
-      //   },
-      //   child: Visibility(
-      //     replacement: const SpinKitCircle(
-      //       color: Colors.black54,
-      //     ),
-      //     visible: isBookmarking == false,
-      //     child: widget.isFromSession
-      //         ? const Icon(Icons.delete)
-      //         : const Icon(Icons.bookmark),
-      //   ),
-      // ),
+
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(75.0), // Default AppBar height
         child: AppBarWithGradient(
