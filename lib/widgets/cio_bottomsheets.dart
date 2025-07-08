@@ -283,12 +283,12 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
   <div style="max-width: 100%;">
     <img src="https://admin.connected.go.ke/assets/a14f7470-d026-4d56-848e-4e0d5e0ebc18?email_banner.jpg" alt="Meeting Banner" style="width: 100%; max-width: 600px; height: auto; margin-bottom: 20px;">
   </div>
-  
+
   <p>${placeholderText.replaceAll('\n', '<br>')}</p>
   <p><strong>Proposed time:</strong><br>
   Start time: $startTime<br>
   End time: $formattedEndTime</p>
-  
+
   <p>
     <a href="https://cioafrica.co/meetings" 
        style="display: inline-block; padding: 10px 20px; background-color: #007BFF; 

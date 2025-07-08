@@ -65,7 +65,7 @@ class _IndividualAttendeeScreenState
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: () {
-                // Navigation logic
+                Navigator.of(context).pop();
               },
             ),
             elevation: 0,
