@@ -87,7 +87,7 @@ class _ActiveEventsState extends State<ActiveEvents> {
     return SizedBox(
         height: MediaQuery.of(context).size.height * 0.85,
         child: UpcomingEventWidget2(
-          imagePath: 'assets/images/themes/smart-portrait.jpg',
+          imagePath: 'assets/images/themes/bfsi-portrait.jpg',
           dayMonth: 'WED, JULY',
           date: '16th',
           endDate: '16th',
@@ -97,40 +97,40 @@ class _ActiveEventsState extends State<ActiveEvents> {
             Navigator.of(context).push(
               MaterialPageRoute(
                   builder: (_) => InitialScreen(
-                        coverImagePath: 'assets/images/themes/smart-landscape.jpg',
-                        eventName: 'SMART GOVERNMENT SUMMIT',
+                        coverImagePath: 'assets/images/themes/bfsi-landscape.jpg',
+                        eventName: 'BFSI WEEK',
                         //eventHappeningDates: 'WED, JULY, 16TH - THUR, MAY, 29TH',
-                        eventHappeningDates: 'WED, JULY, 16TH',
+                        eventHappeningDates: 'WED, AUG, 6TH',
                         shortEventDescription:
-                            "Reimagining Governance: Agile, Open, Inclusive",
+                            "Powering Africa's Financial Transformation",
                         eventLocation: 'KENYA',
                         followingScreen: EventLogin(
                           coverImagePath:
                               'assets/images/themes/smart-landscape.jpg',
-                          eventName: 'SMART GOVERNMENT SUMMIT',
-                          eventDate: 'WED, JULY, 16TH',
+                          eventName: 'BFSI WEEK',
+                          eventDate: 'THUR, AUG, 7TH',
                           shortEventDescription:
-                              "Reimagining Governance: Agile, Open, Inclusive",
+                              "Powering Africa's Financial Transformation",
                           eventLocation: 'KENYA',
-                          eventID: '74',
-                          eventDay: 16,
-                          eventMonth: 7,
+                          eventID: '50',
+                          eventDay: 6,
+                          eventMonth: 8,
                           eventYear: 2025,
                           eventDayOfWeek: 'WED',
                           isCustomerEvent: false,
                         ),
-                        eventID: '74',
-                        eventDay: 16,
-                        eventMonth: 7,
+                        eventID: '50',
+                        eventDay: 6,
+                        eventMonth: 8,
                         eventYear: 2025,
                         eventDayOfWeek: 'WED',
                         isCustomerEvent: false,
                       )),
             );
           },
-          eventName: 'SMART GOVERNMENT SUMMIT',
+          eventName: 'BFSI WEEK',
           containerColor: kGradientLightBlue.withOpacity(0.7),
-          shortDescription: 'Reimagining Governance: Agile, Open, Inclusive',
+          shortDescription: "Powering Africa's Financial Transformation",
         ));
   }
 }
@@ -155,10 +155,10 @@ class _FutureEventsState extends State<FutureEvents> {
     //         defaultScrollableBottomSheet(context,"",
     //             PendingEventBottomSheet(imagePath: 'assets/images/themes/smartgov.png', month: 7,
     //               date: 24, slug: 'events/smart-government-summit',
-    //               eventNAme: 'Smart Government Summit',
+    //               eventNAme: 'BFSI WEEK',
     //               endDate: '3rd', endDay: 'THUR', endMonth: 'October',
     //               startDate: '2nd', startDay: 'WED', startMonth: 'October',
-    //               eventDesc: 'The Smart Government Summit stands at the forefront of Africa’s digital transformation, bridging the gap between advanced digital technologies and government operations. This pivotal event comes at a time when Africa’s digital landscape is witnessing exponential growth, with increasing internet access and mobile connectivity shaping public sector innovation. The summit is a critical confluence for discussing the integration of digital solutions in government, offering a unique perspective on the future of digital government in Africa.', ));
+    //               eventDesc: 'The BFSI WEEK stands at the forefront of Africa’s digital transformation, bridging the gap between advanced digital technologies and government operations. This pivotal event comes at a time when Africa’s digital landscape is witnessing exponential growth, with increasing internet access and mobile connectivity shaping public sector innovation. The summit is a critical confluence for discussing the integration of digital solutions in government, offering a unique perspective on the future of digital government in Africa.', ));
     //       },),
     //
     //     verticalSpace(height: 10),

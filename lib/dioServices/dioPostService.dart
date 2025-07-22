@@ -136,6 +136,24 @@ class DioPostService extends DioClient {
       throw Exception("Checkin data create error: ${ex.response!.data!}");
     }
   }
+  Future<Response> postLastMinute({required Map<String, dynamic> body,required BuildContext context}) async {
+    try{
+      return await _client
+          .init()
+          .post("${BaseURL.Baseurl}/items/last_minute_checkins",
+        data: body,
+
+
+        // Set headers using the 'headers' parameter
+      );
+    }on DioError catch (ex) {
+      Fluttertoast.showToast(backgroundColor:kLogoutRed,msg: "Error: Check your internet connection");
+      Future.delayed(const Duration(seconds: 2),(){Navigator.of(context).pop();});
+
+
+      throw Exception("Checkin data create error: ${ex.response!.data!}");
+    }
+  }
 
 
 

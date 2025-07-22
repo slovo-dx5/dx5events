@@ -215,6 +215,17 @@ class DioFetchService extends DioClient {
       throw Exception(ex);
     }
   }
+  Future<Response> fetchLastMinuteRooms({required int eventID,required String existingRoom}) async {
+    try {
+      return await _client
+          .init()
+          .get("${BaseURL.Baseurl}/items/last_minute_checkins?limit=2000&filter[event_id][_eq]=$eventID&filter[room_name][_eq]=$existingRoom",
+        options: buildCacheOptions(const Duration(minutes: 2)),
+           );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
 
   Future<Response> fetchSinglePost({required int postId}) async {
     try {

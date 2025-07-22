@@ -1,131 +1,108 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:dx5veevents/dioServices/dioPostService.dart';
 import 'package:flutter/material.dart';
 
 import '../dioServices/dioFetchService.dart';
 import '../models/lastMinuteCheckinsModel.dart';
 
-class StructureLAstMinute extends StatefulWidget {
-  const StructureLAstMinute({super.key});
+class DuplicateRoomNames extends StatefulWidget {
+  const DuplicateRoomNames({super.key});
 
   @override
-  State<StructureLAstMinute> createState() => _StructureLAstMinuteState();
+  State<DuplicateRoomNames> createState() => _DuplicateRoomNamesState();
 }
 
-class _StructureLAstMinuteState extends State<StructureLAstMinute> {
+class _DuplicateRoomNamesState extends State<DuplicateRoomNames> {
   bool _isLoading = false;
   bool _isCompleted = false;
   String _currentStatus = '';
   int _currentProgress = 0;
-  int _totalCheckins = 0;
+  int _totalRooms = 0;
   String? _errorMessage;
-  final int _eventId = 74;
-  List<String> _processedAttendees = [];
+  String _sourceRoomName = '';
+  String _targetRoomName = '';
+  int _eventId = 74;
+  bool isDuplicating=false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      fetchCheckins(eventId: _eventId);
-    });
+    // Auto-start the duplication process
+
   }
 
-  Future<void> fetchCheckins({required int eventId}) async {
+  Future<List<dynamic>> fetchCheckins({required int eventId, required String existingRoom}) async {
+    setState(() {
+      _currentStatus = 'Fetching rooms...';
+    });
+
+    final response = await DioFetchService().fetchLastMinuteRooms(eventID: eventId, existingRoom: existingRoom);
+    if (response.statusCode == 200) {
+      final conferenceRoom = ConferenceRoom.fromJson(response.data);
+      return conferenceRoom.data;
+    } else {
+      throw Exception('Failed to fetch rooms');
+    }
+  }
+
+  Future<void> duplicateRooms({
+    required String sourceRoomName,
+    required String targetRoomName,
+  }) async {
     setState(() {
       _isLoading = true;
       _isCompleted = false;
       _errorMessage = null;
       _currentProgress = 0;
-      _currentStatus = 'Fetching check-ins...';
-      _processedAttendees.clear();
+      _sourceRoomName = sourceRoomName;
+      _targetRoomName = targetRoomName;
     });
 
     try {
-      final response = await DioFetchService().fetchLastMinuteCheckins(eventID: eventId);
-      ConferenceRoom conferenceRoom = ConferenceRoom.fromJson(response.data);
+      final roomsToDuplicate = await fetchCheckins(eventId: _eventId, existingRoom: sourceRoomName);
 
       setState(() {
-        _totalCheckins = conferenceRoom.data.length;
-        _currentStatus = 'Found ${_totalCheckins} check-ins to process';
+        _totalRooms = roomsToDuplicate.length;
+        _currentStatus = 'Found ${_totalRooms} rooms to duplicate';
       });
 
-      if (_totalCheckins == 0) {
+      if (_totalRooms == 0) {
         setState(() {
-          _isCompleted = true;
-          _currentStatus = 'No check-ins found to process';
+          _errorMessage = 'No rooms found to duplicate';
           _isLoading = false;
         });
         return;
       }
 
-      for (int i = 0; i < conferenceRoom.data.length; i++) {
-        var roomData = conferenceRoom.data[i];
-        int attendeeId = roomData.attendeeId;
+      for (int i = 0; i < roomsToDuplicate.length; i++) {
+        final room = roomsToDuplicate[i];
 
         setState(() {
           _currentProgress = i + 1;
-          _currentStatus = 'Processing attendee $attendeeId (${_currentProgress}/${_totalCheckins})';
+          _currentStatus = 'Duplicating room ${_currentProgress} of ${_totalRooms}...';
         });
 
-        try {
-          // Fetch attendee details
-          var response = await DioFetchService().fetchSingleAttendeeForEvent(id: attendeeId, eventID: eventId);
-          var data = response.data["data"];
+        final payload = {
+          'room_name': targetRoomName,
+          'attendee_data': room.attendeeData,
+          'event_id': _eventId,
+        };
 
-          // Ensure the data list is not empty
-          if (data != null && data.isNotEmpty) {
-            var attendeeDetails = data[0];
-
-            // Post check-in data
-            await DioPostService().postCheckinDataFiltered(body: {
-              "email": attendeeDetails["work_email"] ?? "email not present",
-              "First_Name": attendeeDetails["first_name"] ?? "missing value",
-              "Last_Name": attendeeDetails["last_name"] ?? "missing value",
-              "Phone": attendeeDetails["phone"] ?? "missing value",
-              "Company": attendeeDetails["company"],
-              "Role": attendeeDetails["role"],
-              "Event_ID": eventId,
-              "Attendee_ID": attendeeId,
-              "Session_Name": roomData.roomName
-            }, context: context);
-
-            setState(() {
-              _processedAttendees.add('${attendeeDetails["first_name"]} ${attendeeDetails["last_name"]} - ${roomData.roomName}');
-            });
-
-            print("post successful");
-          } else {
-            // Handle the case where no attendee details are found
-            print('No attendee details found for attendee ID: $attendeeId');
-            print("response is ${response.data}");
-
-            setState(() {
-              _processedAttendees.add('Attendee ID: $attendeeId - No details found');
-            });
-          }
-        } catch (e) {
-          print('Error processing attendee $attendeeId: $e');
-          setState(() {
-            _processedAttendees.add('Attendee ID: $attendeeId - Error: ${e.toString()}');
-          });
-        }
+        await DioPostService().postLastMinute(body: payload, context: context);
 
         // Small delay to show progress
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 200));
       }
 
       setState(() {
         _isLoading = false;
         _isCompleted = true;
-        _currentStatus = 'Successfully processed ${_totalCheckins} check-ins!';
+        _currentStatus = 'Successfully duplicated ${_totalRooms} rooms!';
       });
     } catch (e) {
       setState(() {
         _isLoading = false;
         _errorMessage = 'Error: ${e.toString()}';
-        _currentStatus = 'Failed to process check-ins';
+        _currentStatus = 'Failed to duplicate rooms';
       });
     }
   }
@@ -134,8 +111,8 @@ class _StructureLAstMinuteState extends State<StructureLAstMinute> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Structure Last Minute Check-ins'),
-        backgroundColor: Colors.green,
+        title: const Text('Duplicate Room Names'),
+        backgroundColor: Colors.blue,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -149,7 +126,7 @@ class _StructureLAstMinuteState extends State<StructureLAstMinute> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Processing Details',
+                      'Room Duplication Details',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -158,9 +135,9 @@ class _StructureLAstMinuteState extends State<StructureLAstMinute> {
                     const SizedBox(height: 16),
                     _buildDetailRow('Event ID:', _eventId.toString()),
                     const SizedBox(height: 8),
-                    _buildDetailRow('Total Check-ins:', _totalCheckins.toString()),
+                    _buildDetailRow('Source Room:', _sourceRoomName.isEmpty ? 'All rooms' : _sourceRoomName),
                     const SizedBox(height: 8),
-                    _buildDetailRow('Processed:', _currentProgress.toString()),
+                    _buildDetailRow('Target Room:', _targetRoomName),
                   ],
                 ),
               ),
@@ -173,7 +150,7 @@ class _StructureLAstMinuteState extends State<StructureLAstMinute> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Status',
+                      'Operation Status',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -211,16 +188,16 @@ class _StructureLAstMinuteState extends State<StructureLAstMinute> {
                     ] else ...[
                       const Text('Initializing...'),
                     ],
-                    if (_isLoading && _totalCheckins > 0) ...[
+                    if (_isLoading && _totalRooms > 0) ...[
                       const SizedBox(height: 16),
                       LinearProgressIndicator(
-                        value: _currentProgress / _totalCheckins,
+                        value: _currentProgress / _totalRooms,
                         backgroundColor: Colors.grey[300],
-                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '$_currentProgress / $_totalCheckins check-ins processed',
+                        '$_currentProgress / $_totalRooms rooms processed',
                         style: const TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ],
@@ -261,7 +238,7 @@ class _StructureLAstMinuteState extends State<StructureLAstMinute> {
                             Icon(Icons.check_circle, color: Colors.green, size: 16),
                             SizedBox(width: 8),
                             Text(
-                              'Processing completed successfully!',
+                              'Duplication completed successfully!',
                               style: TextStyle(color: Colors.green),
                             ),
                           ],
@@ -272,61 +249,17 @@ class _StructureLAstMinuteState extends State<StructureLAstMinute> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            if (_processedAttendees.isNotEmpty) ...[
-              Expanded(
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Processed Attendees (${_processedAttendees.length})',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: _processedAttendees.length,
-                            itemBuilder: (context, index) {
-                              final attendee = _processedAttendees[index];
-                              final isError = attendee.contains('Error') || attendee.contains('No details found');
+            isDuplicating?CircularProgressIndicator():ElevatedButton(onPressed: (){
+              setState(() {
+                isDuplicating=true;
+                duplicateRooms(
+                  sourceRoomName: 'Building Secure and Scalable...', // You can set these values in your code
+                  targetRoomName: 'Cybersecurity in connected Govt...', // You can set these values in your code
+                );
+                isDuplicating=false;
 
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 2.0),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      isError ? Icons.warning : Icons.check_circle_outline,
-                                      size: 16,
-                                      color: isError ? Colors.orange : Colors.green,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        attendee,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: isError ? Colors.orange : Colors.black87,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
+              });
+            }, child: Text("Start Duplicating"))
           ],
         ),
       ),
@@ -338,7 +271,7 @@ class _StructureLAstMinuteState extends State<StructureLAstMinute> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 120,
+          width: 100,
           child: Text(
             label,
             style: const TextStyle(

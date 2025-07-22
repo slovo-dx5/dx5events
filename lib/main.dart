@@ -15,6 +15,7 @@ import 'package:dx5veevents/screens/landingPage2.dart';
 import 'package:dx5veevents/screens/map/event_map.dart';
 import 'package:dx5veevents/screens/pastEvents/past_navigation.dart';
 import 'package:dx5veevents/screens/rewardsPage.dart';
+import 'package:dx5veevents/scripts/duplicate_room_names.dart';
 import 'package:dx5veevents/test.dart';
 import 'package:dx5veevents/widgets/deepLinkHandler.dart';
 import 'package:dx5veevents/widgets/meeting_card.dart';
@@ -54,6 +55,7 @@ final router = GoRouter(
     GoRoute(
       path: '/',
      builder: (context, state) =>  LandingPage2(),
+    // builder: (context, state) =>  StructureLAstMinute(),
      //builder: (context, state) =>  StructureLAstMinute(),
      //builder: (context, state) =>  ExamplePage(),
     // builder: (context, state) =>  MapScreen(),

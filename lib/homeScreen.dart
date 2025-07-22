@@ -194,19 +194,20 @@ class MenuScreen extends GetView<MyDrawerController> {
 
                     //  const CheckInWidget(),
 
-                      menuItem(menuText: 'Agenda PDF',
-                          widgetIcon: Icons.picture_as_pdf,
-                          iconColor: kConnectedBlue, onPressedFunction: () {
-
-                            PersistentNavBarNavigator.pushNewScreen(
-                              context,
-                              screen:  PDFViewerScreen(pdfAssetPath: 'assets/connected agenda.pdf',
-                            ),
-                              withNavBar: false,
-                              pageTransitionAnimation: PageTransitionAnimation.slideRight,
-                            );
-
-                          }),  menuItem(menuText: 'Events Menu',
+                      // menuItem(menuText: 'Agenda PDF',
+                      //     widgetIcon: Icons.picture_as_pdf,
+                      //     iconColor: kConnectedBlue, onPressedFunction: () {
+                      //
+                      //       PersistentNavBarNavigator.pushNewScreen(
+                      //         context,
+                      //         screen:  PDFViewerScreen(pdfAssetPath: 'assets/connected agenda.pdf',
+                      //       ),
+                      //         withNavBar: false,
+                      //         pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                      //       );
+                      //
+                      //     }),
+                      menuItem(menuText: 'Events Menu',
                           widgetIcon: Icons.qr_code_2, iconColor: kCIOPink, onPressedFunction: () {
 
                             PersistentNavBarNavigator.pushNewScreen(
