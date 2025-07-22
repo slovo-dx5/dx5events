@@ -1202,6 +1202,8 @@ PODS:
     - Flutter
   - device_info_plus (0.0.1):
     - Flutter
+  - downloadsfolder (0.0.1):
+    - Flutter
   - Firebase/Analytics (11.10.0):
     - Firebase/Core
   - Firebase/Auth (11.10.0):
@@ -1503,6 +1505,7 @@ DEPENDENCIES:
   - audio_session (from `.symlinks/plugins/audio_session/ios`)
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
+  - downloadsfolder (from `.symlinks/plugins/downloadsfolder/ios`)
   - firebase_analytics (from `.symlinks/plugins/firebase_analytics/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
@@ -1561,6 +1564,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/cloud_firestore/ios"
   device_info_plus:
     :path: ".symlinks/plugins/device_info_plus/ios"
+  downloadsfolder:
+    :path: ".symlinks/plugins/downloadsfolder/ios"
   firebase_analytics:
     :path: ".symlinks/plugins/firebase_analytics/ios"
   firebase_auth:
@@ -1610,6 +1615,7 @@ SPEC CHECKSUMS:
   BoringSSL-GRPC: dded2a44897e45f28f08ae87a55ee4bcd19bc508
   cloud_firestore: 067f678d106e720b5ccc7324023abaa81db1c9d1
   device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
+  downloadsfolder: 84af83492bd9ab8c94109ba56fd202d7469d3632
   Firebase: 1fe1c0a7d9aaea32efe01fbea5f0ebd8d70e53a2
   firebase_analytics: 67b74794016bf00af130d42b7525077a96c27c55
   firebase_auth: 3f532201cbdc7cd6dfc3bfa89affc0c294111e20
