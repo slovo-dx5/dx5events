@@ -31,7 +31,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace "com.cioafrica.dx5veevents"
-    compileSdkVersion 35
+    compileSdkVersion 36
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -73,6 +73,8 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.release
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
@@ -85,8 +87,5 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.android.support:multidex:1.0.3'
     implementation('com.google.android.exoplayer:exoplayer:2.19.1')
-    implementation 'com.google.firebase:firebase-firestore:24.0.0' // Use the latest version available
-    implementation platform('com.google.firebase:firebase-bom:32.2.3')
-    implementation 'com.google.firebase:firebase-analytics-ktx'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 }

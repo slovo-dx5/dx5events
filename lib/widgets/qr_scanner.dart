@@ -52,7 +52,8 @@ class _SponsorScannerState extends State<SponsorScanner> {
           sendSponsorData().then(()async{  await UserPointsService().
           createOrUpdateUserPoints(userId:widget.attendeeID!,actionId: 6);
           });
-        } else if (scanData.code!.startsWith("checkin")) {
+        }
+        else if (scanData.code!.startsWith("checkin")) {
           setState(() {
             isSending = true;
           });
@@ -62,7 +63,7 @@ class _SponsorScannerState extends State<SponsorScanner> {
       }
     });
   }
-  
+
   sendSponsorData()async{
     final response=await DioPostService().postSponsorData(body: {
       "sponsorid": sponsorID,

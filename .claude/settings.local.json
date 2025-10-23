@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(test:*)",
+      "Bash(./gradlew:*)",
+      "Bash(flutter clean:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -9,6 +9,7 @@ import '../widgets/cool_background.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 
 import '../widgets/textStyles.dart';
+import '../database/scanned_contacts_db.dart';
 
 class SaveContact extends StatefulWidget {
   String firstName;
@@ -247,8 +248,8 @@ class _SaveContactState extends State<SaveContact> {
                     primaryButton2(
                       context: context,
                       onPressedFunction: ()async {
+                        // Save to device contacts
                         await saveContactToDevice(
-
                             firstName: widget.firstName,
                             lastName: widget.lastName,
                             email: widget.email,
@@ -256,6 +257,20 @@ class _SaveContactState extends State<SaveContact> {
                             role: widget.role,
                             phoneNumber: widget.phone,
                         );
+
+                        // Save to SQLite database
+                        final scannedContact = ScannedContact(
+                          firstName: widget.firstName,
+                          lastName: widget.lastName,
+                          phone: widget.phone,
+                          email: widget.email,
+                          company: widget.company,
+                          role: widget.role,
+                          ownerID: widget.ownerID,
+                          scannedAt: DateTime.now(),
+                        );
+                        await ScannedContactsDatabase.instance.create(scannedContact);
+
                         await UserPointsService().createOrUpdateUserPoints(userId: widget.ownerID,actionId: 3);
                         Fluttertoast.showToast(msg: "Contact Saved");
                         Navigator.of(context).pop();

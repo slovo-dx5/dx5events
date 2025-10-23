@@ -54,6 +54,7 @@ class Session {
   var sessionType;
   var summary;
   int sessionId;
+  var stage;
   final List<SpeakerAssignment>? speakers;
   final List<BreakoutSession>? breakoutSessions;
 
@@ -63,7 +64,9 @@ class Session {
     required this.title,
     required this.summary,
     required this.sessionId,
-    required this.sessionType,    this.speakers,    this.breakoutSessions,
+    required this.sessionType,
+    this.stage,
+    this.speakers,    this.breakoutSessions,
   });
 
   factory Session.fromJson(Map<String, dynamic> json) {
@@ -75,6 +78,7 @@ class Session {
       startTime: json['start_time'],
       endTime: json['end_time'],
       title: json['title'],
+      stage: json['stage'],
       summary: json['Summary'] ?? "",
       sessionType: json['session_type']?? "",
         breakoutSessions: json['breakout_sessions'] == null ? null : List<BreakoutSession>.from(json['breakout_sessions'].map((x) => BreakoutSession.fromJson(x))),

@@ -1,28 +1,14 @@
 import 'package:dx5veevents/constants.dart';
-import 'package:dx5veevents/dioServices/dioPostService.dart';
-import 'package:dx5veevents/mainNavigationPage.dart';
-import 'package:dx5veevents/meetings/accepted_meetings_screen.dart';
-import 'package:dx5veevents/profile_screen.dart';
+
 import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/providers/themeProvider.dart';
-import 'package:dx5veevents/scripts/doLastMinuteShyet.dart';
 import 'package:dx5veevents/screens/dx5veScreens/notificationsScreen.dart';
-import 'package:dx5veevents/screens/dx5veScreens/videoSplash.dart';
-import 'package:dx5veevents/screens/dx5ve_social/createPostScreen.dart';
-import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
-import 'package:dx5veevents/screens/feedback_page.dart';
+
 import 'package:dx5veevents/screens/landingPage2.dart';
-import 'package:dx5veevents/screens/map/event_map.dart';
-import 'package:dx5veevents/screens/pastEvents/past_navigation.dart';
-import 'package:dx5veevents/screens/rewardsPage.dart';
-import 'package:dx5veevents/scripts/duplicate_room_names.dart';
-import 'package:dx5veevents/test.dart';
-import 'package:dx5veevents/widgets/deepLinkHandler.dart';
-import 'package:dx5veevents/widgets/meeting_card.dart';
+
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
-import 'package:flutter/services.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -32,16 +18,11 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'backendOps/sendBroadcast.dart';
-import 'cooking/cookFigures.dart';
 import 'firebase_options.dart';
-import 'helpers/CustomerAttendeeCSVHelper.dart';
-import 'helpers/CustomerSpeakerCSVHelper.dart';
+
 import 'helpers/themeData.dart';
 import 'homeScreen.dart';
 import 'meetings/meeting_tabs.dart';
-import 'scripts/meetings_csv.dart';
 import 'notifications/pushNotifications.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message ) async {
@@ -81,12 +62,19 @@ final router = GoRouter(
 );
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+
+
+  try {
+    await Firebase.initializeApp(
+      name: "dx5ve Events",
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print('Firebase initialized successfully');
+  } catch (e) {
+    print('Failed to initialize Firebase: $e');
+  }
   Get.put<MyDrawerController>(MyDrawerController());
-  await Firebase.initializeApp(
 
-    options: DefaultFirebaseOptions.currentPlatform,
-
-  );
   if(Platform.isAndroid){
     await FirebaseMessaging.instance.subscribeToTopic("connectedAfricaBroadcast");
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);

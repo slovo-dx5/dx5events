@@ -166,6 +166,13 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
     });
   }
 
+  int _calculateTotalItemCount() {
+    // Calculate how many sponsor widgets to insert (after every 5 attendees)
+    int sponsorCount = _attendeesList.length ~/ 5;
+    // Total = attendees + sponsors + (loading indicator if hasMore)
+    return _attendeesList.length + sponsorCount + (_hasMore ? 1 : 0);
+  }
+
   @override
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
@@ -225,11 +232,26 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
           onRefresh: _refreshData,
           child: ListView.builder(
             controller: _scrollController,
-            itemCount:  _attendeesList.length + (_hasMore ? 1 : 0),
+            itemCount:  _calculateTotalItemCount(),
             itemBuilder: (context, index) {
+              // Calculate sponsor positions (after every 5 attendees)
+              // Position 5, 11, 17, 23... (formula: 5 + (n * 6))
+              int sponsorInsertions = (index + 1) ~/ 6;
+              int actualAttendeeIndex = index - sponsorInsertions;
+
+              // Check if current position should show sponsor
+              bool isSponsorPosition = (index + 1) % 6 == 0 && index < _attendeesList.length + sponsorInsertions;
+
+              if (isSponsorPosition) {
+                return sponsorWidget(
+                  context: context,
+                  sponsorName: "MBCom",
+                  sponsorLogoPath: "assets/images/sponsors/mbcom_profile.png",
+                );
+              }
+
               // Show loading indicator at the end if more items are available
-              if (
-                index >= _attendeesList.length) {
+              if (actualAttendeeIndex >= _attendeesList.length) {
                 return const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Center(
@@ -243,7 +265,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
               }
 
               {
-                final user = _attendeesList[index];
+                final user = _attendeesList[actualAttendeeIndex];
                 return profileProvider.userID == user.id
                     ? meWidget(
                   assetName: "assetName",
@@ -267,7 +289,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
                   interests: [],
                   profileid: user.profilePhoto ?? "",
                   userID: user.attendeeId, requestedByphone: profileProvider.phone,
-                  meetingWithPhone: user.phone, hasDownloadedApp: user.hasDownloadedApp,
+                  meetingWithPhone: user.phone, hasDownloadedApp: user.hasDownloadedApp, currentUserName:"${profileProvider.firstName } ${profileProvider.lastName}",
                 );
               }
             },

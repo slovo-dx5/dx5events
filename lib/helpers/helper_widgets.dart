@@ -52,6 +52,7 @@ Widget attendeeWidget({
   required String requestedByphone,
   required String meetingWithPhone,
   required String role,
+  required String currentUserName,
   required String company,
   required bool hasDownloadedApp,
   required String profileid,
@@ -78,6 +79,7 @@ Widget attendeeWidget({
             email: attendeeEmail,
             requestedByphone: requestedByphone,
             meetingWithPhone: meetingWithPhone, hasDownloadedApp: hasDownloadedApp,
+            currentUserName: currentUserName,
           ),
           withNavBar: false,
           pageTransitionAnimation: PageTransitionAnimation.slideRight,
@@ -147,10 +149,133 @@ Widget attendeeWidget({
                   email: attendeeEmail,
                   requestedByphone: requestedByphone,
                   meetingWithPhone: meetingWithPhone, hasDownloadedApp: hasDownloadedApp,
+                  currentUSerName: currentUserName,
                 ),
               ),
             ],
           ),
+        ),
+      ),
+    ),
+  );
+}
+
+Widget sponsorWidget({
+  required BuildContext context,
+  required String sponsorName,
+  required String sponsorLogoPath,
+}) {
+  return SizedBox(
+    height: 85,
+    width: double.infinity,
+    child: Card(
+      elevation: 0.5,
+      //color: kConnectedGreen.withOpacity(0.03),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(4),
+        side: BorderSide(
+          color: kConnectedGreen.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Row(
+          children: [
+            // Rounded profile section with sponsor logo
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: kConnectedGreen.withOpacity(0.3),
+                  width: 2,
+                ),
+              ),
+              child: ClipOval(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Image.asset(
+                    sponsorLogoPath,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(width: 12),
+
+            // Sponsor info (flexible space)
+            Expanded(
+              flex: 3,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(
+                        Icons.star,
+                        color: kConnectedGreen,
+                        size: 14,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        "APP SPONSOR",
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                          color: kConnectedGreen,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    sponsorName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Spacer between text and button
+            const SizedBox(width: 8),
+
+            // Connect Button
+            Flexible(
+              flex: 2,
+              child: ElevatedButton(
+                onPressed: () {
+                  // Handle sponsor connect action
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kConnectedGreen,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: const Text(
+                  "Connect",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     ),

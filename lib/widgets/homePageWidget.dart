@@ -3,15 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:upgrader/upgrader.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+
 
 
 import '../constants.dart';
 import '../providers.dart';
 import '../screens/dx5ve_social/social_feed.dart';
 import '../screens/dx5veScreens/eventSpeakersScreen.dart';
-import '../screens/dx5veScreens/dx5ve_partners_screen.dart';
+import '../screens/dx5veScreens/partners_screen.dart';
 import '../screens/dx5veScreens/event_sessions_screen.dart';
-import '../screens/dx5veScreens/dx5ve_sponsors_screen.dart';
+import '../screens/dx5veScreens/sponsors_screen.dart';
 import '../screens/dx5veScreens/dx5veAttendeesScreen.dart';
 import '../screens/dx5veScreens/eventAgendaScreen.dart';
 import '../screens/contact_scanning/getContact.dart';
@@ -74,86 +76,51 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 children: [
                   // Cover Image
                   Image.asset(
-                    "assets/images/themes/bfsi-landscape.jpg",
+                    "assets/images/themes/CIO100-landscape.jpg",
                     width: screenWidth,
-                    height: screenHeight * 0.3, // Made taller for more visual impact
-                    fit: BoxFit.fill,
+                   // height: screenHeight * 0.3, // Made taller for more visual impact
+                    fit: BoxFit.contain,
                   ),
                   // Gradient overlay for better text visibility
-                  Container(
-                    width: screenWidth,
-                    height: screenHeight * 0.3,
-                    // decoration: BoxDecoration(
-                    //   gradient: LinearGradient(
-                    //     begin: Alignment.topCenter,
-                    //     end: Alignment.bottomCenter,
-                    //     colors: [
-                    //       Colors.black.withOpacity(0.1),
-                    //       Colors.black.withOpacity(0.7),
-                    //     ],
-                    //   ),
-                    // ),
-                  ),
-                  // Event title overlay
-                  // Positioned(
-                  //   bottom: 20,
-                  //   left: 20,
-                  //   right: 20,
-                  //   child: Column(
-                  //     crossAxisAlignment: CrossAxisAlignment.start,
-                  //     children: [
-                  //       Text(
-                  //         widget.eventName.toUpperCase(),
-                  //         style: const TextStyle(
-                  //           fontSize: 26,
-                  //           fontWeight: FontWeight.bold,
-                  //           color: Colors.white,
-                  //           letterSpacing: 0.5,
-                  //         ),
-                  //       ),
-                  //       const SizedBox(height: 5),
-                  //       Row(
-                  //         children: [
-                  //           const Icon(Icons.calendar_month, color: Colors.white, size: 16),
-                  //           const SizedBox(width: 5),
-                  //           Text(
-                  //             widget.eventDate,
-                  //             style: const TextStyle(
-                  //               fontSize: 14,
-                  //               color: Colors.white,
-                  //               fontWeight: FontWeight.w500,
-                  //             ),
-                  //           ),
-                  //           const SizedBox(width: 15),
-                  //           const Icon(Icons.location_on, color: Colors.white, size: 16),
-                  //           const SizedBox(width: 5),
-                  //           Text(
-                  //             widget.eventLocation,
-                  //             style: const TextStyle(
-                  //               fontSize: 14,
-                  //               color: Colors.white,
-                  //               fontWeight: FontWeight.w500,
-                  //             ),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
+
+
                 ],
               ),
-
-              // Event Description Section
+              // App Sponsor Section
               Container(
-                padding: const EdgeInsets.all(20),
-                child: Text(
-                  widget.shortEventDescription,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    height: 1.5,
-                    color: Colors.black87,
-                  ),
-                  textAlign: TextAlign.center,
+                margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      "APP SPONSOR",
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.2,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 50,
+                      child: Image.asset(
+                        "assets/images/sponsors/mbcom.png",
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
@@ -178,6 +145,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                             eventYear: widget.eventYear,
                             eventLocation: widget.eventLocation,
                             eventDayOfWeek: widget.eventDayOfWeek,
+                            eventName: 'AGENDA',
                           ),
                           'agenda_page_opened',
                         ),
@@ -210,7 +178,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                         const SizedBox(width: 12),
                         _buildFeatureCard(
                           context,
-                          'Contact Scanner',
+                          'QR Scanner',
                           'assets/icons/scanner.png',
                           kConnectedRed,
                           GetContact(ownerID: profileProvider.userID!),
@@ -284,11 +252,14 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          // Add your analytics tracking here if needed
-          Navigator.push(
+          PersistentNavBarNavigator.pushNewScreen(
             context,
-            MaterialPageRoute(builder: (context) => screen),
+            screen:  screen,
+            withNavBar: false,
+            pageTransitionAnimation: PageTransitionAnimation.slideRight,
           );
+
+
         },
         child: Container(
           height: 110,

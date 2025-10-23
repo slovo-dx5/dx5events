@@ -50,7 +50,7 @@ class _PastNavigationPageState extends State<PastNavigationPage> {
 
   List<Widget> _buildScreens() {
     return [
-      PastPresentationsScreen(eventName: widget.eventName, eventID: widget.eventID,),
+     // PastPresentationsScreen(eventName: widget.eventName, eventID: widget.eventID,),
       SocialFeed(),
       PastSponsorsScreen(),
       GalleryScreen(),
@@ -99,8 +99,8 @@ class _PastNavigationPageState extends State<PastNavigationPage> {
           routeAndNavigatorSettings: RouteAndNavigatorSettings(
             initialRoute: '/',
             routes: {
-              '/first': (context) => PastPresentationsScreen(eventName: widget.eventName,
-                eventID: widget.eventID,),
+            //  '/first': (context) => PastPresentationsScreen(eventName: widget.eventName,
+            //    eventID: widget.eventID,),
               '/second': (context) => SocialFeed(),
               '/third': (context) => const PastSponsorsScreen(),
               '/fourth': (context) =>  GalleryScreen(),

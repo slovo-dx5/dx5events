@@ -276,6 +276,7 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
     ).replaceAll('\n', '<br>');
 
     try {
+
       await DioPostService().sendMeetingEmail(body: {
         "emailAddress": widget.recipientEmail,
         "subject": "Meeting Requested by ${widget.userName} from ${widget.company}",
@@ -339,7 +340,7 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
 
 
     } catch (e) {
-      print("Coul not get user id");
+      print("Coul not get user id $e");
     }
     //
   }

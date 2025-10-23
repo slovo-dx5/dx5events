@@ -151,13 +151,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
           inactiveColorPrimary: Colors.grey,
         ),
 
-        // PersistentBottomNavBarItem(
-        //   icon: const Icon(Icons.perm_media),
-        //   title: "Social",
-        //   //  textStyle: style,
-        //   activeColorPrimary: kPrimaryColor,
-        //   inactiveColorPrimary: Colors.grey,
-        // ),
+
         PersistentBottomNavBarItem(
           icon: const Icon(Icons.person),
           title: ("Profile"),
@@ -199,14 +193,11 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         stateManagement: true, // Default is true.
         hideNavigationBarWhenKeyboardAppears:
         true, // Recommended to set 'resizeToAvoidBottomInset' as true while using this argument. Default is true.
-        decoration: NavBarDecoration(
-          borderRadius: BorderRadius.circular(10.0),
-          //colorBehindNavBar: Colors.white,
-        ),
+
         popBehaviorOnSelectedNavBarItemPress: PopBehavior.all,
 
         navBarStyle:
-        NavBarStyle.style6, // Choose the nav bar style with this property.
+        NavBarStyle.style8, // Choose the nav bar style with this property.
       )
     );
 

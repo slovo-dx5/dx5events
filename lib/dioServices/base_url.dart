@@ -7,7 +7,7 @@ class BaseURL {
 //  static const String Baseurl = "https://admin.connected.go.ke";
   static const String OTPBaseurl = "https://otpapi.cioafrica.co";
   //static const String OTPBaseurl = "https://otpapi.connected.go.ke";
-  static const String MailerBaseurl = "https://mailer.connected.cioafrica.co";
+  static const String MailerBaseurl = "https://mailer.cioafrica.co/api/email/send";
   //static const String MailerBaseurl = "https://mailer.connected.go.ke/api/email/send";
 
   static const String PrivacyUrl = PROTOCOL_HTTPS +

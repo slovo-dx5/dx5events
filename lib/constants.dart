@@ -116,7 +116,7 @@ const kConnectedBlue = Color(0xFF44A0D3);
 const kConnectedRed = Color(0xFFEC3C3A);
 
 
-final kCISOToday = DateTime(2024, 03, 20);
+final kCISOToday = DateTime(2025, 11, 19);
 final kCISOFirstDay =
     DateTime(kCISOToday.year, kCISOToday.month - 30, kCISOToday.day);
 final kCISOLastDay =
@@ -207,6 +207,7 @@ Widget connectButton({
   required String assetName,
   required String firstName,
   required String lastName,
+  required String currentUSerName,
   required String role,
   required String company,
   required String profileid,
@@ -238,6 +239,7 @@ Widget connectButton({
               email: email,
               requestedByphone: requestedByphone,
               meetingWithPhone: meetingWithPhone, hasDownloadedApp: hasDownloadedApp,
+              currentUserName: currentUSerName,
             ),
             withNavBar: false,
             pageTransitionAnimation: PageTransitionAnimation.slideRight,

@@ -16,6 +16,7 @@ class IndividualAttendeeScreen extends StatefulWidget {
   String assetName;
   String email;
   String FirstName;
+  String currentUserName;
   String LastName;
   String Role;
   String Company;
@@ -32,6 +33,7 @@ class IndividualAttendeeScreen extends StatefulWidget {
       required this.email,
       required this.requestedByphone,
       required this.meetingWithPhone,
+        required this.currentUserName,
       required this.FirstName,
       required this.LastName,
       required this.hasDownloadedApp,
@@ -122,10 +124,12 @@ class _IndividualAttendeeScreenState
 
             ],
           ),verticalSpace(height: 10),
-    MeetingRequestBottomSheet(userName: widget.FirstName,
+    MeetingRequestBottomSheet(
+      userName: widget.currentUserName,
     meetingWith: "${widget.FirstName} ${widget.LastName}",
     otherUSerID: widget.id, company: widget.Company, recipientEmail: widget.email,
-      requestedByphone:widget.requestedByphone, meetingWithPhone: widget.meetingWithPhone, hasDownloadedApp: widget.hasDownloadedApp ,),
+      requestedByphone:widget.requestedByphone,
+      meetingWithPhone: widget.meetingWithPhone, hasDownloadedApp: widget.hasDownloadedApp ,),
 
 
         ]),

@@ -20,6 +20,7 @@ import '../../providers.dart';
 import 'package:dx5veevents/constants.dart';
 
 import 'package:permission_handler/permission_handler.dart';
+import 'scanned_contacts.dart';
 
 
 
@@ -46,9 +47,49 @@ class _GetContactState extends State<GetContact> {
     _showAlertDialogOnce();
   }
 
+  sendSponsorData()async{
+    final profileProvider = Provider.of<ProfileProvider>(context);
+
+    final response=await DioPostService().postSponsorData(body: {
+      "sponsorid": sponsorID,
+      "firstname": profileProvider.firstName,
+      "lastname": profileProvider.lastName,
+      "company": profileProvider.company,
+      "phone": profileProvider.phone,
+      "email": profileProvider.email,
+      "position": profileProvider.role
+    }, context: context);
+    if(Platform.isIOS)await contactController?.pauseCamera();
+    if(response.statusCode==200){
+      if(Platform.isIOS)await contactController?.pauseCamera();
+      Fluttertoast.showToast(msg: "Success");
+      Navigator.of(context).pop(
+
+      );
+    }else{
+      Fluttertoast.showToast(msg: "Error: Check your internet");
+      Navigator.of(context).pop();
+
+      setState(() {
+        isSending=false;
+        Navigator.of(context).pop();
+      });
+    }
+
+  }
+
   _onQRViewCreated(QRViewController controller)async {
     this.contactController = controller;
+
     controller.scannedDataStream.listen((scanData)async {
+      if (scanData.code!.startsWith("sponsor")) {
+        setState(() {
+          isSending = true;
+
+          sponsorID = scanData.code!;
+        });
+       await sendSponsorData();
+      }
       await controller.pauseCamera();
       fetchAndSaveAttendeeInfo(attendeeDAta: scanData.code);
       Future.delayed(const Duration(seconds: 2),(){controller.resumeCamera();});
@@ -137,7 +178,19 @@ class _GetContactState extends State<GetContact> {
       child: Scaffold(
         appBar: AppBar(title: const Text("Contact Scanner"),
           leading: IconButton(onPressed: (){Navigator.of(context).pop();}, icon: Icon(Icons.arrow_back),color: kCIOPink,),
-
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.history),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ScannedContactsScreen(ownerID: widget.ownerID),
+                  ),
+                );
+              },
+            ),
+          ],
           automaticallyImplyLeading: true,),
         body: Visibility(
           replacement: const Center(child: SpinKitCircle(color: kCIOPink,size: 100,),),
