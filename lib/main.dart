@@ -5,6 +5,7 @@ import 'package:dx5veevents/providers/themeProvider.dart';
 import 'package:dx5veevents/screens/dx5veScreens/notificationsScreen.dart';
 
 import 'package:dx5veevents/screens/landingPage2.dart';
+import 'package:dx5veevents/screens/test.dart';
 
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -36,7 +37,7 @@ final router = GoRouter(
     GoRoute(
       path: '/',
      builder: (context, state) =>  LandingPage2(),
-    // builder: (context, state) =>  StructureLAstMinute(),
+    //builder: (context, state) =>  ContactSaveTest(),
      //builder: (context, state) =>  StructureLAstMinute(),
      //builder: (context, state) =>  ExamplePage(),
     // builder: (context, state) =>  MapScreen(),
@@ -50,6 +51,10 @@ final router = GoRouter(
     GoRoute(
       path: '/notifications',
       builder: (context, state) => NotificationsScreen(),
+    ),
+    GoRoute(
+      path: '/test-contact',
+      builder: (context, state) => ContactSaveTest(),
     ),
     // GoRoute(
     //   path: '/meetings/:id',
@@ -66,7 +71,7 @@ void main() async{
 
   try {
     await Firebase.initializeApp(
-      name: "dx5ve Events",
+      name: "dx5ve_events",
       options: DefaultFirebaseOptions.currentPlatform,
     );
     print('Firebase initialized successfully');

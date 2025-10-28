@@ -3,7 +3,12 @@
     "allow": [
       "Bash(test:*)",
       "Bash(./gradlew:*)",
-      "Bash(flutter clean:*)"
+      "Bash(flutter clean:*)",
+      "Bash(pod repo remove:*)",
+      "Bash(pod install:*)",
+      "Bash(rm:*)",
+      "Bash(pod search:*)",
+      "Bash(flutter:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,7 +1,6 @@
 import 'package:dx5veevents/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '../helpers/helper_functions.dart';
 import '../models/contactModel.dart';
@@ -29,29 +28,48 @@ class SaveContact extends StatefulWidget {
   @override
   State<SaveContact> createState() => _SaveContactState();
 }
-Future<void> saveContactToDevice({required String firstName,
-  required String lastName,required String role,required String company,required String phoneNumber, required String email}) async {
-  // Request permissions
-  if (await Permission.contacts.request().isGranted) {
-    // Create a new contact
-    // Insert new contact
-    final newContact = Contact()
-      ..name.first = firstName
-      ..name.last = lastName
-      ..emails=[Email(email)]
-      ..organizations=[Organization(company:company,title: role)]
-      ..phones = [Phone(phoneNumber)];
+Future<bool> saveContactToDevice({
+  required String firstName,
+  required String lastName,
+  required String role,
+  required String company,
+  required String phoneNumber,
+  required String email,
+}) async {
+  try {
+    // Request permission using flutter_contacts
+    final permission = await FlutterContacts.requestPermission();
 
+    if (!permission) {
+      print('Contacts permission denied');
+      Fluttertoast.showToast(
+        msg: "Please enable contacts permission in Settings",
+        toastLength: Toast.LENGTH_LONG,
+      );
+      return false;
+    }
 
-    // Save the contact
-   try{ await newContact.insert();
-     print("contact added successfully");
-   }catch(e){
-     print("Contact error is $e");
-   }
-  } else {
-    // Handle permission denial
-    print('Permission to access contacts was denied');
+    // Create contact with all fields properly set
+    final newContact = Contact(
+      name: Name(first: firstName, last: lastName),
+      phones: phoneNumber.isNotEmpty ? [Phone(phoneNumber)] : [],
+      emails: email.isNotEmpty ? [Email(email)] : [],
+      organizations: company.isNotEmpty || role.isNotEmpty
+        ? [Organization(company: company, title: role)]
+        : [],
+    );
+
+    // Insert the contact
+    await newContact.insert();
+    print("Contact saved successfully: $firstName $lastName");
+    return true;
+  } catch (e) {
+    print("Error saving contact: $e");
+    Fluttertoast.showToast(
+      msg: "Failed to save contact: ${e.toString()}",
+      toastLength: Toast.LENGTH_LONG,
+    );
+    return false;
   }
 }
 class _SaveContactState extends State<SaveContact> {
@@ -247,33 +265,53 @@ class _SaveContactState extends State<SaveContact> {
 
                     primaryButton2(
                       context: context,
-                      onPressedFunction: ()async {
+                      onPressedFunction: () async {
                         // Save to device contacts
-                        await saveContactToDevice(
-                            firstName: widget.firstName,
-                            lastName: widget.lastName,
-                            email: widget.email,
-                            company: widget.company,
-                            role: widget.role,
-                            phoneNumber: widget.phone,
-                        );
-
-                        // Save to SQLite database
-                        final scannedContact = ScannedContact(
+                        final contactSaved = await saveContactToDevice(
                           firstName: widget.firstName,
                           lastName: widget.lastName,
-                          phone: widget.phone,
                           email: widget.email,
                           company: widget.company,
                           role: widget.role,
-                          ownerID: widget.ownerID,
-                          scannedAt: DateTime.now(),
+                          phoneNumber: widget.phone,
                         );
-                        await ScannedContactsDatabase.instance.create(scannedContact);
 
-                        await UserPointsService().createOrUpdateUserPoints(userId: widget.ownerID,actionId: 3);
-                        Fluttertoast.showToast(msg: "Contact Saved");
-                        Navigator.of(context).pop();
+                        if (contactSaved) {
+                          // Save to SQLite database only if contact was saved successfully
+                          try {
+                            final scannedContact = ScannedContact(
+                              firstName: widget.firstName,
+                              lastName: widget.lastName,
+                              phone: widget.phone,
+                              email: widget.email,
+                              company: widget.company,
+                              role: widget.role,
+                              ownerID: widget.ownerID,
+                              scannedAt: DateTime.now(),
+                            );
+                            await ScannedContactsDatabase.instance.create(scannedContact);
+
+                            await UserPointsService().createOrUpdateUserPoints(
+                              userId: widget.ownerID,
+                              actionId: 3,
+                            );
+
+                            Fluttertoast.showToast(
+                              msg: "Contact saved successfully!",
+                              toastLength: Toast.LENGTH_SHORT,
+                            );
+
+                            if (context.mounted) {
+                              Navigator.of(context).pop();
+                            }
+                          } catch (e) {
+                            print("Error saving to database: $e");
+                            Fluttertoast.showToast(
+                              msg: "Contact saved to device but database error occurred",
+                              toastLength: Toast.LENGTH_LONG,
+                            );
+                          }
+                        }
                       },
                       buttonText: "Save Contact",
                       backgroundColor: Colors.grey,
