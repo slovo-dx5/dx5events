@@ -54,7 +54,7 @@ class DefaultFirebaseOptions {
     appId: '1:286423894850:android:ff681373972fb40033d6db',
     messagingSenderId: '286423894850',
     projectId: 'dx5ve-events',
-    storageBucket: 'dx5ve-events.appspot.com',
+    storageBucket: 'dx5ve-events.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -62,7 +62,7 @@ class DefaultFirebaseOptions {
     appId: '1:286423894850:ios:7c8464c18b1a214833d6db',
     messagingSenderId: '286423894850',
     projectId: 'dx5ve-events',
-    storageBucket: 'dx5ve-events.appspot.com',
+    storageBucket: 'dx5ve-events.firebasestorage.app',
     iosBundleId: 'com.dxfive.events',
   );
 

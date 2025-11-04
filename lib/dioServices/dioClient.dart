@@ -1,5 +1,4 @@
 import "package:dio/dio.dart";
-import 'package:dio_http_cache/dio_http_cache.dart';
 //import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 import 'base_url.dart';

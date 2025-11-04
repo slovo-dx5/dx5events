@@ -5,7 +5,6 @@ import 'package:dx5veevents/screens/chats/all_chats.dart';
 import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
 import 'package:dx5veevents/screens/pastEvents/pastPresentationsScreen.dart';
 import 'package:dx5veevents/screens/pastEvents/pastSponsorsScreen.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 

@@ -6,6 +6,7 @@ import 'package:dx5veevents/screens/dx5veScreens/notificationsScreen.dart';
 
 import 'package:dx5veevents/screens/landingPage2.dart';
 import 'package:dx5veevents/screens/test.dart';
+import 'package:dx5veevents/test.dart';
 
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -40,7 +41,7 @@ final router = GoRouter(
     //builder: (context, state) =>  ContactSaveTest(),
      //builder: (context, state) =>  StructureLAstMinute(),
      //builder: (context, state) =>  ExamplePage(),
-    // builder: (context, state) =>  MapScreen(),
+  //  builder: (context, state) =>  MapScreen(),
       //builder: (context, state) =>  ProfileScreen(),
     ),
     GoRoute(
@@ -71,7 +72,7 @@ void main() async{
 
   try {
     await Firebase.initializeApp(
-      name: "dx5ve_events",
+      // name: "dx5ve_events",
       options: DefaultFirebaseOptions.currentPlatform,
     );
     print('Firebase initialized successfully');
@@ -81,8 +82,8 @@ void main() async{
   Get.put<MyDrawerController>(MyDrawerController());
 
   if(Platform.isAndroid){
-    await FirebaseMessaging.instance.subscribeToTopic("connectedAfricaBroadcast");
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    await FirebaseMessaging.instance.subscribeToTopic("CIO1002025Broadcast");
+    //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }else if(Platform.isIOS){
     try{ await NotificationSetup().getIOSPermission();
     await FirebaseMessaging.instance.getAPNSToken();
@@ -91,7 +92,9 @@ void main() async{
       await FirebaseMessaging.instance.subscribeToTopic("connectedAfricaBroadcast");
     } );
 
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);}catch(e){
+    //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    }
+    catch(e){
       print(("firebase messaging error is? $e"));
     }
   }

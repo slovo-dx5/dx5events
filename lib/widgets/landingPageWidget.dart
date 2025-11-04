@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
+import 'package:video_player/video_player.dart';
 
 import '../constants.dart';
 import '../initialScreen.dart';
@@ -154,7 +155,7 @@ class CurvedImageContainer extends StatelessWidget {
 
 
 
-class ActiveEventWidget extends StatelessWidget {
+class ActiveEventWidget extends StatefulWidget {
   final String imagePath;
   final String dayMonth;
   final String endDayMonth;
@@ -191,14 +192,80 @@ class ActiveEventWidget extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<ActiveEventWidget> createState() => _ActiveEventWidgetState();
+}
+
+class _ActiveEventWidgetState extends State<ActiveEventWidget> {
+  VideoPlayerController? _videoController;
+  bool _isVideoInitialized = false;
+  bool _showImage = false;
+  bool _imagePreloaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _preloadImage();
+    _initializeVideo();
+  }
+
+  Future<void> _preloadImage() async {
+    // Preload the image so it's ready for instant display
+    await precacheImage(
+      const AssetImage('assets/images/themes/CIO100-portrait.jpg'),
+      context,
+    );
+    setState(() {
+      _imagePreloaded = true;
+    });
+  }
+
+  Future<void> _initializeVideo() async {
+    try {
+      // Check if imagePath is a video file
+      if (widget.imagePath.endsWith('.mp4')) {
+        _videoController = VideoPlayerController.asset(widget.imagePath);
+        await _videoController!.initialize();
+        print("video initialized");
+        setState(() {
+          _isVideoInitialized = true;
+        });
+        // Set to not loop (play only once)
+        _videoController!.setLooping(false);
+
+        // Add listener to detect when video finishes
+        _videoController!.addListener(() {
+          if (_videoController!.value.position >= _videoController!.value.duration) {
+            if (!_showImage) {
+              setState(() {
+                _showImage = true;
+              });
+            }
+          }
+        });
+
+        // Start playing
+        _videoController!.play();
+      }
+    } catch (e) {
+      print('Error initializing video: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _videoController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Container(
-      //margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-     // height: height,
+      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: BorderRadius.circular(widget.borderRadius),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.15),
@@ -219,13 +286,49 @@ class ActiveEventWidget extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // Background image with parallax effect
+            // Black background to prevent flash during transition
             Positioned.fill(
-              child: Image.asset(
-                imagePath,
-                fit: BoxFit.cover,
+              child: Container(
+                color: Colors.black,
               ),
             ),
+            // Background video with transition to image
+            Positioned.fill(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                switchInCurve: Curves.easeIn,
+                switchOutCurve: Curves.easeOut,
+                child: SizedBox(height: MediaQuery.of(context).size.height,
+                  child:
+                //   Image.asset(
+                //     'assets/images/themes/CIO100-portrait.jpg',
+                //     key: const ValueKey('image'),
+                //     fit: BoxFit.cover,
+                //   ),
+                // )
+                _showImage
+                    ? Image.asset(
+                        'assets/images/themes/CIO100-portrait.jpg',
+                        key: const ValueKey('image'),
+                        fit: BoxFit.cover,
+                      )
+                    : (_isVideoInitialized && _videoController != null
+                        ? FittedBox(
+                            key: const ValueKey('video'),
+                            fit: BoxFit.cover,
+                            child: SizedBox(
+                              width: _videoController!.value.size.width,
+                              height: MediaQuery.of(context).size.height,
+                              child: VideoPlayer(_videoController!),
+                            ),
+                          )
+                        : Image.asset(
+                            widget.imagePath,
+                            key: const ValueKey('fallback'),
+                            fit: BoxFit.cover,
+                          )),
+              ),
+            ),),
 
             // Content layout - positioned to fill entire space
             Positioned.fill(
@@ -235,7 +338,7 @@ class ActiveEventWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Premium presenter badge
-                    if (presenterText != null)
+                    if (widget.presenterText != null)
                       Container(
                         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                         decoration: BoxDecoration(
@@ -271,7 +374,7 @@ class ActiveEventWidget extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              presenterText!.toUpperCase(),
+                              widget.presenterText!.toUpperCase(),
                               style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
@@ -279,7 +382,7 @@ class ActiveEventWidget extends StatelessWidget {
                                 letterSpacing: 1.5,
                               ),
                             ),
-                            if (presenterLogo != null) ...[
+                            if (widget.presenterLogo != null) ...[
                               const SizedBox(width: 12),
                               Container(
                                 height: 22,
@@ -347,7 +450,7 @@ class ActiveEventWidget extends StatelessWidget {
 
                           // Premium CTA button
                           GestureDetector(
-                            onTap: () => onPressedFunct(),
+                            onTap: () => widget.onPressedFunct(),
                             child: Container(
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(vertical: 18),

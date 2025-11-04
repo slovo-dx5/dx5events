@@ -253,7 +253,7 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
     super.initState();
 
     placeholderText =
-    "Hello ${widget.userName}. I'd like to have a 30 minute meeting with you.";
+    "Hello ${widget.meetingWith}. I'd like to have a 30 minute meeting with you.";
 
     textEditingController.text = placeholderText;
 
@@ -282,7 +282,7 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
         "subject": "Meeting Requested by ${widget.userName} from ${widget.company}",
         "body": """
   <div style="max-width: 100%;">
-    <img src="https://admin.connected.go.ke/assets/a14f7470-d026-4d56-848e-4e0d5e0ebc18?email_banner.jpg" alt="Meeting Banner" style="width: 100%; max-width: 600px; height: auto; margin-bottom: 20px;">
+    <img src="https://subscriptions.cioafrica.co/assets/923024d9-53c8-459a-942a-1d487e0099f9?banner.jpg" alt="Meeting Banner" style="width: 100%; max-width: 600px; height: auto; margin-bottom: 20px;">
   </div>
 
   <p>${placeholderText.replaceAll('\n', '<br>')}</p>

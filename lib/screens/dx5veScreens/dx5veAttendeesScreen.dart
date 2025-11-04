@@ -289,7 +289,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
                   interests: [],
                   profileid: user.profilePhoto ?? "",
                   userID: user.attendeeId, requestedByphone: profileProvider.phone,
-                  meetingWithPhone: user.phone, hasDownloadedApp: user.hasDownloadedApp, currentUserName:"${profileProvider.firstName } ${profileProvider.lastName}",
+                  meetingWithPhone: user.phone??"", hasDownloadedApp: user.hasDownloadedApp, currentUserName:"${profileProvider.firstName } ${profileProvider.lastName}",
                 );
               }
             },

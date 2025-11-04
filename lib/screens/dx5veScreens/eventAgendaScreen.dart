@@ -327,7 +327,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                         Expanded(
                           child: Text(
                             session.title ?? 'No Title',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: Colors.black,
@@ -336,7 +336,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                         ),
                         if (isNow)
                           Container(
-                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                             decoration: BoxDecoration(
                               color: Colors.blue,
                               borderRadius: BorderRadius.circular(12),
@@ -479,9 +479,9 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                     '${BaseURL.Baseurl}/assets/${speaker.photo}',
                   )
                 : null,
-            child: speaker.photo == null ? Icon(Icons.person, size: 20) : null,
+            child: speaker.photo == null ? const Icon(Icons.person, size: 20) : null,
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               '${speaker.firstName ?? ''} ${speaker.lastName ?? ''}'.trim(),
@@ -520,7 +520,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             if (isSelected)
               Container(
                 height: 3,
@@ -615,7 +615,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
           ),
           title: Text(
             widget.eventName,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.black,
               fontSize: 18,
               fontWeight: FontWeight.w600,

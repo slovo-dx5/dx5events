@@ -11,7 +11,7 @@ class EventAttendeeModel {
 
 
 //  final String? workPhone;
-  final String phone;
+  final String ?phone;
   final String company;
   final String role;
  // final String industry;
@@ -35,7 +35,7 @@ class EventAttendeeModel {
     required this.lastName,
     required this.workEmail,
    // this.workPhone,
-    required this.phone,
+     this.phone,
     required this.company,
     required this.role,
      this.totalPoints,

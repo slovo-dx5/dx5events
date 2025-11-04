@@ -212,6 +212,14 @@ class _HomePageWidgetState extends State<HomePageWidget> {
 
                     Row(
                       children: [
+                        _buildFeatureCard(
+                          context,
+                          'Venue Map',
+                          'assets/icons/map.png',
+                          kConnectedBlue,
+                          MapScreen(),
+                          'map_screen_opened',
+                        ),
                    const SizedBox(width: 12),
                          _buildFeatureCard(
                           context,

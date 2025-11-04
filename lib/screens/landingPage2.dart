@@ -79,7 +79,7 @@ class _ActiveEventsState extends State<ActiveEvents> {
     return SizedBox(
         //height: MediaQuery.of(context).size.height * 0.85,
         child: ActiveEventWidget(
-          imagePath: 'assets/images/themes/CIO100-portrait.jpg',
+          imagePath: 'assets/images/themes/neon-opening.mp4',
           dayMonth: 'WED, NOV',
           date: '19th',
           endDate: '21ST',
@@ -123,7 +123,8 @@ class _ActiveEventsState extends State<ActiveEvents> {
           eventName: 'CIO100 SYMPOSIUM AND AWARDS',
           containerColor: kGradientLightBlue.withOpacity(0.7),
           shortDescription: "The Future of Tech",
-        ));
+        )
+    );
   }
 }
 
