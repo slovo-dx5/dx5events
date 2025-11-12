@@ -313,14 +313,10 @@ class _ActiveEventWidgetState extends State<ActiveEventWidget> {
                         fit: BoxFit.cover,
                       )
                     : (_isVideoInitialized && _videoController != null
-                        ? FittedBox(
+                        ? AspectRatio(
                             key: const ValueKey('video'),
-                            fit: BoxFit.cover,
-                            child: SizedBox(
-                              width: _videoController!.value.size.width,
-                              height: MediaQuery.of(context).size.height,
-                              child: VideoPlayer(_videoController!),
-                            ),
+                            aspectRatio: 9 / 16,
+                            child: VideoPlayer(_videoController!),
                           )
                         : Image.asset(
                             widget.imagePath,

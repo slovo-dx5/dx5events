@@ -220,6 +220,7 @@ class MeetingRequestBottomSheet extends StatefulWidget {
   String requestedByphone;
   String meetingWithPhone;
   int otherUSerID;
+  List<DateTime>? eventDays;
 
   MeetingRequestBottomSheet(
       {required this.userName,
@@ -230,6 +231,7 @@ class MeetingRequestBottomSheet extends StatefulWidget {
       required this.meetingWithPhone,
       required this.recipientEmail,
       required this.otherUSerID,
+      this.eventDays,
       super.key});
 
   @override
@@ -244,6 +246,7 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
   String startTime = "";
   String  formattedEndTime = "";
   String tableSlot = "";
+  DateTime? selectedDate;
 
   String placeholderText = "";
 
@@ -265,12 +268,81 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
     super.initState();
   }
 
+  void _showDatePickerBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Select Meeting Date',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Choose from available event days:',
+                style: TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 16),
+              ...widget.eventDays!.map((date) {
+                final isSelected = selectedDate != null &&
+                    date.year == selectedDate!.year &&
+                    date.month == selectedDate!.month &&
+                    date.day == selectedDate!.day;
+                return ListTile(
+                  leading: Icon(
+                    isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                    color: kConnectedBlue,
+                  ),
+                  title: Text(
+                    DateFormat('EEEE, MMMM d, yyyy').format(date),
+                    style: TextStyle(
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  onTap: () {
+                    setState(() {
+                      selectedDate = date;
+                    });
+                    Navigator.pop(context);
+                  },
+                );
+              }).toList(),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   sendMeetingNotification({required int ownerID}) async {
     // get receiver token
     String? receiverToken;
+    String formattedDate = selectedDate != null
+        ? DateFormat('EEEE, MMMM d, yyyy').format(selectedDate!)
+        : '';
     String htmlBody = (
         "$placeholderText.\n\n"
-            "Proposed time:\n"
+            "Proposed date: $formattedDate\n"
             "Start time: $startTime\n"
             "End time: $formattedEndTime\n"
     ).replaceAll('\n', '<br>');
@@ -286,7 +358,8 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
   </div>
 
   <p>${placeholderText.replaceAll('\n', '<br>')}</p>
-  <p><strong>Proposed time:</strong><br>
+  <p><strong>Proposed meeting:</strong><br>
+  Date: $formattedDate<br>
   Start time: $startTime<br>
   End time: $formattedEndTime</p>
 
@@ -384,6 +457,60 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
 
           ),
           verticalSpace(height: 16),
+          // Date selection
+          if (widget.eventDays != null && widget.eventDays!.isNotEmpty)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: IconButton(
+                        onPressed: () {
+                          infoDialog(
+                            context: context,
+                            dialogText: "Select the date for your meeting with ${widget.meetingWith}."
+                          );
+                        },
+                        icon: const Icon(Icons.info_outline_rounded)
+                      )
+                    ),
+                    const Text("Meeting Date: ", style: TextStyle(fontSize: 15)),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          _showDatePickerBottomSheet();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                selectedDate != null
+                                    ? DateFormat('MMM d, yyyy').format(selectedDate!)
+                                    : 'Select date',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: selectedDate != null ? Colors.black : Colors.grey,
+                                ),
+                              ),
+                              const Icon(Icons.calendar_today, size: 18),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpace(height: 16),
+              ],
+            ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -436,20 +563,37 @@ verticalSpace(height: 50),
                   buttonText: "Send",
                   context: context,
                     onPressedFunction: () async {
+                     // Validate date if event days are provided
+                     bool hasEventDays = widget.eventDays != null && widget.eventDays!.isNotEmpty;
+
+                     if (hasEventDays && selectedDate == null) {
+                       Fluttertoast.showToast(
+                           backgroundColor: Colors.orange,
+                           msg: "You must select a meeting date");
+                       return;
+                     }
 
                      if(startTime!=""){
                        setState(() {
                          isSending = true;
                        });
+
+                       String formattedDate = selectedDate != null
+                           ? DateFormat('EEEE, MMMM d, yyyy').format(selectedDate!)
+                           : '';
+
+                       String meetingMessage = "$placeholderText.\n\n"
+                           "${hasEventDays ? "Proposed date: $formattedDate\n" : ""}"
+                           "Proposed time:\n"
+                           "Start time: $startTime\n"
+                           "End time: $formattedEndTime\n";
+
                        await requestMeeting(
                            currentUserID: profileProvider.userID!,
                            requestedBy:
                            "${profileProvider.firstName} ${profileProvider.lastName}",
                            meetingWith: widget.meetingWith,
-                           message: "$placeholderText.\n\n"
-                               "Proposed time:\n"
-                               "Start time: $startTime\n"
-                               "End time: $formattedEndTime\n",
+                           message: meetingMessage,
                            company: profileProvider.company,
                            otherUserID: widget.otherUSerID,
                            startTime: startTime,
@@ -470,7 +614,7 @@ verticalSpace(height: 50),
                        Navigator.of(context).pop();
                      }else{
                        Fluttertoast.showToast(
-                           backgroundColor: kSuccessGreen,
+                           backgroundColor: Colors.orange,
                            msg: "You must select meeting time");
                      }
 

@@ -32,7 +32,7 @@ int ownerID;
   State<GetContact> createState() => _GetContactState();
 }
 
-class _GetContactState extends State<GetContact> {
+class _GetContactState extends State<GetContact> with SingleTickerProviderStateMixin {
   final GlobalKey contactQrKey = GlobalKey();
   QRViewController? contactController;
   bool hasScanned=false;
@@ -40,11 +40,26 @@ class _GetContactState extends State<GetContact> {
   String sponsorID="";
   String? lastScannedCode;
   bool isDialogShown = false;
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     _showAlertDialogOnce();
+
+    // Listen to tab changes to pause/resume camera
+    _tabController.addListener(() {
+      if (_tabController.index == 0) {
+        // Scanner tab - resume camera if not already scanning
+        if (!hasScanned) {
+          contactController?.resumeCamera();
+        }
+      } else {
+        // History tab - pause camera
+        contactController?.pauseCamera();
+      }
+    });
   }
 
   sendSponsorData()async{
@@ -82,18 +97,35 @@ class _GetContactState extends State<GetContact> {
     this.contactController = controller;
 
     controller.scannedDataStream.listen((scanData)async {
+      // Prevent processing the same QR code multiple times
+      if (hasScanned || scanData.code == lastScannedCode) {
+        return;
+      }
+
+      // Mark as scanned and store the code
+      setState(() {
+        hasScanned = true;
+        lastScannedCode = scanData.code;
+      });
+
+      // Pause camera immediately to prevent further scans
+      await controller.pauseCamera();
+
       if (scanData.code!.startsWith("sponsor")) {
         setState(() {
           isSending = true;
-
           sponsorID = scanData.code!;
         });
-       await sendSponsorData();
+        await sendSponsorData();
+        // Reset for next scan after sponsor data is sent
+        setState(() {
+          hasScanned = false;
+          lastScannedCode = null;
+        });
+      } else {
+        // For attendee scans, navigate without resuming camera
+        await fetchAndSaveAttendeeInfo(attendeeDAta: scanData.code);
       }
-      await controller.pauseCamera();
-      fetchAndSaveAttendeeInfo(attendeeDAta: scanData.code);
-      Future.delayed(const Duration(seconds: 2),(){controller.resumeCamera();});
-      controller.resumeCamera();
     });
   }
 
@@ -113,7 +145,7 @@ class _GetContactState extends State<GetContact> {
 
      if (data != null && data.isNotEmpty) {
        var attendeeDetails = data[0];
-       PersistentNavBarNavigator.pushNewScreen(
+       await PersistentNavBarNavigator.pushNewScreen(
          context,
          screen: SaveContact(
            firstName: attendeeDetails["firstName"],
@@ -125,10 +157,14 @@ class _GetContactState extends State<GetContact> {
          ),
          withNavBar: false,
          pageTransitionAnimation: PageTransitionAnimation.slideRight,
-       );
-
-
-
+       ).then((_) {
+         // Reset scanning state when user returns to allow new scans
+         setState(() {
+           hasScanned = false;
+           lastScannedCode = null;
+         });
+         contactController?.resumeCamera();
+       });
      }
 
 
@@ -167,6 +203,7 @@ class _GetContactState extends State<GetContact> {
 
   @override
   void dispose() {
+    _tabController.dispose();
     contactController?.dispose();
     super.dispose();
   }
@@ -176,58 +213,83 @@ class _GetContactState extends State<GetContact> {
 
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(title: const Text("Contact Scanner"),
-          leading: IconButton(onPressed: (){Navigator.of(context).pop();}, icon: Icon(Icons.arrow_back),color: kCIOPink,),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.history),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ScannedContactsScreen(ownerID: widget.ownerID),
-                  ),
-                );
-              },
-            ),
+        appBar: AppBar(
+          title: const Text("Contact Scanner"),
+          leading: IconButton(
+            onPressed: (){Navigator.of(context).pop();},
+            icon: const Icon(Icons.arrow_back),
+            color: kCIOPink,
+          ),
+          bottom: TabBar(
+            controller: _tabController,
+            indicatorColor: kCIOPink,
+            labelColor: kCIOPink,
+            unselectedLabelColor: Colors.grey,
+            tabs: const [
+              Tab(
+                icon: Icon(Icons.qr_code_scanner),
+                text: "Scanner",
+              ),
+              Tab(
+                icon: Icon(Icons.history),
+                text: "History",
+              ),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            // Scanner Tab
+            _buildScannerTab(),
+            // History Tab
+            ScannedContactsScreen(ownerID: widget.ownerID),
           ],
-          automaticallyImplyLeading: true,),
-        body: Visibility(
-          replacement: const Center(child: SpinKitCircle(color: kCIOPink,size: 100,),),
-          visible: isSending==false,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(mainAxisAlignment: MainAxisAlignment.center,crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                const Text("Position the scanner towards another attendee's "
-                    "badge to get their contact details", style: TextStyle(fontSize: 18),textAlign: TextAlign.center,),
+        ),
+      ),
+    );
+  }
 
-                verticalSpace(height: 40),
-                Container(
-                  height: 350,
-                  width: 350,  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white),
-                    borderRadius:
-                    const BorderRadius.all(Radius.circular(12))),
-                  child: ClipRRect(borderRadius: const BorderRadius.all(Radius.circular(12)),
-                    child: QRView(
-                      key: contactQrKey,
-                      onQRViewCreated: _onQRViewCreated,
-                      overlay: QrScannerOverlayShape(
-                        borderColor: Colors.orange,
-                        borderRadius: 10,
-                        borderLength: 30,
-                        borderWidth: 10,
-                        cutOutSize: 350,
-                      ),
-
-                    ),
+  Widget _buildScannerTab() {
+    return Visibility(
+      replacement: const Center(child: SpinKitCircle(color: kCIOPink,size: 100,),),
+      visible: isSending==false,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            const Text(
+              "Position the scanner towards another attendee's "
+              "badge to get their contact details",
+              style: TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,
+            ),
+            verticalSpace(height: 40),
+            Container(
+              height: 350,
+              width: 350,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white),
+                borderRadius: const BorderRadius.all(Radius.circular(12))
+              ),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(12)),
+                child: QRView(
+                  key: contactQrKey,
+                  onQRViewCreated: _onQRViewCreated,
+                  overlay: QrScannerOverlayShape(
+                    borderColor: Colors.orange,
+                    borderRadius: 10,
+                    borderLength: 30,
+                    borderWidth: 10,
+                    cutOutSize: 350,
                   ),
                 ),
-
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

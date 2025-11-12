@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../constants.dart';
 import '../../database/scanned_contacts_db.dart';
@@ -67,26 +68,6 @@ class _ScannedContactsScreenState extends State<ScannedContactsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        title: const Text(
-          "Recent Scans",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () {
-              // Settings action
-            },
-          ),
-        ],
-      ),
       body: Column(
         children: [
           // Search bar
@@ -185,13 +166,6 @@ class _ScannedContactsScreenState extends State<ScannedContactsScreen> {
                       ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        backgroundColor: kConnectedBlue,
-        child: const Icon(Icons.qr_code_scanner),
       ),
     );
   }
@@ -348,12 +322,16 @@ class _ScannedContactsScreenState extends State<ScannedContactsScreen> {
                   children: [
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          // Call action
+                        onPressed: () async {
+                          final Uri phoneUri = Uri(scheme: 'tel', path: contact.phone);
+                          if (await canLaunchUrl(phoneUri)) {
+                            await launchUrl(phoneUri);
+                          }
                         },
                         icon: const Icon(Icons.phone),
                         label: const Text('Call'),
                         style: ElevatedButton.styleFrom(
+                          textStyle: const TextStyle(fontSize: 14,fontWeight: FontWeight.w500),
                           backgroundColor: kConnectedBlue,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -366,12 +344,20 @@ class _ScannedContactsScreenState extends State<ScannedContactsScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          // Email action
+                        onPressed: () async {
+                          final Uri emailUri = Uri(
+                            scheme: 'mailto',
+                            path: contact.email,
+                          );
+                          if (await canLaunchUrl(emailUri)) {
+                            await launchUrl(emailUri);
+                          }
                         },
                         icon: const Icon(Icons.email),
                         label: const Text('Email'),
                         style: ElevatedButton.styleFrom(
+                          textStyle: const TextStyle(fontSize: 14,fontWeight: FontWeight.w500),
+
                           backgroundColor: Colors.white,
                           foregroundColor: kConnectedBlue,
                           side: const BorderSide(color: kConnectedBlue),

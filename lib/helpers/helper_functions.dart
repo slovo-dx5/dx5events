@@ -308,7 +308,7 @@ openWhatsapp({required String contactNumber, required BuildContext context}) asy
       ? '254${contactNumber.substring(1)}'
       : contactNumber;
 
-  var message = "Hello, this is Connected Africa Summit Concierge service. I'm messaging you regarding a pending meeting.";
+  var message = "Hello, this is the CIO Africa Concierge service. I'm messaging you regarding a pending meeting.";
   var androidUrl = "whatsapp://send?phone=$contact&text=$message";
   var iosUrl = "https://wa.me/$contact?text=${Uri.encodeComponent(message)}";
 

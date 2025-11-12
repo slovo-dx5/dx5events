@@ -20,6 +20,7 @@ import '../screens/contact_scanning/getContact.dart';
 import '../screens/feedback_page.dart';
 import '../screens/rewardsPage.dart';
 import '../test.dart';
+import '../testScreen.dart';
 import 'cio_widgets.dart';
 import 'clickableBanner.dart';
 
@@ -217,7 +218,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                           'Venue Map',
                           'assets/icons/map.png',
                           kConnectedBlue,
-                          MapScreen(),
+                          MapScreenTest(),
                           'map_screen_opened',
                         ),
                    const SizedBox(width: 12),
