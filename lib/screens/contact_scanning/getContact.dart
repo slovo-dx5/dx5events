@@ -63,7 +63,7 @@ class _GetContactState extends State<GetContact> with SingleTickerProviderStateM
   }
 
   sendSponsorData()async{
-    final profileProvider = Provider.of<ProfileProvider>(context);
+    final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
 
     final response=await DioPostService().postSponsorData(body: {
       "sponsorid": sponsorID,

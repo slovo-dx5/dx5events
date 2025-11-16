@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:dx5veevents/profile_screen.dart';
+import 'package:dx5veevents/screens/dx5veScreens/profile_screen.dart';
 import 'package:dx5veevents/screens/chats/all_chats.dart';
 import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
 import 'package:dx5veevents/screens/pastEvents/pastPresentationsScreen.dart';

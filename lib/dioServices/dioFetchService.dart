@@ -116,6 +116,18 @@ class DioFetchService extends DioClient {
       throw Exception(ex);
     }
   }
+  Future<Response> fetchAppSponsor() async {
+    try {
+      return await _client
+          .init()
+          .get("${BaseURL.Baseurl}/items/sponsor_contact",
+        //   options: buildCacheOptions(const Duration(minutes: 30)),
+      );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
 
 
   Future<Response> fetchdx5veAgenda({required String eventID}) async {

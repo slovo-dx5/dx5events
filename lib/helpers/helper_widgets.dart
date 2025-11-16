@@ -9,6 +9,7 @@ import '../constants.dart';
 
 import '../screens/dx5veScreens/dx5veIndividualAttendee.dart';
 import '../widgets/profile_initials_widget.dart';
+import 'helper_functions.dart';
 
 menuItem(
     {required String menuText,
@@ -30,7 +31,7 @@ menuItem(
           horizontalSpace(width: 10),
           Text(
             menuText,
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400,color: kTextColorBlack),
           ),
           const Spacer(),
           const Icon(
@@ -163,6 +164,7 @@ Widget attendeeWidget({
 Widget sponsorWidget({
   required BuildContext context,
   required String sponsorName,
+  required String sponsorNumber,
   required String sponsorLogoPath,
 }) {
   return SizedBox(
@@ -254,8 +256,19 @@ Widget sponsorWidget({
             Flexible(
               flex: 2,
               child: ElevatedButton(
-                onPressed: () {
-                  // Handle sponsor connect action
+                onPressed: () async {
+                  // Get sponsor phone number from shared preferences and call it
+
+                  if (sponsorNumber.isNotEmpty) {
+                    await launchPhoneCall(phoneNumber: sponsorNumber);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Sponsor contact not available'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: kConnectedGreen,

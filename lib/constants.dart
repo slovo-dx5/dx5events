@@ -111,6 +111,10 @@ const kCISOGreenYellow = Color(0xFFd4e001);
 
 ///Connected summit colors
 const kConnectedGreen = Color(0xFF4C9B46);
+const kSkyBlue = Color(0xFF28a2f1);
+const kDarkBlue = Color(0xFF174794);
+const kDarkerBlue = Color(0xFF002f5e);
+const kProfileBlue = Color(0xFF002c59);
 const kConnectedOrange = Color(0xFFF79016);
 const kConnectedBlue = Color(0xFF44A0D3);
 const kConnectedRed = Color(0xFFEC3C3A);
@@ -133,6 +137,7 @@ const String kCompany = "company";
 const String kUserID = "userID";
 const String kProfileID = "profileID";
 const String kIsAdmin = "isAdmin";
+const String kSponsorPhone = "sponsorPhone";
 const String kDefaultPassword = "DX5iveCIO100";
 FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
