@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:dx5veevents/profile_screen.dart';
+import 'package:dx5veevents/screens/dx5veScreens/profile_screen.dart';
 import 'package:dx5veevents/screens/chats/all_chats.dart';
 import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -10,6 +10,8 @@ import 'dart:io';
 
 
 import '../../constants.dart';
+import 'dioServices/dioFetchService.dart';
+import 'models/sponsor_contact_model.dart';
 
 import 'gallery_screen.dart';
 import 'homeScreen.dart';
@@ -46,6 +48,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   late DateTime currentBackPressTime;
   bool hasReviewedApp = false;
   int ?currentUID;
+  String sponsorPhoneNumber = "";
 
   PersistentTabController? controller;
   TextStyle style = const TextStyle(fontSize: 12, fontWeight: FontWeight.bold);
@@ -56,6 +59,25 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     currentBackPressTime = DateTime.now();
 
     getFirebaseMessagingToken();
+    fetchAndStoreSponsorPhone();
+  }
+
+  fetchAndStoreSponsorPhone() async {
+    try {
+      DioFetchService dioFetchService = DioFetchService();
+      final response = await dioFetchService.fetchAppSponsor();
+
+      if (response.data != null && response.data['data'] != null && response.data['data'].isNotEmpty) {
+        final sponsorData = AppSponsorData.fromJson(response.data['data'][0]);
+        await setStringPref(key: kSponsorPhone, value: sponsorData.phone_number);
+        setState(() {
+          sponsorPhoneNumber = sponsorData.phone_number;
+        });
+        print("Sponsor phone number stored: ${sponsorData.phone_number}");
+      }
+    } catch (e) {
+      print("Error fetching sponsor data: $e");
+    }
   }
 
   updateUserInFirestore({required String token}) async {

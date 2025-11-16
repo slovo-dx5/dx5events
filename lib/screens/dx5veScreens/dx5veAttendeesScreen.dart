@@ -46,10 +46,13 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
   // Attendees data
   List<EventAttendeeModel> _attendeesList = [];
   final _searchDebouncer = SearchDebouncer();
+  String _sponsorPhoneNumber = "";
 
   @override
   void initState() {
     super.initState();
+
+    _loadSponsorPhone();
 
     // Initialize Dio with cache
     dio = Dio();
@@ -75,6 +78,13 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
     _refreshController.dispose();
     _searchDebouncer.dispose();
     super.dispose();
+  }
+
+  void _loadSponsorPhone() async {
+    final phone = await getStringPref(kSponsorPhone);
+    setState(() {
+      _sponsorPhoneNumber = phone;
+    });
   }
 
   void _scrollListener() {
@@ -247,6 +257,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
                   context: context,
                   sponsorName: "MBCom",
                   sponsorLogoPath: "assets/images/sponsors/mbcom_profile.png",
+                  sponsorNumber: _sponsorPhoneNumber,
                 );
               }
 

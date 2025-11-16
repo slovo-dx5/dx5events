@@ -61,9 +61,9 @@ class HomeScreen extends GetView<MyDrawerController> {
         moveMenuScreen: false,
         mainScreenScale: 0.2,
         style: DrawerStyle.defaultStyle,
-        shadowLayer1Color: kConnectedGreen,
-        shadowLayer2Color: kConnectedOrange,
-        menuBackgroundColor: kConnectedRed.withOpacity(0.3)
+        shadowLayer1Color: kSkyBlue,
+        shadowLayer2Color: kDarkBlue,
+        menuBackgroundColor: kDarkerBlue.withValues(alpha: 0.8),
       ),
     );
   }

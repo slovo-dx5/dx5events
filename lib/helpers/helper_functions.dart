@@ -22,15 +22,15 @@ greetingFunc({required String firstName}) {
   final currentHour = DateTime.now().hour;
   if (currentHour >= 0 && currentHour < 12) {
     return Text("Good morning\n$firstName",
-        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500));
+        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500,color: kTextColorBlack));
   } else if (currentHour >= 12 && currentHour < 17) {
     return Text(
       "Good afternoon\n$firstName",
-      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500,color: kTextColorBlack),
     );
   } else {
     return Text("Good evening\n$firstName",
-        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500));
+        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500,color: kTextColorBlack));
   }
 }
 
@@ -439,6 +439,15 @@ launchMailClient(
     await launchUrl(emailUri);
   } else {
     throw 'Could not launch $emailUri';
+  }
+}
+
+Future<void> launchPhoneCall({required String phoneNumber}) async {
+  final Uri phoneUri = Uri.parse('tel:$phoneNumber');
+  if (await canLaunchUrl(phoneUri)) {
+    await launchUrl(phoneUri);
+  } else {
+    throw 'Could not launch $phoneUri';
   }
 }
 
