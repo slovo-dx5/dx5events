@@ -20,6 +20,7 @@ import 'package:dio/dio.dart';
 
 import '../../dioServices/dioFetchService.dart';
 import '../../dioServices/dioPostService.dart';
+import '../../helpers/analytics_helper.dart';
 import '../../helpers/helper_functions.dart';
 
 
@@ -43,13 +44,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     Future.delayed(Duration.zero, () async {
       profileProvider = Provider.of<ProfileProvider>(context, listen: false);
-      await profileProvider?.loadUserProfile();  // Ensure profile is loaded
+      await profileProvider?.loadUserProfile();
+      await Dx5veAnalytics().logdx5veEvent(eventName: "profilePageVisited");
+// Ensure profile is loaded
       if (profileProvider?.userID != null) {
         fetchSingleAtendee(userid: profileProvider!.userID!);
       }
     });
-  
-    
+
+
     super.initState();
   }
   Future<XFile?> pickImage() async {
@@ -239,6 +242,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     right: 6,
                     child: GestureDetector(
                       onTap: () async {
+                        await Dx5veAnalytics().logdx5veEvent(eventName: "profilePicUpdated");
+
                         await uploadImage(
                           profileProvider.firstName,
                           profileProvider.userID,

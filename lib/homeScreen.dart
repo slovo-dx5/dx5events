@@ -20,6 +20,7 @@ import '../helpers/helper_functions.dart';
 import '../helpers/helper_widgets.dart';
 
 import '../widgets/profile_initials_widget.dart';
+import 'helpers/analytics_helper.dart';
 import 'home_body.dart';
 import 'dart:io';
 
@@ -223,7 +224,8 @@ class MenuScreen extends GetView<MyDrawerController> {
 
 
                       menuItem(menuText: 'Get Contact',
-                          widgetIcon: Icons.contacts, iconColor: kConnectedOrange, onPressedFunction: () {
+                          widgetIcon: Icons.contacts, iconColor: kConnectedOrange, onPressedFunction: () async{
+                            await Dx5veAnalytics().logdx5veEvent(eventName: "ContactScannerOpen");
 
                             PersistentNavBarNavigator.pushNewScreen(
                               context,

@@ -13,6 +13,7 @@ import '../../widgets/meeting_widget.dart';
 import '../../widgets/outgoing_meeting_widget.dart';
 import '../constants.dart';
 import '../dioServices/dioPostService.dart';
+import '../helpers/analytics_helper.dart';
 
 class PendingMeetingsScreen extends StatefulWidget {
   @override
@@ -139,6 +140,8 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                             // your props here
                             startTime: items["startTime"],
                             acceptMeetingFunc: () async {
+                              await Dx5veAnalytics().logdx5veEvent(eventName: "meetingAccepted");
+
                               DateFormat format = DateFormat("h:mm a");
                               DateTime parsedStart = format.parse(items["startTime"]);
 
@@ -212,7 +215,10 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                               });
                             },
 
-                            declineMeetingFunc: () async {   await items.reference.delete();
+                            declineMeetingFunc: () async {
+                              await Dx5veAnalytics().logdx5veEvent(eventName: "meetingDeclined");
+
+                              await items.reference.delete();
                             await usersRef
                                 .doc(items["requested_by_id"])
                                 .collection("meetings")

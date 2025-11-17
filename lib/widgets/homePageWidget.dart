@@ -8,6 +8,7 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 
 import '../constants.dart';
+import '../helpers/analytics_helper.dart';
 import '../providers.dart';
 import '../screens/dx5ve_social/social_feed.dart';
 import '../screens/dx5veScreens/eventSpeakersScreen.dart';
@@ -135,11 +136,11 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     Row(
                       children: [
                         _buildFeatureCard(
-                          context,
-                          'Agenda',
-                          'assets/icons/agenda.png',
-                          kConnectedGreen,
-                          EventAgendaScreen(
+                          context: context,
+                         title:  'Agenda',
+                        iconPath:   'assets/icons/agenda.png',
+                        color:   kConnectedGreen,
+                        screen:   EventAgendaScreen(
                             eventID: widget.eventID,
                             eventDay: widget.eventDay,
                             eventMonth: widget.eventMonth,
@@ -148,20 +149,20 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                             eventDayOfWeek: widget.eventDayOfWeek,
                             eventName: 'AGENDA',
                           ),
-                          'agenda_page_opened',
+                       analyticsAction:    'agenda_page_opened',
                         ),
                         const SizedBox(width: 12),
                         _buildFeatureCard(
-                          context,
-                          'Networking',
-                          'assets/icons/attendee.png',
-                          kConnectedOrange,
-                          AttendeesScreen(
+                         context:  context,
+                         title:  'Networking',
+                          iconPath: 'assets/icons/attendee.png',
+                          color: kConnectedOrange,
+                        screen:   AttendeesScreen(
                             eventID: widget.eventID,
 
 
                           ),
-                          'attendees_page_opened',
+                          analyticsAction: 'attendees_page_opened',
                         ),
                       ],
                     ),
@@ -169,21 +170,21 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     Row(
                       children: [
                         _buildFeatureCard(
-                          context,
-                          'Social',
-                          'assets/icons/social-media.png',
-                          kConnectedGreen,
-                          const SocialFeed(),
-                          'social_page_opened',
+                        context:   context,
+                       title:    'Social',
+                       iconPath:    'assets/icons/social-media.png',
+                        color:   kConnectedGreen,
+                        screen:   const SocialFeed(),
+                       analyticsAction:    'social_page_opened',
                         ),
                         const SizedBox(width: 12),
                         _buildFeatureCard(
-                          context,
-                          'QR Scanner',
-                          'assets/icons/scanner.png',
-                          kConnectedRed,
-                          GetContact(ownerID: profileProvider.userID!),
-                          'contact_scanner_page_opened',
+                         context:  context,
+                        title:   'QR Scanner',
+                         iconPath:  'assets/icons/scanner.png',
+                         color:  kConnectedRed,
+                         screen:  GetContact(ownerID: profileProvider.userID!),
+                        analyticsAction:   'contact_scanner_page_opened',
                         ),
                       ],
                     ),
@@ -191,21 +192,21 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     Row(
                       children: [
                         _buildFeatureCard(
-                          context,
-                          'Speakers',
-                          'assets/icons/speaker.png',
-                          kConnectedBlue,
-                          EventSpeakersScreen(eventID: widget.eventID),
-                          'speakers_page_opened',
+                       context:    context,
+                        title:   'Speakers',
+                       iconPath:    'assets/icons/speaker.png',
+                       color:    kConnectedBlue,
+                        screen:   EventSpeakersScreen(eventID: widget.eventID),
+                        analyticsAction:   'speakers_page_opened',
                         ),
                         const SizedBox(width: 12),
                         _buildFeatureCard(
-                          context,
-                          'Sponsors',
-                          'assets/icons/sponsors.png',
-                          kConnectedOrange,
-                          CISOSponsorsScreen(eventID: widget.eventID),
-                          'sponsors_page_opened',
+                         context:  context,
+                          title: 'Sponsors',
+                         iconPath:  'assets/icons/sponsors.png',
+                          color: kConnectedOrange,
+                        screen:   CISOSponsorsScreen(eventID: widget.eventID),
+                         analyticsAction:  'sponsors_page_opened',
                         ),
                       ],
                     ),
@@ -213,27 +214,19 @@ class _HomePageWidgetState extends State<HomePageWidget> {
 
                     Row(
                       children: [
-                        _buildFeatureCard(
-                          context,
-                          'Venue Map',
-                          'assets/icons/map.png',
-                          kConnectedBlue,
-                          MapScreenTest(),
-                          'map_screen_opened',
-                        ),
-                   const SizedBox(width: 12),
+
                          _buildFeatureCard(
-                          context,
-                          'Feedback',
-                          'assets/icons/feedback.png',
-                          kConnectedOrange,
-                           FeedbackPage(
+                          context: context,
+                         title:  'Feedback',
+                        iconPath:   'assets/icons/feedback.png',
+                         color:  kConnectedOrange,
+                          screen:  FeedbackPage(
                             eventID: widget.eventID,
                              attendeeID: profileProvider.profileId!,
                              attendeeName: "${profileProvider.firstName} ${profileProvider.lastName}",
                          
                           ),
-                          'feedback_page_opened',
+                          analyticsAction: 'feedback_page_opened',
                                                  ),
                       ],
                     ),
@@ -250,17 +243,19 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   }
 
   // Enhanced feature card widget
-  Widget _buildFeatureCard(
-      BuildContext context,
-      String title,
-      String iconPath,
-      Color color,
-      Widget screen,
-      String analyticsAction,
-      ) {
+  Widget _buildFeatureCard({
+    required BuildContext context,
+    required String title,
+    required String iconPath,
+    required Color color,
+    required Widget screen,
+    required String analyticsAction,
+  }) {
     return Expanded(
       child: GestureDetector(
-        onTap: () {
+        onTap: () async{
+          await   Dx5veAnalytics().logdx5veEvent(eventName: analyticsAction);
+
           PersistentNavBarNavigator.pushNewScreen(
             context,
             screen:  screen,

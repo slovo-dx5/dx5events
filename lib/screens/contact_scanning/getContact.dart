@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../dioServices/dioFetchService.dart';
 import '../../dioServices/dioPostService.dart';
+import '../../helpers/analytics_helper.dart';
 import '../../mainNavigationPage.dart';
 import '../../models/contactModel.dart';
 import '../../providers.dart';
@@ -74,6 +75,8 @@ class _GetContactState extends State<GetContact> with SingleTickerProviderStateM
       "email": profileProvider.email,
       "position": profileProvider.role
     }, context: context);
+    await Dx5veAnalytics().logdx5veEvent(eventName: "sponsorBoothScanned");
+
     if(Platform.isIOS)await contactController?.pauseCamera();
     if(response.statusCode==200){
       if(Platform.isIOS)await contactController?.pauseCamera();
@@ -141,6 +144,8 @@ class _GetContactState extends State<GetContact> with SingleTickerProviderStateM
      int AttendeeID=getAttendeeId(attendeeData: attendeeDAta);
      var response = await DioFetchService().fetchSingleAttendeeFromAttendees(id: AttendeeID);
      var data = response.data["data"];
+     await Dx5veAnalytics().logdx5veEvent(eventName: "contactSaved");
+
 
 
      if (data != null && data.isNotEmpty) {

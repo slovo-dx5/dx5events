@@ -13,6 +13,7 @@ import 'package:http_parser/http_parser.dart';
 
 import '../../constants.dart';
 import '../../dioServices/dioFetchService.dart';
+import '../../helpers/analytics_helper.dart';
 import '../../helpers/helper_functions.dart';
 
 class CreatePostScreen extends StatefulWidget {
@@ -259,7 +260,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                               "user_name": "$firstName $lastName"
                             }
                             );
-                            await UserPointsService().createOrUpdateUserPoints(userId:userID!,actionId: 11);
+                            await Dx5veAnalytics().logdx5veEvent(eventName: "socialPostCreated");
+
 
                             Fluttertoast.showToast(msg: "Post created successfully");
                             setState(() {
