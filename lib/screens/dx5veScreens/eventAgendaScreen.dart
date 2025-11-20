@@ -377,7 +377,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                       Padding(
                         padding: EdgeInsets.only(top: 12),
                         child: Column(
-                          children: session.speakers!.take(2).map((speakerAssignment) {
+                          children: session.speakers!.map((speakerAssignment) {
                             return FutureBuilder<IndividualSpeaker?>(
                               future: fetchSpeakerById(speakerAssignment.speaker.key),
                               builder: (context, snapshot) {

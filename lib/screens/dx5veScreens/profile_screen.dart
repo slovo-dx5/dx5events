@@ -12,22 +12,22 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 
-import '../../../constants.dart';
-import '../../../helpers/helper_widgets.dart';
-import '../../../providers.dart';
+
 
 import 'package:dio/dio.dart';
 
+import '../../constants.dart';
 import '../../dioServices/dioFetchService.dart';
 import '../../dioServices/dioPostService.dart';
-import '../../helpers/analytics_helper.dart';
-import '../../helpers/helper_functions.dart';
+import '../../helpers/helper_widgets.dart';
+import '../../providers.dart';
+
 
 
 class ProfileScreen extends StatefulWidget {
   int eventId;
 
-   ProfileScreen({super.key,required this.eventId});
+  ProfileScreen({super.key,required this.eventId});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -44,9 +44,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     Future.delayed(Duration.zero, () async {
       profileProvider = Provider.of<ProfileProvider>(context, listen: false);
-      await profileProvider?.loadUserProfile();
-      await Dx5veAnalytics().logdx5veEvent(eventName: "profilePageVisited");
-// Ensure profile is loaded
+      await profileProvider?.loadUserProfile();  // Ensure profile is loaded
       if (profileProvider?.userID != null) {
         fetchSingleAtendee(userid: profileProvider!.userID!);
       }
@@ -61,65 +59,65 @@ class _ProfileScreenState extends State<ProfileScreen> {
         source: ImageSource.gallery); // or ImageSource.camera
     return pickedImage;
   }
-  // Widget _buildQrCodeSection() {
-  //   return Container(
-  //     margin: const EdgeInsets.only(top: 16, bottom: 24),
-  //     padding: const EdgeInsets.all(16),
-  //     color: Colors.white,
-  //     child: qrURL==null?CircularProgressIndicator():Column(
-  //       children: [
-  //         const Text(
-  //           'My QR Code',
-  //           style: TextStyle(
-  //             fontSize: 18,
-  //             fontWeight: FontWeight.bold,
-  //           ),
-  //         ),
-  //         const SizedBox(height: 16),
-  //
-  //         // QR Code
-  //         Center(
-  //           child: CachedNetworkImage(
-  //             fit: BoxFit.cover,
-  //             imageUrl: qrURL!,
-  //             progressIndicatorBuilder: (context, url, downloadProgress) =>
-  //                 SizedBox(
-  //                     height: 200,
-  //                     width: 200,
-  //                     child: CircularProgressIndicator(
-  //                         value: downloadProgress.progress)),
-  //             imageBuilder: (context, imageProvider) => SizedBox(
-  //               height: 400,
-  //               width: 400,
-  //               child: ClipPath(
-  //                 clipper: MyCustomClipper(), // Define your custom clipper
-  //                 child: Container(
-  //                   decoration: BoxDecoration(
-  //                     image: DecorationImage(
-  //                       image: imageProvider,
-  //                       fit: BoxFit.cover,
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //         const SizedBox(height: 12),
-  //
-  //         Text(
-  //           'Scan to view my profile',
-  //           style: TextStyle(
-  //             color: Colors.grey[600],
-  //           ),
-  //         ),
-  //         const SizedBox(height: 16),
-  //
-  //
-  //       ],
-  //     ),
-  //   );
-  // }
+  Widget _buildQrCodeSection() {
+    return Container(
+      margin: const EdgeInsets.only(top: 16, bottom: 24),
+      padding: const EdgeInsets.all(16),
+      color: Colors.white,
+      child: qrURL==null?CircularProgressIndicator():Column(
+        children: [
+          const Text(
+            'My QR Code',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // QR Code
+          Center(
+            child: CachedNetworkImage(
+              fit: BoxFit.cover,
+              imageUrl: qrURL!,
+              progressIndicatorBuilder: (context, url, downloadProgress) =>
+                  SizedBox(
+                      height: 200,
+                      width: 200,
+                      child: CircularProgressIndicator(
+                          value: downloadProgress.progress)),
+              imageBuilder: (context, imageProvider) => SizedBox(
+                height: 400,
+                width: 400,
+                child: ClipPath(
+                  clipper: MyCustomClipper(), // Define your custom clipper
+                  child: Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: imageProvider,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          Text(
+            'Scan to view my profile',
+            style: TextStyle(
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+
+        ],
+      ),
+    );
+  }
 
   Future<MultipartFile> convertToMultipartFile(
       File imageFile, ownerName) async {
@@ -182,9 +180,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ///Update user data
       ///
       print("owner id is $ownerID");
-      final patchresponse=await DioFetchService().updateUserData( body: imageidDAta, eventId: widget.eventId, recordid: recordId!);
-      print('Patch Response: ${patchresponse.data}');
-      UserPointsService().createOrUpdateUserPoints(userId: ownerID,actionId: 2);
 
       print("image ID is $imageID");
     } catch (e) {
@@ -204,161 +199,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
     print("Profile id is ${profileProvider.profileId}");
     print("user id is ${profileProvider.userID}");
 
-    return   SafeArea(
+    return SafeArea(
       child: Scaffold(
-        backgroundColor:kProfileBlue,
-        appBar: AppBar(
-          title: const Text("Profile", style: TextStyle(fontWeight: FontWeight.w600)),
-          centerTitle: true,
-          backgroundColor: kProfileBlue,
-          elevation: 0,
-        ),
+        appBar: AppBar(title: const Text("Profile"),centerTitle: true,automaticallyImplyLeading: true,),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Profile Image Section
-              Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-                  CircleAvatar(
-                    radius: 70,
-                    backgroundColor: Colors.grey[200],
-                    backgroundImage: profileProvider.profileId != null &&
-                        profileProvider.profileId!.isNotEmpty
-                        ? NetworkImage(profileProvider.profileId!)
-                        : null,
-                    child: (profileProvider.profileId == null ||
-                        profileProvider.profileId!.isEmpty)
-                        ? Text(
-                      "${profileProvider.firstName[0]}${profileProvider.lastName[0]}",
-                      style: const TextStyle(
-                          fontSize: 40, fontWeight: FontWeight.bold),
-                    )
-                        : null,
-                  ),
-                  Positioned(
-                    bottom: 6,
-                    right: 6,
-                    child: GestureDetector(
-                      onTap: () async {
-                        await Dx5veAnalytics().logdx5veEvent(eventName: "profilePicUpdated");
-
-                        await uploadImage(
-                          profileProvider.firstName,
-                          profileProvider.userID,
-                        );
-                        profileProvider.editProfile(newProfileId: imageID!);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.blueAccent,
-                        ),
-                        child: const Icon(Icons.camera_alt,
-                            color: Colors.white, size: 24),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.2,
+                child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 30.0, right: 30, top: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (profileProvider.profileId == null ||
+                              profileProvider.profileId == "")
+                            ProfileInitials(circleRadius: 80, fontSize: 60,),
+                          if (profileProvider.profileId != null &&
+                              profileProvider.profileId != "")
+                            const ProfilePicWidget(),
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: IconButton(
+                                onPressed: () async {
+                                  await uploadImage(profileProvider.firstName,
+                                    profileProvider.userID,);
+                                  profileProvider.editProfile(newProfileId: imageID!);
+                                },
+                                icon: const Icon(
+                                  Icons.camera_alt,
+                                  size: 40,
+                                )),
+                          )
+                        ],
                       ),
-                    ),
-                  ),
-                ],
+                    )),
               ),
+              verticalSpace(height: 30),
+              nameWidget(
+                  name:
+                  "${profileProvider.firstName} ${profileProvider.lastName}",
+                  context: context,
+                  phone: profileProvider.phone,
+                  email: profileProvider.email, company: profileProvider.company,role: profileProvider.role),
 
-              const SizedBox(height: 24),
+              verticalSpace(height: 10),
+              _buildQrCodeSection()
 
-              // Name and Role Section
-              Text(
-                "${profileProvider.firstName} ${profileProvider.lastName}",
-                style: const TextStyle(
-                    fontSize: 22, fontWeight: FontWeight.w700, color: Colors.black87),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                profileProvider.role ?? "No role specified",
-                style: const TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                profileProvider.company ?? "",
-                style: const TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.w400, color: Colors.grey),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Contact Info Card
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                decoration: BoxDecoration(
-                  color: kProfileBlue,
-                  borderRadius: BorderRadius.circular(16),
-
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildContactRow(Icons.email_outlined, profileProvider.email),
-                    const Divider(height: 20),
-                    _buildContactRow(Icons.phone_outlined, profileProvider.phone),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
-              // QR Code Section
-              _buildQrCodeSection(),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildContactRow(IconData icon, String? text) {
-    return Row(
-      children: [
-        Icon(icon, color: Colors.blueAccent),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            text ?? "Not provided",
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.black87,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildQrCodeSection() {
-    return Column(
-      children: [
-        const Text(
-          "Your QR Code",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.shade300,
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              )
-            ],
-          ),
-          child: const Icon(Icons.qr_code, size: 160, color: Colors.black87),
-        ),
-        const SizedBox(height: 20),
-      ],
     );
   }
 }

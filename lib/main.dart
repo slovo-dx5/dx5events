@@ -6,6 +6,7 @@ import 'package:dx5veevents/screens/dx5veScreens/notificationsScreen.dart';
 
 import 'package:dx5veevents/screens/landingPage2.dart';
 import 'package:dx5veevents/screens/test.dart';
+import 'package:dx5veevents/scripts/doLastMinuteShyet.dart';
 import 'package:dx5veevents/test.dart';
 import 'package:dx5veevents/testScreen.dart';
 

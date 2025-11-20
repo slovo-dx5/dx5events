@@ -21,7 +21,7 @@ class _StructureLAstMinuteState extends State<StructureLAstMinute> {
   int _currentProgress = 0;
   int _totalCheckins = 0;
   String? _errorMessage;
-  final int _eventId = 74;
+  final int _eventId = 59;
   List<String> _processedAttendees = [];
 
   @override

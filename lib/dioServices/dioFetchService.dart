@@ -161,8 +161,8 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-          .get("${BaseURL.Baseurl}/items/sponsors",
-        options: buildCacheOptions(const Duration(minutes: 30)),
+          .get("${BaseURL.Baseurl}/items/sponsors?limit=500",
+
            );
     } on DioError catch (ex) {
       throw Exception(ex);
