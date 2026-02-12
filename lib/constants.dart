@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dx5veevents/screens/dx5veScreens/cisoIndividualAttendee.dart';
+import 'package:dx5veevents/screens/dx5veScreens/dx5veIndividualAttendee.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
@@ -35,6 +35,8 @@ const kKeyRedBG = Color(0xFFff0000);
 const kKeyShadowRed = Color(0xFF93261a);
 const kLightGrayishOrange = Color(0xFFeae3dc);
 const kGrayishOrange = Color(0xFFb4a597);
+const kPastEventColor = Color(0xFFE8DBC9);
+const kPastEventBorder = Color(0xFFCE8D51);
 const kRightBubble = Color(0xFFdfdff6);
 const kLeftBubble = Color(0xFFe9ebef);
 
@@ -71,11 +73,12 @@ const kLightNormalText = Color(0xFF656565);
 const kSuccessGreen = Color(0xFF4CAF50);
 const kLogoutRed = Color(0xFFFF7171);
 
-const kPrimaryColor = Color(0xFFa14ea5);
+const kPrimaryColor = Color(0xFF44A0D3);
+
 const kGoldColor = Color(0xFFd4af37);
 const kScaffoldBackground = Color(0xFFF3F3F8);
 const kLightAppbar = Color(0xFFF5F6FA);
-Color kPrimaryColorLight = const Color(0xFFa14ea5).withOpacity(0.25);
+Color kPrimaryColorLight = const Color(0xFF44A0D3).withOpacity(0.25);
 
 const kWhiteColor = Colors.white;
 
@@ -87,7 +90,7 @@ Color kTextColorBlackLighter = const Color(0xFF000000).withOpacity(0.75);
 const kTextColorGrey = Color(0xFF757575);
 const kTextColorNavy = Color(0xFF003665);
 
-const kCIOPink = Color(0xFFa14ea5);
+const kCIOPink = Color(0xFF44A0D3);
 const kCIOPurple = Color(0xFF3e7eb8);
 const kNashPurple = Color(0xFF5927FF);
 
@@ -106,7 +109,18 @@ const kCISOYellow = Color(0xFFefc315);
 const kCISOPurple = Color(0xFF8458ac);
 const kCISOGreenYellow = Color(0xFFd4e001);
 
-final kCISOToday = DateTime(2024, 03, 20);
+///Connected summit colors
+const kConnectedGreen = Color(0xFF4C9B46);
+const kSkyBlue = Color(0xFF28a2f1);
+const kDarkBlue = Color(0xFF174794);
+const kDarkerBlue = Color(0xFF002f5e);
+const kProfileBlue = Color(0xFF002c59);
+const kConnectedOrange = Color(0xFFF79016);
+const kConnectedBlue = Color(0xFF44A0D3);
+const kConnectedRed = Color(0xFFEC3C3A);
+
+
+final kCISOToday = DateTime(2025, 11, 19);
 final kCISOFirstDay =
     DateTime(kCISOToday.year, kCISOToday.month - 30, kCISOToday.day);
 final kCISOLastDay =
@@ -123,6 +137,7 @@ const String kCompany = "company";
 const String kUserID = "userID";
 const String kProfileID = "profileID";
 const String kIsAdmin = "isAdmin";
+const String kSponsorPhone = "sponsorPhone";
 const String kDefaultPassword = "DX5iveCIO100";
 FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
@@ -186,51 +201,61 @@ primaryButton2(
         child: Text(
           buttonText,
           style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              fontSize: 12.5,
               color: kTextColorBlack),
         )),
   );
 }
 
-connectButton(
-    {required String assetName,
-    required String firstName,
-    required String lastName,
-    required String role,
-    required String company,
-    required String profileid,
-    required int userID,
-    required BuildContext context}) {
-  return SizedBox(
-    height: 30,
-    child: ElevatedButton(
-      onPressed: () {
-        PersistentNavBarNavigator.pushNewScreen(
-          context,
-          screen: CisoIndividualAttendeeScreen(
-            assetName: assetName,
-            FirstName: firstName,
-            LastName: lastName,
-            Role: role,
-            Company: company,
-            profileid: profileid, id: userID, Bio: '',
-          ),
-          withNavBar: false,
-          pageTransitionAnimation: PageTransitionAnimation.slideRight,
-        );
-      },
-      style: ButtonStyle(
-          backgroundColor: const MaterialStatePropertyAll<Color>(kCIOPink),
-          textStyle: const MaterialStatePropertyAll<TextStyle>(TextStyle(
-              fontWeight: FontWeight.w200, fontSize: 13, color: Colors.white)),
-          shape: MaterialStatePropertyAll<RoundedRectangleBorder>(
-              RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(7.0)))),
-      child: const Text("Connect"),
+Widget connectButton({
+  required String assetName,
+  required String firstName,
+  required String lastName,
+  required String currentUSerName,
+  required String role,
+  required String company,
+  required String profileid,
+  required String email,
+  required bool hasDownloadedApp,
+  required String requestedByphone,
+  required String meetingWithPhone,
+  required int userID,
+  required BuildContext context,
+}) {
+  return IntrinsicWidth(
+    child: SizedBox(
+      height: 35,
+      child: primaryButton2(
+        backgroundColor: kConnectedBlue,
+        context: context,
+        onPressedFunction: () {
+          PersistentNavBarNavigator.pushNewScreen(
+            context,
+            screen: IndividualAttendeeScreen(
+              assetName: assetName,
+              FirstName: firstName,
+              LastName: lastName,
+              Role: role,
+              Company: company,
+              profileid: profileid,
+              id: userID,
+              Bio: '',
+              email: email,
+              requestedByphone: requestedByphone,
+              meetingWithPhone: meetingWithPhone, hasDownloadedApp: hasDownloadedApp,
+              currentUserName: currentUSerName,
+            ),
+            withNavBar: false,
+            pageTransitionAnimation: PageTransitionAnimation.slideRight,
+          );
+        },
+        buttonText: "Connect",
+      ),
     ),
   );
 }
+
 
 Future checkContainsKey(key, Function keyFunction) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();

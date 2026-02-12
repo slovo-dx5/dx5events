@@ -2,7 +2,6 @@
 import 'package:dx5veevents/widgets/homePageWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:showcaseview/showcaseview.dart';
 
 
 class HomeBody extends StatefulWidget {
@@ -34,17 +33,17 @@ class _HomeBodyState extends State<HomeBody> {
   void checkFirstTime() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     isFirstTime = prefs.getBool('isFirstTimeHome') ?? true;
-
-    if (isFirstTime) {
-      WidgetsBinding.instance.addPostFrameCallback(
-          (_) => ShowCaseWidget.of(context).startShowCase([
-                _one,
-                _two,
-                _three,
-                _four,
-              ]));
-      await prefs.setBool('isFirstTimeHome', false);
-    }
+    //
+    // if (isFirstTime) {
+    //   WidgetsBinding.instance.addPostFrameCallback(
+    //       (_) => ShowCaseWidget.of(context).startShowCase([
+    //             _one,
+    //             _two,
+    //             _three,
+    //             _four,
+    //           ]));
+    //   await prefs.setBool('isFirstTimeHome', false);
+    // }
   }
 
   @override

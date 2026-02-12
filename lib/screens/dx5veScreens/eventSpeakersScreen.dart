@@ -4,6 +4,7 @@ import 'package:dx5veevents/models/eventModel.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants.dart';
+import '../../dioServices/base_url.dart';
 import '../../dioServices/dioFetchService.dart';
 import '../../helpers/helper_widgets.dart';
 import '../../models/image_model.dart';
@@ -50,9 +51,6 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
         neoSpeakers.add(SpeakerAssociation.fromJson(speakerData));
       }
 
-
-
-
       for (var speaker in neoSpeakers) {
         fetchSpeakerById(speaker.speaker.key).then((value) {
           speakers.add(value!);
@@ -72,7 +70,8 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
 
 
       return speakers;
-    }else{
+    }
+    else{
       print("No speakers");
     }
 
@@ -161,7 +160,7 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
         body:
         Padding(padding: EdgeInsets.only(top: 8),
           child: isFetching
-              ? speakerShimmerWidget(context: context)
+              ? const Center(child: CircularProgressIndicator(),)
               : ListView.builder(
 
             padding:  EdgeInsets.all(8),
@@ -169,7 +168,8 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
             itemBuilder: (context, index) {
               final IndividualSpeaker speaker = filteredSpeakers[index];
 
-              return Column(children: [speakerWidget(context: context,
+              return Column(children: [
+                speakerWidget(context: context,
 
                   name: "${speaker.firstName} ${speaker.lastName}",
 
@@ -178,8 +178,10 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
 
                   bio: speaker!.bio! ?? "",
 
-                  imageURL: "https://subscriptions.cioafrica.co/assets/${speaker!.photo!}",
-                  linkedinurl: speaker.linkedinProfile ??"linkedin.com"), verticalSpace(height: 10)],);
+                  imageURL: "${BaseURL.Baseurl}/assets/${speaker!.photo!}",
+                  linkedinurl: speaker.linkedinProfile ??"linkedin.com"),
+                Divider(color: Colors.green,),
+                verticalSpace(height: 10)],);
 
               //   speakerWidget(context: context, name: speaker.name,
               //     title: speaker.title, bio: speaker.bio,imageURL: url

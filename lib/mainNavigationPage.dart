@@ -1,15 +1,17 @@
 import 'dart:developer';
 
-import 'package:dx5veevents/profile_screen.dart';
+import 'package:dx5veevents/screens/dx5veScreens/profile_screen.dart';
 import 'package:dx5veevents/screens/chats/all_chats.dart';
+import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'dart:io';
 
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:showcaseview/showcaseview.dart';
 
 import '../../constants.dart';
+import 'dioServices/dioFetchService.dart';
+import 'models/sponsor_contact_model.dart';
 
 import 'gallery_screen.dart';
 import 'homeScreen.dart';
@@ -19,20 +21,21 @@ _MainNavigationPageState mainNavigationPageState = _MainNavigationPageState();
 
 class MainNavigationPage extends StatefulWidget {
   static String routeName = "/main_page";
-  final String coverImagePath ;
-  final String eventLocation ;
-  final String eventDate ;
-  final String eventDayOfWeek ;
-  final String eventName ;
-  final String eventID ;
-  final String shortEventDescription ; int eventDay;
-  int eventMonth;
-  int eventYear;bool isCustomerEvent;
+  final String? coverImagePath ;
+  final String? eventLocation ;
+  final String? eventDate ;
+  final String? eventDayOfWeek ;
+  final String? eventName ;
+  final String? eventID ;
+  final String? shortEventDescription ; int ?eventDay;
+  int? eventMonth;
+  final int initialTabIndex;
+  int? eventYear;bool? isCustomerEvent;
 
 
-  MainNavigationPage({Key? key,  required this.eventDay,
-    required this.eventMonth,required this.isCustomerEvent,
-    required this.eventYear,required this.coverImagePath,required this.eventID,required this.eventDayOfWeek, required this.eventName,required this.shortEventDescription,required this.eventDate, required this.eventLocation}) : super(key: key);
+  MainNavigationPage({Key? key,   this.eventDay,
+     this.eventMonth, this.isCustomerEvent,this.initialTabIndex=0,
+     this.eventYear, this.coverImagePath, this.eventID, this.eventDayOfWeek,  this.eventName, this.shortEventDescription, this.eventDate,  this.eventLocation}) : super(key: key);
 
   @override
   _MainNavigationPageState createState() {
@@ -45,6 +48,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   late DateTime currentBackPressTime;
   bool hasReviewedApp = false;
   int ?currentUID;
+  String sponsorPhoneNumber = "";
 
   PersistentTabController? controller;
   TextStyle style = const TextStyle(fontSize: 12, fontWeight: FontWeight.bold);
@@ -53,8 +57,27 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   void initState() {
     super.initState();
     currentBackPressTime = DateTime.now();
-    controller = PersistentTabController(initialIndex: 0);
+
     getFirebaseMessagingToken();
+    fetchAndStoreSponsorPhone();
+  }
+
+  fetchAndStoreSponsorPhone() async {
+    try {
+      DioFetchService dioFetchService = DioFetchService();
+      final response = await dioFetchService.fetchAppSponsor();
+
+      if (response.data != null && response.data['data'] != null && response.data['data'].isNotEmpty) {
+        final sponsorData = AppSponsorData.fromJson(response.data['data'][0]);
+        await setStringPref(key: kSponsorPhone, value: sponsorData.phone_number);
+        setState(() {
+          sponsorPhoneNumber = sponsorData.phone_number;
+        });
+        print("Sponsor phone number stored: ${sponsorData.phone_number}");
+      }
+    } catch (e) {
+      print("Error fetching sponsor data: $e");
+    }
   }
 
   updateUserInFirestore({required String token}) async {
@@ -109,63 +132,68 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
   List<Widget> _buildScreens() {
     return [
-      HomeScreen(  eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,coverImagePath: widget.coverImagePath, eventName: widget.eventName,
+      HomeScreen(  eventDay: widget.eventDay!, eventMonth: widget.eventMonth!, eventYear: widget.eventYear!,coverImagePath: widget.coverImagePath!, eventName: widget.eventName!,
         //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
-        eventDate: widget.eventDate,
+        eventDate: widget.eventDate!,
         //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
-        shortEventDescription: widget.shortEventDescription,
+        shortEventDescription: widget.shortEventDescription!,
         //eventLocation: 'Nigeria',);
-        eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek:widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent ,),
+        eventLocation: widget.eventLocation!, eventID: widget.eventID!, eventDayOfWeek:widget.eventDayOfWeek!, isCustomerEvent: widget.isCustomerEvent! ,),
       AllChatsScreen(),
       MeetingTabs(),
-      const ProfileScreen(),
+      //SocialFeed(),
+       ProfileScreen(eventId: int.parse(widget.eventID!), ),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
+    final controller = PersistentTabController(initialIndex: widget.initialTabIndex);
     List<PersistentBottomNavBarItem> _navBarsItems() {
       return [
         PersistentBottomNavBarItem(
-          icon: const Icon(Icons.video_settings),
+          icon: const Icon(Icons.home),
           title: "Home",
           //  textStyle: style,
-          activeColorPrimary: kPrimaryColor,
+          activeColorPrimary: kConnectedBlue,
           inactiveColorPrimary: Colors.grey,
         ),
         PersistentBottomNavBarItem(
           icon: const Icon(Icons.inbox),
           title: "Inbox",
           //  textStyle: style,
-          activeColorPrimary: kPrimaryColor,
+          activeColorPrimary: kConnectedBlue,
           inactiveColorPrimary: Colors.grey,
         ),
         PersistentBottomNavBarItem(
           icon: const Icon(Icons.meeting_room),
           title: "Meetings",
           //  textStyle: style,
-          activeColorPrimary: kPrimaryColor,
+          activeColorPrimary: kConnectedBlue,
           inactiveColorPrimary: Colors.grey,
         ),
+
+
         PersistentBottomNavBarItem(
           icon: const Icon(Icons.person),
           title: ("Profile"),
           //   textStyle: style,
-          activeColorPrimary: kPrimaryColor,
+          activeColorPrimary: kConnectedBlue,
           inactiveColorPrimary: Colors.grey,
           routeAndNavigatorSettings: RouteAndNavigatorSettings(
             initialRoute: '/',
             routes: {
-              '/first': (context) => HomeScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,coverImagePath: widget.coverImagePath, eventName: widget.eventName,
+              '/first': (context) => HomeScreen(eventDay: widget.eventDay!, eventMonth: widget.eventMonth!, eventYear: widget.eventYear!,
+                coverImagePath: widget.coverImagePath!, eventName: widget.eventName!,
                 //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
-                eventDate: widget.eventDate,
+                eventDate: widget.eventDate!,
                 //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
-                shortEventDescription: widget.shortEventDescription,
+                shortEventDescription: widget.shortEventDescription!,
                 //eventLocation: 'Nigeria',);
-                eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,),
+                eventLocation: widget.eventLocation!, eventID: widget.eventID!, eventDayOfWeek: widget.eventDayOfWeek!, isCustomerEvent: widget.isCustomerEvent!,),
               '/second': (context) => MeetingTabs(),
               '/third': (context) => const GalleryScreen(),
-              '/fourth': (context) => const ProfileScreen(),
+              '/fourth': (context) =>  ProfileScreen(eventId: int.parse(widget.eventID!),),
             },
           ),
         ),
@@ -174,44 +202,25 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     }
 
     return Scaffold(
-      body: ShowCaseWidget(
-        onStart: (index, key) {},
-        onComplete: (index, key){},
-        blurValue: 1,
-        builder: Builder(builder: (context)=> PersistentTabView(
-          context,
-          controller: controller,
-          screens: _buildScreens(),
-          items: _navBarsItems(),
-          confineInSafeArea: true,
-          backgroundColor: kLightAppbar, // Default is Colors.white.
-          handleAndroidBackButtonPress: true, // Default is true.
-          resizeToAvoidBottomInset:
-          true, // This needs to be true if you want to move up the screen when keyboard appears. Default is true.
-          stateManagement: true, // Default is true.
-          hideNavigationBarWhenKeyboardShows:
-          true, // Recommended to set 'resizeToAvoidBottomInset' as true while using this argument. Default is true.
-          decoration: NavBarDecoration(
-            borderRadius: BorderRadius.circular(10.0),
-            //colorBehindNavBar: Colors.white,
-          ),
-          popAllScreensOnTapOfSelectedTab: true,
-          popActionScreens: PopActionScreensType.all,
-          itemAnimationProperties: const ItemAnimationProperties(
-            // Navigation Bar's items animation properties.
-            duration: Duration(milliseconds: 200),
-            curve: Curves.ease,
-          ),
-          screenTransitionAnimation: const ScreenTransitionAnimation(
-            // Screen transition animation on change of selected tab.
-            animateTabTransition: true,
-            curve: Curves.ease,
-            duration: Duration(milliseconds: 200),
-          ),
-          navBarStyle:
-          NavBarStyle.style6, // Choose the nav bar style with this property.
-        ),),
-      ),
+      body: PersistentTabView(
+        context,
+        controller: controller,
+        screens: _buildScreens(),
+        items: _navBarsItems(),
+        confineToSafeArea: true,
+        backgroundColor: kLightAppbar, // Default is Colors.white.
+        handleAndroidBackButtonPress: true, // Default is true.
+        resizeToAvoidBottomInset:
+        true, // This needs to be true if you want to move up the screen when keyboard appears. Default is true.
+        stateManagement: true, // Default is true.
+        hideNavigationBarWhenKeyboardAppears:
+        true, // Recommended to set 'resizeToAvoidBottomInset' as true while using this argument. Default is true.
+
+        popBehaviorOnSelectedNavBarItemPress: PopBehavior.all,
+
+        navBarStyle:
+        NavBarStyle.style8, // Choose the nav bar style with this property.
+      )
     );
 
   }

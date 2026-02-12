@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 import '../constants.dart';
+import '../dioServices/base_url.dart';
 import '../dioServices/dioFetchService.dart';
 import '../dioServices/dioPostService.dart';
 import '../dioServices/dio_delete_service.dart';
@@ -20,15 +22,15 @@ greetingFunc({required String firstName}) {
   final currentHour = DateTime.now().hour;
   if (currentHour >= 0 && currentHour < 12) {
     return Text("Good morning\n$firstName",
-        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500));
+        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500,color: kTextColorBlack));
   } else if (currentHour >= 12 && currentHour < 17) {
     return Text(
       "Good afternoon\n$firstName",
-      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500,color: kTextColorBlack),
     );
   } else {
     return Text("Good evening\n$firstName",
-        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500));
+        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500,color: kTextColorBlack));
   }
 }
 
@@ -45,12 +47,20 @@ workWithUs() async {
 //  await launchUrl(workWithUsURL);
 }
 
-openLinkedin({required String linkedinURL}) async {
-  Uri parsedURL = Uri.parse(linkedinURL);
+Future<void> openLinkedin({required String linkedinURL}) async {
+  // Ensure the URL has the correct scheme
+  if (!linkedinURL.startsWith('http://') && !linkedinURL.startsWith('https://')) {
+    linkedinURL = 'https://$linkedinURL';
+  }
 
-  await launch(linkedinURL);
+  final Uri parsedURL = Uri.parse(linkedinURL);
+
+  if (await canLaunchUrl(parsedURL)) {
+    await launchUrl(parsedURL, mode: LaunchMode.externalApplication);
+  } else {
+    throw 'Could not launch $linkedinURL';
+  }
 }
-
 openTicketURL({required String slug}) async {
   // Uri parsedURL = Uri.parse("https://tickets.cioafrica.co/");
 
@@ -159,7 +169,7 @@ submitProposalToSPeak(
     "company": company,
     "role": role,
     "bio": bio,
-    "profilePhotoUrl": "https://subscriptions.cioafrica.co/assets/$imageID",
+    "profilePhotoUrl": "${BaseURL.Baseurl}/assets/$imageID",
     "linkedinProfileLink": linkedinProfileLink,
     //"websiteLink": "https://johndoe-professional.com",
     "eventId": eventId,
@@ -292,11 +302,38 @@ chatInitials({required String name}) {
     ]),
   );
 }
+openWhatsapp({required String contactNumber, required BuildContext context}) async {
+  // Replace starting 0 with 254
+  String contact = contactNumber.startsWith('0')
+      ? '254${contactNumber.substring(1)}'
+      : contactNumber;
+
+  var message = "Hello, this is the CIO Africa Concierge service. I'm messaging you regarding a pending meeting.";
+  var androidUrl = "whatsapp://send?phone=$contact&text=$message";
+  var iosUrl = "https://wa.me/$contact?text=${Uri.encodeComponent(message)}";
+
+  try {
+    if (Platform.isIOS) {
+      await launchUrl(Uri.parse(iosUrl));
+    } else {
+      await launchUrl(Uri.parse(androidUrl));
+    }
+  } on Exception {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('WhatsApp not installed')),
+    );
+  }
+}
+
 
 requestMeeting(
     {required int currentUserID,
     required int otherUserID,
     required String requestedBy,
+    required String requestedByEmail,
+    required String meetingWithEmail,
+    required String requestedByPhone,
+    required String meetingWithPhone,
     required String meetingWith,
     required String message,
     required String startTime,
@@ -304,17 +341,23 @@ requestMeeting(
 
     required String requestedByID,
     required String meetingWithI,
-    required String company}) {
+    required String company}) async{
   String meetingID = const Uuid().v4();
 
-  ///Create meeting in senders collection
-  usersRef.doc(currentUserID.toString()).collection("meetings").doc(meetingID).set({
+ //Create meeting in senders collection
+  await usersRef.doc(currentUserID.toString()).collection("meetings").doc(meetingID).set({
     "id": meetingID,
 
     "requested_by": requestedBy, ///The person requesting the meeting
+    "requested_by_email": requestedByEmail,
+    "wants_to_meet_with_email": meetingWithEmail,
+    "requested_by_phone": requestedByPhone,
+    "wants_to_meet_with_phone": meetingWithPhone,
     "requested_by_id": requestedByID, ///The person requesting the meeting
     "wants_to_meet_with": meetingWith, ///The person they want to meet with
-    "wants_to_meet_with_id": meetingWithI,
+    ///The person they want to meet with
+    ///The person they want to meet with
+    "wants_to_meet_with_id": otherUserID,
     "isAccepted": false,
     "isCancelled": false,
     "isDeclined": false,
@@ -330,7 +373,7 @@ requestMeeting(
   });
 
   ///Create meeting in other persons collection
-  usersRef
+  await usersRef
       .doc(otherUserID.toString())
       .collection("meetings")
       .doc(meetingID)
@@ -338,15 +381,19 @@ requestMeeting(
     "id": meetingID,
 
     "requested_by": requestedBy,
+    "requested_by_phone": requestedByPhone,
+    "wants_to_meet_with_phone": meetingWithPhone,
 
     ///The person requesting the meeting
     "requested_by_id": requestedByID,
 
     ///The person requesting the meeting
     "wants_to_meet_with": meetingWith,
+    "requested_by_email": requestedByEmail,
+    "wants_to_meet_with_email": meetingWithEmail,
 
     ///The person they want to meet with
-    "wants_to_meet_with_id": meetingWithI,
+    "wants_to_meet_with_id": otherUserID,
 
     ///The person they want to meet with
     "isAccepted": false,
@@ -360,6 +407,8 @@ requestMeeting(
 
     "company": company,
   });
+  
+  print("Other persons ID is ${meetingWithI}");
 }
 
 
@@ -392,3 +441,98 @@ launchMailClient(
     throw 'Could not launch $emailUri';
   }
 }
+
+Future<void> launchPhoneCall({required String phoneNumber}) async {
+  final Uri phoneUri = Uri.parse('tel:$phoneNumber');
+  if (await canLaunchUrl(phoneUri)) {
+    await launchUrl(phoneUri);
+  } else {
+    throw 'Could not launch $phoneUri';
+  }
+}
+
+
+
+
+class UserPointsService {
+
+
+  // Method to create or update user_points
+  Future<void> createOrUpdateUserPoints({required int userId, required int actionId}) async {
+    try {
+      // Step 1: Fetch action details to check required occurrences
+      final actionResponse = await DioFetchService().getActionDetails(actionId: actionId);
+
+      if (actionResponse.statusCode != 200) {
+        throw Exception('Failed to fetch action details.');
+      } else {
+        print("Got action details");
+      }
+
+      final actionData = actionResponse.data['data'];
+      final requiredOccurrences = actionData['required_occurrence'];
+      final actionPoints = actionData['action_points'];  // Points for the action
+      print("Required occurrences: $requiredOccurrences");
+
+      // Step 2: Check if user_points entry exists
+      final userPointsResponse = await DioFetchService().checkUserPoints(actionId: actionId, userId: userId);
+      if (userPointsResponse.statusCode != 200) {
+        throw Exception('Failed to fetch user points.');
+      } else {
+        print("Got user points");
+      }
+
+      final userPointsData = userPointsResponse.data['data'];
+
+      if (userPointsData.isNotEmpty) {
+        // Step 3: Update existing user_points record
+        final userPointsId = userPointsData[0]['id'];
+        final currentOccurrences = userPointsData[0]['occurences'];
+        print("current occurences are $currentOccurrences");
+
+        if (currentOccurrences < requiredOccurrences) {
+          // Increment occurrences only if they haven't reached the required limit
+          final updatedOccurrences = currentOccurrences + 1;
+
+          // Update occurrences in the user_points entry
+          await DioPostService().updateUserPoints(body: {
+            'occurences': updatedOccurrences,
+          }, userPointsId: userPointsId);
+
+          // Award points only if the updated occurrences match the required occurrences
+          if (updatedOccurrences == requiredOccurrences) {
+            await DioPostService().updateUserPoints(body: {
+              'points_awarded': actionPoints,  // Award the points once
+            }, userPointsId: userPointsId);
+            print("Points awarded for reaching required occurrences!");
+          } else {
+            print("Occurrences updated, but points not yet awarded.");
+          }
+
+        } else {
+          print('Action already completed. Max occurrences reached.');
+        }
+      } else {
+        // Step 4: Create new user_points entry
+        print("Creating new user_points entry");
+        await DioPostService().createUserPointsEntry(body: {
+          'user_id': userId,
+          'action_id': actionId,
+          'occurences': 1,
+          'points_awarded': (requiredOccurrences == 1) ? actionPoints : 0,  // Award points immediately if requiredOccurrences is 1
+        });
+
+        // If the action can be done only once, award points immediately
+        if (requiredOccurrences == 1) {
+          print("Points awarded for one-time action.");
+        } else {
+          print("Occurrences set to 1, points will be awarded after required occurrences.");
+        }
+      }
+    } catch (error) {
+      print('Error creating or updating user points: $error');
+    }
+  }
+
+}
+

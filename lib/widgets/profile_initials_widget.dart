@@ -6,9 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../constants.dart';
+import '../dioServices/base_url.dart';
 import '../providers.dart';
 class ProfileInitials extends StatefulWidget {
-  const ProfileInitials({super.key});
+  double circleRadius;
+  double fontSize;
+   ProfileInitials({super.key, required this.fontSize,required this.circleRadius});
 
   @override
   State<ProfileInitials> createState() => _ProfileInitialsState();
@@ -57,7 +60,11 @@ class _ProfileInitialsState extends State<ProfileInitials> {
   @override
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
-    return  CircleAvatar(backgroundColor:randomBackgroundColor,radius: 80,child: Center(child: Text("${profileProvider.firstName[0].toUpperCase()}${profileProvider.lastName[0].toUpperCase()}", style: const TextStyle(color: Colors.white,fontSize: 60),)),);
+    return  CircleAvatar(backgroundColor:randomBackgroundColor,
+      radius: widget.circleRadius,
+      child: Center(child: Text("${profileProvider.firstName[0].toUpperCase()}"
+          "${profileProvider.lastName[0].toUpperCase()}",
+        style:  TextStyle(color: Colors.white,fontSize: widget.fontSize),)),);
 
   }
 }
@@ -76,17 +83,17 @@ class _ProfilePicWidgetState extends State<ProfilePicWidget> {
     final profileProvider = Provider.of<ProfileProvider>(context);
     return
       // CircleAvatar(radius: 80,backgroundColor: kCIOPink.withOpacity(0.5),
-      // backgroundImage: NetworkImage("https://subscriptions.cioafrica.co/assets/${profileProvider.profileId}"),
+      // backgroundImage: NetworkImage("${BaseURL.Baseurl}/assets/${profileProvider.profileId}"),
       // );
 
     // CachedNetworkImage(
-    //   imageUrl:"https://subscriptions.cioafrica.co/assets/${profileProvider.profileId}",
+    //   imageUrl:"${BaseURL.Baseurl}/assets/${profileProvider.profileId}",
     //   progressIndicatorBuilder: (context, url, downloadProgress) =>
     //       CircularProgressIndicator(value: downloadProgress.progress),
     //   errorWidget: (context, url, error) => const ProfileInitials(),
     // );
       CachedNetworkImage(
-        imageUrl: "https://subscriptions.cioafrica.co/assets/${profileProvider.profileId}",
+        imageUrl: "${BaseURL.Baseurl}/assets/${profileProvider.profileId}",
         // placeholder: (context, url) => CircularProgressIndicator(), // Optional
         // errorWidget: (context, url, error) =>  ProfileInitials(),
         progressIndicatorBuilder: (context, url, downloadProgress) =>
@@ -165,9 +172,13 @@ class _IndividualAttendeeProfileInitialsState extends State<IndividualAttendeePr
 
   @override
   Widget build(BuildContext context) {
-    return  CircleAvatar(
-      radius: 70,
-      backgroundColor:randomBackgroundColor,child: Center(child: Text("${widget.firstName[0].toUpperCase()}${widget.lastName[0].toUpperCase()}", style: const TextStyle(color: Colors.white,fontSize: 80),)),);
+    return  Container(
+      width: 120,
+      height: 120,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary,
+        shape: BoxShape.circle,
+      ),child: Center(child: Text("${widget.firstName[0].toUpperCase()}${widget.lastName[0].toUpperCase()}", style: const TextStyle(color: Colors.white,fontSize: 48),)),);
 
   }
 }
@@ -188,17 +199,17 @@ class _AttendeeProfilePicWidgetState extends State<AttendeeProfilePicWidget> {
 
     return
       // CircleAvatar(radius: 80,backgroundColor: kCIOPink.withOpacity(0.5),
-      // backgroundImage: NetworkImage("https://subscriptions.cioafrica.co/assets/${profileProvider.profileId}"),
+      // backgroundImage: NetworkImage("${BaseURL.Baseurl}/assets/${profileProvider.profileId}"),
       // );
 
       // CachedNetworkImage(
-      //   imageUrl:"https://subscriptions.cioafrica.co/assets/${profileProvider.profileId}",
+      //   imageUrl:"${BaseURL.Baseurl}/assets/${profileProvider.profileId}",
       //   progressIndicatorBuilder: (context, url, downloadProgress) =>
       //       CircularProgressIndicator(value: downloadProgress.progress),
       //   errorWidget: (context, url, error) => const ProfileInitials(),
       // );
       CachedNetworkImage(
-        imageUrl: "https://subscriptions.cioafrica.co/assets/${widget.profileID}",
+        imageUrl: "${BaseURL.Baseurl}/assets/${widget.profileID}",
         // placeholder: (context, url) => CircularProgressIndicator(), // Optional
         // errorWidget: (context, url, error) =>  ProfileInitials(),
         progressIndicatorBuilder: (context, url, downloadProgress) =>
@@ -227,17 +238,17 @@ class _IndividualAttendeeProfilePicWidgetState extends State<IndividualAttendeeP
 
     return
       // CircleAvatar(radius: 80,backgroundColor: kCIOPink.withOpacity(0.5),
-      // backgroundImage: NetworkImage("https://subscriptions.cioafrica.co/assets/${profileProvider.profileId}"),
+      // backgroundImage: NetworkImage("${BaseURL.Baseurl}/assets/${profileProvider.profileId}"),
       // );
 
       // CachedNetworkImage(
-      //   imageUrl:"https://subscriptions.cioafrica.co/assets/${profileProvider.profileId}",
+      //   imageUrl:"${BaseURL.Baseurl}/assets/${profileProvider.profileId}",
       //   progressIndicatorBuilder: (context, url, downloadProgress) =>
       //       CircularProgressIndicator(value: downloadProgress.progress),
       //   errorWidget: (context, url, error) => const ProfileInitials(),
       // );
       CachedNetworkImage(
-        imageUrl: "https://subscriptions.cioafrica.co/assets/${widget.profileID}",
+        imageUrl: "${BaseURL.Baseurl}/assets/${widget.profileID}",
         // placeholder: (context, url) => CircularProgressIndicator(), // Optional
         // errorWidget: (context, url, error) =>  ProfileInitials(),
         progressIndicatorBuilder: (context, url, downloadProgress) =>

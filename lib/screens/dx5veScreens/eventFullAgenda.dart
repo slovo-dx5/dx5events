@@ -4,9 +4,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 import '../../constants.dart';
+import '../../dioServices/base_url.dart';
 import '../../helpers/helper_functions.dart';
 import '../../models/image_model.dart';
 import '../../models/speakersModel.dart';
@@ -104,42 +105,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          if (widget.isFromSession) {
-            setState(() {
-              isBookmarking = true;
-            });
-            await deleteSession(sessionID: widget.sessionId!);
-            Navigator.of(context).pop();
 
-            setState(() {
-              isBookmarking = false;
-            });
-          } else {
-            setState(() {
-              isBookmarking = true;
-            });
-            await createSession(
-              currentUserId: widget.userID,
-              sessionID: widget.sessionId,
-              date: widget.sessionDate,
-            );
-            setState(() {
-              isBookmarking = false;
-            });
-          }
-        },
-        child: Visibility(
-          replacement: const SpinKitCircle(
-            color: Colors.black54,
-          ),
-          visible: isBookmarking == false,
-          child: widget.isFromSession
-              ? const Icon(Icons.delete)
-              : const Icon(Icons.bookmark),
-        ),
-      ),
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(75.0), // Default AppBar height
         child: AppBarWithGradient(
@@ -232,7 +198,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
                                                 CachedNetworkImage(
                                                   fit: BoxFit.cover,
                                                   imageUrl:
-                                                      "https://subscriptions.cioafrica.co/assets/${speaker!.photo}",
+                                                      "${BaseURL.Baseurl}/assets/${speaker!.photo}",
                                                   // placeholder: (context, url) => CircularProgressIndicator(), // Optional
                                                   // errorWidget: (context, url, error) =>  ProfileInitials(),
                                                   progressIndicatorBuilder: (context,
@@ -287,7 +253,8 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
                                     ...speakerWidgets,
                                   ],
                                 );
-                              } else if (snapshot.connectionState ==
+                              }
+                              else if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
                                 return const Text('Loading speakers...');
                               } else {
@@ -331,7 +298,7 @@ class _FullAgendaScreenState extends State<FullAgendaScreen> {
                         //       //               fit:
                         //       //               BoxFit.cover,
                         //       //               imageUrl:
-                        //       //               "https://subscriptions.cioafrica.co/assets/${speaker!.photo!}",
+                        //       //               "${BaseURL.Baseurl}/assets/${speaker!.photo!}",
                         //       //               // placeholder: (context, url) => CircularProgressIndicator(), // Optional
                         //       //               // errorWidget: (context, url, error) =>  ProfileInitials(),
                         //       //               progressIndicatorBuilder: (context, url, downloadProgress) => SizedBox(

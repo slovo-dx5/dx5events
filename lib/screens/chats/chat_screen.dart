@@ -5,7 +5,6 @@ import '../../constants.dart';
 import '../../dioServices/dioPostService.dart';
 import '../../models/contact_model.dart';
 
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
@@ -147,7 +146,7 @@ class _CioChatScreenState extends State<CioChatScreen> {
      // await getLastMessage();
 
       //if senders doc does not exist
-      Contact receiverContact=Contact(
+      ChatContactModel receiverContact=ChatContactModel(
           otherpersonuid:otherpersonId,
           addedOn:currentTime,
           sentto:widget.chattingWithName,
@@ -177,7 +176,7 @@ class _CioChatScreenState extends State<CioChatScreen> {
       await readLocal();
 
       //if senders doc does not exist
-      Contact senderContact=Contact(
+      ChatContactModel senderContact=ChatContactModel(
         otherpersonuid:otherpersonId,
         addedOn:currentTime,
         sentto:sentToname!,
@@ -285,22 +284,8 @@ class _CioChatScreenState extends State<CioChatScreen> {
       //return Text("Loading");
       isLoading = true;
     }
-    uploadImageFile();
   }
 
-  Future uploadImageFile() async {
-    String filename = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference storageReference =
-    FirebaseStorage.instance.ref().child("chat images").child(filename);
-    UploadTask uploadTask = storageReference.putFile(imageFile);
-
-    ImageUrl = await (await uploadTask).ref.getDownloadURL();
-    setState(() {
-      isLoading = false;
-      onSendMessage(ImageUrl!, 1);
-    });
-    return ImageUrl;
-  }
 
   readLocal() async {
 

@@ -105,7 +105,7 @@ ThemeData(
 
     ),
 
-    bottomAppBarTheme: const BottomAppBarTheme(color: kScreenDark),
+    //bottomAppBarTheme: const BottomAppBarTheme(color: kScreenDark),
 
 
 );

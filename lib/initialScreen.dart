@@ -1,8 +1,6 @@
 
-import 'package:dx5veevents/splashScreen.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'mainNavigationPage.dart';
@@ -46,6 +44,7 @@ class _InitialScreenState extends State<InitialScreen> {
   checkIfHasSignedIn()async{
     SharedPreferences prefs=await SharedPreferences.getInstance();
     int initialValue=prefs.getInt("isFirstTime")??0;
+    print("initial value is $initialValue");
 
     if(initialValue==1){
       if(mounted){
@@ -61,13 +60,17 @@ class _InitialScreenState extends State<InitialScreen> {
 
       }
     }else if(initialValue==0){
+
       if(mounted){
-        PersistentNavBarNavigator.pushNewScreen(
-          context,
-          screen:widget.followingScreen,
-          withNavBar: false,
-          pageTransitionAnimation: PageTransitionAnimation.slideRight,
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => widget.followingScreen),
         );
+        // PersistentNavBarNavigator.pushNewScreen(
+        //   context,
+        //   screen:widget.followingScreen,
+        //   withNavBar: false,
+        //   pageTransitionAnimation: PageTransitionAnimation.slideRight,
+        // );
       }
     }
   }

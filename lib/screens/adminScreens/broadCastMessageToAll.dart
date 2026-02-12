@@ -86,12 +86,13 @@ class _BroadCastMessageToAllState extends State<BroadCastMessageToAll> {
             verticalSpace(height: 20),
             primaryButton2(context: context, onPressedFunction: ()async{
               if(_formKey.currentState!.validate()){
-                await NotificationSetup().getIOSPermission();
+              //  await NotificationSetup().getIOSPermission();
                 try {
                   final token = await getAccessToken();
                   await DioPostService().sendBroadcast(body: {
                     "message": {
-                      "topic": "dx5veBroadcast",
+                      //"topic": "dx5veBroadcast",
+                      "topic": "dx5veNewBroadcast",
                       "notification": {
                         "title": titleController.text,
                         "body": messageBodyController.text

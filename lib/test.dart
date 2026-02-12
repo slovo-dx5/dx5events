@@ -1,196 +1,277 @@
-// import 'dart:convert';
-//
-// import 'package:table_calendar/table_calendar.dart';
-//
-//
-//
-// class EventAgendaScreen extends StatefulWidget {
-//   String eventID;
-//
-//   EventAgendaScreen({super.key, required this.eventID});
-//
-//   @override
-//   State<EventAgendaScreen> createState() => _EventAgendaScreenState();
-// }
-//
-// class _EventAgendaScreenState extends State<EventAgendaScreen> {
-//   // late AgendaModel eventData;
-//
-//   bool isLoading = true;
-//   final CalendarFormat _calendarFormat = CalendarFormat.week;
-//   DateTime _selectedDate = DateTime(2024, 05, 02);
-//
-//   List<SpeakersModel> events = [];
-//   List<IndividualSpeaker> speakers = [];
-//
-//   List<Session> _sessions = [];
-//   List<AgendaDay> agendaDays = [];
-//   bool isBookmarking = false;
-//   bool isFetching=true;
-//
-//
-//
-//   @override
-//   void initState() {
-//     // fetchCisoAgendaHere();
-//     _loadSessions();
-//     super.initState();
-//   }
-//
-//   Future<void> _loadSessions() async {
-//     setState(() {
-//       print("fetching events");
-//       isFetching=true;
-//     });
-//     final sessions = await fetchSessions();
-//     setState(() {
-//       _sessions = sessions;
-//       isFetching=false;
-//
-//     });
-//   }
-//
-//
-//   Future<List<Session>> fetchSessions() async {
-//     try {
-//       final response = await DioFetchService().fetchdx5veAgenda(eventID: widget.eventID);
-//
-//       log("response is ${response.data}");
-//
-//       final agendaModel = AgendaModel.fromJson(response.data);
-//       print("agenda model dta is $agendaModel");
-//       setState(() {
-//         agendaDays=agendaModel.days;
-//       });
-//       return agendaModel.days.expand((day) => day.sessions).toList();
-//     } catch (e) {
-//       print("session fetch error os ${e}");
-//       return [];
-//     }
-//   }
-//
-//
-//   @override
-//   Widget build(BuildContext context) {
-//
-//     return Scaffold(
-//         appBar: const PreferredSize(
-//           preferredSize: Size.fromHeight(75.0), // Default AppBar height
-//           child: AppBarWithGradient(
-//             title: 'AGENDA',
-//             gradientBegin: kCIOPurple,
-//             gradientEnd: kCIOPink,
-//           ),
-//         ),
-//         // backgroundColor: kScaffoldColor,
-//         body: Column(
-//           children: [
-//             TableCalendar(
-//               weekendDays: const [
-//                 DateTime.sunday,
-//                 DateTime.monday,
-//                 DateTime.tuesday,
-//                 DateTime.friday,
-//                 DateTime.saturday
-//               ],
-//               daysOfWeekStyle: const DaysOfWeekStyle(
-//                   weekdayStyle: TextStyle(color: kCIOPink)),
-//               calendarStyle: CalendarStyle(
-//                   selectedDecoration: BoxDecoration(
-//                     shape: BoxShape.circle,
-//                     color: kCIOPink.withOpacity(0.5),
-//                   )),
-//               headerStyle: const HeaderStyle(
-//                   headerPadding: EdgeInsets.all(15),
-//                   leftChevronVisible: false,
-//                   rightChevronVisible: false,
-//                   formatButtonVisible: false,
-//                   titleTextStyle: TextStyle(
-//                     fontSize: 15,
-//                     fontWeight: FontWeight.w600,
-//                   )),
-//               firstDay: kCISOFirstDay,
-//               lastDay: kCISOLastDay,
-//               focusedDay: _selectedDate,
-//               calendarFormat: _calendarFormat,
-//               selectedDayPredicate: (day) {
-//                 // Using `isSameDay` is recommended to disregard
-//
-//                 return isSameDay(_selectedDate, day);
-//               },
-//               onDaySelected: (selectedDay, focusedDay) {
-//                 if (selectedDay.day == 20 ||
-//                     selectedDay.day == 21
-//                 ) {
-//                   setState(() {
-//                     _selectedDate = selectedDay;
-//                     // DateTime dateTime = DateTime.parse(_selectedDate);
-//                   });
-//                 }
-//               },
-//             ),
-//             const Divider(
-//               thickness: 2.5,
-//               color: kIconDeepBlue,
-//             ),
-//             Visibility(
-//               visible: isFetching==false,
-//               replacement: const CircularProgressIndicator(),
-//               child: Expanded(
-//                 child: SmartRefresher(
-//
-//
-//                   ///Day 1
-//                   child: _selectedDate.day==2|| _selectedDate.day==02?ListView.builder(
-//                     itemCount: agendaDays[0].sessions!.length,
-//                     itemBuilder: (context, index) {
-//                       final firstDaySession = agendaDays[0].sessions![index];
-//
-//                       // Check if there are speakers for the session
-//
-//
-//
-//                     },
-//                   ):
-//
-//
-//                   ///Day 2
-//                   _selectedDate.day==21?ListView.builder(
-//                     itemCount: agendaDays[1].sessions.length,
-//                     itemBuilder: (context, index) {
-//                       final secondDaySession = agendaDays[1].sessions[index];
-//
-//                       // Check if there are speakers for the session
-//                       if (secondDaySession.speakers!.isNotEmpty) {
-//                         // Fetch all speakers' details
-//                         final futures = secondDaySession.speakers!
-//                             .map((speaker) =>
-//                             fetchSpeakerById(speaker.speaker.key))
-//                             .toList();
-//
-//                         return  agendaItemWithSpeakers(context: context,
-//                           title: secondDaySession.title,
-//                           startTime: secondDaySession.startTime,
-//                           futures: futures, endTime: secondDaySession.endTime!, sessionType: secondDaySession.sessionType!,
-//                           summary: secondDaySession.summary, userID: profileProvider.userID!,
-//                           breakoutSessions:secondDaySession.breakoutSessions, speakers: secondDaySession.speakers!, onPressedFunction: () async{
-//                             setState(() {
-//                               isBookmarking = true;
-//                             });
-//
-//                             setState(() {
-//                               isBookmarking = false;
-//                             });
-//                           } ,);
-//                       } else {
-//                         // If there are no speakers for the session
-//
-//                       }
-//                     },
-//                   ):null,
-//                 ),
-//               ),)
-//           ],
-//         ));
-//   }
-// }
+import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+class MapScreen extends StatefulWidget {
+  const MapScreen({Key? key}) : super(key: key);
+
+  @override
+  State<MapScreen> createState() => _MapScreenState();
+}
+
+class _MapScreenState extends State<MapScreen> {
+  late final WebViewController _controller;
+  bool _isLoading = true;
+  String? _errorMessage;
+  Position? _currentPosition;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeWebView();
+    _requestLocationPermission();
+  }
+
+  void _initializeWebView() {
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onProgress: (int progress) {
+            // Update loading bar if needed
+          },
+          onPageStarted: (String url) {
+            setState(() {
+              _isLoading = true;
+              _errorMessage = null;
+            });
+          },
+          onPageFinished: (String url) {
+            setState(() {
+              _isLoading = false;
+            });
+            _injectLocationScript();
+          },
+          onWebResourceError: (WebResourceError error) {
+            setState(() {
+              _isLoading = false;
+              _errorMessage = 'Failed to load map: ${error.description}';
+            });
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse('https://www.residencetechnologies.com/home/resident_map/'));
+  }
+
+  Future<void> _requestLocationPermission() async {
+    try {
+      // Check if location services are enabled
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() {
+          _errorMessage = 'Location services are disabled. Please enable them in settings.';
+        });
+        return;
+      }
+
+      // Check for location permission
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          setState(() {
+            _errorMessage = 'Location permission denied. Please grant permission for better experience.';
+          });
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        setState(() {
+          _errorMessage = 'Location permission permanently denied. Please enable it in app settings.';
+        });
+        return;
+      }
+
+      // Get current location
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      setState(() {
+        _currentPosition = position;
+      });
+
+      // Send location to webview
+      _sendLocationToWebView(position);
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error getting location: $e';
+      });
+    }
+  }
+
+  void _injectLocationScript() {
+    // Inject JavaScript to handle geolocation
+    const script = '''
+      (function() {
+        // Override the navigator.geolocation object
+        if (navigator.geolocation) {
+          const originalGetCurrentPosition = navigator.geolocation.getCurrentPosition;
+          const originalWatchPosition = navigator.geolocation.watchPosition;
+          
+          navigator.geolocation.getCurrentPosition = function(success, error, options) {
+            // This will be called from Flutter
+            window.flutterLocationSuccess = success;
+            window.flutterLocationError = error;
+            
+            // Request location from Flutter
+            window.postMessage({type: 'GET_LOCATION'}, '*');
+          };
+          
+          navigator.geolocation.watchPosition = function(success, error, options) {
+            // Similar implementation for watch position
+            window.flutterLocationSuccess = success;
+            window.flutterLocationError = error;
+            
+            // Request location from Flutter
+            window.postMessage({type: 'WATCH_LOCATION'}, '*');
+            
+            // Return a dummy watchId
+            return 1;
+          };
+        }
+      })();
+    ''';
+
+    _controller.runJavaScript(script);
+  }
+
+  void _sendLocationToWebView(Position position) {
+    // Send the location data to the webview
+    final script = '''
+      if (window.flutterLocationSuccess) {
+        const position = {
+          coords: {
+            latitude: ${position.latitude},
+            longitude: ${position.longitude},
+            accuracy: ${position.accuracy},
+            altitude: ${position.altitude},
+            altitudeAccuracy: null,
+            heading: ${position.heading},
+            speed: ${position.speed},
+          },
+          timestamp: ${position.timestamp.millisecondsSinceEpoch}
+        };
+        window.flutterLocationSuccess(position);
+      }
+    ''';
+
+    _controller.runJavaScript(script);
+  }
+
+  Future<void> _refreshLocation() async {
+    await _requestLocationPermission();
+  }
+
+  Future<void> _openSettings() async {
+    await openAppSettings();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Resident Map'),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.my_location),
+            onPressed: _refreshLocation,
+            tooltip: 'Refresh Location',
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              _controller.reload();
+            },
+            tooltip: 'Refresh Map',
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          if (_errorMessage != null)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              color: Colors.orange.shade100,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    _errorMessage!,
+                    style: TextStyle(color: Colors.orange.shade800),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _refreshLocation,
+                        child: const Text('Retry'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: _openSettings,
+                        child: const Text('Settings'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          Padding(
+            padding: EdgeInsets.only(top: _errorMessage != null ? 100 : 0),
+            child: WebViewWidget(controller: _controller),
+          ),
+          if (_isLoading)
+            const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Loading map...'),
+                ],
+              ),
+            ),
+          // Location indicator
+          if (_currentPosition != null)
+            Positioned(
+              top: 10,
+              right: 10,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.green),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.location_on, color: Colors.green.shade700, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Location Enabled',
+                      style: TextStyle(
+                        color: Colors.green.shade700,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+

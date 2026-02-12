@@ -3,12 +3,13 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 import '../constants.dart';
 
-import '../screens/dx5veScreens/cisoIndividualAttendee.dart';
+import '../screens/dx5veScreens/dx5veIndividualAttendee.dart';
 import '../widgets/profile_initials_widget.dart';
+import 'helper_functions.dart';
 
 menuItem(
     {required String menuText,
@@ -30,7 +31,7 @@ menuItem(
           horizontalSpace(width: 10),
           Text(
             menuText,
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400,color: kTextColorBlack),
           ),
           const Spacer(),
           const Icon(
@@ -43,32 +44,43 @@ menuItem(
   );
 }
 
-attendeeWidget({
+Widget attendeeWidget({
   required String assetName,
   required BuildContext context,
   required String firstName,
   required String lastName,
+
+  required String requestedByphone,
+  required String meetingWithPhone,
   required String role,
+  required String currentUserName,
   required String company,
+  required bool hasDownloadedApp,
   required String profileid,
+  required String attendeeEmail,
   required int userID,
   required List<String> interests,
 }) {
   return SizedBox(
     height: 85,
-    width: MediaQuery.of(context).size.width,
+    width: double.infinity,
     child: GestureDetector(
       onTap: () {
         PersistentNavBarNavigator.pushNewScreen(
           context,
-          screen: CisoIndividualAttendeeScreen(
+          screen: IndividualAttendeeScreen(
             assetName: assetName,
             FirstName: firstName,
             LastName: lastName,
             Role: role,
             Company: company,
             Bio: "",
-           profileid: profileid??'', id: userID,
+            profileid: profileid,
+            id: userID,
+            email: attendeeEmail,
+            requestedByphone: requestedByphone,
+            meetingWithPhone: meetingWithPhone, hasDownloadedApp: hasDownloadedApp,
+            currentUserName: currentUserName,
           ),
           withNavBar: false,
           pageTransitionAnimation: PageTransitionAnimation.slideRight,
@@ -77,14 +89,22 @@ attendeeWidget({
       child: Card(
         elevation: 0.2,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Row(
             children: [
-             if(profileid=="" || profileid==null) AttendeeProfileInitials(firstName: firstName??".", lastName: lastName,),
-             if(profileid!="" && profileid!=null) AttendeeProfilePicWidget(profileID: profileid,),
-              horizontalSpace(width: 20),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.4,
+              // Profile Image or Initials
+              profileid.isEmpty
+                  ? AttendeeProfileInitials(
+                firstName: firstName,
+                lastName: lastName,
+              )
+                  : AttendeeProfilePicWidget(profileID: profileid),
+
+              const SizedBox(width: 12),
+
+              // Name and Role (flexible space)
+              Expanded(
+                flex: 3,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,29 +114,242 @@ attendeeWidget({
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w500),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     Text(
                       "$role at $company",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400,
-                          color: kTextColorGrey),
-                    )
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        color: kTextColorGrey,
+                      ),
+                    ),
                   ],
                 ),
               ),
-              connectButton( assetName: assetName,
-                firstName: firstName,
-                lastName: lastName,
-                role: role,
-                company: company,
 
-                profileid: profileid??'', userID: userID, context: context,)
+              // Spacer between text and button
+              const SizedBox(width: 8),
+
+              // Connect Button
+              Flexible(
+                flex: 2,
+                child: connectButton(
+                  assetName: assetName,
+                  firstName: firstName,
+                  lastName: lastName,
+                  role: role,
+                  company: company,
+                  profileid: profileid,
+                  userID: userID,
+                  context: context,
+                  email: attendeeEmail,
+                  requestedByphone: requestedByphone,
+                  meetingWithPhone: meetingWithPhone, hasDownloadedApp: hasDownloadedApp,
+                  currentUSerName: currentUserName,
+                ),
+              ),
             ],
           ),
+        ),
+      ),
+    ),
+  );
+}
+
+Widget sponsorWidget({
+  required BuildContext context,
+  required String sponsorName,
+  required String sponsorNumber,
+  required String sponsorLogoPath,
+}) {
+  return SizedBox(
+    height: 85,
+    width: double.infinity,
+    child: Card(
+      elevation: 0.5,
+      //color: kConnectedGreen.withOpacity(0.03),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(4),
+        side: BorderSide(
+          color: kConnectedGreen.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Row(
+          children: [
+            // Rounded profile section with sponsor logo
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: kConnectedGreen.withOpacity(0.3),
+                  width: 2,
+                ),
+              ),
+              child: ClipOval(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Image.asset(
+                    sponsorLogoPath,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(width: 12),
+
+            // Sponsor info (flexible space)
+            Expanded(
+              flex: 3,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(
+                        Icons.star,
+                        color: kConnectedGreen,
+                        size: 14,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        "APP SPONSOR",
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                          color: kConnectedGreen,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    sponsorName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Spacer between text and button
+            const SizedBox(width: 8),
+
+            // Connect Button
+            Flexible(
+              flex: 2,
+              child: ElevatedButton(
+                onPressed: () async {
+                  // Get sponsor phone number from shared preferences and call it
+
+                  if (sponsorNumber.isNotEmpty) {
+                    await launchPhoneCall(phoneNumber: sponsorNumber);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Sponsor contact not available'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kConnectedGreen,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: const Text(
+                  "Connect",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+
+
+
+leaderBoardWidget({
+  required String assetName,
+  required BuildContext context,
+  required String firstName,
+  required String lastName,
+  required String role,
+  required String company,
+   String ?profileid,
+  required int userID,
+  required int points,
+
+}) {
+  return SizedBox(
+    height: 85,
+    width: MediaQuery.of(context).size.width,
+    child: Card(
+     // color: kCIOPink.withOpacity(0.5),
+      elevation: 0.2,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+        child: Row(
+          children: [
+            if(profileid=="" || profileid==null) AttendeeProfileInitials(firstName: firstName??".", lastName: lastName,),
+            if(profileid!="" && profileid!=null) AttendeeProfilePicWidget(profileID: profileid,),
+            horizontalSpace(width: 20),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.4,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "$firstName $lastName",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    "$role at $company",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        color: kTextColorGrey),
+                  )
+                ],
+              ),
+            ),
+           Text("$points pts")
+          ],
         ),
       ),
     ),
@@ -378,100 +611,3 @@ nameWidget(
     ),
   );
 }
-//
-// editableProfileWidgets(
-//     {required String company,
-//     required String role,
-//     required BuildContext context}) {
-//   return SizedBox(
-//     width: MediaQuery.of(context).size.width,
-//     child: Padding(
-//       padding: const EdgeInsets.fromLTRB(8.0, 2, 8, 2),
-//       child: Card(
-//         color: kWhiteText.withOpacity(0.8),
-//         child: Padding(
-//           padding: const EdgeInsets.all(12.0),
-//           child: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.start,
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Column(
-//                     mainAxisAlignment: MainAxisAlignment.start,
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Text(
-//                         "Company",
-//                         style: Theme.of(context).textTheme.bodyMedium,
-//                       ),
-//                       verticalSpace(height: 5),
-//                       Text(
-//                         company,
-//                         style: Theme.of(context).textTheme.bodyLarge,
-//                       ),
-//                     ],
-//                   ),
-//                   Spacer(),
-//                   IconButton(
-//                       onPressed: () {
-//                         profileBottomSheet(
-//                             context,
-//                             "Edit Company",
-//                             EditCompanyBottomSheet(
-//                               userCompany: company,
-//                             ));
-//                       },
-//                       icon: Icon(Icons.edit))
-//                 ],
-//               ),
-//
-//               //ListTile(title: Text(company,style: Theme.of(context).textTheme.bodyLarge,),trailing: IconButton(onPressed: (){}, icon: const Icon(Icons.edit)),),
-//
-//               const Divider(),
-//               verticalSpace(height: 9),
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.start,
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Column(
-//                     mainAxisAlignment: MainAxisAlignment.start,
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Text(
-//                         "Role",
-//                         style: Theme.of(context).textTheme.bodyMedium,
-//                       ),
-//                       verticalSpace(height: 5),
-//                       Text(
-//                         role,
-//                         style: Theme.of(context).textTheme.bodyLarge,
-//                       ),
-//                     ],
-//                   ),
-//                   Spacer(),
-//                   IconButton(
-//                       onPressed: () {
-//                         profileBottomSheet(
-//                             context,
-//                             "Edit Role",
-//                             EditRoleBottomSheet(
-//                               userRole: role,
-//                             ));
-//                       },
-//                       icon: Icon(Icons.edit))
-//                 ],
-//               ),
-//
-//               const Divider(),
-//               verticalSpace(height: 9),
-//
-//             ],
-//           ),
-//         ),
-//       ),
-//     ),
-//   );
-// }

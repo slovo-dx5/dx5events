@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
@@ -6,13 +5,15 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:intl/intl.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers.dart';
 import '../../widgets/meeting_widget.dart';
 import '../../widgets/outgoing_meeting_widget.dart';
 import '../constants.dart';
+import '../dioServices/dioPostService.dart';
+import '../helpers/analytics_helper.dart';
 
 class PendingMeetingsScreen extends StatefulWidget {
   @override
@@ -20,7 +21,7 @@ class PendingMeetingsScreen extends StatefulWidget {
 }
 
 class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
-  bool isAccepting=false;
+  bool isAccepting = false;
   @override
   void initState() {
     super.initState();
@@ -52,7 +53,6 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
     final profileProvider = Provider.of<ProfileProvider>(context);
 
     return Scaffold(
-
       body: Container(
         height: MediaQuery.of(context).size.height,
         child: StreamBuilder<QuerySnapshot>(
@@ -60,7 +60,7 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                 .collection('users')
                 .doc(profileProvider.userID.toString())
                 .collection("meetings")
-            //.orderBy('timeStamp', descending: true)
+                //.orderBy('timeStamp', descending: true)
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
@@ -91,66 +91,88 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                     ),
                   );
                 }
+                // Filter pending (and non-expired) meetings
+                List<DocumentSnapshot> pendingMeetings = docList.where((items) {
+                  DateTime now = DateTime.now();
+                  DateTime meetingDateTime = items["date_requested"].toDate();
+                  bool isMeetingExpired = meetingDateTime
+                      .add(const Duration(hours: 24))
+                      .isBefore(now);
+                  return items["isAccepted"] == false && !isMeetingExpired;
+                }).toList();
+
+                if (pendingMeetings.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 25),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "No pending meetings at the moment",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
                 return ListView.builder(
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
                   padding: const EdgeInsets.all(10.0),
-                  itemCount: docList.length,
+                  itemCount: pendingMeetings.length,
                   itemBuilder: (context, index) {
-                    DocumentSnapshot items = snapshot.data!.docs[index];
+                    final items = pendingMeetings[index];
+                    DateTime now = DateTime.now();
+                    DateTime meetingDateTime = items["date_requested"].toDate();
+                    bool isMeetingExpired = meetingDateTime
+                        .add(const Duration(hours: 24))
+                        .isBefore(now);
 
+                    return Column(
+                      children: [
+                        if (items["requested_by_id"] !=
+                            profileProvider.userID.toString())
+                          IncomingMeetingWidget(
+                            // your props here
+                            startTime: items["startTime"],
+                            acceptMeetingFunc: () async {
+                              await Dx5veAnalytics().logdx5veEvent(eventName: "meetingAccepted");
 
+                              DateFormat format = DateFormat("h:mm a");
+                              DateTime parsedStart = format.parse(items["startTime"]);
 
-                    return GestureDetector(
-                      onTap: () async {
-                        // CollectionReference ref = FirebaseFirestore.instance
-                        //     .collection('notifications')
-                        //     .doc(profileProvider.userID.toString())
-                        //     .collection(profileProvider.userID.toString());
-                        //
-                        // QuerySnapshot eventsQuery =
-                        // await ref.where('isread', isEqualTo: false).get();
-                        //
-                        // eventsQuery.docs.forEach((msgDoc) {
-                        //   msgDoc.reference.update({'isread': true});
-                        // });
-                        // if (mounted) {
-                        //   PersistentNavBarNavigator.pushNewScreen(
-                        //     context,
-                        //     screen: CioChatScreen(
-                        //       chattingWithName: items["Sent_From"],
-                        //       chattingWithID: int.parse(items["sender_id"]),
-                        //       currentUserID: profileProvider.userID!,
-                        //       currentUserName: profileProvider.firstName,
-                        //     ),
-                        //     withNavBar: false,
-                        //     pageTransitionAnimation:
-                        //     PageTransitionAnimation.slideRight,
-                        //   );
-                        // }
-                      },
-                      child: Column(
-                        children: [
-                          if ( items["isAccepted"] ==
-                              false && items["requested_by_id"] !=
-                              profileProvider.userID.toString())
-
-                            IncomingMeetingWidget(startTime: items["startTime"],
-                            acceptMeetingFunc: () async{
-                                setState(() {
-                                  isAccepting=true;
-                                });
-                              await items.reference
-                                  .update(<String, dynamic>{
+                              // Add 30 minutes to get end time
+                              DateTime endTime = parsedStart.add(Duration(minutes: 30));
+                              String formattedEndTime = format.format(endTime);
+                              setState(() {
+                                isAccepting = true;
+                              });
+                              await items.reference.update(<String, dynamic>{
                                 'isAccepted': true,
                               });
-                              await usersRef.doc(items["requested_by_id"]).collection("meetings").doc(items["id"]).set({
+
+                              print("other id is ${items["requested_by_id"]}");
+                              await usersRef
+                                  .doc(items["requested_by_id"])
+                                  .collection("meetings")
+                                  .doc(items["id"])
+                                  .set({
                                 "id": items["id"],
 
-                                "requested_by": items["requested_by"], ///The person requesting the meeting
-                                "requested_by_id": items["requested_by_id"], ///The person requesting the meeting
-                                "wants_to_meet_with": items["wants_to_meet_with"],
-                                "wants_to_meet_with_id": items["wants_to_meet_with_id"],
+                                "requested_by": items["requested_by"],
+
+                                ///The person requesting the meeting
+                                "requested_by_id": items["requested_by_id"],
+
+                                ///The person requesting the meeting
+                                "wants_to_meet_with":
+                                    items["wants_to_meet_with"],
+                                "wants_to_meet_with_id":
+                                    items["wants_to_meet_with_id"],
                                 "isAccepted": true,
                                 "isDeleted": false,
                                 "isCancelled": false,
@@ -158,76 +180,85 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                                 "isDefault": false,
                                 "date_requested": Timestamp.now(),
                                 "message": items["message"],
-                                "startTime":  items["startTime"],
-
+                                "startTime": items["startTime"],
 
                                 "company": items["company"],
-
                               });
-                                setState(() {
-                                  isAccepting=false;
-                                });
+                              setState(() {
+                                isAccepting = false;
+                              });
+
+                              ///Send email to requester
+                              await DioPostService().sendMeetingEmail(body: {
+                                "emailAddress": items["requested_by_email"],
+                                "subject":
+                                    "Meeting Accepted",
+                                "body": """
+  <div style="max-width: 100%;">
+    <img src="https://admin.connected.go.ke/assets/a14f7470-d026-4d56-848e-4e0d5e0ebc18?email_banner.jpg" alt="Meeting Banner" style="width: 100%; max-width: 600px; height: auto; margin-bottom: 20px;">
+  </div>
+  
+  <p>"
+      Hello ${items["requested_by"]}<br>
+      ${items["wants_to_meet_with"]} accepted your meeting
+      request.<br>
+      Our meetings concierge service team will reach out to show you the meeting venue.
+      
+  
+  "</p>
+  <p><strong>Meeting time:</strong><br>
+  Start time: ${items["startTime"]}<br>
+  End time: $formattedEndTime</p>
+
+ 
+""",
+                              });
                             },
-                            declineMeetingFunc: ()async {
-                              await items.reference
+
+                            declineMeetingFunc: () async {
+                              await Dx5veAnalytics().logdx5veEvent(eventName: "meetingDeclined");
+
+                              await items.reference.delete();
+                            await usersRef
+                                .doc(items["requested_by_id"])
+                                .collection("meetings")
+                                .doc(items["id"])
+                                .delete();
+                            await usersRef
+                                .doc(items["wants_to_meet_with_id"])
+                                .collection("meetings")
+                                .doc(items["id"])
+                                .delete();
+                            Fluttertoast.showToast(msg: "Meeting Declined");},
+                            message: items["message"],
+                            requesterName: items["requested_by"],
+                            isAccepting: isAccepting,
+                          ),
+                        if (items["requested_by_id"] ==
+                            profileProvider.userID.toString())
+                          OutgoingMeetingWidget(
+                            // your props here
+                            startTime: items["startTime"],
+
+                            cancelMeetingFunc: () async {
+                              await items.reference.delete();
+                              await usersRef
+                                  .doc(items["requested_by_id"])
+                                  .collection("meetings")
+                                  .doc(items["id"])
                                   .delete();
-                              await usersRef.doc(items["requested_by_id"]).collection("meetings").doc(items["id"]).delete();
-                              await usersRef.doc(items["wants_to_meet_with_id"]).collection("meetings").doc(items["id"]).delete();
+                              await usersRef
+                                  .doc(items["wants_to_meet_with_id"])
+                                  .collection("meetings")
+                                  .doc(items["id"])
+                                  .delete();
                               Fluttertoast.showToast(msg: "Meeting Declined");
-
-                                },  message: items["message"],
-                            requesterName: items["requested_by"], isAccepting: isAccepting,),
-                          if ( items["isAccepted"] ==
-                              false && items["requested_by_id"] ==
-                              profileProvider.userID.toString())
-
-                            OutgoingMeetingWidget(startTime: items["startTime"],
-                              acceptMeetingFunc: () async{
-                                setState(() {
-                                  isAccepting=true;
-                                });
-                                await items.reference
-                                    .update(<String, dynamic>{
-                                  'isAccepted': true,
-                                });
-                                print("other id is ${items["requested_by_id"]}" );
-                                await usersRef.doc(items["requested_by_id"]).collection("meetings").doc(items["id"]).set({
-                                  "id": items["id"],
-
-                                  "requested_by": items["requested_by"], ///The person requesting the meeting
-                                  "requested_by_id": items["requested_by_id"], ///The person requesting the meeting
-                                  "wants_to_meet_with": items["wants_to_meet_with"],
-                                  "wants_to_meet_with_id": items["wants_to_meet_with_id"],
-                                  "isAccepted": true,
-                                  "isDeleted": false,
-                                  "isCancelled": false,
-                                  "isDeclined": false,
-                                  "isDefault": false,
-                                  "date_requested": Timestamp.now(),
-                                  "message": items["message"],
-                                  "startTime":  items["startTime"],
-
-
-                                  "company": items["company"],
-
-                                });
-                                setState(() {
-                                  isAccepting=false;
-                                });
-                              },
-                              declineMeetingFunc: ()async {
-                                await items.reference
-                                    .delete();
-                                await usersRef.doc(items["requested_by_id"]).collection("meetings").doc(items["id"]).delete();
-                                await usersRef.doc(items["wants_to_meet_with_id"]).collection("meetings").doc(items["id"]).delete();
-                                Fluttertoast.showToast(msg: "Meeting Declined");
-
-                              },  message: items["message"],
-                              wantsToMeetWithName: items["wants_to_meet_with"], isAccepting: isAccepting,),
-
-
-                        ],
-                      ),
+                            },
+                            message: items["message"],
+                            wantsToMeetWithName: items["wants_to_meet_with"],
+                            isAccepting: isAccepting,
+                          ),
+                      ],
                     );
                   },
                 );

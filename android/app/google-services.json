@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "286423894850",
     "project_id": "dx5ve-events",
-    "storage_bucket": "dx5ve-events.appspot.com"
+    "storage_bucket": "dx5ve-events.firebasestorage.app"
   },
   "client": [
     {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:intl/intl.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -53,16 +54,28 @@ class _SponsorBottomSheetState extends State<SponsorBottomSheet> {
                   },
                   child: SizedBox(
                       height: 120, child: Image.network(widget.SponsorImage))),
-              verticalSpace(height: 30),
+              verticalSpace(height: 20),
               SizedBox(height: 150,
                 child: SingleChildScrollView(
                   child: HtmlWidget(
                     widget.SponsorAbout,
-                    textStyle: const TextStyle(color: kTextColorBlack),
+                    textStyle: const TextStyle(color: kTextColorBlack,fontSize: 13),
                     // style: TextStyle(color: kTextColorBlack, fontSize: 14),
                   ),
                 ),
-              )
+              ),
+              verticalSpace(height: 20),
+      GestureDetector(onTap: (){
+        visitSponsor(url: widget.SponsorURL);
+      },
+        child: Container(
+          height: 50,
+          width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),color: kConnectedBlue
+          ),child:  Center(child: Text("Visit Site",style: kFutureTextStyle(fontsiZe: 14),)),
+        ),
+      )
             ],
           ),
         ));
@@ -200,13 +213,25 @@ class _EditRoleBottomSheetState extends State<EditRoleBottomSheet> {
 
 class MeetingRequestBottomSheet extends StatefulWidget {
   String userName;
+  String company;
   String meetingWith;
+  bool hasDownloadedApp;
+  String recipientEmail;
+  String requestedByphone;
+  String meetingWithPhone;
   int otherUSerID;
+  List<DateTime>? eventDays;
 
   MeetingRequestBottomSheet(
       {required this.userName,
       required this.meetingWith,
+      required this.company,
+      required this.hasDownloadedApp,
+      required this.requestedByphone,
+      required this.meetingWithPhone,
+      required this.recipientEmail,
       required this.otherUSerID,
+      this.eventDays,
       super.key});
 
   @override
@@ -219,27 +244,146 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
   bool isEditing = false;
   bool isSending = false;
   String startTime = "";
+  String  formattedEndTime = "";
   String tableSlot = "";
+  DateTime? selectedDate;
 
   String placeholderText = "";
 
   @override
   void initState() {
     // TODO: implement initState
-    setState(() {
-      placeholderText =
-          "Hello ${widget.userName}. I'd like to have a meeting with you.";
+    super.initState();
 
-      textEditingController.text = placeholderText;
+    placeholderText =
+    "Hello ${widget.meetingWith}. I'd like to have a 30 minute meeting with you.";
+
+    textEditingController.text = placeholderText;
+
+    textEditingController.addListener(() {
+      setState(() {
+        placeholderText = textEditingController.text;
+      });
     });
-
     super.initState();
   }
 
-  sendMeetingNotification() async {
+  void _showDatePickerBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Select Meeting Date',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Choose from available event days:',
+                style: TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 16),
+              ...widget.eventDays!.map((date) {
+                final isSelected = selectedDate != null &&
+                    date.year == selectedDate!.year &&
+                    date.month == selectedDate!.month &&
+                    date.day == selectedDate!.day;
+                return ListTile(
+                  leading: Icon(
+                    isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                    color: kConnectedBlue,
+                  ),
+                  title: Text(
+                    DateFormat('EEEE, MMMM d, yyyy').format(date),
+                    style: TextStyle(
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  onTap: () {
+                    setState(() {
+                      selectedDate = date;
+                    });
+                    Navigator.pop(context);
+                  },
+                );
+              }).toList(),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  sendMeetingNotification({required int ownerID}) async {
     // get receiver token
     String? receiverToken;
+    String formattedDate = selectedDate != null
+        ? DateFormat('EEEE, MMMM d, yyyy').format(selectedDate!)
+        : '';
+    String htmlBody = (
+        "$placeholderText.\n\n"
+            "Proposed date: $formattedDate\n"
+            "Start time: $startTime\n"
+            "End time: $formattedEndTime\n"
+    ).replaceAll('\n', '<br>');
+
     try {
+
+      await DioPostService().sendMeetingEmail(body: {
+        "emailAddress": widget.recipientEmail,
+        "subject": "Meeting Requested by ${widget.userName} from ${widget.company}",
+        "body": """
+  <div style="max-width: 100%;">
+    <img src="https://subscriptions.cioafrica.co/assets/923024d9-53c8-459a-942a-1d487e0099f9?banner.jpg" alt="Meeting Banner" style="width: 100%; max-width: 600px; height: auto; margin-bottom: 20px;">
+  </div>
+
+  <p>${placeholderText.replaceAll('\n', '<br>')}</p>
+  <p><strong>Proposed meeting:</strong><br>
+  Date: $formattedDate<br>
+  Start time: $startTime<br>
+  End time: $formattedEndTime</p>
+
+  <p>
+    <a href="https://cioafrica.co/meetings" 
+       style="display: inline-block; padding: 10px 20px; background-color: #007BFF; 
+              color: white; text-decoration: none; border-radius: 4px;">
+       Accept Request
+    </a>
+  </p>
+
+  <p>If you have not downloaded the app, you can get it using the buttons below:</p>
+  <p>
+    <a href="https://play.google.com/store/apps/details?id=com.cioafrica.dx5veevents&hl=en" style="margin-right: 10px; display: inline-block;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play" style="height: 40px;">
+    </a>
+    <a href="https://apps.apple.com/lt/app/dx5ve-events/id6479024266" style="display: inline-block;">
+      <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" style="height: 40px;">
+    </a>
+  </p>
+"""
+      });
+
+
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
           .collection("users")
           .doc(widget.otherUSerID.toString())
@@ -261,10 +405,15 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
         });
         return documentSnapshot.get('messaging_token').toString();
       } else {
+        UserPointsService().createOrUpdateUserPoints(userId: ownerID,actionId: 10);
+
         return 'Document does not exist';
       }
+
+
+
     } catch (e) {
-      print("Coul not get user id");
+      print("Coul not get user id $e");
     }
     //
   }
@@ -273,22 +422,31 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    return Container(
+      padding: const EdgeInsets.all(24.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          verticalSpace(height: 10),
+          const Text(
+            'Schedule a Meeting',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF333333),
+            ),
+          ),
+          verticalSpace(height: 8),
           Text("You can request a 30 minute meeting with ${widget.userName}",style: TextStyle(fontSize: 15),),verticalSpace(height: 10),
           TextFormField(
             textCapitalization: TextCapitalization.sentences,
             maxLines: null,
             controller: textEditingController,
             decoration: InputDecoration(
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
               labelText: "Message",
               contentPadding:
                   new EdgeInsets.symmetric(vertical: 30.0, horizontal: 10.0),
-              hintText: placeholderText,
+                hintText: 'Type your meeting purpose here...',
             ),
             validator: (value) {
               if (value!.isEmpty) {
@@ -296,8 +454,63 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
               }
               return null;
             },
+
           ),
-          verticalSpace(height: 25),
+          verticalSpace(height: 16),
+          // Date selection
+          if (widget.eventDays != null && widget.eventDays!.isNotEmpty)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: IconButton(
+                        onPressed: () {
+                          infoDialog(
+                            context: context,
+                            dialogText: "Select the date for your meeting with ${widget.meetingWith}."
+                          );
+                        },
+                        icon: const Icon(Icons.info_outline_rounded)
+                      )
+                    ),
+                    const Text("Meeting Date: ", style: TextStyle(fontSize: 15)),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          _showDatePickerBottomSheet();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                selectedDate != null
+                                    ? DateFormat('MMM d, yyyy').format(selectedDate!)
+                                    : 'Select date',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: selectedDate != null ? Colors.black : Colors.grey,
+                                ),
+                              ),
+                              const Icon(Icons.calendar_today, size: 18),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpace(height: 16),
+              ],
+            ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -316,82 +529,98 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
               const Text("Starting time: ", style: TextStyle(fontSize: 15)),
               TimeDropdown(
                 onTimePicked: (String? value) {
-                  setState(() {
-                    startTime = value!;
-                  });
+                  if (value != null) {
+                    setState(() {
+                      startTime = value;
+
+                      // Parse the selected start time
+                      DateFormat format = DateFormat("h:mm a");
+                      DateTime parsedStart = format.parse(startTime);
+
+                      // Add 30 minutes to get end time
+                      DateTime endTime = parsedStart.add(Duration(minutes: 30));
+                       formattedEndTime = format.format(endTime);
+
+                      // Build the updated message
+
+                    });
+                  }
                 },
               ),
-            ],
-          ), Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: IconButton(
-                      onPressed: () {
-                        infoDialog(
-                            context: context,
-                            dialogText:
-                          "Use this dropdown to select the table within the event venue that you would like to have the meeting with ${widget.meetingWith}. (Limited slots available)."
-                        );
-                      },
-                      icon: const Icon(
-                          Icons.info_outline_rounded))),
-              const Text("Meeting Slot: ", style: TextStyle(fontSize: 15)),
-              VenueDropdown(
-                onVenuePicked: (String? value) {
-                  setState(() {
-                    tableSlot = value!;
-                  });
-                },
-              ),
+
             ],
           ),
-          verticalSpace(height: 50),
-          SizedBox(
-              height: 40,
-              width: 135,
-              child: ElevatedButton(
-                  onPressed: () async {
-                    if (tableSlot == "") {
-                      Fluttertoast.showToast(
-                          msg: "You must select a meeting location",
-                          backgroundColor: kLogoutRed);
-                    } else {
-                      setState(() {
-                        isSending = true;
-                      });
-                      await requestMeeting(
-                          currentUserID: profileProvider.userID!,
-                          requestedBy:
-                              "${profileProvider.firstName} ${profileProvider.lastName}",
-                          meetingWith: widget.meetingWith,
-                          message: textEditingController.text,
-                          company: profileProvider.company,
-                          otherUserID: widget.otherUSerID,
-                          startTime: startTime,
-                          tableSlot: tableSlot,
-                          requestedByID: profileProvider.userID.toString(),
-                          meetingWithI: widget.otherUSerID.toString());
-                      await sendMeetingNotification();
-                      //sendMeetingRequest();
-                      setState(() {
-                        isSending = false;
-                      });
-                      Fluttertoast.showToast(
-                          backgroundColor: kSuccessGreen,
-                          msg: "Meeting request sent");
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  child: isSending
-                      ? const SpinKitCircle(
-                          color: kWhiteColor,
-                        )
-                      : const Text(
-                          "Send",
-                          style: TextStyle(fontSize: 14),
-                        )))
+verticalSpace(height: 50),
+
+          Center(
+            child: SizedBox(
+                height: 40,
+                width: 135,
+                child: isSending
+                    ? const SpinKitCircle(
+                  color: kConnectedBlue,
+                ): primaryButton2(
+                  buttonText: "Send",
+                  context: context,
+                    onPressedFunction: () async {
+                     // Validate date if event days are provided
+                     bool hasEventDays = widget.eventDays != null && widget.eventDays!.isNotEmpty;
+
+                     if (hasEventDays && selectedDate == null) {
+                       Fluttertoast.showToast(
+                           backgroundColor: Colors.orange,
+                           msg: "You must select a meeting date");
+                       return;
+                     }
+
+                     if(startTime!=""){
+                       setState(() {
+                         isSending = true;
+                       });
+
+                       String formattedDate = selectedDate != null
+                           ? DateFormat('EEEE, MMMM d, yyyy').format(selectedDate!)
+                           : '';
+
+                       String meetingMessage = "$placeholderText.\n\n"
+                           "${hasEventDays ? "Proposed date: $formattedDate\n" : ""}"
+                           "Proposed time:\n"
+                           "Start time: $startTime\n"
+                           "End time: $formattedEndTime\n";
+
+                       await requestMeeting(
+                           currentUserID: profileProvider.userID!,
+                           requestedBy:
+                           "${profileProvider.firstName} ${profileProvider.lastName}",
+                           meetingWith: widget.meetingWith,
+                           message: meetingMessage,
+                           company: profileProvider.company,
+                           otherUserID: widget.otherUSerID,
+                           startTime: startTime,
+                           tableSlot: tableSlot,
+                           requestedByID: profileProvider.userID.toString(),
+                           meetingWithI: widget.otherUSerID.toString(), requestedByEmail: profileProvider.email,
+                           meetingWithEmail: widget.recipientEmail,
+                           requestedByPhone: widget.requestedByphone,
+                           meetingWithPhone:  widget.meetingWithPhone);
+                       await sendMeetingNotification(ownerID: profileProvider.userID!);
+                       //sendMeetingRequest();
+                       setState(() {
+                         isSending = false;
+                       });
+                       Fluttertoast.showToast(
+                           backgroundColor: kSuccessGreen,
+                           msg: "Meeting request sent");
+                       Navigator.of(context).pop();
+                     }else{
+                       Fluttertoast.showToast(
+                           backgroundColor: Colors.orange,
+                           msg: "You must select meeting time");
+                     }
+
+                    },
+                   backgroundColor: kConnectedBlue)),
+          )
         ],
       ),
     );
@@ -465,9 +694,9 @@ defaultScrollableBottomSheet(
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
       builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.99,
+        initialChildSize: 0.6,
         minChildSize: 0.4,
-        maxChildSize: 0.99,
+        maxChildSize: 0.6,
         expand: false,
         builder: (_, controller) => Column(
           mainAxisSize: MainAxisSize.min,
@@ -552,7 +781,7 @@ class _PendingEventBottomSheetState extends State<PendingEventBottomSheet> {
   }
 
   void _updateTime() {
-    final DateTime _targetDate = DateTime(2024, widget.month, widget.date);
+    final DateTime _targetDate = DateTime(2025, widget.month, widget.date);
     final now = DateTime.now();
     final difference = _targetDate.difference(now);
     setState(() {

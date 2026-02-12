@@ -1,40 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis/apigeeregistry/v1.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 import '../constants.dart';
 import '../helpers/analytics_helper.dart';
 import '../helpers/helper_functions.dart';
 
 class CIOWidgets {
-  // itemWidget({
-  //   required BuildContext context,
-  //   required String itemName,
-  //   required String assetName,
-  // }) {
-  //   return Container(
-  //     height: MediaQuery.of(context).size.height * 0.13,
-  //     width: MediaQuery.of(context).size.height * 0.13,
-  //     decoration: BoxDecoration(
-  //         color: kCIOPink.withOpacity(0.03),
-  //         borderRadius: BorderRadius.circular(10)),
-  //     padding: const EdgeInsets.all(4),
-  //     child: Column(
-  //       children: [
-  //         SizedBox(
-  //             height: MediaQuery.of(context).size.height * 0.07,
-  //             width: MediaQuery.of(context).size.height * 0.07,
-  //             child: Image.asset(assetName)),
-  //         verticalSpace(height: 5),
-  //         Text(itemName)
-  //       ],
-  //     ),
-  //   );
-  // }
+
 
   gradientItemWidget({ required BuildContext context,required Color firstColor, required String analyticsActionName, required Color secondColor,required Widget editIcon,
-    required Widget screen,
+     Widget ?screen,
     required String itemName,}){
       return Column(
         children: [
@@ -42,15 +19,15 @@ class CIOWidgets {
             await Dx5veAnalytics().logdx5veEvent(eventName: analyticsActionName);
             PersistentNavBarNavigator.pushNewScreen(
               context,
-              screen: screen,
+              screen: screen!,
               withNavBar: false,
               pageTransitionAnimation: PageTransitionAnimation.slideRight,
             );
           },
             child: Container(
-              height: MediaQuery.of(context).size.width * 0.18,
-              width: MediaQuery.of(context).size.width * 0.18,
-              margin: EdgeInsets.only(bottom: 5,top: 15), // Adjust the margin as needed
+              height: MediaQuery.of(context).size.width * 0.2,
+              width: MediaQuery.of(context).size.width * 0.23,
+              margin: const EdgeInsets.only(bottom: 5,top: 15), // Adjust the margin as needed
               decoration: BoxDecoration(
                 gradient:  LinearGradient(
                   colors: [
@@ -76,47 +53,13 @@ class CIOWidgets {
                 ),
               ),
             ),
-          ),Text(itemName)
+          ),Text(itemName,style: const TextStyle(fontSize: 13,fontWeight: FontWeight.w600),)
         ],
       );
 
   }
 
-  itemWidget(
-      {
-    required Widget editIcon,
-    required Widget screen,
-    required String itemName,
-    required BuildContext context,
-  }) {
 
-    return GestureDetector(
-      onTap: ()async {
-        PersistentNavBarNavigator.pushNewScreen(context,
-            withNavBar: true,
-            screen: screen,
-            pageTransitionAnimation: PageTransitionAnimation.cupertino);
-
-      },
-      child: SizedBox(
-        height: MediaQuery.of(context).size.width * 0.28,
-        width: MediaQuery.of(context).size.width * 0.28,
-        child: Card(
-
-          child: Stack(alignment: Alignment.center,
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [SizedBox(height: 50,width: 50,child: editIcon,),verticalSpace( height: 5) ,Text(itemName)],
-              ),
-
-
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   cioAppBar({required String title}) {
     return AppBar(backgroundColor: kScaffoldBackground,centerTitle: true,
@@ -125,7 +68,7 @@ class CIOWidgets {
     );
   }
 
-  adminWidget({required String assetPath,required BuildContext context,required Widget screen, required String actionTitle,
+  adminWidget({required String assetPath,required Color widgetColor,required BuildContext context,required Widget screen, required String actionTitle,
     required String actionDescription}){
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -141,7 +84,7 @@ class CIOWidgets {
         child: Card(
           shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(12.0),
             side:  BorderSide(
-              color: Colors.red.withOpacity(0.2),
+              color: widgetColor.withOpacity(0.7),
               width: 0.5,
             ),
           ),

@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
-
+import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import '../dioServices/dioPostService.dart';
+import '../helpers/helper_functions.dart';
 import '../mainNavigationPage.dart';
 import '../providers.dart';
 import 'package:dx5veevents/constants.dart';
@@ -20,9 +20,12 @@ class SponsorScanner extends StatefulWidget {
    String lastName;
    String company;
    String email;
+   int eventId;
+   int attendeeID;
    String phone;
    String position;
-   SponsorScanner({required this.firstName,required this.phone, required this.lastName, required this.email,required this.company, required this.position,key});
+   SponsorScanner({required this.firstName,required this.eventId,
+     required this.phone, required this.lastName, required this.email,required this.attendeeID,required this.company, required this.position,key});
 
   @override
   State<SponsorScanner> createState() => _SponsorScannerState();
@@ -46,17 +49,21 @@ class _SponsorScannerState extends State<SponsorScanner> {
 
             sponsorID = scanData.code!;
           });
-          sendSponsorData();
-        } else if (scanData.code!.startsWith("checkin")) {
+          sendSponsorData().then(()async{  await UserPointsService().
+          createOrUpdateUserPoints(userId:widget.attendeeID!,actionId: 6);
+          });
+        }
+        else if (scanData.code!.startsWith("checkin")) {
           setState(() {
             isSending = true;
           });
+          print("sending event ID as ${widget.eventId}");
           sendAttendeeData(qrContent: scanData.code);
         }
       }
     });
   }
-  
+
   sendSponsorData()async{
     final response=await DioPostService().postSponsorData(body: {
       "sponsorid": sponsorID,
@@ -89,6 +96,7 @@ class _SponsorScannerState extends State<SponsorScanner> {
   sendAttendeeData({required qrContent})async{
     final response=await DioPostService().postCheckinData(body: {
       "email": widget.email,
+      "eventId": widget.eventId,
       "printerId": qrContent,
      
     }, context: context);

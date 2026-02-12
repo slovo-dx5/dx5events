@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Contact {
+class ChatContactModel {
   String otherpersonuid;
   Timestamp addedOn;
   String sentto;
@@ -11,7 +11,7 @@ class Contact {
   String chatId;
 
 
-  Contact({
+  ChatContactModel({
     required this.otherpersonuid,
     required this.addedOn,
     required this.sentto,
@@ -23,7 +23,7 @@ class Contact {
 
   });
 
-  Map<String, dynamic> toMap(Contact receiverContact) {
+  Map<String, dynamic> toMap(ChatContactModel receiverContact) {
     return {
       'contact_id': otherpersonuid,
       'added_on': addedOn,
@@ -37,8 +37,8 @@ class Contact {
     };
   }
 
-  factory Contact.fromMap(Map<String, dynamic> mapData) {
-    return Contact(
+  factory ChatContactModel.fromMap(Map<String, dynamic> mapData) {
+    return ChatContactModel(
       otherpersonuid: mapData['contact_id'],
       addedOn: mapData['added_on'],
       sentto: mapData['Sent_To'],

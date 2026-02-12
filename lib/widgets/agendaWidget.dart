@@ -1,10 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dx5veevents/constants.dart';
 import 'package:dx5veevents/models/agendaModel.dart';
+import 'package:dx5veevents/widgets/ratingWidget.dart';
 import 'package:flutter/material.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
+import '../dioServices/base_url.dart';
 import '../models/speakersModel.dart';
 import '../providers/themeProvider.dart';
 import '../screens/dx5veScreens/eventFullAgenda.dart';
@@ -16,6 +19,8 @@ agendaItemWithSpeakers({required BuildContext context,
   required int eventMonth,
   required String eventId,
   required int eventDay,
+  required int attendeeID,
+ // required String speakerName,
   required String title,
   required String eventDayOfWeek,
   required String startTime,
@@ -27,6 +32,17 @@ agendaItemWithSpeakers({required BuildContext context,
   required List speakers,required VoidCallback onPressedFunction,
   required int userID}){
   final themeProvider = Provider.of<ThemeProvider>(context);
+
+  DateTime now = DateTime.now();
+  DateTime accurateToSeconds = DateTime(
+    now.year,
+    now.month,
+    now.day,
+    now.hour,
+    now.minute,
+    now.second,
+  );
+
 
   return Column(
     children: [
@@ -41,6 +57,7 @@ agendaItemWithSpeakers({required BuildContext context,
               isFromSession: false,
               type:sessionType,
              userID: userID,
+
               description: summary,
               speakers: speakers,
               breakOuts: breakoutSessions, eventLocation: eventLocation, eventDay: eventDay, eventMonth: eventMonth, eventYear: eventYear, futures: futures,
@@ -56,7 +73,8 @@ agendaItemWithSpeakers({required BuildContext context,
           child: IntrinsicHeight(
             child: Container(padding: const EdgeInsets.only(top: 20,bottom: 10),
             //  height:  speakers.length>4?360:190,
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: themeProvider.themeMode==ThemeModeOptions.dark?kGreyAgenda:kGradientLighterBlue.withOpacity(0.4),),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),
+                color: kGradientLighterBlue.withOpacity(0.4),),
 
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -76,14 +94,14 @@ agendaItemWithSpeakers({required BuildContext context,
 
                         const Spacer(),
 
-
-                        Padding(
-                          padding:  const EdgeInsets.only(right:10,),
-                          child: GestureDetector(onTap:
-
-                          onPressedFunction
-                              ,child: const Icon(Icons.bookmark,color: kIconDeepBlue,)),
-                        )
+                        //
+                        // Padding(
+                        //   padding:  const EdgeInsets.only(right:10,),
+                        //   child: GestureDetector(onTap:
+                        //
+                        //   onPressedFunction
+                        //       ,child: const Icon(Icons.bookmark,color: kIconDeepBlue,)),
+                        // )
                       ],
                     ),
                     Expanded(
@@ -102,74 +120,88 @@ agendaItemWithSpeakers({required BuildContext context,
                           ),
                           verticalSpace(height: 10),
                           FutureBuilder<
-                              List<IndividualSpeaker?>>(
+                              List<IndividualSpeaker?>
+                          >(
                             future: Future.wait(futures),
                             builder: (context, snapshot) {
-                             // print("snapshot is ${snapshot.data!.first!.firstName!}");
-                              if (snapshot.connectionState ==
-                                  ConnectionState.done &&
-                                  snapshot.data != null) {
+                              if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
                                 // Join the first names of all speakers
-                                final speakerWidgets =
-                                snapshot.data!
-                                    .where((speaker) =>
-                                speaker != null)
+                                final speakerWidgets = snapshot.data!
+                                    .where((speaker) => speaker != null)
                                     .map((speaker) => Padding(
-                                  padding: const EdgeInsets.only(top:8.0,bottom: 8.0),
+                                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
                                   child: Row(
                                     children: [
                                       CachedNetworkImage(
-                                        fit:
-                                        BoxFit.cover,
-                                        imageUrl:
-                                        "https://subscriptions.cioafrica.co/assets/${speaker!.photo}",
-                                        // placeholder: (context, url) => CircularProgressIndicator(), // Optional
-                                        // errorWidget: (context, url, error) =>  ProfileInitials(),
+                                        fit: BoxFit.cover,
+                                        imageUrl: "${BaseURL.Baseurl}/assets/${speaker!.photo}",
                                         progressIndicatorBuilder: (context, url, downloadProgress) => SizedBox(
                                             height: 20,
                                             width: 20,
-                                            child: CircularProgressIndicator(value: downloadProgress.progress)), // Optional
-                                        imageBuilder: (context, imageProvider) =>
-                                            CircleAvatar(
-                                              radius: 15,
-                                              backgroundImage: imageProvider,
-                                            ),
-                                      ),horizontalSpace(width: 10),
-
+                                            child: CircularProgressIndicator(value: downloadProgress.progress)),
+                                        imageBuilder: (context, imageProvider) => CircleAvatar(
+                                          radius: 15,
+                                          backgroundImage: imageProvider,
+                                        ),
+                                      ),
+                                      horizontalSpace(width: 10),
                                       Expanded(
-                                        child: Column(mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.start,
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              '${speaker.firstName} ${speaker.lastName}',style:kGreyTextStyle(fontsiZe: 12) ,),
+                                              '${speaker.firstName} ${speaker.lastName}',
+                                              style: kGreyTextStyle(fontsiZe: 12),
+                                            ),
                                             Text(
-                                              '${speaker.role} at ${speaker.company}',style: kNameTextStyle( fontsiZe: 10),overflow: TextOverflow.ellipsis,maxLines: 2,),
+                                              '${speaker.role} at ${speaker.company}',
+                                              style: kNameTextStyle(fontsiZe: 10),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 2,
+                                            ),
                                           ],
                                         ),
                                       ),
                                     ],
                                   ),
-                                )
-
-                                )
+                                ))
                                     .toList();
+
                                 return Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     ...speakerWidgets,
+                                    if (sessionDate.isBefore(accurateToSeconds) && sessionType.toLowerCase() == "keynote")
+                                      primaryButton2(
+                                        context: context,
+                                        onPressedFunction: () {
+                                          // Open the dialog with speaker details
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              // Pass the first and last name of the speaker to RatingDialog
+                                              return RatingDialog(
+                                                attendeeID: attendeeID,
+                                                speakerName: '${snapshot.data!.first!.firstName} ${snapshot.data!.first!.lastName}',
+                                                eventId: 10, sessionTitle: title,
+                                              );
+                                            },
+                                          );
+                                        },
+                                        buttonText: "Review",
+                                        backgroundColor: kCIOPink,
+                                      ),
                                   ],
                                 );
-                              } else if (snapshot
-                                  .connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Text(
-                                    'Loading speakers...');
+                              } else if (snapshot.connectionState == ConnectionState.waiting) {
+                                return const Text('Loading speakers...');
                               } else {
-                                return const Text(
-                                    'Speakers details not available');
+                                return const Text('Speakers details not available');
                               }
                             },
                           ),
+
 
                         ],
                       ),
@@ -197,12 +229,23 @@ agendaItemWithoutSpeakers({required BuildContext context,
   required DateTime sessionDate,
   required int sessionID,
   required String eventID,
+  required int attendeeID,
+  required String speakerName,
 
   required String type,required String summary,
    List <BreakoutSession>?breakoutSessions,
   required List speakers,required VoidCallback onPressedFunction,
   required int userID}){
   final themeProvider = Provider.of<ThemeProvider>(context);
+  DateTime now = DateTime.now();
+  DateTime accurateToSeconds = DateTime(
+    now.year,
+    now.month,
+    now.day,
+    now.hour,
+    now.minute,
+    now.second,
+  );
 
   return Column(
     children: [
@@ -230,7 +273,7 @@ agendaItemWithoutSpeakers({required BuildContext context,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Container(
-            height: 100,decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: themeProvider.themeMode==ThemeModeOptions.dark?kGreyAgenda:kGradientLighterBlue.withOpacity(0.5),),
+            height: 130,decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color:kGradientLighterBlue.withOpacity(0.5),),
 
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -251,13 +294,13 @@ agendaItemWithoutSpeakers({required BuildContext context,
                    const Spacer(),
 
 
-                      Padding(
-                        padding:  const EdgeInsets.only(right:10,),
-                        child: GestureDetector(onTap:
-
-                        onPressedFunction
-                        ,child: const Icon(Icons.bookmark,color: kIconDeepBlue,)),
-                      )
+                      // Padding(
+                      //   padding:  const EdgeInsets.only(right:10,),
+                      //   child: GestureDetector(onTap:
+                      //
+                      //   onPressedFunction
+                      //   ,child: const Icon(Icons.bookmark,color: kIconDeepBlue,)),
+                      // )
                     ],
                   ),Column(
                     mainAxisAlignment:
@@ -274,6 +317,7 @@ agendaItemWithoutSpeakers({required BuildContext context,
                             fontWeight: FontWeight.w700),
                       ),
                       verticalSpace(height: 10),
+
 
 
                     ],

@@ -2,15 +2,16 @@
 import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/providers/themeProvider.dart';
 import 'package:dx5veevents/screens/adminScreens/adminPanelHome.dart';
-import 'package:dx5veevents/screens/getContact.dart';
+import 'package:dx5veevents/screens/contact_scanning/getContact.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
+import 'package:dx5veevents/screens/pdfAGenda.dart';
 import 'package:dx5veevents/widgets/checkin_widget.dart';
 import 'package:dx5veevents/widgets/notifications_widget.dart';
 import 'package:dx5veevents/widgets/qr_scanner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:get/get.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:upgrader/upgrader.dart';
 
@@ -19,6 +20,7 @@ import '../helpers/helper_functions.dart';
 import '../helpers/helper_widgets.dart';
 
 import '../widgets/profile_initials_widget.dart';
+import 'helpers/analytics_helper.dart';
 import 'home_body.dart';
 import 'dart:io';
 
@@ -48,7 +50,7 @@ class HomeScreen extends GetView<MyDrawerController> {
     return GetBuilder<MyDrawerController>(
       builder: (_) => ZoomDrawer(
         controller: _.zoomDrawerController,
-        menuScreen: MenuScreen(),
+        menuScreen: MenuScreen(eventID: eventID,),
         mainScreen: MainScreen(controller: controller, coverImagePath: coverImagePath, eventLocation: eventLocation, eventName: eventName, eventDate: eventDate, 
           shortEventDescription: shortEventDescription, eventID: eventID, eventDay: eventDay, eventMonth: eventMonth, eventYear: eventYear, eventDayOfWeek: eventDayOfWeek, isCustomerEvent: isCustomerEvent,),
         androidCloseOnBackTap: true,
@@ -60,9 +62,9 @@ class HomeScreen extends GetView<MyDrawerController> {
         moveMenuScreen: false,
         mainScreenScale: 0.2,
         style: DrawerStyle.defaultStyle,
-        shadowLayer1Color: kCIOPurple.withOpacity(0.5),
-        shadowLayer2Color: kPrimaryColor.withOpacity(0.8),
-        menuBackgroundColor: kCIOPink.withOpacity(0.4),
+        shadowLayer1Color: kSkyBlue,
+        shadowLayer2Color: kDarkBlue,
+        menuBackgroundColor: kDarkerBlue.withValues(alpha: 0.8),
       ),
     );
   }
@@ -101,8 +103,8 @@ class MainScreen extends GetView<MyDrawerController> {
             Icons.menu,size: 40,
           ),
         ) ,
-        backgroundColor: kCIOPurple.withOpacity(0.5),centerTitle: true,
-        title:  const Text("DX5VE EVENTS",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),),
+        backgroundColor: kConnectedBlue,centerTitle: true,
+        title:  const Text("CIO100 SYMPOSIUM AND AWARDS",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),),
         actions: [NotificationIconButton()],
         // actions:  [Icon(Icons.notification_important_rounded,color: kTextColorBlackLighter,)],
       ),
@@ -113,16 +115,18 @@ class MainScreen extends GetView<MyDrawerController> {
 
 
 class MenuScreen extends GetView<MyDrawerController> {
-  MenuScreen({Key? key}) : super(key: key);
+  String eventID;
+  MenuScreen({required this.eventID,Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    print("event id is $eventID");
     return buildMenu(context);
   }
 
   Widget buildMenu(context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    //final themeProvider = Provider.of<ThemeProvider>(context);
 
     return UpgradeAlert(
       upgrader: Upgrader(
@@ -131,7 +135,9 @@ class MenuScreen extends GetView<MyDrawerController> {
           //     : UpgradeDialogStyle.cupertino,
           // showIgnore: false,
           durationUntilAlertAgain: const Duration(hours: 1)),
-      child: Scaffold(backgroundColor: themeProvider.themeMode==ThemeModeOptions.dark?kTextColorBlack:Colors.white54,
+      child: Scaffold(
+        //backgroundColor: themeProvider.themeMode==ThemeModeOptions.dark?kTextColorBlack:Colors.white54,
+        backgroundColor:Colors.white70,
         body: SafeArea(
           child: SingleChildScrollView(
 
@@ -140,7 +146,7 @@ class MenuScreen extends GetView<MyDrawerController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.only(left: 16.0),
+                  padding: const EdgeInsets.only(left: 16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -149,23 +155,23 @@ class MenuScreen extends GetView<MyDrawerController> {
                       //     radius: 22.0,
                       //     avatarRadius: 22.0,
                       //     fontSize: 12.0),
-                      if(profileProvider.profileId==null||profileProvider.profileId=="")const ProfileInitials(),
+                      if(profileProvider.profileId==null||profileProvider.profileId=="") ProfileInitials(circleRadius: 80,fontSize: 60),
                       if(profileProvider.profileId!=null&&profileProvider.profileId!="")const ProfilePicWidget(),
                       const SizedBox(height: 16.0),
                       greetingFunc(firstName: profileProvider.firstName),
                       const Divider(),
-                      Row(mainAxisAlignment:MainAxisAlignment.spaceBetween,children: [const Text("Dark mode",
-                      //  style: settingsTextStyle(),
-                      ),Switch(
-                        inactiveTrackColor: kWhiteText,
-                        value: themeProvider.themeMode == ThemeModeOptions.dark,
-                        onChanged: (value) {
-                          final newTheme = value ? ThemeModeOptions.dark : ThemeModeOptions.light;
-                          themeProvider.setThemeMode(newTheme);
-                        }
-                      ),],),
+                      // Row(mainAxisAlignment:MainAxisAlignment.spaceBetween,children: [const Text("Dark mode",
+                      // //  style: settingsTextStyle(),
+                      // ),Switch(
+                      //   inactiveTrackColor: kWhiteText,
+                      //   value: themeProvider.themeMode == ThemeModeOptions.dark,
+                      //   onChanged: (value) {
+                      //     final newTheme = value ? ThemeModeOptions.dark : ThemeModeOptions.light;
+                      //     themeProvider.setThemeMode(newTheme);
+                      //   }
+                      // ),],),
                       menuItem(menuText: 'Scan QR',
-                          widgetIcon: Icons.qr_code_2, iconColor: kCIOPink, onPressedFunction: () {
+                          widgetIcon: Icons.qr_code_2, iconColor: kConnectedGreen, onPressedFunction: () {
 
                               PersistentNavBarNavigator.pushNewScreen(
                                 context,
@@ -175,7 +181,7 @@ class MenuScreen extends GetView<MyDrawerController> {
                                   lastName: profileProvider.lastName,
                                   company: profileProvider.company,
                                   position: profileProvider.role,
-                                  email: profileProvider.email,),
+                                  email: profileProvider.email, eventId: int.parse(eventID), attendeeID: profileProvider.userID!,),
                                 withNavBar: false,
                                 pageTransitionAnimation: PageTransitionAnimation.slideRight,
                               );
@@ -187,8 +193,21 @@ class MenuScreen extends GetView<MyDrawerController> {
                       //   logOut(context);
                       // }),
 
-                      const CheckInWidget(),
+                    //  const CheckInWidget(),
 
+                      // menuItem(menuText: 'Agenda PDF',
+                      //     widgetIcon: Icons.picture_as_pdf,
+                      //     iconColor: kConnectedBlue, onPressedFunction: () {
+                      //
+                      //       PersistentNavBarNavigator.pushNewScreen(
+                      //         context,
+                      //         screen:  PDFViewerScreen(pdfAssetPath: 'assets/connected agenda.pdf',
+                      //       ),
+                      //         withNavBar: false,
+                      //         pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                      //       );
+                      //
+                      //     }),
                       menuItem(menuText: 'Events Menu',
                           widgetIcon: Icons.qr_code_2, iconColor: kCIOPink, onPressedFunction: () {
 
@@ -205,11 +224,12 @@ class MenuScreen extends GetView<MyDrawerController> {
 
 
                       menuItem(menuText: 'Get Contact',
-                          widgetIcon: Icons.contacts, iconColor: kCIOPink, onPressedFunction: () {
+                          widgetIcon: Icons.contacts, iconColor: kConnectedOrange, onPressedFunction: () async{
+                            await Dx5veAnalytics().logdx5veEvent(eventName: "ContactScannerOpen");
 
                             PersistentNavBarNavigator.pushNewScreen(
                               context,
-                              screen: GetContact(
+                              screen: GetContact(ownerID: profileProvider.userID!,
                                ),
                               withNavBar: false,
                               pageTransitionAnimation: PageTransitionAnimation.slideRight,
@@ -235,7 +255,7 @@ class MenuScreen extends GetView<MyDrawerController> {
                       verticalSpace(height: 30),
 
                       menuItem(menuText: 'Need an app?',
-                          widgetIcon: Icons.touch_app, iconColor: kCIOPink, onPressedFunction: () {
+                          widgetIcon: Icons.touch_app, iconColor: kConnectedRed, onPressedFunction: () {
 
                             launchMailClient(emailAddress: 'dev@dx5ve.com', subject: 'APP DEVELOPMENT PROPOSAL', body: '');
 

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import 'base_url.dart';
 import 'dioClient.dart';
 
 class DioDeleteService extends DioClient {
@@ -15,7 +16,7 @@ class DioDeleteService extends DioClient {
       return await _client
           .init()
           .delete(
-        "https://subscriptions.cioafrica.co/items/user_sessions/$sessionID",
+        "${BaseURL.Baseurl}/items/user_sessions/$sessionID",
         // options: buildCacheOptions(const Duration(seconds: 30,),),
 
         // Set headers using the 'headers' parameter

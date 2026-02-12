@@ -2,16 +2,26 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:upgrader/upgrader.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+
+
 
 import '../constants.dart';
+import '../helpers/analytics_helper.dart';
 import '../providers.dart';
-
+import '../screens/dx5ve_social/social_feed.dart';
 import '../screens/dx5veScreens/eventSpeakersScreen.dart';
-import '../screens/dx5veScreens/dx5ve_partners_screen.dart';
+import '../screens/dx5veScreens/partners_screen.dart';
 import '../screens/dx5veScreens/event_sessions_screen.dart';
-import '../screens/dx5veScreens/dx5ve_sponsors_screen.dart';
+import '../screens/dx5veScreens/sponsors_screen.dart';
 import '../screens/dx5veScreens/dx5veAttendeesScreen.dart';
 import '../screens/dx5veScreens/eventAgendaScreen.dart';
+import '../screens/contact_scanning/getContact.dart';
+import '../screens/feedback_page.dart';
+import '../screens/rewardsPage.dart';
+import '../test.dart';
+import '../testScreen.dart';
 import 'cio_widgets.dart';
 import 'clickableBanner.dart';
 
@@ -22,192 +32,344 @@ class HomePageWidget extends StatefulWidget {
   String eventDayOfWeek;
   String eventDate;
   String eventLocation;
-  String eventID;int eventDay;
+  String eventID;
+  int eventDay;
   int eventMonth;
   int eventYear;
   bool isCustomerEvent;
-  HomePageWidget(
-      {super.key,
-        required this.isCustomerEvent,
-      required this.coverImagepath,
-      required this.eventName,required this.eventDate,
-      required this.eventDayOfWeek,required this.eventLocation,required this.eventID,
-      required this.shortEventDescription , required this.eventDay,
-        required this.eventMonth,
-        required this.eventYear});
+
+  HomePageWidget({
+    super.key,
+    required this.isCustomerEvent,
+    required this.coverImagepath,
+    required this.eventName,
+    required this.eventDate,
+    required this.eventDayOfWeek,
+    required this.eventLocation,
+    required this.eventID,
+    required this.shortEventDescription,
+    required this.eventDay,
+    required this.eventMonth,
+    required this.eventYear
+  });
 
   @override
   State<HomePageWidget> createState() => _HomePageWidgetState();
 }
 
 class _HomePageWidgetState extends State<HomePageWidget> {
+
   @override
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return UpgradeAlert(
       upgrader: Upgrader(
-          // dialogStyle: Platform.isAndroid
-          //     ? UpgradeDialogStyle.material
-          //     : UpgradeDialogStyle.cupertino,
-          // showIgnore: false,
-          durationUntilAlertAgain: const Duration(hours: 1)),
+          durationUntilAlertAgain: const Duration(hours: 1)
+      ),
       child: Scaffold(
-          body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Stack(
-              alignment: Alignment.bottomLeft,
-              children: [
-                Image.asset(
-                  widget.coverImagepath,
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height * 0.2,
-                  fit: BoxFit.cover,
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(15.0, 15, 15, 0),
-              child: Row(crossAxisAlignment: CrossAxisAlignment.start,
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Hero Section with improved overlay for better text readability
+              Stack(
                 children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width*0.75,
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(widget.eventName,style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.calendar_month),
-                            horizontalSpace(width: 5),
-                            Text(
-                              widget.eventDate,
-                              style: const TextStyle(fontSize: 10),
-                            ),
+                  // Cover Image
+                  Image.asset(
+                    "assets/images/themes/CIO100-landscape.jpg",
+                    width: screenWidth,
+                   // height: screenHeight * 0.3, // Made taller for more visual impact
+                    fit: BoxFit.contain,
+                  ),
+                  // Gradient overlay for better text visibility
 
-                          ],
+
+                ],
+              ),
+              // App Sponsor Section
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      "APP SPONSOR",
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.2,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 50,
+                      child: Image.asset(
+                        "assets/images/sponsors/mbcom.png",
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const Divider(),
+
+              // Main Navigation Grid - Redesigned with card approach
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        _buildFeatureCard(
+                          context: context,
+                         title:  'Agenda',
+                        iconPath:   'assets/icons/agenda.png',
+                        color:   kConnectedGreen,
+                        screen:   EventAgendaScreen(
+                            eventID: widget.eventID,
+                            eventDay: widget.eventDay,
+                            eventMonth: widget.eventMonth,
+                            eventYear: widget.eventYear,
+                            eventLocation: widget.eventLocation,
+                            eventDayOfWeek: widget.eventDayOfWeek,
+                            eventName: 'AGENDA',
+                          ),
+                       analyticsAction:    'agenda_page_opened',
+                        ),
+                        const SizedBox(width: 12),
+                        _buildFeatureCard(
+                         context:  context,
+                         title:  'Networking',
+                          iconPath: 'assets/icons/attendee.png',
+                          color: kConnectedOrange,
+                        screen:   AttendeesScreen(
+                            eventID: widget.eventID,
+
+
+                          ),
+                          analyticsAction: 'attendees_page_opened',
                         ),
                       ],
                     ),
-                  ),
-                  Container(padding: EdgeInsets.all(5),
-                    height: 50,
-                    width: 60,
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(5),),
-                    child: Column(
+                    verticalSpace(height: 12),
+                    Row(
                       children: [
-                        const Icon(
-                          Icons.location_on_sharp,
-                          color: kCISOPurple,
-                        ),Flexible(child: AutoSizeText(widget.eventLocation, maxFontSize: 10,minFontSize: 5,))
+                        _buildFeatureCard(
+                        context:   context,
+                       title:    'Social',
+                       iconPath:    'assets/icons/social-media.png',
+                        color:   kConnectedGreen,
+                        screen:   const SocialFeed(),
+                       analyticsAction:    'social_page_opened',
+                        ),
+                        const SizedBox(width: 12),
+                        _buildFeatureCard(
+                         context:  context,
+                        title:   'QR Scanner',
+                         iconPath:  'assets/icons/scanner.png',
+                         color:  kConnectedRed,
+                         screen:  GetContact(ownerID: profileProvider.userID!),
+                        analyticsAction:   'contact_scanner_page_opened',
+                        ),
                       ],
                     ),
-                  )
-                ],
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        _buildFeatureCard(
+                       context:    context,
+                        title:   'Speakers',
+                       iconPath:    'assets/icons/speaker.png',
+                       color:    kConnectedBlue,
+                        screen:   EventSpeakersScreen(eventID: widget.eventID),
+                        analyticsAction:   'speakers_page_opened',
+                        ),
+                        const SizedBox(width: 12),
+                        _buildFeatureCard(
+                         context:  context,
+                          title: 'Sponsors',
+                         iconPath:  'assets/icons/sponsors.png',
+                          color: kConnectedOrange,
+                        screen:   CISOSponsorsScreen(eventID: widget.eventID),
+                         analyticsAction:  'sponsors_page_opened',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    Row(
+                      children: [
+
+                         _buildFeatureCard(
+                          context: context,
+                         title:  'Feedback',
+                        iconPath:   'assets/icons/feedback.png',
+                         color:  kConnectedOrange,
+                          screen:  FeedbackPage(
+                            eventID: widget.eventID,
+                             attendeeID: profileProvider.profileId!,
+                             attendeeName: "${profileProvider.firstName} ${profileProvider.lastName}",
+                         
+                          ),
+                          analyticsAction: 'feedback_page_opened',
+                                                 ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),verticalSpace(height: 10),
-            //Text(widget.eventDescription),
-            Padding(
-              padding: const EdgeInsets.only(left:8.0, right: 8.0),
-              child: Text( widget.shortEventDescription,),
-            ),
-            const Divider(color: kCIOPink),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                CIOWidgets().gradientItemWidget(
-                  firstColor: kCISOOrange,
-                  secondColor: kCISOLightOrange,
-                  context: context,
-                  editIcon: Image.asset(
-                    "assets/icons/speaker.png",
-                    width: 10,
-                    height: 10,
-                  ),
-                  // screen: EventSpeakersScreen(eventName: widget.eventName,eventID: widget.eventID),
-                  screen: EventSpeakersScreen(eventID: widget.eventID,),
-                  itemName: 'Speakers', analyticsActionName: 'speakers_page_opened',
-                ),
-                CIOWidgets().gradientItemWidget(
-                  firstColor: kCISOTeal.withOpacity(0.7),
-                  secondColor: kCISOBlue.withOpacity(0.7),
-                  context: context,
-                  editIcon: Image.asset(
-                    "assets/icons/sponsors.png",
-                    width: 10,
-                    height: 10,
-                  ),
-                  screen: CISOSponsorsScreen(eventID: widget.eventID,),
-                  itemName: 'Sponsors', analyticsActionName: 'sponsors_page_opened',
-                ),
-                CIOWidgets().gradientItemWidget(
-                  firstColor: kCISOYellow.withOpacity(0.7),
-                  secondColor: kCISOGreenYellow.withOpacity(0.7),
-                  context: context,
-                  editIcon: Image.asset(
-                    "assets/icons/agenda.png",
-                    width: 10,
-                    height: 10,
-                  ),
-                  screen: EventAgendaScreen(eventID: widget.eventID, eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear, eventLocation: widget.eventLocation, eventDayOfWeek: widget.eventDayOfWeek,),
-                  itemName: 'Agenda', analyticsActionName: 'agenda_page_opened',
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                CIOWidgets().gradientItemWidget(
-                  firstColor: kCISOTeal,
-                  secondColor: kCISOPurple,
-                  context: context,
-                  editIcon: Image.asset(
-                    "assets/icons/attendee.png",
-                    width: 10,
-                    height: 10,
-                  ),
-                  screen: AttendeesScreen(eventID: widget.eventID, isCustomerEvent: widget.isCustomerEvent,),
-                  itemName: 'Attendees', analyticsActionName: 'attendees_page_opened',
-                ),
-                CIOWidgets().gradientItemWidget(
-                  firstColor: kCISOOrange,
-                  secondColor: kCISOPurple,
-                  context: context,
-                  editIcon: Image.asset(
-                    "assets/icons/exhibitors.png",
-                    width: 10,
-                    height: 10,
-                  ),
-                  screen: CISOPartnersScreen(eventID: widget.eventID,),
-                  itemName: 'Partners', analyticsActionName: 'partners_page_opened',
-                ),
-                CIOWidgets().gradientItemWidget(
-                  firstColor: kCISOPink.withOpacity(0.9),
-                  secondColor: kCISOPurple.withOpacity(0.9),
-                  context: context,
-                  editIcon: Image.asset(
-                    "assets/icons/sessions.png",
-                    width: 10,
-                    height: 10,
-                  ),
-                  screen: UserSessionsScreen(
-                    userid: profileProvider.userID!,
-                    eventID: widget.eventID,eventDay: widget.eventDay, eventLocation: widget.eventLocation, eventMonth: widget.eventMonth,eventYear: widget.eventYear, eventDayOfWeek: widget.eventDayOfWeek,                ),
-                  itemName: 'My Sessions', analyticsActionName: 'sessions_page_opened',
-                ),
-              ],
-            ),
-            //CIOWidgets().clickableWidget(context: context, assetPath: "assets/images/backgrounds/ciobanner.jpg"),
-            ClickableBannerWidget(assetPath: 'assets/images/backgrounds/ciobanner.jpg',),
-            verticalSpace(height: 15),
-            // SizedBox(
-            //     height: 100,
-            //     width: MediaQuery.of(context).size.width,
-            //     child: HorizontalCardScroll())
-          ],
+
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
-      )),
+      ),
+    );
+  }
+
+  // Enhanced feature card widget
+  Widget _buildFeatureCard({
+    required BuildContext context,
+    required String title,
+    required String iconPath,
+    required Color color,
+    required Widget screen,
+    required String analyticsAction,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () async{
+          await   Dx5veAnalytics().logdx5veEvent(eventName: analyticsAction);
+
+          PersistentNavBarNavigator.pushNewScreen(
+            context,
+            screen:  screen,
+            withNavBar: false,
+            pageTransitionAnimation: PageTransitionAnimation.slideRight,
+          );
+
+
+        },
+        child: Container(
+          height: 110,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                spreadRadius: 1,
+                blurRadius: 6,
+                offset: const Offset(0, 3),
+              ),
+            ],
+            border: Border.all(color: color.withOpacity(0.3), width: 1.5),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Image.asset(
+                  iconPath,
+                  width: 24,
+                  height: 24,
+                  color: color,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
+Future<void> _launchURL(BuildContext context) async {
+  String mapUrl="https://www.residencetechnologies.com/home/resident_map/";
+  final Uri uri = Uri.parse(mapUrl);
+
+  if (await canLaunchUrl(uri)) {
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  } else {
+    // Show error if URL can't be launched
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not open site'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+}
+
+Future<void> _showConfirmationDialog(BuildContext context) async {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false, // User must tap a button to close the dialog
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.open_in_new, color: Colors.blue),
+            const SizedBox(width: 10),
+            const Text('External Link'),
+          ],
+        ),
+        content: const SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              Text('You are about to leave this app and visit an external site.'),
+              SizedBox(height: 10),
+              Text('Do you want to continue?'),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          FilledButton(
+            child: const Text('Continue'),
+            onPressed: () {
+              Navigator.of(context).pop();
+              _launchURL(context);
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+

@@ -9,7 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -17,8 +17,8 @@ import '../../constants.dart';
 import 'package:dio/dio.dart';
 
 import '../../dioServices/dioOTPService.dart';
+import '../../dioServices/dioPostService.dart';
 import '../../mainNavigationPage.dart';
-import '../../splashScreen.dart';
 import '../../testScreen.dart';
 
 class OTPScreen extends StatefulWidget {
@@ -30,7 +30,10 @@ class OTPScreen extends StatefulWidget {
   String company;
   String isAdmin;
   int id;
-  String profileID; int eventDay;
+  int recordID;
+  String profileID;
+
+  int eventDay;
   int eventMonth;
   int eventYear;bool isCustomerEvent;
 
@@ -43,10 +46,15 @@ class OTPScreen extends StatefulWidget {
   final String eventID ;
   OTPScreen({  required this.eventDay,
     required this.eventMonth,
+    required this.recordID,
     required this.eventYear,required this.isCustomerEvent,
 
-    required this.coverImagePath,required this.eventDayOfWeek, required this.eventName,required this.eventID,required this.shortEventDescription,required this.eventDate, required this.eventLocation,
-    required this.email,required this.isAdmin,required this.profileID,required this.company,required this.role,required this.lastName, required this.firstName, required this.phone,required this.id,
+    required this.coverImagePath,required this.eventDayOfWeek,
+    required this.eventName,required this.eventID,required this.shortEventDescription,required this.eventDate, required this.eventLocation,
+    required this.email,required this.isAdmin,
+    required this.profileID,
+    required this.company,required this.role,required this.lastName, required this.firstName, required this.phone,
+    required this.id,
 
     Key? key}) : super(key: key);
   @override
@@ -68,6 +76,7 @@ class _OTPScreenState extends State<OTPScreen> {
 
   @override
   void initState() {
+    print("attendee id is ${widget.id}");
     super.initState();
 
   }
@@ -140,19 +149,28 @@ class _OTPScreenState extends State<OTPScreen> {
         ///Try to create account in firebase
         try{
           final _auth = FirebaseAuth.instance;
+          await DioPostService().updateSignIn(body: {"app_sign_in":true}, recordID: widget.recordID);
+
           final newUSer = await _auth
               .createUserWithEmailAndPassword(
               email: email, password: kDefaultPassword);
           await createUserInFirestore();
+
         }catch(e){
           ///If error is account exists, try to login
 
           if (e is FirebaseAuthException) {
             if (e.code == 'email-already-in-use') {
+            try{
               print("EMail in use loggin in");
-              //final user = await _auth.signInWithEmailAndPassword(email: email, password: kDefaultPassword);
+              await DioPostService().updateSignIn(body: {"app_sign_in":true}, recordID: widget.recordID);
+
               await createUserInFirestore();
               await _auth.signInWithEmailAndPassword(email: email, password: kDefaultPassword);
+            }catch(e){
+              print("The erroror here is $e");
+            }
+
             } else {
               // Handle other Firebase Authentication errors.
               print('Error: ${e.code}');
@@ -171,21 +189,17 @@ class _OTPScreenState extends State<OTPScreen> {
         });
 
         if(mounted){
-          // PersistentNavBarNavigator.pushNewScreen(
-          //   context,
-          //   //screen: SplashScreen(),
-          //   screen: SplashScreen(),
-          //   withNavBar: false,
-          //   pageTransitionAnimation: PageTransitionAnimation.slideRight,
-          // );
+
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => MainNavigationPage(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,coverImagePath: widget.coverImagePath, eventName: widget.eventName,
+            MaterialPageRoute(builder: (_) =>
+                MainNavigationPage(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,coverImagePath: widget.coverImagePath, eventName: widget.eventName,
               //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
               eventDate: widget.eventDate,
               //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
               shortEventDescription: widget.shortEventDescription,
               //eventLocation: 'Nigeria',);
-              eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,)),
+              eventLocation: widget.eventLocation, eventID: widget.eventID,
+                  eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,)),
           );
         }
 
@@ -243,7 +257,7 @@ class _OTPScreenState extends State<OTPScreen> {
               children: <Widget>[
                 Column(
                   children: [
-                    Align(
+                    const Align(
                       alignment: Alignment.center,
                       child: SizedBox(
                         height: 200,
@@ -317,12 +331,12 @@ class _OTPScreenState extends State<OTPScreen> {
                                                 email: widget.email, password: kDefaultPassword);
                                             await createUserInFirestore();
                                           }catch(e){
-                                            ///If error is account exists, try to login
 
                                             if (e is FirebaseAuthException) {
                                               if (e.code == 'email-already-in-use') {
                                                 print("EMail in use loggin in");
-                                                //final user = await _auth.signInWithEmailAndPassword(email: email, password: kDefaultPassword);
+                                                await DioPostService().updateSignIn(body: {"app_sign_in":true}, recordID: widget.recordID);
+
                                                 await createUserInFirestore();
                                                 await _auth.signInWithEmailAndPassword(email: widget.email, password: kDefaultPassword);
                                               } else {
@@ -343,6 +357,7 @@ class _OTPScreenState extends State<OTPScreen> {
                                           });
 
                                           if(mounted){
+
                                             Navigator.of(context).pushReplacement(
                                               MaterialPageRoute(builder: (_) => MainNavigationPage(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,coverImagePath: widget.coverImagePath, eventName: widget.eventName,
                                                 //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
@@ -352,13 +367,6 @@ class _OTPScreenState extends State<OTPScreen> {
                                                 //eventLocation: 'Nigeria',);
                                                 eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,)),
                                             );
-                                            // PersistentNavBarNavigator.pushNewScreen(
-                                            //   context,
-                                            //  // screen: SplashScreen(),
-                                            //   screen: SplashScreen(),
-                                            //   withNavBar: false,
-                                            //   pageTransitionAnimation: PageTransitionAnimation.slideRight,
-                                            // );
                                           }
 
 
@@ -398,6 +406,7 @@ class _OTPScreenState extends State<OTPScreen> {
                                         });
                                         //Call verify otp endpoint
                                         await verifyOTP(email: widget.email, otp: oTPController.text);
+
                                       }
                                     },
                                     child: Visibility(visible: !isValidating,replacement: const SpinKitCircle(color: Colors.white,),

@@ -1,0 +1,2 @@
+/Users/slovo-dev/flutterdev/dx5projects/dx/dx5events/android/app/.cxx/RelWithDebInfo/61204r93/x86_64/CMakeFiles/edit_cache.dir
+/Users/slovo-dev/flutterdev/dx5projects/dx/dx5events/android/app/.cxx/RelWithDebInfo/61204r93/x86_64/CMakeFiles/rebuild_cache.dir

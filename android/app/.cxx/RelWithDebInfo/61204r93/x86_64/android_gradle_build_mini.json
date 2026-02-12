@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/slovo-dev/flutterdev/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/slovo-dev/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/slovo-dev/flutterdev/dx5projects/dx/dx5events/android/app/.cxx/RelWithDebInfo/61204r93/x86_64",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/slovo-dev/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/slovo-dev/flutterdev/dx5projects/dx/dx5events/android/app/.cxx/RelWithDebInfo/61204r93/x86_64",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

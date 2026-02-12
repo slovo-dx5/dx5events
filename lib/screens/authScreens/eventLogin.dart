@@ -6,7 +6,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'dart:ui';
 
 import '../../constants.dart';
@@ -41,8 +41,8 @@ class EventLogin extends StatefulWidget {
 
 class _EventLoginState extends State<EventLogin> {
 
-  List<CISOAttendeeModel>? attendees;
-  List<CustomerAttendeeModel>? customerAttendees;
+  List<EventAttendeeModel>? attendees;
+
   final _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
 
@@ -56,15 +56,9 @@ class _EventLoginState extends State<EventLogin> {
     super.initState();
   }
   findAttendeeByEmail(String emailToCheck) {
-    return widget.isCustomerEvent==false? attendees!.firstWhere(
+    return attendees!.firstWhere(
           (attendee) => attendee.workEmail.toLowerCase() == emailToCheck.toLowerCase(),
-
-    ):customerAttendees!.firstWhere(
-          (attendee) => attendee.email!.toLowerCase() == emailToCheck.toLowerCase(),
-
-    )
-
-    ;
+    );
   }
   sendOTP({required String email})async{
     Map<String, dynamic> emailData = {
@@ -76,7 +70,7 @@ class _EventLoginState extends State<EventLogin> {
       final response=await DioOTPService().generateOTP(emailData);
 
       if(response.statusCode==200){
-        CISOAttendeeModel? attendee = findAttendeeByEmail(email);
+        EventAttendeeModel? attendee = findAttendeeByEmail(email);
         setState(() {
           isCreating=false;
         });
@@ -89,8 +83,9 @@ class _EventLoginState extends State<EventLogin> {
               isAdmin:emailController.text.endsWith("cioafrica.co")?"true":"false",
               company: attendee.company,
               role: attendee.role, lastName: attendee.lastName,
-              firstName: attendee.firstName, phone: attendee.phone,
-              id:attendee.id, profileID: attendee.profilePhoto??"",
+              firstName: attendee.firstName,
+              phone: attendee.phone??"",recordID: attendee.id,
+              id:attendee.attendeeId, profileID: attendee.profilePhoto??"",
               coverImagePath: widget.coverImagePath, eventName: widget.eventName,
               //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
               eventDate: widget.eventDate,
@@ -123,7 +118,7 @@ class _EventLoginState extends State<EventLogin> {
             isCreating=false;
           });
          if(widget.isCustomerEvent==false){
-           CISOAttendeeModel? attendee = findAttendeeByEmail(email);
+           EventAttendeeModel? attendee = findAttendeeByEmail(email);
            if(mounted){
 
              PersistentNavBarNavigator.pushNewScreen(
@@ -131,38 +126,16 @@ class _EventLoginState extends State<EventLogin> {
                context,
                screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,isAdmin:attendee!.workEmail.endsWith("cioafrica.co")?"true":"false",
                  company: attendee!.company,
-                 role: attendee.role, lastName: attendee.lastName,firstName: attendee.firstName, phone: attendee.phone,id: attendee.id, profileID: attendee.profilePhoto??"",
+                 role: attendee.role,
+                 lastName: attendee.lastName,firstName: attendee.firstName,
+                 phone: attendee.phone??"",id: attendee.attendeeId, profileID: attendee.profilePhoto??"",
                  coverImagePath: widget.coverImagePath, eventName: widget.eventName,
                  //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
                  eventDate: widget.eventDate,
                  //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
                  shortEventDescription: widget.shortEventDescription,
                  //eventLocation: 'Nigeria',);
-                 eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,
-
-               ),
-               withNavBar: false,
-               pageTransitionAnimation: PageTransitionAnimation.slideRight,
-             );
-           }
-
-         }else{
-           CustomerAttendeeModel customerAttendee = findAttendeeByEmail(email);
-           if(mounted){
-
-             PersistentNavBarNavigator.pushNewScreen(
-
-               context,
-               screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,isAdmin:customerAttendee!.email!.endsWith("cioafrica.co")?"true":"false",
-                 company: customerAttendee!.company_role!,
-                 role: ".", lastName: ".",firstName: customerAttendee.name!, phone: customerAttendee.phone!,id: customerAttendee.id, profileID: customerAttendee.profilePhoto??"",
-                 coverImagePath: widget.coverImagePath, eventName: widget.eventName,
-                 //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
-                 eventDate: widget.eventDate,
-                 //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
-                 shortEventDescription: widget.shortEventDescription,
-                 //eventLocation: 'Nigeria',);
-                 eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,
+                 eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent, recordID: attendee.id,
 
                ),
                withNavBar: false,
@@ -171,6 +144,7 @@ class _EventLoginState extends State<EventLogin> {
            }
 
          }
+
         } else {
           print('Error: ${e.message}');
         }
@@ -211,8 +185,7 @@ class _EventLoginState extends State<EventLogin> {
     );
   }
   bool doesEmailExist(String emailToCheck) {
-    return widget.isCustomerEvent==false? attendees!.any((attendee) => attendee.workEmail.toLowerCase() == emailToCheck.toLowerCase()):
-    customerAttendees!.any((attendee) => attendee.email!.toLowerCase() == emailToCheck.toLowerCase());
+    return  attendees!.any((attendee) => attendee.workEmail.toLowerCase() == emailToCheck.toLowerCase());
   }
 
 
@@ -220,11 +193,10 @@ class _EventLoginState extends State<EventLogin> {
 
 
   Future fetchAllAttendees() async {
-    final response = widget.isCustomerEvent==true?await DioFetchService().fetchCustomerEventsAttendees(eventID: widget.eventID):await DioFetchService().fetchCIOAttendees(eventID: widget.eventID);
 
-    setState(() {
-      //isFetching=false;
-    });
+    final response = widget.isCustomerEvent==true?await DioFetchService().fetchCustomerEventsAttendees(eventID: widget.eventID):await DioFetchService().fetchAllCIOAttendees(eventID: widget.eventID);
+
+
 
 
     if (response.statusCode == 200) {
@@ -234,20 +206,11 @@ class _EventLoginState extends State<EventLogin> {
 
 
       if(widget.isCustomerEvent==false){
-        List<CISOAttendeeModel> userList = List<CISOAttendeeModel>.from(filteredData.map((user) => CISOAttendeeModel.fromJson(user)));
+        List<EventAttendeeModel> userList = List<EventAttendeeModel>.from(filteredData.map((user) => EventAttendeeModel.fromJson(user)));
         setState(() {
           attendees=userList;
           //  print(attendees![624].firstName);
           print(attendees!.last.firstName);
-
-        });
-
-      }else{
-        List<CustomerAttendeeModel> userList = List<CustomerAttendeeModel>.from(filteredData.map((user) => CustomerAttendeeModel.fromJson(user)));
-        setState(() {
-          customerAttendees=userList;
-            print(attendees!.first.firstName);
-        //  print("last attendee is ${customerAttendees!.last.email}");
 
         });
 
@@ -354,7 +317,7 @@ class _EventLoginState extends State<EventLogin> {
                                             //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
                                             shortEventDescription: widget.shortEventDescription,
                                             //eventLocation: 'Nigeria',);
-                                            eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent,
+                                            eventLocation: widget.eventLocation, eventID: widget.eventID, eventDayOfWeek: widget.eventDayOfWeek, isCustomerEvent: widget.isCustomerEvent, recordID: 625,
 
                                           ),
                                           withNavBar: false,

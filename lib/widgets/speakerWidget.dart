@@ -23,7 +23,7 @@ speakerWidget({
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10), color: themeProvider.themeMode==ThemeModeOptions.dark?kGrayishBlueText:kGradientLighterBlue),
+            borderRadius: BorderRadius.circular(10), ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -56,7 +56,7 @@ speakerWidget({
                         style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w400,
-                            color: kLightDisabledColor),
+                            color: Colors.black54),
                       ),
                     )
                   ],

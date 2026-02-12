@@ -1,9 +1,7 @@
-import 'dart:convert';
-import 'dart:io';
+
 import 'package:csv/csv.dart';
 import 'package:dx5veevents/dioServices/dioPostService.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 import '../models/customerEventModel.dart';
