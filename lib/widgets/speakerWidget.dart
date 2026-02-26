@@ -14,6 +14,7 @@ speakerWidget({
   String? bio,
   required String linkedinurl,
   required String imageURL,
+  List<String>? topics,
   // required List<String> interests,
 }) {
   final themeProvider = Provider.of<ThemeProvider>(context);
@@ -65,7 +66,45 @@ speakerWidget({
 
               ],
             ),verticalSpace(height: 10),
-            bio==""?const Text(""):ShowMoreText(text: bio??"",)
+            bio==""?const Text(""):ShowMoreText(text: bio??"",),
+            if (topics != null && topics.isNotEmpty) ...[
+              verticalSpace(height: 12),
+              Row(
+                children: [
+                  Icon(Icons.mic_rounded, size: 14, color: kCISOPink),
+                  horizontalSpace(width: 4),
+                  Text(
+                    'SPEAKING ON',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: kCISOPink,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ],
+              ),
+              verticalSpace(height: 6),
+              ...topics.map((topic) => Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: kGradientLighterBlue.withOpacity(0.25),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: kCISOBlue.withOpacity(0.3),
+                      width: 0.5,
+                    ),
+                  ),
+                  child: Text(
+                    topic,
+                    style: const TextStyle(fontSize: 12, color: kTextColorBlack),
+                  ),
+                ),
+              )),
+            ],
           ],
         ),
       ));

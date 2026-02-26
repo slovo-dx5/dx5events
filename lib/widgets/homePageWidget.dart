@@ -78,7 +78,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 children: [
                   // Cover Image
                   Image.asset(
-                    "assets/images/themes/CIO100-landscape.jpg",
+                    "assets/images/themes/CONNECTED AFRICA 2026 THEME FA2.jpg",
                     width: screenWidth,
                    // height: screenHeight * 0.3, // Made taller for more visual impact
                     fit: BoxFit.contain,
@@ -89,42 +89,42 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 ],
               ),
               // App Sponsor Section
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      "APP SPONSOR",
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 1.2,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      height: 50,
-                      child: Image.asset(
-                        "assets/images/sponsors/mbcom.png",
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // Container(
+              //   margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              //   padding: const EdgeInsets.all(16),
+              //   decoration: BoxDecoration(
+              //     color: Colors.white,
+              //     borderRadius: BorderRadius.circular(12),
+              //     boxShadow: [
+              //       BoxShadow(
+              //         color: Colors.black.withOpacity(0.08),
+              //         blurRadius: 10,
+              //         offset: const Offset(0, 2),
+              //       ),
+              //     ],
+              //   ),
+              //   child: Column(
+              //     children: [
+              //       Text(
+              //         "APP SPONSOR",
+              //         style: TextStyle(
+              //           fontSize: 11,
+              //           fontWeight: FontWeight.w600,
+              //           letterSpacing: 1.2,
+              //           color: Colors.grey[600],
+              //         ),
+              //       ),
+              //       const SizedBox(height: 12),
+              //       SizedBox(
+              //         height: 50,
+              //         child: Image.asset(
+              //           "assets/images/sponsors/mbcom.png",
+              //           fit: BoxFit.contain,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
 
               const Divider(),
 

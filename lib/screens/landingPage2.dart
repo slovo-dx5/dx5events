@@ -42,7 +42,7 @@ class _ActiveEventsState extends State<ActiveEvents> {
     return SizedBox(
         //height: MediaQuery.of(context).size.height * 0.85,
         child: ActiveEventWidget(
-          imagePath: 'assets/images/themes/Neon-Opening.mp4',
+          imagePath: 'assets/images/themes/CONNECTED-PORTRAIT.jpg',
           dayMonth: 'WED, NOV',
           date: '19th',
           endDate: '21ST',
@@ -52,8 +52,8 @@ class _ActiveEventsState extends State<ActiveEvents> {
             Navigator.of(context).push(
               MaterialPageRoute(
                   builder: (_) => InitialScreen(
-                        coverImagePath: 'assets/images/themes/CIO100-landscape.jpg',
-                        eventName: 'CIO100 SYMPOSIUM AND AWARDS',
+                        coverImagePath: 'assets/images/themes/CONNECTED AFRICA 2026 THEME FA2.jpg',
+                        eventName: 'CONNECTED AFRICA SUMMIT 2026',
                         //eventHappeningDates: 'WED, JULY, 16TH - THUR, MAY, 29TH',
                         eventHappeningDates: 'WED, NOV, 19TH',
                         shortEventDescription:
@@ -62,28 +62,28 @@ class _ActiveEventsState extends State<ActiveEvents> {
                         followingScreen: EventLogin(
                           coverImagePath:
                               'assets/images/themes/smart-landscape.jpg',
-                          eventName: 'CIO100 SYMPOSIUM AND AWARDS',
-                          eventDate: 'THUR, AUG, 7TH',
+                          eventName: 'CONNECTED AFRICA SUMMIT 2026',
+                          eventDate: 'MON, APR, 27TH',
                           shortEventDescription:
                               "The Future of Tech",
                           eventLocation: 'KENYA',
                           eventID: '59',
-                          eventDay: 19,
-                          eventMonth: 11,
-                          eventYear: 2025,
-                          eventDayOfWeek: 'WED',
+                          eventDay: 27,
+                          eventMonth: 04,
+                          eventYear: 2026,
+                          eventDayOfWeek: 'MON',
                           isCustomerEvent: false,
                         ),
                         eventID: '59',
-                        eventDay: 19,
-                        eventMonth: 11,
-                        eventYear: 2025,
-                        eventDayOfWeek: 'WED',
+                    eventDay: 27,
+                    eventMonth: 04,
+                    eventYear: 2026,
+                        eventDayOfWeek: 'MON',
                         isCustomerEvent: false,
                       )),
             );
           },
-          eventName: 'CIO100 SYMPOSIUM AND AWARDS',
+          eventName: 'CONNECTED AFRICA SUMMIT 2026',
           containerColor: kGradientLightBlue.withValues(alpha: 0.7),
           shortDescription: "The Future of Tech",
         )

@@ -2,12 +2,10 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
-import 'package:video_player/video_player.dart';
 
 import '../constants.dart';
 import '../initialScreen.dart';
 import '../mainNavigationPage.dart';
-import '../providers/themeProvider.dart';
 import '../screens/authScreens/eventLogin.dart';
 import '../screens/pastEvents/past_navigation.dart';
 
@@ -196,71 +194,8 @@ class ActiveEventWidget extends StatefulWidget {
 }
 
 class _ActiveEventWidgetState extends State<ActiveEventWidget> {
-  VideoPlayerController? _videoController;
-  bool _isVideoInitialized = false;
-  bool _showImage = false;
-  bool _imagePreloaded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _preloadImage();
-    _initializeVideo();
-  }
-
-  Future<void> _preloadImage() async {
-    // Preload the image so it's ready for instant display
-    await precacheImage(
-      const AssetImage('assets/images/themes/CIO100-portrait.jpg'),
-      context,
-    );
-    setState(() {
-      _imagePreloaded = true;
-    });
-  }
-
-  Future<void> _initializeVideo() async {
-    try {
-      // Check if imagePath is a video file
-      if (widget.imagePath.endsWith('.mp4')) {
-        _videoController = VideoPlayerController.asset(widget.imagePath);
-        await _videoController!.initialize();
-        print("video initialized");
-        setState(() {
-          _isVideoInitialized = true;
-        });
-        // Set to not loop (play only once)
-        _videoController!.setLooping(false);
-
-        // Add listener to detect when video finishes
-        _videoController!.addListener(() {
-          if (_videoController!.value.position >= _videoController!.value.duration) {
-            if (!_showImage) {
-              setState(() {
-                _showImage = true;
-              });
-            }
-          }
-        });
-
-        // Start playing
-        _videoController!.play();
-      }
-    } catch (e) {
-      print('Error initializing video: $e');
-    }
-  }
-
-  @override
-  void dispose() {
-    _videoController?.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-
     return Container(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
@@ -282,49 +217,16 @@ class _ActiveEventWidgetState extends State<ActiveEventWidget> {
         ],
       ),
       child: ClipRRect(
-        //borderRadius: BorderRadius.circular(borderRadius),
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // Black background to prevent flash during transition
+            // Background image
             Positioned.fill(
-              child: Container(
-                color: Colors.black,
+              child: Image.asset(
+                'assets/images/themes/CONNECTED-PORTRAIT.jpg',
+                fit: BoxFit.cover,
               ),
             ),
-            // Background video with transition to image
-            Positioned.fill(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                switchInCurve: Curves.easeIn,
-                switchOutCurve: Curves.easeOut,
-                child: SizedBox(height: MediaQuery.of(context).size.height,
-                  child:
-                //   Image.asset(
-                //     'assets/images/themes/CIO100-portrait.jpg',
-                //     key: const ValueKey('image'),
-                //     fit: BoxFit.cover,
-                //   ),
-                // )
-                _showImage
-                    ? Image.asset(
-                        'assets/images/themes/CIO100-portrait.jpg',
-                        key: const ValueKey('image'),
-                        fit: BoxFit.cover,
-                      )
-                    : (_isVideoInitialized && _videoController != null
-                        ? AspectRatio(
-                            key: const ValueKey('video'),
-                            aspectRatio: 9 / 16,
-                            child: VideoPlayer(_videoController!),
-                          )
-                        : Image.asset(
-                            widget.imagePath,
-                            key: const ValueKey('fallback'),
-                            fit: BoxFit.cover,
-                          )),
-              ),
-            ),),
 
             // Content layout - positioned to fill entire space
             Positioned.fill(
@@ -451,24 +353,25 @@ class _ActiveEventWidgetState extends State<ActiveEventWidget> {
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(vertical: 18),
                               decoration: BoxDecoration(
-                                gradient:  LinearGradient(
+                                gradient:  const LinearGradient(
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    kCISOPink.withValues(alpha: 0.9),
-                                    kCISOBlue.withValues(alpha: 0.9),
+                                    // kCISOPink.withValues(alpha: 0.9),
+                                    // kCISOBlue.withValues(alpha: 0.9),
+                                    kConnectedGreen,kConnectedRed
                                   ],
                                 ),
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.white.withOpacity(0.3),
+                                    color: Colors.white.withValues(alpha:0.3),
                                     spreadRadius: 0,
                                     blurRadius: 20,
                                     offset: const Offset(0, 8),
                                   ),
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
+                                    color: Colors.black.withValues(alpha: 0.1),
                                     spreadRadius: 0,
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),

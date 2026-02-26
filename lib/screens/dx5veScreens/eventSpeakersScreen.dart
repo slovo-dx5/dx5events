@@ -7,6 +7,7 @@ import '../../constants.dart';
 import '../../dioServices/base_url.dart';
 import '../../dioServices/dioFetchService.dart';
 import '../../helpers/helper_widgets.dart';
+import '../../models/agendaModel.dart';
 import '../../models/image_model.dart';
 import '../../models/speakersModel.dart';
 import '../../widgets/speakerWidget.dart';
@@ -26,13 +27,15 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
   List<SpeakersModel> events = [];
   List<IndividualSpeaker> speakers = [];
   List<SpeakerAssociation> neoSpeakers = [];
-  List<IndividualSpeaker> filteredSpeakers = []; // Store filtered speakers
-  bool isFetching=true;
+  List<IndividualSpeaker> filteredSpeakers = [];
+  List<AgendaDay> _agendaDays = [];
+  bool isFetching = true;
+
   @override
   void initState() {
     super.initState();
-
     fetchEventData();
+    _fetchAgendaDays();
   }
 
 
@@ -99,6 +102,37 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
   }
 
 
+
+  Future<void> _fetchAgendaDays() async {
+    try {
+      final response = await DioFetchService().fetchdx5veAgenda(eventID: widget.eventID);
+      final agendaModel = AgendaModel.fromJson(response.data);
+      if (mounted) {
+        setState(() {
+          _agendaDays = agendaModel.days;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching agenda for speaker topics: $e');
+    }
+  }
+
+  // Returns every session title in the agenda where this speaker appears.
+  List<String> _getTopicsForSpeaker(int speakerId) {
+    final titles = <String>[];
+    for (final day in _agendaDays) {
+      for (final session in day.sessions) {
+        if (session.speakers == null) continue;
+        final inSession = session.speakers!.any(
+          (a) => a.speaker.key == speakerId,
+        );
+        if (inSession && session.title != null && !titles.contains(session.title)) {
+          titles.add(session.title);
+        }
+      }
+    }
+    return titles;
+  }
 
   void filterData(String query) {
     setState(() {
@@ -179,7 +213,8 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
                   bio: speaker!.bio! ?? "",
 
                   imageURL: "${BaseURL.Baseurl}/assets/${speaker!.photo!}",
-                  linkedinurl: speaker.linkedinProfile ??"linkedin.com"),
+                  linkedinurl: speaker.linkedinProfile ?? "linkedin.com",
+                  topics: _getTopicsForSpeaker(speaker.id)),
                 Divider(color: Colors.green,),
                 verticalSpace(height: 10)],);
 

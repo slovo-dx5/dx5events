@@ -10,7 +10,10 @@
       "Bash(pod search:*)",
       "Bash(flutter:*)",
       "Bash(pod repo update:*)",
-      "Bash(pod update:*)"
+      "Bash(pod update:*)",
+      "Bash(git stash pop:*)",
+      "Bash(git stash drop:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
