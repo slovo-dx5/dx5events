@@ -78,7 +78,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 children: [
                   // Cover Image
                   Image.asset(
-                    "assets/images/themes/CONNECTED AFRICA 2026 THEME FA2.jpg",
+                    "assets/images/themes/ciso_landscape.jpg",
                     width: screenWidth,
                    // height: screenHeight * 0.3, // Made taller for more visual impact
                     fit: BoxFit.contain,
