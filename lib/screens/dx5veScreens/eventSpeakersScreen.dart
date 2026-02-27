@@ -117,21 +117,30 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
     }
   }
 
-  // Returns every session title in the agenda where this speaker appears.
-  List<String> _getTopicsForSpeaker(int speakerId) {
-    final titles = <String>[];
+  // Returns every session (with date & time) in the agenda where this speaker appears.
+  List<SpeakerSession> _getTopicsForSpeaker(int speakerId) {
+    final sessions = <SpeakerSession>[];
     for (final day in _agendaDays) {
       for (final session in day.sessions) {
         if (session.speakers == null) continue;
         final inSession = session.speakers!.any(
           (a) => a.speaker.key == speakerId,
         );
-        if (inSession && session.title != null && !titles.contains(session.title)) {
-          titles.add(session.title);
+        if (inSession && session.title != null) {
+          final title = session.title as String;
+          final alreadyAdded = sessions.any((s) => s.title == title);
+          if (!alreadyAdded) {
+            sessions.add(SpeakerSession(
+              title: title,
+              date: day.date as DateTime,
+              startTime: session.startTime?.toString() ?? '',
+              endTime: session.endTime?.toString() ?? '',
+            ));
+          }
         }
       }
     }
-    return titles;
+    return sessions;
   }
 
   void filterData(String query) {
@@ -214,7 +223,7 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
 
                   imageURL: "${BaseURL.Baseurl}/assets/${speaker!.photo!}",
                   linkedinurl: speaker.linkedinProfile ?? "linkedin.com",
-                  topics: _getTopicsForSpeaker(speaker.id)),
+                  sessions: _getTopicsForSpeaker(speaker.id)),
                 Divider(color: Colors.green,),
                 verticalSpace(height: 10)],);
 

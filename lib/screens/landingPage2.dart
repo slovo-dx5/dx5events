@@ -44,10 +44,10 @@ class _ActiveEventsState extends State<ActiveEvents> {
         child: ActiveEventWidget(
           imagePath: 'assets/images/themes/ciso_portrait.jpg',
           dayMonth: 'WED, NOV',
-          date: '19th',
-          endDate: '21ST',
+          date: '11th',
+          endDate: '12th',
           location: 'KENYA',
-          endDayMonth: 'FRI, NOV',
+          endDayMonth: 'THUR, NOV',
           onPressedFunct: () {
             Navigator.of(context).push(
               MaterialPageRoute(

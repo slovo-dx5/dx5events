@@ -1,3 +1,17 @@
+class SpeakerSession {
+  final String title;
+  final DateTime date;
+  final String startTime;
+  final String endTime;
+
+  SpeakerSession({
+    required this.title,
+    required this.date,
+    required this.startTime,
+    required this.endTime,
+  });
+}
+
 class AgendaModel {
  // final int id;
 

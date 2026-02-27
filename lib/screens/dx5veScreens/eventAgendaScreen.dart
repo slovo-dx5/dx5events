@@ -64,6 +64,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
 
   @override
   void initState() {
+    debugPrint("Event dat is ${widget.eventDay}");
     super.initState();
     getAttendeeID();
     setState(() {

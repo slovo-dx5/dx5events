@@ -1,10 +1,12 @@
 import 'package:dx5veevents/widgets/showMoreText.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../constants.dart';
 import '../helpers/helper_functions.dart';
+import '../models/agendaModel.dart';
 import '../providers/themeProvider.dart';
 
 speakerWidget({
@@ -14,7 +16,7 @@ speakerWidget({
   String? bio,
   required String linkedinurl,
   required String imageURL,
-  List<String>? topics,
+  List<SpeakerSession>? sessions,
   // required List<String> interests,
 }) {
   final themeProvider = Provider.of<ThemeProvider>(context);
@@ -67,7 +69,7 @@ speakerWidget({
               ],
             ),verticalSpace(height: 10),
             bio==""?const Text(""):ShowMoreText(text: bio??"",),
-            if (topics != null && topics.isNotEmpty) ...[
+            if (sessions != null && sessions.isNotEmpty) ...[
               verticalSpace(height: 12),
               Row(
                 children: [
@@ -85,7 +87,7 @@ speakerWidget({
                 ],
               ),
               verticalSpace(height: 6),
-              ...topics.map((topic) => Padding(
+              ...sessions.map((session) => Padding(
                 padding: const EdgeInsets.only(bottom: 6),
                 child: Container(
                   width: double.infinity,
@@ -98,9 +100,34 @@ speakerWidget({
                       width: 0.5,
                     ),
                   ),
-                  child: Text(
-                    topic,
-                    style: const TextStyle(fontSize: 12, color: kTextColorBlack),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        session.title,
+                        style: const TextStyle(fontSize: 12, color: kTextColorBlack),
+                      ),
+                      verticalSpace(height: 4),
+                      Row(
+                        children: [
+                          Icon(Icons.calendar_today_outlined, size: 10, color: kTextColorGrey),
+                          horizontalSpace(width: 3),
+                          Text(
+                            DateFormat('EEE, MMM d').format(session.date),
+                            style: const TextStyle(fontSize: 10, color: kTextColorGrey),
+                          ),
+                          if (session.startTime.isNotEmpty) ...[
+                            horizontalSpace(width: 8),
+                            Icon(Icons.access_time, size: 10, color: kTextColorGrey),
+                            horizontalSpace(width: 3),
+                            Text(
+                              '${convertToAmPm(session.startTime)} - ${convertToAmPm(session.endTime)}',
+                              style: const TextStyle(fontSize: 10, color: kTextColorGrey),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               )),
