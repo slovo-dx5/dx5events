@@ -104,7 +104,7 @@ class MainScreen extends GetView<MyDrawerController> {
           ),
         ) ,
         backgroundColor: kConnectedBlue,centerTitle: true,
-        title:  const Text("CIO100 SYMPOSIUM AND AWARDS",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),),
+        title:  const Text("CONNECTED AFRICA SUMMIT 2026",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),),
         actions: [NotificationIconButton()],
         // actions:  [Icon(Icons.notification_important_rounded,color: kTextColorBlackLighter,)],
       ),

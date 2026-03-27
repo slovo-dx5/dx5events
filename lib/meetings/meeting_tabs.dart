@@ -48,15 +48,17 @@ class _MeetingTabsState extends State<MeetingTabs> {
         canPop: false,
         onPopInvokedWithResult: (didPop, result){
           if (!didPop) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute<dynamic>(
-                builder: (BuildContext context) =>  MainNavigationPage(),
-              ),
-            );
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute<dynamic>(
+                  builder: (BuildContext context) => MainNavigationPage(),
+                ),
+              );
+            }
           }
-
-          // Prevent default pop
         },
         child: TabBarView(
           children: pages,
