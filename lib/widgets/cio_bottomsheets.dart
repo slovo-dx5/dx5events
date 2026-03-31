@@ -396,13 +396,6 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
           receiverToken = documentSnapshot.get('messaging_token').toString();
           print("receiver token is $receiverToken");
         });
-        await DioPostService().sendNotification({
-          "to": receiverToken,
-          "notification": {
-            //"title": sentFromname,
-            "body": "New Meeting request"
-          }
-        });
         return documentSnapshot.get('messaging_token').toString();
       } else {
         UserPointsService().createOrUpdateUserPoints(userId: ownerID,actionId: 10);

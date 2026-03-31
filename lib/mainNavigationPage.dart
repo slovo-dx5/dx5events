@@ -132,17 +132,14 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
   List<Widget> _buildScreens() {
     return [
-      HomeScreen(  eventDay: widget.eventDay!, eventMonth: widget.eventMonth!, eventYear: widget.eventYear!,coverImagePath: widget.coverImagePath!, eventName: widget.eventName!,
-        //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
-        eventDate: widget.eventDate!,
-        //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
-        shortEventDescription: widget.shortEventDescription!,
-        //eventLocation: 'Nigeria',);
-        eventLocation: widget.eventLocation!, eventID: widget.eventID!, eventDayOfWeek:widget.eventDayOfWeek!, isCustomerEvent: widget.isCustomerEvent! ,),
+      HomeScreen(  eventDay: widget.eventDay ?? 0, eventMonth: widget.eventMonth ?? 0, eventYear: widget.eventYear ?? 0, coverImagePath: widget.coverImagePath ?? '', eventName: widget.eventName ?? '',
+        eventDate: widget.eventDate ?? '',
+        shortEventDescription: widget.shortEventDescription ?? '',
+        eventLocation: widget.eventLocation ?? '', eventID: widget.eventID ?? '', eventDayOfWeek: widget.eventDayOfWeek ?? '', isCustomerEvent: widget.isCustomerEvent ?? false,),
       AllChatsScreen(),
       MeetingTabs(),
       //SocialFeed(),
-       ProfileScreen(eventId: int.parse(widget.eventID!), ),
+       ProfileScreen(eventId: int.tryParse(widget.eventID ?? '0') ?? 0,),
     ];
   }
 
@@ -183,17 +180,14 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
           routeAndNavigatorSettings: RouteAndNavigatorSettings(
             initialRoute: '/',
             routes: {
-              '/first': (context) => HomeScreen(eventDay: widget.eventDay!, eventMonth: widget.eventMonth!, eventYear: widget.eventYear!,
-                coverImagePath: widget.coverImagePath!, eventName: widget.eventName!,
-                //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
-                eventDate: widget.eventDate!,
-                //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
-                shortEventDescription: widget.shortEventDescription!,
-                //eventLocation: 'Nigeria',);
-                eventLocation: widget.eventLocation!, eventID: widget.eventID!, eventDayOfWeek: widget.eventDayOfWeek!, isCustomerEvent: widget.isCustomerEvent!,),
+              '/first': (context) => HomeScreen(eventDay: widget.eventDay ?? 0, eventMonth: widget.eventMonth ?? 0, eventYear: widget.eventYear ?? 0,
+                coverImagePath: widget.coverImagePath ?? '', eventName: widget.eventName ?? '',
+                eventDate: widget.eventDate ?? '',
+                shortEventDescription: widget.shortEventDescription ?? '',
+                eventLocation: widget.eventLocation ?? '', eventID: widget.eventID ?? '', eventDayOfWeek: widget.eventDayOfWeek ?? '', isCustomerEvent: widget.isCustomerEvent ?? false,),
               '/second': (context) => MeetingTabs(),
               '/third': (context) => const GalleryScreen(),
-              '/fourth': (context) =>  ProfileScreen(eventId: int.parse(widget.eventID!),),
+              '/fourth': (context) => ProfileScreen(eventId: int.tryParse(widget.eventID ?? '0') ?? 0,),
             },
           ),
         ),

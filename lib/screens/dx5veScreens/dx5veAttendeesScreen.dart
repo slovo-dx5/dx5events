@@ -252,14 +252,14 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
               // Check if current position should show sponsor
               bool isSponsorPosition = (index + 1) % 6 == 0 && index < _attendeesList.length + sponsorInsertions;
 
-              if (isSponsorPosition) {
-                return sponsorWidget(
-                  context: context,
-                  sponsorName: "MBCom",
-                  sponsorLogoPath: "assets/images/sponsors/mbcom_profile.png",
-                  sponsorNumber: _sponsorPhoneNumber,
-                );
-              }
+              // if (isSponsorPosition) {
+              //   return sponsorWidget(
+              //     context: context,
+              //     sponsorName: "MBCom",
+              //     sponsorLogoPath: "assets/images/sponsors/mbcom_profile.png",
+              //     sponsorNumber: _sponsorPhoneNumber,
+              //   );
+              // }
 
               // Show loading indicator at the end if more items are available
               if (actualAttendeeIndex >= _attendeesList.length) {
@@ -277,7 +277,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
 
               {
                 final user = _attendeesList[actualAttendeeIndex];
-                return profileProvider.userID == user.id
+                return profileProvider.userID == user.attendeeId
                     ? meWidget(
                   assetName: "assetName",
                   context: context,

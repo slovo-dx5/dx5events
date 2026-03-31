@@ -42,50 +42,50 @@ class _ActiveEventsState extends State<ActiveEvents> {
     return SizedBox(
         //height: MediaQuery.of(context).size.height * 0.85,
         child: ActiveEventWidget(
-          imagePath: 'assets/images/themes/ciso_portrait.jpg',
+          imagePath: 'assets/images/themes/CONNECTED-PORTRAIT.jpg',
           dayMonth: 'WED, NOV',
-          date: '11th',
-          endDate: '12th',
+          date: '19th',
+          endDate: '21ST',
           location: 'KENYA',
-          endDayMonth: 'THUR, NOV',
+          endDayMonth: 'FRI, NOV',
           onPressedFunct: () {
             Navigator.of(context).push(
               MaterialPageRoute(
                   builder: (_) => InitialScreen(
-                        coverImagePath: 'assets/images/themes/ciso_landscape.jpg',
-                        eventName: 'AFRICA CISO SUMMIT 2026',
+                        coverImagePath: 'assets/images/themes/CONNECTED AFRICA 2026 THEME FA2.jpg',
+                        eventName: 'CONNECTED AFRICA SUMMIT 2026',
                         //eventHappeningDates: 'WED, JULY, 16TH - THUR, MAY, 29TH',
-                        eventHappeningDates: 'WED, MAR, 11TH',
+                        eventHappeningDates: 'WED, NOV, 19TH',
                         shortEventDescription:
-                            "Protect, Innovate or Die",
+                            "The Future of Tech",
                         eventLocation: 'KENYA',
                         followingScreen: EventLogin(
                           coverImagePath:
-                              'assets/images/themes/ciso_landscape.jpg',
-                          eventName: 'AFRICA CISO SUMMIT 2026',
-                          eventDate: 'WED, MAR, 11TH',
+                              'assets/images/themes/smart-landscape.jpg',
+                          eventName: 'CONNECTED AFRICA SUMMIT 2026',
+                          eventDate: 'MON, APR, 27TH',
                           shortEventDescription:
-                              "Protect, Innovate or Die",
+                              "The Future of Tech",
                           eventLocation: 'KENYA',
-                          eventID: '101',
-                          eventDay: 11,
-                          eventMonth: 03,
+                          eventID: '63',
+                          eventDay: 27,
+                          eventMonth: 04,
                           eventYear: 2026,
-                          eventDayOfWeek: 'WED',
+                          eventDayOfWeek: 'MON',
                           isCustomerEvent: false,
                         ),
-                        eventID: '101',
-                    eventDay: 11,
-                    eventMonth: 03,
+                        eventID: '63',
+                    eventDay: 27,
+                    eventMonth: 04,
                     eventYear: 2026,
-                        eventDayOfWeek: 'WED',
+                        eventDayOfWeek: 'MON',
                         isCustomerEvent: false,
                       )),
             );
           },
-          eventName: 'AFRICA CISO SUMMIT 2026',
+          eventName: 'CONNECTED AFRICA SUMMIT 2026',
           containerColor: kGradientLightBlue.withValues(alpha: 0.7),
-          shortDescription: "Protect, Innovate or Die",
+          shortDescription: "The Future of Tech",
         )
     );
   }

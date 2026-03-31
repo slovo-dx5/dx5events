@@ -15,6 +15,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 
 import 'package:dio/dio.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants.dart';
 import '../../dioServices/dioFetchService.dart';
@@ -201,7 +203,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(title: const Text("Profile"),centerTitle: true,automaticallyImplyLeading: true,),
+        appBar: AppBar(
+          title: const Text("Profile"),
+          centerTitle: true,
+          automaticallyImplyLeading: true,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              tooltip: 'Logout',
+              onPressed: () async {
+                await clearAllPrefs();
+                if (context.mounted) {
+                  Provider.of<ProfileProvider>(context, listen: false).clearProfile();
+                  context.go('/');
+                }
+              },
+            ),
+          ],
+        ),
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

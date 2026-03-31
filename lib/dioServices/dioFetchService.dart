@@ -6,7 +6,7 @@ import 'dioClient.dart';
 import 'endpoints/endpoint.dart';
 
 class DioFetchService extends DioClient {
-  DioClient _client = new DioClient();
+  final DioClient _client =  DioClient();
 
   // Future<Response> fetchCIOAttendees({required String eventID}) async {
   //   try {

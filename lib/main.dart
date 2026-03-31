@@ -17,6 +17,7 @@ import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:provider/provider.dart';
@@ -28,8 +29,18 @@ import 'helpers/themeData.dart';
 import 'homeScreen.dart';
 import 'meetings/meeting_tabs.dart';
 import 'notifications/pushNotifications.dart';
+const AndroidNotificationChannel _meetingChannel = AndroidNotificationChannel(
+  'meeting_notifications',
+  'Meeting Notifications',
+  description: 'Notifications for meeting requests and updates',
+  importance: Importance.high,
+);
+
+final FlutterLocalNotificationsPlugin _localNotifications =
+    FlutterLocalNotificationsPlugin();
+
 @pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message ) async {
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final NotificationSetup _notificationSetup=NotificationSetup();
   _notificationSetup.configurePushNotifications();
   // _notificationSetup.eventListenerCallback();
@@ -73,26 +84,44 @@ void main() async{
   WidgetsFlutterBinding.ensureInitialized();
 
 
-  try {
+  // Initialize Firebase only if not already initialized
+  if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
-      // name: "dx5ve_events",
+      name: "dx5veevents",
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    print('Firebase initialized successfully');
-  } catch (e) {
-    print('Failed to initialize Firebase: $e');
+    debugPrint('Firebase initialized successfully');
+  } else {
+    debugPrint('Firebase already initialized');
   }
+
+  // Initialise local notifications with both Android and iOS settings
+  await _localNotifications.initialize(
+    const InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      iOS: DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      ),
+    ),
+  );
+  await _localNotifications
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(_meetingChannel);
+
   Get.put<MyDrawerController>(MyDrawerController());
 
   if(Platform.isAndroid){
-    await FirebaseMessaging.instance.subscribeToTopic("CIO1002025Broadcast");
+    await FirebaseMessaging.instance.subscribeToTopic("connectedAfricaBroadcastTest");
     //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }else if(Platform.isIOS){
     try{ await NotificationSetup().getIOSPermission();
     await FirebaseMessaging.instance.getAPNSToken();
 
     await FirebaseMessaging.instance.getAPNSToken().then((value)async{
-      await FirebaseMessaging.instance.subscribeToTopic("connectedAfricaBroadcast");
+      await FirebaseMessaging.instance.subscribeToTopic("connectedAfricaBroadcastTest");
     } );
 
     //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -131,40 +160,42 @@ if(Platform.isIOS){
   try{
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       _handleNotificationClick(message.data);
-      _storeNotification(message.notification!.title, message.notification!.body);
+      _storeNotification(message.notification?.title, message.notification?.body);
     });
 
     _firebaseMessaging.getInitialMessage().then((RemoteMessage? message) {
       if (message != null) {
         _handleNotificationClick(message.data);
-        _storeNotification(message.notification!.title, message.notification!.body);
+        _storeNotification(message.notification?.title, message.notification?.body);
       }
     });
 
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       if (message.notification != null) {
         _storeNotification(message.notification!.title, message.notification!.body);
+        await _showForegroundNotification(message);
       }
     });
-  }catch(e){
+  } catch (e) {
     print("firebase messaging config error $e");
   }
-}else{
+} else {
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
     _handleNotificationClick(message.data);
-    _storeNotification(message.notification!.title, message.notification!.body);
+    _storeNotification(message.notification?.title, message.notification?.body);
   });
 
   _firebaseMessaging.getInitialMessage().then((RemoteMessage? message) {
     if (message != null) {
       _handleNotificationClick(message.data);
-      _storeNotification(message.notification!.title, message.notification!.body);
+      _storeNotification(message.notification?.title, message.notification?.body);
     }
   });
 
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
     if (message.notification != null) {
       _storeNotification(message.notification!.title, message.notification!.body);
+      await _showForegroundNotification(message);
     }
   });
 }
@@ -208,23 +239,42 @@ if(Platform.isIOS){
     }
   }
 
-  void _handleNotificationClick(Map<String, dynamic> data)async {
-    String? targetPage = data['targetPage'];
-    bool isAuthenticated=false;
-    await getBoolPref("isAuthenticated").then((value) {
-      setState(() {
-        isAuthenticated=value;
-        print("auth status is $value");
-      });
-    });
-    if (targetPage == 'notifications' && isAuthenticated==true) {
-      navigatorKey.currentState?.push(MaterialPageRoute(builder: (context) => LandingPage2()));
-    }else{
-      navigatorKey.currentState?.push(MaterialPageRoute(builder: (context) => LandingPage2()));
+  void _handleNotificationClick(Map<String, dynamic> data) async {
+    final bool isAuthenticated = await getBoolPref("isAuthenticated");
+    if (!isAuthenticated) return;
+
+    final String targetPage = data['targetPage'] ?? 'notifications';
+    if (targetPage == 'meetings') {
+      router.go('/meetings');
+    } else {
+      router.go('/notifications');
     }
   }
 
+  Future<void> _showForegroundNotification(RemoteMessage message) async {
+    if (!Platform.isAndroid) return; // iOS shows foreground banners natively
+    final notification = message.notification;
+    if (notification == null) return;
+
+    await _localNotifications.show(
+      message.hashCode,
+      notification.title,
+      notification.body,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'meeting_notifications',
+          'Meeting Notifications',
+          channelDescription: 'Notifications for meeting requests and updates',
+          importance: Importance.high,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+        ),
+      ),
+    );
+  }
+
   Future<void> _storeNotification(String? title, String? body) async {
+    // ignore: unnecessary_null_comparison
     if (title != null && body != null) {
       final String timestamp = DateTime.now().toString();
       SharedPreferences prefs = await SharedPreferences.getInstance();

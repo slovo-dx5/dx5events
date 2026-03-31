@@ -6,78 +6,85 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import '../constants.dart';
 
 class NotificationIconButton extends StatefulWidget {
+  const NotificationIconButton({super.key});
+
   @override
   State<NotificationIconButton> createState() => _NotificationIconButtonState();
 }
 
-
 class _NotificationIconButtonState extends State<NotificationIconButton> {
-String? userID;
+  String? userID;
 
-
-  getUSerID(){
-    getIntPref( kUserID).then((value) {
-      setState(() {
-        userID=value.toString();
-      });
-
+  getUSerID() {
+    getIntPref(kUserID).then((value) {
+      if (mounted) {
+        setState(() {
+          userID = value.toString();
+        });
+      }
     });
   }
 
   @override
   void initState() {
-    // TODO: implement initState
+    super.initState();
     getUSerID();
   }
+
+  void _navigateToNotifications(BuildContext context) {
+    PersistentNavBarNavigator.pushNewScreen(
+      context,
+      screen: const NotificationsScreen(),
+      withNavBar: false,
+      pageTransitionAnimation: PageTransitionAnimation.slideRight,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    Stream<QuerySnapshot> stream1 = FirebaseFirestore.instance.collection('collection1').snapshots();
-    Stream<QuerySnapshot> stream2 = FirebaseFirestore.instance.collection('collection2').snapshots();
-    //var combinedStream = StreamZip([stream1, stream2]);
-    return StreamBuilder(
-      stream: FirebaseFirestore.instance.collection('notifications').doc(userID).collection(userID!).snapshots(),
-      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) {
-          return const Icon(Icons.error);
-        }
+    if (userID == null) {
+      return IconButton(
+        icon: const Icon(Icons.notifications, size: 35),
+        onPressed: () => _navigateToNotifications(context),
+      );
+    }
 
-        if (snapshot.connectionState == ConnectionState.waiting) {
-         // return const CircularProgressIndicator();
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('users')
+          .doc(userID)
+          .collection('meetings')
+          .where('isAccepted', isEqualTo: false)
+          .snapshots(),
+      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (!snapshot.hasData) {
           return IconButton(
-            icon: const Icon(Icons.hdr_strong,size: 35,),
-            onPressed: () {
-              // Handle notification icon press
-              PersistentNavBarNavigator.pushNewScreen(
-                context,
-                screen: const NotificationsScreen(),
-                withNavBar: false,
-                pageTransitionAnimation: PageTransitionAnimation.slideRight,
-              );
-            },
+            icon: const Icon(Icons.notifications, size: 35),
+            onPressed: () => _navigateToNotifications(context),
           );
         }
 
-        int docsCount = snapshot.data?.docs.length ?? 0;
+        // Count only incoming, non-expired meeting requests
+        final now = DateTime.now();
+        final incomingCount = snapshot.data!.docs.where((doc) {
+          final requestedById = doc['requested_by_id'] as String?;
+          final dateRequested = (doc['date_requested'] as Timestamp).toDate();
+          final isExpired =
+              dateRequested.add(const Duration(hours: 24)).isBefore(now);
+          return requestedById != userID && !isExpired;
+        }).length;
 
         return Stack(
           alignment: Alignment.center,
           children: [
             IconButton(
-              icon: const Icon(Icons.notifications,size: 35,),
-              onPressed: () {
-                PersistentNavBarNavigator.pushNewScreen(
-                  context,
-                  screen: const NotificationsScreen(),
-                  withNavBar: false,
-                  pageTransitionAnimation: PageTransitionAnimation.slideRight,
-                );
-              },
+              icon: const Icon(Icons.notifications, size: 35),
+              onPressed: () => _navigateToNotifications(context),
             ),
-            if (docsCount > 0)
+            if (incomingCount > 0)
               Positioned(
                 right: 1,
                 top: 1,
-
                 child: Container(
                   padding: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
@@ -89,7 +96,7 @@ String? userID;
                     minHeight: 12,
                   ),
                   child: Text(
-                    '$docsCount',
+                    '$incomingCount',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 8,

@@ -194,7 +194,7 @@ class _EventLoginState extends State<EventLogin> {
 
   Future fetchAllAttendees() async {
 
-    final response = widget.isCustomerEvent==true?await DioFetchService().fetchCustomerEventsAttendees(eventID: widget.eventID):await DioFetchService().fetchAllCIOAttendees(eventID: widget.eventID);
+    final response = await DioFetchService().fetchAllCIOAttendees(eventID: widget.eventID);
 
 
 
