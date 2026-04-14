@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:http_parser/http_parser.dart';
 
 import 'package:image_picker/image_picker.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -15,8 +16,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 
 import 'package:dio/dio.dart';
-import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../landingPage2.dart';
 
 import '../../constants.dart';
 import '../../dioServices/dioFetchService.dart';
@@ -212,11 +214,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: const Icon(Icons.logout),
               tooltip: 'Logout',
               onPressed: () async {
+                // Clear disk state first so LandingPage2 reads correct auth state
                 await clearAllPrefs();
-                if (context.mounted) {
-                  Provider.of<ProfileProvider>(context, listen: false).clearProfile();
-                  context.go('/');
-                }
+               // if (!context.mounted) return;
+
+                final provider = Provider.of<ProfileProvider>(context, listen: false);
+                // Clear in-memory profile before navigating
+                provider.clearProfile();
+                // Use Navigator.pushAndRemoveUntil to clear the entire imperative
+                // Navigator stack (context.go('/') only manages GoRouter routes and
+                // leaves imperatively-pushed screens alive, causing rebuild crashes).
+                PersistentNavBarNavigator.pushNewScreen(context, screen: LandingPage2(isFromLogout: true,));
+                // Navigator.of(context).pushAndRemoveUntil(
+                //   MaterialPageRoute(builder: (_) => LandingPage2(isFromLogout: true,)),
+                //   (route) => false,
+                // );
               },
             ),
           ],

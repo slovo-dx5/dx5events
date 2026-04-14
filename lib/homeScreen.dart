@@ -104,8 +104,8 @@ class MainScreen extends GetView<MyDrawerController> {
           ),
         ) ,
         backgroundColor: kConnectedBlue,centerTitle: true,
-        title:  const Text("CONNECTED AFRICA SUMMIT 2026",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),),
-        actions: [NotificationIconButton()],
+        title:   Text(eventName,style: const TextStyle(fontSize: 15,fontWeight: FontWeight.w600),),
+        actions: const [NotificationIconButton()],
         // actions:  [Icon(Icons.notification_important_rounded,color: kTextColorBlackLighter,)],
       ),
       body:  HomeBody(eventDay: eventDay, eventMonth: eventMonth, eventYear: eventYear,coverImagePath: coverImagePath, eventName: eventName, shortEventDescription: shortEventDescription, eventDate: eventDate, eventLocation: eventLocation, eventID: eventID, eventDayOfWeek: eventDayOfWeek, isCustomerEvent: isCustomerEvent,),
@@ -120,7 +120,6 @@ class MenuScreen extends GetView<MyDrawerController> {
 
   @override
   Widget build(BuildContext context) {
-    print("event id is $eventID");
     return buildMenu(context);
   }
 
@@ -208,15 +207,12 @@ class MenuScreen extends GetView<MyDrawerController> {
                       //       );
                       //
                       //     }),
-                      menuItem(menuText: 'Events Menu',
+                      menuItem(menuText: 'Logout',
                           widgetIcon: Icons.qr_code_2, iconColor: kCIOPink, onPressedFunction: () {
 
-                            PersistentNavBarNavigator.pushNewScreen(
-                              context,
-                              screen:  LandingPage2(
-                            ),
-                              withNavBar: false,
-                              pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(builder: (_) => LandingPage2(isFromLogout: true,)),
+                                  (route) => false,
                             );
 
                           }),

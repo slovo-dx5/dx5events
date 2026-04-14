@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 
+import 'package:new_version_plus/new_version_plus.dart';
 
 import '../constants.dart';
 import '../helpers/analytics_helper.dart';
@@ -20,7 +21,7 @@ import '../screens/dx5veScreens/eventAgendaScreen.dart';
 import '../screens/contact_scanning/getContact.dart';
 import '../screens/feedback_page.dart';
 import '../screens/rewardsPage.dart';
-import '../test.dart';
+import '../map_screen.dart';
 import '../testScreen.dart';
 import 'cio_widgets.dart';
 import 'clickableBanner.dart';
@@ -58,6 +59,67 @@ class HomePageWidget extends StatefulWidget {
 }
 
 class _HomePageWidgetState extends State<HomePageWidget> {
+  bool _hasCheckedVersion = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Use post-frame callback to ensure context is available
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && !_hasCheckedVersion) {
+        _hasCheckedVersion = true;
+        checkVersion();
+      }
+    });
+  }
+  Future<void> checkVersion() async {
+    try {
+      final newVersion = NewVersionPlus(
+        androidId: 'com.imoth.imothh',
+        iOSId: 'com.imoth.imothh',
+        androidHtmlReleaseNotes: true,
+      );
+
+      debugPrint("Checking for app updates...");
+      final version = await newVersion.getVersionStatus();
+
+
+      if (version != null) {
+        debugPrint("Version check successful!");
+        debugPrint("Local version: ${version.localVersion}");
+        debugPrint("Store version: ${version.storeVersion}");
+        debugPrint("Can update: ${version.canUpdate}");
+        debugPrint("Release notes: ${version.releaseNotes}");
+
+        // Check if widget is still mounted before showing UI
+        if (!mounted) return;
+
+        // Show update dialog if there's an update available
+        if (version.canUpdate) {
+          debugPrint("Update available! Showing dialog...");
+          newVersion.showUpdateDialog(
+            context: context,
+            versionStatus: version,
+            dialogTitle: 'Update Available',
+            dialogText: 'A new version of the app is available. Please update to get the latest features.',
+            updateButtonText: 'Update Now',
+            dismissButtonText: 'Later',
+            dismissAction: () => Navigator.of(context).pop(),
+          );
+        } else {
+          debugPrint("App is up to date!");
+        }
+      } else {
+        debugPrint("Could not fetch version info - version is null");
+      }
+    } catch (e) {
+      debugPrint("Error fetching version info: $e");
+      // Optional: Show a debug message in development
+      if (mounted) {
+        debugPrint("Version check failed silently");
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -170,13 +232,21 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     Row(
                       children: [
                         _buildFeatureCard(
-                        context:   context,
-                       title:    'Social',
-                       iconPath:    'assets/icons/social-media.png',
-                        color:   kConnectedGreen,
-                        screen:   const SocialFeed(),
-                       analyticsAction:    'social_page_opened',
+                         context:  context,
+                         title:  'Venue Map',
+                         iconPath:  'assets/icons/map.png',
+                         color:  kConnectedBlue,
+                         screen:  MapScreen(),
+                         analyticsAction:  'map_screen_opened',
                         ),
+                       //  _buildFeatureCard(
+                       //  context:   context,
+                       // title:    'Social',
+                       // iconPath:    'assets/icons/social-media.png',
+                       //  color:   kConnectedGreen,
+                       //  screen:   const SocialFeed(),
+                       // analyticsAction:    'social_page_opened',
+                       //  ),
                         const SizedBox(width: 12),
                         _buildFeatureCard(
                          context:  context,

@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../initialScreen.dart';
+import '../providers.dart';
 import '../providers/themeProvider.dart';
 import '../widgets/cio_bottomsheets.dart';
 import '../widgets/landingPageWidget.dart';
 import 'authScreens/eventLogin.dart';
 
 class LandingPage2 extends StatefulWidget {
-  LandingPage2({Key? key}) : super(key: key);
+  bool isFromLogout;
+  LandingPage2({Key? key, required this.isFromLogout}) : super(key: key);
   @override
   State<LandingPage2> createState() => _LandingPage2State();
 }
@@ -17,7 +19,21 @@ class LandingPage2 extends StatefulWidget {
 class _LandingPage2State extends State<LandingPage2> {
 //  List<String> items = ["PAST", "ACTIVE", "FUTURE"];
   int current = 1;
-
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if(widget.isFromLogout==true) {
+      (
+        clearAllPrefs().then((on){
+          final provider = Provider.of<ProfileProvider>(context, listen: false);
+          // Clear in-memory profile before navigating
+          provider.clearProfile();
+          debugPrint("Prefs cleared");
+        })
+    );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

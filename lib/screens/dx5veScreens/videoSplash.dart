@@ -45,7 +45,7 @@ class _VideoSplashScreenState extends State<VideoSplashScreen> {
   }
 
   void _navigateToHome() {
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LandingPage2()));
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LandingPage2(isFromLogout: false,)));
   }
 
   @override

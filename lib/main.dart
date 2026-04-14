@@ -7,7 +7,7 @@ import 'package:dx5veevents/screens/dx5veScreens/notificationsScreen.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
 import 'package:dx5veevents/screens/test.dart';
 import 'package:dx5veevents/scripts/doLastMinuteShyet.dart';
-import 'package:dx5veevents/test.dart';
+import 'package:dx5veevents/map_screen.dart';
 import 'package:dx5veevents/testScreen.dart';
 
 import 'package:flutter/services.dart';
@@ -50,7 +50,7 @@ final router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-     builder: (context, state) =>  LandingPage2(),
+     builder: (context, state) =>  LandingPage2(isFromLogout: false,),
      //builder: (context, state) =>  MapScreenTest(),
     //builder: (context, state) =>  ContactSaveTest(),
      //builder: (context, state) =>  StructureLAstMinute(),
