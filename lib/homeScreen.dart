@@ -169,23 +169,23 @@ class MenuScreen extends GetView<MyDrawerController> {
                       //     themeProvider.setThemeMode(newTheme);
                       //   }
                       // ),],),
-                      menuItem(menuText: 'Scan QR',
-                          widgetIcon: Icons.qr_code_2, iconColor: kConnectedGreen, onPressedFunction: () {
-
-                              PersistentNavBarNavigator.pushNewScreen(
-                                context,
-                                screen: SponsorScanner(
-                                  firstName: profileProvider.firstName,
-                                  phone: profileProvider.phone,
-                                  lastName: profileProvider.lastName,
-                                  company: profileProvider.company,
-                                  position: profileProvider.role,
-                                  email: profileProvider.email, eventId: int.parse(eventID), attendeeID: profileProvider.userID!,),
-                                withNavBar: false,
-                                pageTransitionAnimation: PageTransitionAnimation.slideRight,
-                              );
-
-                          }),
+                      // menuItem(menuText: 'Scan QR',
+                      //     widgetIcon: Icons.qr_code_2, iconColor: kConnectedGreen, onPressedFunction: () {
+                      //
+                      //         PersistentNavBarNavigator.pushNewScreen(
+                      //           context,
+                      //           screen: SponsorScanner(
+                      //             firstName: profileProvider.firstName,
+                      //             phone: profileProvider.phone,
+                      //             lastName: profileProvider.lastName,
+                      //             company: profileProvider.company,
+                      //             position: profileProvider.role,
+                      //             email: profileProvider.email, eventId: int.parse(eventID), attendeeID: profileProvider.userID!,),
+                      //           withNavBar: false,
+                      //           pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                      //         );
+                      //
+                      //     }),
 
 
                       // menuItem(menuText: "Logout", widgetIcon: Icons.logout, iconColor: kKeyRedBG, onPressedFunction: (){

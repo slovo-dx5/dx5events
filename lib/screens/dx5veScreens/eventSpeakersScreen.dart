@@ -1,14 +1,11 @@
-import 'dart:convert';
-
 import 'package:dx5veevents/models/eventModel.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants.dart';
-import '../../dioServices/base_url.dart';
 import '../../dioServices/dioFetchService.dart';
 import '../../helpers/helper_widgets.dart';
+import '../../helpers/speaker_helper.dart';
 import '../../models/agendaModel.dart';
-import '../../models/image_model.dart';
 import '../../models/speakersModel.dart';
 import '../../widgets/speakerWidget.dart';
 
@@ -24,9 +21,7 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
   bool isSearching = false;
   final TextEditingController _searchController = TextEditingController();
   //List<Map<String, dynamic>> filteredData = [];
-  List<SpeakersModel> events = [];
   List<IndividualSpeaker> speakers = [];
-  List<SpeakerAssociation> neoSpeakers = [];
   List<IndividualSpeaker> filteredSpeakers = [];
   List<AgendaDay> _agendaDays = [];
   bool isFetching = true;
@@ -39,65 +34,36 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
   }
 
 
-  Future fetchEventData()async{
-    setState(() {
-      isFetching=true;
-    });
-    final response= await DioFetchService().fetchEvents(eventID: widget.eventID);
-    final Map<String, dynamic> responseData = response.data['data'];
+  Future<void> fetchEventData() async {
+    setState(() => isFetching = true);
 
-    final List<dynamic> speakersData = responseData['speakers'];
-
-    if(speakersData.isNotEmpty){
-
-      for (var speakerData in speakersData) {
-        neoSpeakers.add(SpeakerAssociation.fromJson(speakerData));
-      }
-
-      for (var speaker in neoSpeakers) {
-        fetchSpeakerById(speaker.speaker.key).then((value) {
-          speakers.add(value!);
-
-          setState(() {
-            filteredSpeakers=speakers;
-          });
-
-        });
-      }
-
-      setState(() {
-        //filteredSpeakers = speakers;
-        isFetching = false;
-      });
-
-
-
-      return speakers;
-    }
-    else{
-      print("No speakers");
-    }
-
-
-
-  }
-
-  Future<IndividualSpeaker?> fetchSpeakerById(int key) async {
     try {
-      final response = await DioFetchService().fetchEventSpeakerByKey(speakerKey: key);
-      final speakerssModel = SpeakersModel.fromJson(response.data);
+      final response =
+          await DioFetchService().fetchEvents(eventID: widget.eventID);
+      final Map<String, dynamic> responseData = response.data['data'];
+      final List<dynamic> speakersData = responseData['speakers'] ?? [];
 
-      // Manually find the speaker to allow returning null.
-      for (var speaker in speakerssModel.data) {
-      if(speaker.id==key){
-        return speaker;
+      if (speakersData.isNotEmpty) {
+        final associations = speakersData
+            .map((s) => SpeakerAssociation.fromJson(s))
+            .toList();
+
+        // Bulk-fetch and preserve Directus order in one call
+        final enriched = await getSpeakers(associations);
+
+        if (mounted) {
+          setState(() {
+            speakers = enriched.map((e) => e.speaker).toList();
+            filteredSpeakers = speakers;
+            isFetching = false;
+          });
+        }
+      } else {
+        if (mounted) setState(() => isFetching = false);
       }
-
-
-      }
-
     } catch (e) {
-      return null;
+      debugPrint('Error fetching speakers: $e');
+      if (mounted) setState(() => isFetching = false);
     }
   }
 
@@ -221,7 +187,7 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
 
                   bio: speaker!.bio! ?? "",
 
-                  imageURL: "${BaseURL.Baseurl}/assets/${speaker!.photo!}",
+                  imageURL: speaker.photo,
                   linkedinurl: speaker.linkedinProfile ?? "linkedin.com",
                   sessions: _getTopicsForSpeaker(speaker.id)),
                 Divider(color: Colors.green,),

@@ -335,13 +335,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           .where((doc) {
             final notifId = 'meeting_${doc.id}';
             if (_deletedMeetingIds.contains(notifId)) return false;
-            final requestedById = doc['requested_by_id'] as String?;
-            final isAccepted = doc['isAccepted'] as bool? ?? false;
-            final isDeleted = doc['isDeleted'] as bool? ?? false;
-            final isCancelled = doc['isCancelled'] as bool? ?? false;
-            final isDeclined = doc['isDeclined'] as bool? ?? false;
-            final dateRequested =
-                (doc['date_requested'] as Timestamp).toDate();
+            final data = doc.data() as Map<String, dynamic>;
+            final requestedById = data['requested_by_id'] as String?;
+            final isAccepted = data['isAccepted'] as bool? ?? false;
+            final isDeleted = data['isDeleted'] as bool? ?? false;
+            final isCancelled = data['isCancelled'] as bool? ?? false;
+            final isDeclined = data['isDeclined'] as bool? ?? false;
+            final dateRequestedRaw = data['date_requested'];
+            if (dateRequestedRaw == null) return false;
+            final dateRequested = (dateRequestedRaw as Timestamp).toDate();
             final isExpired = dateRequested
                 .add(const Duration(hours: 24))
                 .isBefore(now);
@@ -356,17 +358,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           })
           .map((doc) {
             final notifId = 'meeting_${doc.id}';
-            final requestedById = doc['requested_by_id'] as String?;
+            final data = doc.data() as Map<String, dynamic>;
+            final requestedById = data['requested_by_id'] as String?;
             final isIncoming = requestedById != userID;
-            final isAccepted = doc['isAccepted'] as bool? ?? false;
+            final isAccepted = data['isAccepted'] as bool? ?? false;
             final dateRequested =
-                (doc['date_requested'] as Timestamp).toDate();
+                (data['date_requested'] as Timestamp).toDate();
 
             if (isIncoming && !isAccepted) {
               return _NotificationItem(
                 id: notifId,
                 title: "Meeting Request",
-                subtitle: "${doc['requested_by']} wants to meet with you",
+                subtitle: "${data['requested_by']} wants to meet with you",
                 time: dateRequested,
                 icon: Icons.person_add,
                 iconColor: Colors.green,
@@ -378,7 +381,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 id: notifId,
                 title: "Meeting Accepted",
                 subtitle:
-                    "${doc['wants_to_meet_with']} accepted your meeting request",
+                    "${data['wants_to_meet_with']} accepted your meeting request",
                 time: dateRequested,
                 icon: Icons.check_circle,
                 iconColor: Colors.blue,

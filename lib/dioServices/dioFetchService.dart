@@ -30,7 +30,8 @@ class DioFetchService extends DioClient {
       final int offset = (page - 1) * pageSize;
 
       // Start with base filters
-      String filterParams = "&filter[eventId][_eq]=$eventID&filter[status][_eq]=approved";
+    //  String filterParams = "&filter[eventId][_eq]=$eventID&filter[status][_eq]=approved";
+      String filterParams = "&filter[eventId][_eq]=$eventID";
 
       // Add search query if provided
       if (searchQuery.isNotEmpty) {
@@ -281,6 +282,28 @@ class DioFetchService extends DioClient {
           .get("${BaseURL.Baseurl}/items/speakers?filter[id][_eq]=$speakerKey",
       //  options: buildCacheOptions(const Duration(minutes: 30)),
            );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> fetchSpeakersByIds(List<int> ids) async {
+    final idList = ids.join(',');
+    try {
+      return await _client
+          .init()
+          .get("${BaseURL.Baseurl}/items/speakers?filter[id][_in]=$idList&limit=-1");
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> fetchSponsorsByIds(List<int> ids) async {
+    final idList = ids.join(',');
+    try {
+      return await _client
+          .init()
+          .get("${BaseURL.Baseurl}/items/sponsors?filter[id][_in]=$idList&limit=-1");
     } on DioError catch (ex) {
       throw Exception(ex);
     }

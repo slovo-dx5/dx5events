@@ -75,8 +75,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   Future<void> checkVersion() async {
     try {
       final newVersion = NewVersionPlus(
-        androidId: 'com.imoth.imothh',
-        iOSId: 'com.imoth.imothh',
+        androidId: 'com.cioafrica.dx5veevents',
+        iOSId: 'com.cioafrica.dx5veevents',
         androidHtmlReleaseNotes: true,
       );
 
@@ -140,7 +140,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 children: [
                   // Cover Image
                   Image.asset(
-                    "assets/images/themes/ciso_landscape.jpg",
+                    "assets/images/themes/CONNECTED AFRICA 2026 THEME FA2.jpg",
                     width: screenWidth,
                    // height: screenHeight * 0.3, // Made taller for more visual impact
                     fit: BoxFit.contain,
