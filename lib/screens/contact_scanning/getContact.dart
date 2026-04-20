@@ -105,19 +105,32 @@ class _GetContactState extends State<GetContact> with SingleTickerProviderStateM
         return;
       }
 
+      final code = scanData.code ?? '';
+
+      // Reject unrecognised QR codes before pausing the camera
+      if (!_isValidQrFormat(code)) {
+        Fluttertoast.showToast(
+          msg: "Invalid QR code. Please scan an event badge.",
+          toastLength: Toast.LENGTH_LONG,
+          backgroundColor: Colors.red.shade700,
+          textColor: Colors.white,
+        );
+        return;
+      }
+
       // Mark as scanned and store the code
       setState(() {
         hasScanned = true;
-        lastScannedCode = scanData.code;
+        lastScannedCode = code;
       });
 
       // Pause camera immediately to prevent further scans
       await controller.pauseCamera();
 
-      if (scanData.code!.startsWith("sponsor")) {
+      if (code.startsWith("sponsor")) {
         setState(() {
           isSending = true;
-          sponsorID = scanData.code!;
+          sponsorID = code;
         });
         await sendSponsorData();
         // Reset for next scan after sponsor data is sent
@@ -127,52 +140,107 @@ class _GetContactState extends State<GetContact> with SingleTickerProviderStateM
         });
       } else {
         // For attendee scans, navigate without resuming camera
-        await fetchAndSaveAttendeeInfo(attendeeDAta: scanData.code);
+        await fetchAndSaveAttendeeInfo(attendeeDAta: code);
       }
     });
   }
 
 
 
+  // Validates that the QR code matches one of the expected formats:
+  // - Sponsor booth: starts with "sponsor"
+  // - Attendee badge: contains ":" with a numeric ID as the last segment
+  bool _isValidQrFormat(String code) {
+    if (code.startsWith("sponsor")) return true;
+    final parts = code.split(':');
+    if (parts.length >= 2) {
+      final id = int.tryParse(parts.last);
+      return id != null && id > 0;
+    }
+    return false;
+  }
+
+  void _handleInvalidQr() {
+    setState(() {
+      hasScanned = false;
+      lastScannedCode = null;
+    });
+    contactController?.resumeCamera();
+    Fluttertoast.showToast(
+      msg: "Invalid QR code. Please scan an event badge.",
+      toastLength: Toast.LENGTH_LONG,
+      backgroundColor: Colors.red.shade700,
+      textColor: Colors.white,
+    );
+  }
+
   // Extracts the numerical ID from the attendeeData string.
-  int  getAttendeeId({required attendeeData}) {
+  int getAttendeeId({required attendeeData}) {
     var parts = attendeeData.split(':');
     return int.tryParse(parts.last) ?? 0; // Returns 0 if parsing fails
   }
 
-  fetchAndSaveAttendeeInfo({required attendeeDAta})async{
-     int AttendeeID=getAttendeeId(attendeeData: attendeeDAta);
-     var response = await DioFetchService().fetchSingleAttendeeFromAttendees(id: AttendeeID);
-     var data = response.data["data"];
-     await Dx5veAnalytics().logdx5veEvent(eventName: "contactSaved");
+  fetchAndSaveAttendeeInfo({required attendeeDAta}) async {
+    debugPrint("QR Data is $attendeeDAta");
+    int attendeeID = getAttendeeId(attendeeData: attendeeDAta);
 
+    if (attendeeID == 0) {
+      _handleInvalidQr();
+      return;
+    }
 
+    try {
+      var response = await DioFetchService().fetchSingleAttendeeFromAttendees(id: attendeeID);
+      var data = response.data["data"];
+      await Dx5veAnalytics().logdx5veEvent(eventName: "contactSaved");
 
-     if (data != null && data.isNotEmpty) {
-       var attendeeDetails = data[0];
-       await PersistentNavBarNavigator.pushNewScreen(
-         context,
-         screen: SaveContact(
-           firstName: attendeeDetails["firstName"],
-           phone:  attendeeDetails["phone"],
-           lastName:  attendeeDetails["lastName"],
-           company: attendeeDetails['company'],
-           role: attendeeDetails["role"],
-           email: attendeeDetails["email"], ownerID: widget.ownerID,
-         ),
-         withNavBar: false,
-         pageTransitionAnimation: PageTransitionAnimation.slideRight,
-       ).then((_) {
-         // Reset scanning state when user returns to allow new scans
-         setState(() {
-           hasScanned = false;
-           lastScannedCode = null;
-         });
-         contactController?.resumeCamera();
-       });
-     }
-
-
+      if (data != null && data.isNotEmpty) {
+        var attendeeDetails = data[0];
+        await PersistentNavBarNavigator.pushNewScreen(
+          context,
+          screen: SaveContact(
+            firstName: attendeeDetails["firstName"],
+            phone: attendeeDetails["phone"],
+            lastName: attendeeDetails["lastName"],
+            company: attendeeDetails['company'],
+            role: attendeeDetails["role"],
+            email: attendeeDetails["email"],
+            ownerID: widget.ownerID,
+          ),
+          withNavBar: false,
+          pageTransitionAnimation: PageTransitionAnimation.slideRight,
+        ).then((_) {
+          // Reset scanning state when user returns to allow new scans
+          setState(() {
+            hasScanned = false;
+            lastScannedCode = null;
+          });
+          contactController?.resumeCamera();
+        });
+      } else {
+        // API returned no matching attendee for this QR code
+        _handleInvalidQr();
+        Fluttertoast.showToast(
+          msg: "No attendee found for this badge.",
+          toastLength: Toast.LENGTH_LONG,
+          backgroundColor: Colors.orange.shade700,
+          textColor: Colors.white,
+        );
+      }
+    } catch (e) {
+      debugPrint("Error fetching attendee: $e");
+      setState(() {
+        hasScanned = false;
+        lastScannedCode = null;
+      });
+      contactController?.resumeCamera();
+      Fluttertoast.showToast(
+        msg: "Error fetching contact. Please try again.",
+        toastLength: Toast.LENGTH_LONG,
+        backgroundColor: Colors.red.shade700,
+        textColor: Colors.white,
+      );
+    }
   }
 
   Future<void> _showAlertDialogOnce() async {

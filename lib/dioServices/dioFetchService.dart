@@ -73,7 +73,7 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-          .get("${BaseURL.Baseurl}/items/event_registrations?filter[eventId][_eq]=$eventID&filter[status][_eq]=approved&limit=2500",
+          .get("${BaseURL.Baseurl}/items/event_registrations?filter[eventId][_eq]=$eventID&limit=2500",
         //   options: buildCacheOptions(const Duration(minutes: 30)),
       );
     } on DioError catch (ex) {
