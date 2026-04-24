@@ -19,6 +19,7 @@ import 'package:dio/dio.dart';
 import '../../dioServices/dioOTPService.dart';
 import '../../dioServices/dioPostService.dart';
 import '../../mainNavigationPage.dart';
+import '../../services/activity_logger.dart';
 import '../../testScreen.dart';
 
 class OTPScreen extends StatefulWidget {
@@ -134,6 +135,11 @@ class _OTPScreenState extends State<OTPScreen> {
     try{
       final response=await DioOTPService().verifyOTP(email: email, otp: otp);
       if(response.statusCode==200){
+        ActivityLogger.instance.log(
+          action: ActivityAction.otpLogin,
+          eventId: widget.eventID,
+          userId: widget.id,
+        );
         setIntPref(key: 'isFirstTime', value: 1);
         setStringPref(key: kFirstName, value: widget.firstName);
         setStringPref(key: kLastName, value: widget.lastName);

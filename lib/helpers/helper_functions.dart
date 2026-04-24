@@ -16,6 +16,7 @@ import '../dioServices/dioFetchService.dart';
 import '../dioServices/dioPostService.dart';
 import '../dioServices/dio_delete_service.dart';
 import '../models/image_model.dart';
+import '../services/activity_logger.dart';
 
 
 greetingFunc({required String firstName}) {
@@ -407,7 +408,17 @@ requestMeeting(
 
     "company": company,
   });
-  
+
+  ActivityLogger.instance.log(
+    action: ActivityAction.meetingRequestSent,
+    userId: currentUserID,
+    targetType: 'meeting',
+    targetId: meetingID,
+    metadata: {
+      'meeting_with_id': otherUserID,
+    },
+  );
+
   print("Other persons ID is ${meetingWithI}");
 }
 

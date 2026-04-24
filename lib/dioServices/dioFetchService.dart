@@ -471,6 +471,16 @@ Future<Response> checkUserPoints({required int actionId, required int userId}) a
 
 
 
+  /// Bulk-inserts activity log rows into `app_activity_logs`.
+  /// Directus accepts an array body for batched creation.
+  /// DioError is rethrown unwrapped so the caller can inspect response.data
+  /// (e.g. RECORD_NOT_UNIQUE for idempotency handling).
+  Future<Response> postActivityLogs(List<Map<String, dynamic>> rows) {
+    return _client
+        .init()
+        .post("${BaseURL.Baseurl}/items/app_activity_logs", data: rows);
+  }
+
   Future<Response> updateUserData({required int recordid,required int eventId,required Map<String, dynamic> body}) async {
 
 

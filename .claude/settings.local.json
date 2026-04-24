@@ -14,7 +14,13 @@
       "Bash(git stash pop:*)",
       "Bash(git stash drop:*)",
       "Bash(git push:*)",
-      "Bash(firebase deploy:*)"
+      "Bash(firebase deploy:*)",
+      "Bash(curl -s -H \"Authorization: Bearer Xjm1QumX897xml1vV4zwLj6xyWVhTVO_\" \"https://admin.connected.go.ke/fields/app_activity_logs/client_event_id\")",
+      "Bash(python -c \"import json,sys; f=json.load\\(sys.stdin\\)['data']; print\\('is_unique:', f['schema']['is_unique']\\); print\\('is_nullable:', f['schema']['is_nullable']\\); print\\('required:', f['meta']['required']\\)\")",
+      "Bash(curl -s -H \"Authorization: Bearer Xjm1QumX897xml1vV4zwLj6xyWVhTVO_\" \"https://admin.connected.go.ke/panels?filter%5Bdashboard%5D%5B_eq%5D=7157c21e-e0ff-435e-a406-abdc916b32d9&fields=id,name,type,options&limit=14\")",
+      "Bash(python -m json.tool)",
+      "Bash(curl -s -H \"Authorization: Bearer Xjm1QumX897xml1vV4zwLj6xyWVhTVO_\" \"https://admin.connected.go.ke/panels?filter%5Bdashboard%5D%5B_eq%5D=7157c21e-e0ff-435e-a406-abdc916b32d9&filter%5Btype%5D%5B_in%5D=bar-chart,pie-chart&fields=id,name,type,options&limit=3\")",
+      "Bash(curl *)"
     ],
     "deny": [],
     "ask": []

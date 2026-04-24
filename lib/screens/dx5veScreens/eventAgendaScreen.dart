@@ -1,11 +1,6 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:dx5veevents/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 
 import 'package:provider/provider.dart';
@@ -14,15 +9,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../dioServices/base_url.dart';
-import '../../dioServices/dioFetchService.dart';
-import '../../helpers/analytics_helper.dart';
-import '../../helpers/helper_functions.dart';
 import '../../models/agendaModel.dart';
 import '../../models/speakersModel.dart';
 import '../../providers.dart';
-import '../../widgets/agendaWidget.dart';
-import '../../widgets/appbarWidget.dart';
-import 'eventFullAgenda.dart';
+import '../../repositories/agenda_repository.dart';
+import '../../repositories/speakers_repository.dart';
+import '../../services/activity_logger.dart';
 
 class EventAgendaScreen extends StatefulWidget {
   String eventID;
@@ -54,9 +46,9 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
   Map<DateTime, AgendaDay> _dayToAgendaMap = {};
   DateTime? _selectedDate;
   final RefreshController _refreshController = RefreshController();
-  DioCacheManager dioCacheManager = DioCacheManager(CacheConfig());
 
   List<AgendaDay> agendaDays = [];
+  Map<int, IndividualSpeaker> _speakerMap = {};
   bool isFetching = true;
   int attendeeID = 0;
   String? _selectedStage;
@@ -71,6 +63,10 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
       _selectedDate = DateTime(widget.eventYear, widget.eventMonth, widget.eventDay);
     });
     _loadSessions();
+    ActivityLogger.instance.log(
+      action: ActivityAction.viewAgenda,
+      eventId: widget.eventID,
+    );
   }
 
   Future<void> getAttendeeID() async {
@@ -87,17 +83,49 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
 
 
 
-  Future<void> _loadSessions() async {
+  Future<void> _loadSessions({bool forceRefresh = false}) async {
     setState(() {
       isFetching = true;
     });
-    await fetchSessions();
-    setState(() {
-      _extractAvailableStages();
-      _dayToAgendaMap = { for (var item in agendaDays) (item).date : item };
-      isFetching = false;
-    });
-    debugPrint('Loaded ${agendaDays.length} days with ${_dayToAgendaMap.length} mapped days');
+
+    try {
+      final agendaModel = await AgendaRepository.instance.getAgenda(
+        eventID: widget.eventID,
+        forceRefresh: forceRefresh,
+      );
+
+      final speakerIds = <int>{};
+      for (final day in agendaModel.days) {
+        for (final session in day.sessions) {
+          if (session.speakers == null) continue;
+          for (final a in session.speakers!) {
+            final k = a.speaker.key;
+            if (k is int) speakerIds.add(k);
+          }
+        }
+      }
+
+      final speakerMap = await SpeakersRepository.instance.getByIds(
+        speakerIds.toList(),
+        forceRefresh: forceRefresh,
+      );
+
+      if (!mounted) return;
+      setState(() {
+        agendaDays = agendaModel.days;
+        _speakerMap = speakerMap;
+        _extractAvailableStages();
+        _dayToAgendaMap = { for (var item in agendaDays) (item).date : item };
+        isFetching = false;
+      });
+      debugPrint('Loaded ${agendaDays.length} days with ${_dayToAgendaMap.length} mapped days and ${_speakerMap.length} speakers');
+    } catch (e) {
+      debugPrint('Error loading sessions: $e');
+      if (!mounted) return;
+      setState(() {
+        isFetching = false;
+      });
+    }
   }
 
   void _extractAvailableStages() {
@@ -113,37 +141,6 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
   }
 
 
-
-  Future<List<Session>> fetchSessions() async {
-    try {
-      final response = await DioFetchService().fetchdx5veAgenda(eventID: widget.eventID);
-      final agendaModel = AgendaModel.fromJson(response.data);
-
-      setState(() {
-        agendaDays = agendaModel.days;
-      });
-
-      return agendaModel.days.expand((day) => day.sessions).toList();
-    } catch (e) {
-      debugPrint("Error fetching sessions: $e");
-      return [];
-    }
-  }
-
-  Future<IndividualSpeaker?> fetchSpeakerById(int key) async {
-    try {
-      final response = await DioFetchService().fetchEventSpeakerByKey(speakerKey: key);
-      final speakersModel = SpeakersModel.fromJson(response.data);
-
-      if (speakersModel.data.isNotEmpty) {
-        return speakersModel.data.first;
-      }
-      return null;
-    } catch (e) {
-      debugPrint('Error fetching speaker by ID: $e');
-      return null;
-    }
-  }
 
   List<Session> _getFilteredSessions(List<Session> sessions) {
     if (_selectedStage == null) {
@@ -379,15 +376,9 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                         padding: EdgeInsets.only(top: 12),
                         child: Column(
                           children: session.speakers!.map((speakerAssignment) {
-                            return FutureBuilder<IndividualSpeaker?>(
-                              future: fetchSpeakerById(speakerAssignment.speaker.key),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData && snapshot.data != null) {
-                                  return _buildSpeakerItem(snapshot.data!, isNow);
-                                }
-                                return SizedBox.shrink();
-                              },
-                            );
+                            final speaker = _speakerMap[speakerAssignment.speaker.key];
+                            if (speaker == null) return const SizedBox.shrink();
+                            return _buildSpeakerItem(speaker, isNow);
                           }).toList(),
                         ),
                       ),
@@ -659,12 +650,8 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                     waterDropColor: kCIOPink,
                   ),
                   onRefresh: () async {
-                   // await dioCacheManager.clearAll();
-                    //await fetchDx5veAgendaHere();
-
-                    setState(() {
-                      _refreshController.refreshCompleted();
-                    });
+                    await _loadSessions(forceRefresh: true);
+                    _refreshController.refreshCompleted();
                   },
                   onLoading: () async {
                     await Future.delayed(Duration(milliseconds: 1000));

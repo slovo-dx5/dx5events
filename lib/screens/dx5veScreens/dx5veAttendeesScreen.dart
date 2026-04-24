@@ -1,18 +1,14 @@
-import 'dart:convert';
-import 'dart:math';
-
-import 'package:dio/dio.dart';
-import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../constants.dart';
-import '../../dioServices/dioFetchService.dart';
 import '../../helpers/helper_widgets.dart';
 import '../../models/eventAttendeesModel.dart';
 import '../../providers.dart';
+import '../../repositories/attendees_repository.dart';
+import '../../services/activity_logger.dart';
 import '../../widgets/search_debouncer.dart';
 
 class AttendeesScreen extends StatefulWidget {
@@ -28,10 +24,6 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
   final RefreshController _refreshController = RefreshController();
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
-
-  // Dio setup
-  late final Dio dio;
-  late final DioCacheManager dioCacheManager;
 
   // Pagination variables
   static const int _pageSize = 20;
@@ -53,21 +45,12 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
     super.initState();
 
     _loadSponsorPhone();
-
-    // Initialize Dio with cache
-    dio = Dio();
-
-    dioCacheManager = DioCacheManager(CacheConfig(
-      defaultMaxAge: const Duration(days: 1),
-      defaultMaxStale: const Duration(days: 7),
-    ));
-    dio.interceptors.add(dioCacheManager.interceptor);
-
-    // Add scroll listener for pagination
     _scrollController.addListener(_scrollListener);
-
-    // Initial data load
     _fetchAttendees();
+    ActivityLogger.instance.log(
+      action: ActivityAction.viewAttendees,
+      eventId: widget.eventID,
+    );
   }
 
   @override
@@ -95,7 +78,7 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
     }
   }
 
-  Future<void> _fetchAttendees() async {
+  Future<void> _fetchAttendees({bool forceRefresh = false}) async {
     if (_isLoading) return;
 
     setState(() {
@@ -103,52 +86,32 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
     });
 
     try {
-      // Construct the API endpoint with pagination parameters
-      // final response = widget.isCustomerEvent == false
-      //     ?
-      final response =  await DioFetchService().
-      fetchCIOAttendees(
+      final page = await AttendeesRepository.instance.getPage(
         eventID: widget.eventID,
         page: _currentPage,
         pageSize: _pageSize,
         searchQuery: _searchQuery,
+        forceRefresh: forceRefresh,
       );
-      //     : await DioFetchService().fetchCustomerEventsAttendees(
-      //   eventID: widget.eventID,
-      //   page: _currentPage,
-      //   pageSize: _pageSize,
-      //   searchQuery: _searchQuery,
-      // );
 
-      if (response.statusCode == 200) {
-        final rawData = response.data['data'];
-        final List<dynamic> filteredData = rawData
-          //  .where((item) => item['status'] == "approved")
-            .toList();
-
-
-          List<EventAttendeeModel> fetchedAttendees = filteredData
-              .map((userJson) => EventAttendeeModel.fromJson(userJson))
-              .toList();
-
-          setState(() {
-            if (_currentPage == 1) {
-              _attendeesList = fetchedAttendees;
-            } else {
-              _attendeesList.addAll(fetchedAttendees);
-            }
-            _hasMore = fetchedAttendees.length >= _pageSize;
-            _currentPage++;
-          });
-
-
-      }
+      if (!mounted) return;
+      setState(() {
+        if (_currentPage == 1) {
+          _attendeesList = page.attendees;
+        } else {
+          _attendeesList.addAll(page.attendees);
+        }
+        _hasMore = page.hasMore;
+        _currentPage++;
+      });
     } catch (e) {
       debugPrint('Error fetching attendees: $e');
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
 
       if (_refreshController.isRefresh) {
         _refreshController.refreshCompleted();
@@ -161,8 +124,8 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
       _currentPage = 1;
       _hasMore = true;
     });
-    await dioCacheManager.clearAll();
-    await _fetchAttendees();
+    await AttendeesRepository.instance.invalidateEvent(widget.eventID);
+    await _fetchAttendees(forceRefresh: true);
   }
 
   void _onSearchChanged(String query) {

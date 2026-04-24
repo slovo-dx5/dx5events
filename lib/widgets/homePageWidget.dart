@@ -1,7 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:upgrader/upgrader.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
@@ -104,7 +103,6 @@ class _HomePageWidgetState extends State<HomePageWidget> {
             dialogText: 'A new version of the app is available. Please update to get the latest features.',
             updateButtonText: 'Update Now',
             dismissButtonText: 'Later',
-            dismissAction: () => Navigator.of(context).pop(),
           );
         } else {
           debugPrint("App is up to date!");
@@ -127,11 +125,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    return UpgradeAlert(
-      upgrader: Upgrader(
-          durationUntilAlertAgain: const Duration(hours: 1)
-      ),
-      child: Scaffold(
+    return Scaffold(
         body: SingleChildScrollView(
           child: Column(
             children: [
@@ -308,8 +302,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
             ],
           ),
         ),
-      ),
     );
+
   }
 
   // Enhanced feature card widget

@@ -12,6 +12,7 @@ import 'dart:ui';
 import '../../constants.dart';
 import '../../dioServices/dioFetchService.dart';
 import '../../dioServices/dioOTPService.dart';
+import '../../services/activity_logger.dart';
 import 'eventOTP.dart';
 
 class EventLogin extends StatefulWidget {
@@ -71,6 +72,11 @@ class _EventLoginState extends State<EventLogin> {
 
       if(response.statusCode==200){
         EventAttendeeModel? attendee = findAttendeeByEmail(email);
+        ActivityLogger.instance.log(
+          action: ActivityAction.otpRequest,
+          eventId: widget.eventID,
+          userId: attendee?.attendeeId,
+        );
         setState(() {
           isCreating=false;
         });

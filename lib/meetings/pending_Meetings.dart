@@ -14,6 +14,7 @@ import '../../widgets/outgoing_meeting_widget.dart';
 import '../constants.dart';
 import '../dioServices/dioPostService.dart';
 import '../helpers/analytics_helper.dart';
+import '../services/activity_logger.dart';
 
 class PendingMeetingsScreen extends StatefulWidget {
   @override
@@ -141,6 +142,15 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                             startTime: items["startTime"],
                             acceptMeetingFunc: () async {
                               await Dx5veAnalytics().logdx5veEvent(eventName: "meetingAccepted");
+                              ActivityLogger.instance.log(
+                                action: ActivityAction.meetingAccepted,
+                                userId: profileProvider.userID,
+                                targetType: 'meeting',
+                                targetId: items["id"]?.toString(),
+                                metadata: {
+                                  'requested_by_id': items["requested_by_id"],
+                                },
+                              );
 
                               DateFormat format = DateFormat("h:mm a");
                               DateTime parsedStart = format.parse(items["startTime"]);
@@ -217,6 +227,15 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
 
                             declineMeetingFunc: () async {
                               await Dx5veAnalytics().logdx5veEvent(eventName: "meetingDeclined");
+                              ActivityLogger.instance.log(
+                                action: ActivityAction.meetingDeclined,
+                                userId: profileProvider.userID,
+                                targetType: 'meeting',
+                                targetId: items["id"]?.toString(),
+                                metadata: {
+                                  'requested_by_id': items["requested_by_id"],
+                                },
+                              );
 
                               await items.reference.delete();
                             await usersRef
@@ -241,6 +260,15 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                             startTime: items["startTime"],
 
                             cancelMeetingFunc: () async {
+                              ActivityLogger.instance.log(
+                                action: ActivityAction.meetingCancelled,
+                                userId: profileProvider.userID,
+                                targetType: 'meeting',
+                                targetId: items["id"]?.toString(),
+                                metadata: {
+                                  'wants_to_meet_with_id': items["wants_to_meet_with_id"],
+                                },
+                              );
                               await items.reference.delete();
                               await usersRef
                                   .doc(items["requested_by_id"])

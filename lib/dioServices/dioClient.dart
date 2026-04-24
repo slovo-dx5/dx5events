@@ -13,7 +13,7 @@ class DioClient {
     ));
     //
     _dio.transformer as DefaultTransformer; //.jsonDecodeCallback = parseJson;
-  //  _dio.options.headers["Authorization"] = "Bearer oEgjgIbG1oyqMKscjSsQLfPznOaOUzW7";
+  //  _dio.options.headers["Authorization"] = "Bearer oEgjgIbG1oyqMKscjSsQLfPznOaOUzW7";  ///cio africa token
     _dio.options.headers["Authorization"] = "Bearer Xjm1QumX897xml1vV4zwLj6xyWVhTVO_";
 
 

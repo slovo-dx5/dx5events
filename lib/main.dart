@@ -29,6 +29,7 @@ import 'helpers/themeData.dart';
 import 'homeScreen.dart';
 import 'meetings/meeting_tabs.dart';
 import 'notifications/pushNotifications.dart';
+import 'services/activity_logger.dart';
 const AndroidNotificationChannel _meetingChannel = AndroidNotificationChannel(
   'meeting_notifications',
   'Meeting Notifications',
@@ -112,6 +113,8 @@ void main() async{
       ?.createNotificationChannel(_meetingChannel);
 
   Get.put<MyDrawerController>(MyDrawerController());
+
+  ActivityLogger.instance.init();
 
   if(Platform.isAndroid){
     await FirebaseMessaging.instance.subscribeToTopic("connectedAfricaBroadcastTest");

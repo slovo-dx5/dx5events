@@ -1,7 +1,7 @@
 import '../dioServices/base_url.dart';
-import '../dioServices/dioFetchService.dart';
 import '../models/eventModel.dart';
 import '../models/speakersModel.dart';
+import '../repositories/speakers_repository.dart';
 
 /// Mirrors the JS `getSpeakers` utility.
 ///
@@ -14,7 +14,8 @@ import '../models/speakersModel.dart';
 ///      association onto the fetched speaker.
 ///   5. Returns the list sorted by original order.
 Future<List<EnrichedSpeaker>> getSpeakers(
-    List<SpeakerAssociation> associations) async {
+    List<SpeakerAssociation> associations,
+    {bool forceRefresh = false}) async {
   if (associations.isEmpty) return [];
 
   // Step 1 — record order and extra props keyed by speaker ID.
@@ -30,15 +31,16 @@ Future<List<EnrichedSpeaker>> getSpeakers(
     );
   }
 
-  // Step 2 — single bulk fetch.
-  final response =
-      await DioFetchService().fetchSpeakersByIds(orderMap.keys.toList());
-  final speakersModel = SpeakersModel.fromJson(response.data);
+  // Step 2 — cached bulk fetch (only missing ids hit the network).
+  final speakersById = await SpeakersRepository.instance.getByIds(
+    orderMap.keys.toList(),
+    forceRefresh: forceRefresh,
+  );
 
-  if (speakersModel.data.isEmpty) return [];
+  if (speakersById.isEmpty) return [];
 
   // Step 3-4 — resolve photo URLs and merge association metadata.
-  final enriched = speakersModel.data.map((speaker) {
+  final enriched = speakersById.values.map((speaker) {
     final resolvedPhoto = _resolvePhotoUrl(speaker.photo);
     final props = propsMap[speaker.id];
 
