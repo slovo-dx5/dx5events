@@ -317,6 +317,12 @@ class _ScannedContactsScreenState extends State<ScannedContactsScreen> {
                 _buildDetailRow(Icons.email, 'Email', contact.email),
                 const SizedBox(height: 16),
                 _buildDetailRow(Icons.phone, 'Phone', contact.phone),
+                const SizedBox(height: 16),
+                _buildDetailRow(
+                  Icons.sticky_note_2_outlined,
+                  'Note',
+                  contact.note.isEmpty ? 'No note added' : contact.note,
+                ),
                 const SizedBox(height: 32),
                 Row(
                   children: [

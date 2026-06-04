@@ -27,6 +27,7 @@ import 'firebase_options.dart';
 
 import 'helpers/themeData.dart';
 import 'homeScreen.dart';
+import 'mainNavigationPage.dart';
 import 'meetings/meeting_tabs.dart';
 import 'notifications/pushNotifications.dart';
 import 'services/activity_logger.dart';
@@ -47,38 +48,73 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // _notificationSetup.eventListenerCallback();
   print("Handling a background message: $message");
 }
+// Default event params for launching the full app shell (MainNavigationPage)
+// from a notification cold-start. Mirrors the values defined in landingPage2.dart.
+MainNavigationPage _buildMainNavShell({int initialTabIndex = 0}) {
+  return MainNavigationPage(
+    initialTabIndex: initialTabIndex,
+    coverImagePath: 'assets/images/themes/bfsi_landscape.png',
+    eventName: 'BFSI WEEK',
+    eventDate: 'WED, JUN, 17TH',
+    shortEventDescription: "Powering Africa's Financial Transformation",
+    eventLocation: 'KENYA',
+    eventID: '104',
+    eventDay: 14,
+    eventMonth: 6,
+    eventYear: 2026,
+    eventDayOfWeek: 'WED',
+    isCustomerEvent: false,
+  );
+}
+
+// Renders the full app shell and pushes NotificationsScreen on top so the user
+// retains the bottom nav bar and can navigate home from a notification cold-start.
+class _NotificationsLauncher extends StatefulWidget {
+  const _NotificationsLauncher();
+
+  @override
+  State<_NotificationsLauncher> createState() => _NotificationsLauncherState();
+}
+
+class _NotificationsLauncherState extends State<_NotificationsLauncher> {
+  bool _pushed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_pushed || !mounted) return;
+      _pushed = true;
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => _buildMainNavShell();
+}
+
 final router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
      builder: (context, state) =>  LandingPage2(isFromLogout: false,),
-     //builder: (context, state) =>  MapScreenTest(),
-    //builder: (context, state) =>  ContactSaveTest(),
-     //builder: (context, state) =>  StructureLAstMinute(),
-     //builder: (context, state) =>  ExamplePage(),
-  //  builder: (context, state) =>  MapScreen(),
-      //builder: (context, state) =>  ProfileScreen(),
     ),
     GoRoute(
       path: '/meetings',
-      //builder: (context, state) => MainNavigationPage(initialTabIndex: 2),
-      builder: (context, state) => MeetingTabs(),
+      // Render the full app shell so the user keeps the bottom nav and can
+      // leave the meetings tab when cold-started from a notification.
+      builder: (context, state) => _buildMainNavShell(initialTabIndex: 2),
     ),
     GoRoute(
       path: '/notifications',
-      builder: (context, state) => NotificationsScreen(),
+      builder: (context, state) => const _NotificationsLauncher(),
     ),
     GoRoute(
       path: '/test-contact',
       builder: (context, state) => ContactSaveTest(),
     ),
-    // GoRoute(
-    //   path: '/meetings/:id',
-    //   builder: (context, state) {
-    //     final meetingId = state.pathParameters['id'];
-    //     return MeetingsDetailScreen(meetingId: meetingId);
-    //   },
-    // ),
   ],
 );
 void main() async{

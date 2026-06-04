@@ -53,6 +53,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
   int attendeeID = 0;
   String? _selectedStage;
   List<String> _availableStages = [];
+  final Set<int> _expandedSessions = {};
 
   @override
   void initState() {
@@ -234,6 +235,9 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
     required int index,
   }) {
     final sessionColor = _getSessionColor(index);
+    final hasBreakouts =
+        session.breakoutSessions != null && session.breakoutSessions!.isNotEmpty;
+    final isExpanded = _expandedSessions.contains(session.sessionId);
 
     if (isNow) {
       debugPrint('NOW Session: ${session.title}, Stage: ${session.stage}, Speakers: ${session.speakers?.length ?? 0}');
@@ -253,39 +257,17 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
           // Session card
           Expanded(
             child: GestureDetector(
-              // onTap: () {
-              //   // Fetch speaker details if needed
-              //   final futures = session.speakers != null && session.speakers!.isNotEmpty
-              //       ? session.speakers!.map((speaker) => fetchSpeakerById(speaker.speaker.key)).toList()
-              //       : <Future<IndividualSpeaker?>>[];
-              //
-              //   PersistentNavBarNavigator.pushNewScreen(
-              //     context,
-              //     screen: FullAgendaScreen(
-              //       title: session.title,
-              //       day: widget.eventDay,
-              //       startTime: session.startTime,
-              //       endTime: session.endTime ?? '',
-              //       isFromSession: false,
-              //       type: session.sessionType ?? '',
-              //       userID: profileProvider.userID!,
-              //       description: session.summary,
-              //       speakers: session.speakers ?? [],
-              //       breakOuts: session.breakoutSessions,
-              //       eventLocation: widget.eventLocation,
-              //       eventDay: widget.eventDay,
-              //       eventMonth: widget.eventMonth,
-              //       eventYear: widget.eventYear,
-              //       futures: futures,
-              //       date: widget.eventDayOfWeek,
-              //       sessionId: session.sessionId,
-              //       sessionDate: _dayToAgendaMap[_selectedDate]!.date!,
-              //       eventID: widget.eventID,
-              //     ),
-              //     withNavBar: false,
-              //     pageTransitionAnimation: PageTransitionAnimation.slideRight,
-              //   );
-              // },
+              onTap: hasBreakouts
+                  ? () {
+                      setState(() {
+                        if (isExpanded) {
+                          _expandedSessions.remove(session.sessionId);
+                        } else {
+                          _expandedSessions.add(session.sessionId);
+                        }
+                      });
+                    }
+                  : null,
               child: Container(
                 margin: EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
@@ -348,8 +330,35 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                               ),
                             ),
                           ),
+                        if (hasBreakouts)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: AnimatedRotation(
+                              turns: isExpanded ? 0.5 : 0,
+                              duration: const Duration(milliseconds: 200),
+                              child: Icon(
+                                Icons.keyboard_arrow_down,
+                                color: sessionColor,
+                                size: 24,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
+
+                    // Tap hint for sessions with breakouts
+                    if (hasBreakouts && !isExpanded)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          'Tap to view ${session.breakoutSessions!.length} breakout sessions',
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w500,
+                            color: sessionColor,
+                          ),
+                        ),
+                      ),
 
                     // Stage/Location
                     if (session.stage != null)
@@ -382,6 +391,10 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                           }).toList(),
                         ),
                       ),
+
+                    // Breakout / concurrent sessions (expandable)
+                    if (hasBreakouts && isExpanded)
+                      _buildBreakoutSessions(session.breakoutSessions!, sessionColor),
                               ],
                             ),
                           ),
@@ -484,6 +497,104 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBreakoutSessions(
+      List<BreakoutSession> breakouts, Color sessionColor) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.grid_view_rounded, size: 16, color: sessionColor),
+              const SizedBox(width: 6),
+              Text(
+                'Breakout Sessions (${breakouts.length})',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: sessionColor,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ...breakouts.map((breakout) => _buildBreakoutItem(breakout, sessionColor)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBreakoutItem(BreakoutSession breakout, Color sessionColor) {
+    final title = breakout.title?.toString().trim() ?? '';
+    final type = breakout.type?.toString().trim() ?? '';
+    final summary = breakout.summary?.toString().trim() ?? '';
+    final hasSummary = summary.isNotEmpty && summary.toLowerCase() != 'summary';
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border(
+          left: BorderSide(color: sessionColor, width: 3),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (type.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: sessionColor.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                type,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: sessionColor,
+                ),
+              ),
+            ),
+          if (type.isNotEmpty) const SizedBox(height: 8),
+          if (title.isNotEmpty)
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+          if (hasSummary) ...[
+            const SizedBox(height: 6),
+            Text(
+              summary,
+              style: TextStyle(
+                fontSize: 12.5,
+                height: 1.4,
+                color: Colors.grey[700],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -680,7 +791,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                                 final isNow = _isSessionNow(session.startTime, session.endTime ?? '', sessionDate);
                                 final showTimeline = index < filteredSessions.length - 1;
 
-                                debugPrint('Session $index: title="${session.title}", isNow=$isNow, start=${session.startTime}, end=${session.endTime}, date=$sessionDate');
+                                debugPrint('Session $index: title="${session.title}", isNow=$isNow, start=${session.startTime}, end=${session.endTime}, date=$sessionDate, breakouts=${session.breakoutSessions?.length ?? 0}');
 
                                 return _buildTimelineSessionItem(
                                   context: context,
