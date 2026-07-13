@@ -6,12 +6,14 @@ import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 
 
 import '../../constants.dart';
 import 'dioServices/dioFetchService.dart';
 import 'models/sponsor_contact_model.dart';
+import 'providers/harry_controller.dart';
 
 import 'gallery_screen.dart';
 import 'homeScreen.dart';
@@ -60,6 +62,24 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
     getFirebaseMessagingToken();
     fetchAndStoreSponsorPhone();
+
+    // Show the Harry assistant while inside the event, and give it this
+    // event's context (covers every entry path, incl. notification cold-start).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final harry = context.read<HarryController>();
+      harry.setInEvent(true);
+      final id = widget.eventID ?? '';
+      if (id.isNotEmpty) {
+        harry.updateEvent(
+          eventId: id,
+          name: widget.eventName,
+          date: widget.eventDate,
+          location: widget.eventLocation,
+          description: widget.shortEventDescription,
+        );
+      }
+    });
   }
 
   fetchAndStoreSponsorPhone() async {

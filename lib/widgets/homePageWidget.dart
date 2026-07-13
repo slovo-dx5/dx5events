@@ -19,7 +19,9 @@ import '../screens/dx5veScreens/dx5veAttendeesScreen.dart';
 import '../screens/dx5veScreens/eventAgendaScreen.dart';
 import '../screens/contact_scanning/getContact.dart';
 import '../screens/feedback_page.dart';
+import '../screens/gallery/event_gallery_screen.dart';
 import '../screens/rewardsPage.dart';
+import '../screens/shop/shop_screen.dart';
 import '../map_screen.dart';
 import '../testScreen.dart';
 import 'cio_widgets.dart';
@@ -134,7 +136,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 children: [
                   // Cover Image
                   Image.asset(
-                    "assets/images/themes/bfsi_landscape.png",
+                    "assets/images/themes/smart_gov_landscape.jpg",
                     width: screenWidth,
                    // height: screenHeight * 0.3, // Made taller for more visual impact
                     fit: BoxFit.contain,
@@ -233,14 +235,6 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                          screen:  MapScreen(),
                          analyticsAction:  'map_screen_opened',
                         ),
-                       //  _buildFeatureCard(
-                       //  context:   context,
-                       // title:    'Social',
-                       // iconPath:    'assets/icons/social-media.png',
-                       //  color:   kConnectedGreen,
-                       //  screen:   const SocialFeed(),
-                       // analyticsAction:    'social_page_opened',
-                       //  ),
                         const SizedBox(width: 12),
                         _buildFeatureCard(
                          context:  context,
@@ -292,6 +286,37 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                           ),
                           analyticsAction: 'feedback_page_opened',
                                                  ),
+                        const SizedBox(width: 12),
+                        _buildFeatureCard(
+                          context: context,
+                          title: 'Gallery',
+                          iconPath: 'assets/icons/photo-gallery.png',
+                          color: kNashPurple,
+                          screen: EventGalleryScreen(eventId: widget.eventID),
+                          analyticsAction: 'gallery_page_opened',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        _buildFeatureCard(
+                          context: context,
+                          title: 'Shop',
+                          iconPath: 'assets/icons/shop.png',
+                          color: kGoldColor,
+                          screen: const ShopScreen(),
+                          analyticsAction: 'shop_page_opened',
+                        ),
+                        const SizedBox(width: 12),
+                        _buildFeatureCard(
+                          context: context,
+                          title: 'Social',
+                          iconPath: 'assets/icons/social-media.png',
+                          color: kConnectedGreen,
+                          screen: const SocialFeed(),
+                          analyticsAction: 'social_page_opened',
+                        ),
                       ],
                     ),
                   ],

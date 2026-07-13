@@ -1,10 +1,11 @@
-import 'package:dx5veevents/constants.dart';
-import 'package:dx5veevents/dioServices/dioFetchService.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:googleapis/admob/v1.dart';
+import 'package:provider/provider.dart';
 
-import '../../models/social_post_model.dart';
+import '../../constants.dart';
+import '../../providers/social_provider.dart';
 import '../../widgets/profile_initials_widget.dart';
 import '../../widgets/socialPostWidget.dart';
 import 'createPostScreen.dart';
@@ -17,110 +18,69 @@ class SocialFeed extends StatefulWidget {
 }
 
 class _SocialFeedState extends State<SocialFeed> {
-  List <PostData>_futurePosts=[];
-  bool isFetchingPosts=false;
-  String ?firstName;
-  String ?lastName;
-  int? currentUserID;
-  PostData ?pinnedPost;
-  List <PostData> otherPosts =[];
+  final ScrollController _scroll = ScrollController();
+  Timer? _pollTimer;
 
   @override
   void initState() {
-    getUserDetails();
     super.initState();
-    fetchSocialPosts();
+    // Initialize the provider (user, blocks, first page) once.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<SocialProvider>().init();
+    });
+    _scroll.addListener(_onScroll);
+    // Near-real-time: silently poll for new posts / updated counts.
+    _pollTimer = Timer.periodic(const Duration(seconds: 12), (_) {
+      if (mounted) context.read<SocialProvider>().pollNewPosts();
+    });
   }
 
+  @override
+  void dispose() {
+    _pollTimer?.cancel();
+    _scroll.removeListener(_onScroll);
+    _scroll.dispose();
+    super.dispose();
+  }
 
-  fetchSocialPosts() async {
-    setState(() {
-      isFetchingPosts = true;
-    });
-
-    final response = await DioFetchService().fetchSocialPosts();
-
-    if (response.statusCode == 200) {
-      final rawData = response.data['data'];
-
-      setState(() {
-        // Map the JSON response to a list of PostData
-        _futurePosts = List<PostData>.from(
-          rawData.map((postJson) => PostData.fromJson(postJson)),
-
-        );
-        pinnedPost = _futurePosts.firstWhere((post) => post.pictureLink=="a89bfa2b-b9de-41de-a20e-223cac4cdcf6", );
-        otherPosts= pinnedPost != null
-            ? _futurePosts.where((post) => post != pinnedPost).toList()
-            : _futurePosts;
-        print("Posts are ${_futurePosts.first}");
-        isFetchingPosts = false;
-      });
-    } else {
-      throw Exception('Failed to load posts');
+  void _onScroll() {
+    if (_scroll.position.pixels >= _scroll.position.maxScrollExtent - 300) {
+      context.read<SocialProvider>().loadMore();
     }
   }
 
-
-  Future<void> _openCreatePostScreen() async {
+  Future<void> _openCreatePost() async {
     await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const CreatePostScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const CreatePostScreen()),
     );
-  }
-  getUserDetails()async{
-    getStringPref(kFirstName).then((value) {
-      setState(() {
-        firstName=value;
-        print("firt name is $firstName");
-      });
-    });getIntPref(kUserID).then((value) {
-      setState(() {
-        currentUserID=value;
-        print("useri d name is $currentUserID");
-      });
-    });
-    getStringPref(kLastName).then((value) {
-
-      if(value==""){
-        setState(() {
-          lastName=".";
-        });
-      }else{
-        setState(() {
-          lastName=value;
-          print("last name is $lastName");
-        });
-      }
-
-    });
-
   }
 
   @override
   Widget build(BuildContext context) {
-    //final pinnedPost = _futurePosts.firstWhere((post) => post.pictureLink=="a89bfa2b-b9de-41de-a20e-223cac4cdcf6", );
-
+    final provider = context.watch<SocialProvider>();
     return Scaffold(
-      appBar: AppBar(centerTitle: true,
-        leading: IconButton(onPressed: (){Navigator.of(context).pop();}, icon: Icon(Icons.arrow_back),color: kCIOPink,),
-        automaticallyImplyLeading: true,
+      appBar: AppBar(
+        centerTitle: true,
+        leading: IconButton(
+          onPressed: () => Navigator.of(context).maybePop(),
+          icon: const Icon(Icons.arrow_back),
+          color: kCIOPink,
+        ),
         title: const Text("Social Feed"),
       ),
       body: Column(
         children: [
-          Row(
-            children: [
-              ProfileInitials(
-                circleRadius: 25, fontSize: 25,
-              ),horizontalSpace(width: 5),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+          // Composer bar
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            child: Row(
+              children: [
+                ProfileInitials(circleRadius: 22, fontSize: 20),
+                horizontalSpace(width: 6),
+                Expanded(
                   child: GestureDetector(
-                    onTap: () => _openCreatePostScreen(),
+                    onTap: _openCreatePost,
                     child: AbsorbPointer(
                       child: TextField(
                         decoration: InputDecoration(
@@ -128,7 +88,7 @@ class _SocialFeedState extends State<SocialFeed> {
                           filled: true,
                           fillColor: Colors.grey[200],
                           contentPadding: const EdgeInsets.symmetric(
-                              vertical: 16.0, horizontal: 20.0),
+                              vertical: 14.0, horizontal: 20.0),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30.0),
                             borderSide: BorderSide.none,
@@ -138,70 +98,61 @@ class _SocialFeedState extends State<SocialFeed> {
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-
-          Expanded(
-            child: Visibility(
-                visible: isFetchingPosts==false,
-                replacement: const Center(child: SpinKitFadingCircle(size: 50,color: kPrimaryColor,)),
-                child:
-                 ListView(
-            children: [
-            if (pinnedPost != null)
-            SocialMediaPost(
-            userName: pinnedPost!.userName,
-            description: pinnedPost!.postDescription,
-            imageUrl: pinnedPost!.pictureLink,
-            likes: pinnedPost!.likes?.length ?? 0,
-            comments: pinnedPost!.comments ?? [],
-            dateString: pinnedPost!.dateCreated,
-            currentUserID: currentUserID!,
-            postID: pinnedPost!.id,
-            currentUsername: "$firstName $lastName",
-          ),
-          ListView.builder(
-            itemCount: otherPosts.length,
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemBuilder: (context, index) {
-              final post = otherPosts.reversed.toList()[index];
-              return SocialMediaPost(
-                userName: post.userName,
-                description: post.postDescription,
-                imageUrl: post.pictureLink,
-                likes: post.likes?.length ?? 0,
-                comments: post.comments ?? [],
-                dateString: post.dateCreated,
-                currentUserID: currentUserID!,
-                postID: post.id,
-                currentUsername: "$firstName $lastName",
-              );
-            },
-          ),
-        ],
-      )
-
-
-
-                // ListView.builder( itemCount: _futurePosts.length,
-                //   itemBuilder: (context, index) {
-                //     final post = _futurePosts.reversed.toList()[index];
-                //     return SocialMediaPost(
-                //       userName: post.userName,
-                //       description: post.postDescription,
-                //       imageUrl: post.pictureLink, likes: post.likes?.length??0,
-                //       comments: post.comments??[], dateString: post.dateCreated,
-                //       currentUserID: currentUserID!, postID: post.id,
-                //       currentUsername: "$firstName $lastName", );
-                //   },
-                // )
-
-
+              ],
             ),
-          )
+          ),
+          Expanded(child: _buildBody(provider)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBody(SocialProvider provider) {
+    if (provider.isLoading && provider.posts.isEmpty) {
+      return const Center(child: SpinKitFadingCircle(size: 50, color: kPrimaryColor));
+    }
+    if (provider.error != null && provider.posts.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(provider.error!),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () => provider.loadFeed(refresh: true),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+    if (provider.posts.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: () => provider.loadFeed(refresh: true),
+        child: ListView(
+          children: const [
+            SizedBox(height: 200),
+            Center(child: Text('No posts yet. Be the first to say something!')),
+          ],
+        ),
+      );
+    }
+
+    final posts = provider.posts;
+    return RefreshIndicator(
+      onRefresh: () => provider.loadFeed(refresh: true),
+      child: ListView.builder(
+        controller: _scroll,
+        itemCount: posts.length + (provider.isLoadingMore ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index >= posts.length) {
+            return const Padding(
+              padding: EdgeInsets.all(16),
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
+          return SocialMediaPost(post: posts[index]);
+        },
       ),
     );
   }

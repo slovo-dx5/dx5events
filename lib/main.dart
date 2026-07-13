@@ -25,16 +25,33 @@ import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 
+import 'package:timezone/data/latest.dart' as tzdata;
+
 import 'helpers/themeData.dart';
 import 'homeScreen.dart';
 import 'mainNavigationPage.dart';
 import 'meetings/meeting_tabs.dart';
 import 'notifications/pushNotifications.dart';
+import 'providers/cart_provider.dart';
+import 'providers/social_provider.dart';
+import 'providers/harry_controller.dart';
 import 'services/activity_logger.dart';
+import 'services/harry/harry_config.dart';
+import 'services/harry/harry_reminders.dart';
+import 'widgets/harry/harry_overlay.dart';
 const AndroidNotificationChannel _meetingChannel = AndroidNotificationChannel(
   'meeting_notifications',
   'Meeting Notifications',
   description: 'Notifications for meeting requests and updates',
+  importance: Importance.high,
+);
+
+// Channel for reminders the user asks Harry (the AI assistant) to set.
+const AndroidNotificationChannel _harryReminderChannel =
+    AndroidNotificationChannel(
+  HarryReminders.channelId,
+  HarryReminders.channelName,
+  description: 'Reminders you asked Harry to set',
   importance: Importance.high,
 );
 
@@ -53,7 +70,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 MainNavigationPage _buildMainNavShell({int initialTabIndex = 0}) {
   return MainNavigationPage(
     initialTabIndex: initialTabIndex,
-    coverImagePath: 'assets/images/themes/bfsi_landscape.png',
+    coverImagePath: 'assets/images/themes/smart_gov_landscape.jpg',
     eventName: 'BFSI WEEK',
     eventDate: 'WED, JUN, 17TH',
     shortEventDescription: "Powering Africa's Financial Transformation",
@@ -117,6 +134,37 @@ final router = GoRouter(
     ),
   ],
 );
+// Builds the Harry assistant controller with its reminder scheduler and an
+// app-navigation handler (go_router lives here). Event context defaults to the
+// active event surfaced on the landing page (Smart Government Summit, id 107)
+// and can be refreshed later via HarryController.updateEvent.
+HarryController _buildHarryController() {
+  final controller = HarryController();
+  controller.reminders = HarryReminders(_localNotifications);
+  controller.updateEvent(
+    eventId: '107',
+    name: 'Smart Government Summit',
+    location: 'Kenya',
+  );
+  controller.navigateHandler = (target) async {
+    switch (target) {
+      case 'meetings':
+        router.go('/meetings');
+        return 'Opened your Meetings.';
+      case 'notifications':
+        router.go('/notifications');
+        return 'Opened Notifications.';
+      case 'home':
+        router.go('/');
+        return 'Opened Home.';
+      default:
+        return 'I can only open Meetings, Notifications or Home directly — '
+            'for anything else, tell the user which tab or tile to tap.';
+    }
+  };
+  return controller;
+}
+
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -143,24 +191,33 @@ void main() async{
       ),
     ),
   );
-  await _localNotifications
+  final androidNotifications = _localNotifications
       .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(_meetingChannel);
+          AndroidFlutterLocalNotificationsPlugin>();
+  await androidNotifications?.createNotificationChannel(_meetingChannel);
+  await androidNotifications?.createNotificationChannel(_harryReminderChannel);
+  // Needed on Android 13+ for Harry's scheduled reminders to appear.
+  await androidNotifications?.requestNotificationsPermission();
+
+  // Timezone DB is required for scheduling Harry's reminders (zonedSchedule).
+  tzdata.initializeTimeZones();
+
+  // Load Harry's AI keys from assets/.env (falls back to --dart-define).
+  await HarryConfig.load();
 
   Get.put<MyDrawerController>(MyDrawerController());
 
   ActivityLogger.instance.init();
 
   if(Platform.isAndroid){
-    await FirebaseMessaging.instance.subscribeToTopic("connectedAfricaBroadcastTest");
+    await FirebaseMessaging.instance.subscribeToTopic("SmartGovBroadCast");
     //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }else if(Platform.isIOS){
     try{ await NotificationSetup().getIOSPermission();
     await FirebaseMessaging.instance.getAPNSToken();
 
     await FirebaseMessaging.instance.getAPNSToken().then((value)async{
-      await FirebaseMessaging.instance.subscribeToTopic("connectedAfricaBroadcastTest");
+      await FirebaseMessaging.instance.subscribeToTopic("SmartGovBroadCast");
     } );
 
     //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -330,6 +387,9 @@ if(Platform.isIOS){
       providers: [
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => _buildHarryController()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => SocialProvider()),
         //// New provider
       ],
       builder: (context, _) {
@@ -345,6 +405,16 @@ if(Platform.isIOS){
               themeMode: ThemeMode.light,
               theme: lightTheme,
               //darkTheme: darkTheme,
+              // Harry floats above every routed screen and survives
+              // navigation. HarryRoot wraps it in its own Overlay so tooltips
+              // and the chat TextField's selection toolbar work (the app's own
+              // Overlay is inside `child`, not above this builder).
+              builder: (context, child) => Stack(
+                children: [
+                  child ?? const SizedBox.shrink(),
+                  const Positioned.fill(child: HarryRoot()),
+                ],
+              ),
 
          // home: LandingPage2(),
          // home: StructureLAstMinute(),

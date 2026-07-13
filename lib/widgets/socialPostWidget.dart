@@ -1,229 +1,123 @@
 import 'dart:math';
 
-import 'package:dx5veevents/dioServices/dioFetchService.dart';
-import 'package:dx5veevents/dioServices/dioPostService.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart' as intl;
-import '../dioServices/base_url.dart';
-import '../helpers/helper_functions.dart';
-import '../models/social_post_model.dart';
+import 'package:provider/provider.dart';
 
 import '../constants.dart';
-import '../screens/dx5ve_social/social_feed.dart';
+import '../models/social_post_model.dart';
+import '../providers/social_provider.dart';
+import '../screens/dx5ve_social/social_profile_screen.dart';
+import '../screens/dx5ve_social/widgets/comment_thread_sheet.dart';
+import '../screens/dx5ve_social/widgets/reaction_picker.dart';
+import '../screens/dx5ve_social/widgets/report_dialog.dart';
+import '../screens/dx5ve_social/widgets/social_rich_text.dart';
+import '../utils/directus_image.dart';
 
+/// A single feed post card. Reads reaction/comment state from [SocialProvider]
+/// and performs optimistic mutations through it.
 class SocialMediaPost extends StatefulWidget {
-  String userName;
-  String currentUsername;
-  String imageUrl;
-  String dateString;
-  int likes;
-  int postID;
-  int currentUserID;
-  final List<CommentModel> comments;
-  String description;
-   SocialMediaPost({super.key,required this.likes,
-
-     required this.currentUserID, required this.postID,required this.currentUsername,
-     required this.dateString,required this.comments, required this.userName,required this.description,
-   required this.imageUrl});
+  final PostData post;
+  const SocialMediaPost({super.key, required this.post});
 
   @override
   State<SocialMediaPost> createState() => _SocialMediaPostState();
 }
 
 class _SocialMediaPostState extends State<SocialMediaPost> {
-  bool _isExpanded=false;
-  bool _showReadMore = false;
+  bool _isExpanded = false;
+  late final Color _avatarColor =
+      predefinedColors[Random().nextInt(predefinedColors.length)];
 
-  Random random = Random();
-  final int randomIndex = Random().nextInt(predefinedColors.length);
-  late Color randomBackgroundColor;
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
+  PostData get post => widget.post;
 
-    setState(() {
-      randomBackgroundColor= predefinedColors[randomIndex];
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkTextOverflow(contentText: widget.description));
-  }
-
-  addLikeToPost({required int postId, required int userID, required LikesModel newLike}) async {
+  String _formatDate(String dateStr) {
     try {
-      // Step 1: Fetch the post to get existing comments
-      final response = await DioFetchService().fetchSinglePost(postId: postId);
-      print("got post details");
-
-      if (response.statusCode == 200) {
-        // Step 2: Parse the existing comments
-        var existingLikes = <LikesModel>[];
-
-        // Access the nested 'data' key first
-        final postData = response.data['data'];
-
-        // Check if 'Comments' exists and is a list
-        if (postData != null && postData['likes'] is List) {
-          existingLikes = List<LikesModel>.from(
-            (postData['likes'] as List<dynamic>).map((data) => LikesModel.fromJson(data)),
-          );
-        }
-        if(existingLikes.any((like) => like.likerId == userID)){
-          Fluttertoast.showToast(msg: "You already liked this post");
-          return;
-        }else{
-          print("liking post");
-
-          existingLikes.add(newLike);
-          // Step 4: Send PATCH request with updated comments list
-          final likeBody = {
-            "likes": existingLikes.map((like) => like.toJson()).toList(),
-          };
-         final likeResponse= await DioPostService().patchComments(
-            body: likeBody,
-            postID: postId,
-          );
-          await UserPointsService().
-          createOrUpdateUserPoints(userId: widget.currentUserID,actionId: 13);
-          Fluttertoast.showToast(msg: "Post liked successfully");
-         print("Like response is ${likeResponse.data}");
-
-        }
-
-        // Step 3: Add the new comment to the list
-
-
-
-      }
-    } catch (e) {
-      Fluttertoast.showToast(msg: "Error:Check your internet and retry");
+      return intl.DateFormat('dd MMM yyyy').format(DateTime.parse(dateStr));
+    } catch (_) {
+      return '';
     }
   }
 
- 
+  String _initials(String fullName) => fullName
+      .split(' ')
+      .where((w) => w.isNotEmpty)
+      .map((w) => w[0])
+      .take(2)
+      .join()
+      .toUpperCase();
 
-
-  String formatDate(String dateStr) {
-    final DateTime dateTime = DateTime.parse(dateStr);
-    return intl.DateFormat('dd MMM yyyy').format(dateTime);
+  void _openProfile() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => SocialProfileScreen(
+        userId: post.userId,
+        userName: post.userName,
+      ),
+    ));
   }
 
-  String getInitials(String fullName) {
-    return fullName
-        .split(' ')                 // Split the string by spaces
-        .where((word) => word.isNotEmpty) // Filter out any empty strings (in case of multiple spaces)
-        .map((word) => word[0])      // Take the first letter of each word
-        .join()                      // Join them back together
-        .toUpperCase();              // Convert to uppercase (optional)
-  }
-
-
-  void _checkTextOverflow({required String contentText}) {
-    // Check if the text exceeds three lines
-    final textSpan = TextSpan(
-      text: contentText,
-       style: const TextStyle(fontSize: 14),
-    );
-
-    final textPainter = TextPainter(
-      text: textSpan,
-      maxLines: 3,
-      textDirection: TextDirection.ltr,
-    );
-
-    textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 48); // Adjust width
-
-    setState(() {
-      _showReadMore = textPainter.didExceedMaxLines;
-    });
-  }
-
-  void _showCommentsBottomSheet() {
+  void _openComments() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Close button
-              const Padding(
-                padding: EdgeInsets.all(12.0),
-                child: Text(
-                  "Comments",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-              ),
-              const Divider(),
-
-              // List of comments
-              Expanded(
-                child: ListView.builder(
-                  itemCount: widget.comments.length, // Replace with actual comments count
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: const CircleAvatar(
-                        child: Text('U'), // Replace with actual user's initials or image
-                      ),
-                      title: Text('User $index'), // Replace with actual username
-                      subtitle: const Text('This is a comment'), // Replace with actual comment text
-                    );
-                  },
-                ),
-              ),
-
-              // TextField for new comment
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: "Add a comment...",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.send, color:kPrimaryColor),
-                      onPressed: () {
-                        // Implement send comment functionality here
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+      builder: (_) => SizedBox(
+        height: MediaQuery.of(context).size.height * 0.85,
+        child: CommentThreadSheet(postId: post.id),
+      ),
     );
   }
+
+  Future<void> _onMenuSelected(String value, SocialProvider provider) async {
+    switch (value) {
+      case 'report':
+        final reason = await showReportDialog(context);
+        if (reason == null) return;
+        final ok = await provider.reportPost(post.id, reason);
+        Fluttertoast.showToast(
+            msg: ok ? 'Reported. Thank you.' : 'Could not submit report');
+        break;
+      case 'block':
+        final ok = await provider.blockUser(post.userId);
+        Fluttertoast.showToast(
+            msg: ok ? 'User blocked' : 'Could not block user');
+        break;
+      case 'hide':
+        await provider.setPostStatus(post.id, 'hidden');
+        Fluttertoast.showToast(msg: 'Post hidden');
+        break;
+      case 'remove':
+        await provider.setPostStatus(post.id, 'removed');
+        Fluttertoast.showToast(msg: 'Post removed');
+        break;
+    }
+  }
+
+  void _viewImage() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => _PostImageViewer(assetId: post.pictureLink),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(12.0),
-      padding: const EdgeInsets.all(12.0),
-      decoration: BoxDecoration(
-        //color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+    final provider = context.watch<SocialProvider>();
+    final myType = provider.myReaction(post.id);
+    final reacted = myType != null;
+    final isOwn = provider.currentUserId == post.userId;
 
-            offset: const Offset(0, 3),
-          ),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(color: Colors.grey.withOpacity(0.2), blurRadius: 6, offset: const Offset(0, 3)),
         ],
       ),
       child: Column(
@@ -232,127 +126,143 @@ class _SocialMediaPostState extends State<SocialMediaPost> {
           // Header
           Row(
             children: [
-      CircleAvatar(backgroundColor:randomBackgroundColor,
-        radius: 25,
-        child: Center(child: Text(getInitials(widget.userName),
-          style:  const TextStyle(color: Colors.white,fontSize: 20),)),),
+              GestureDetector(
+                onTap: _openProfile,
+                child: CircleAvatar(
+                  backgroundColor: _avatarColor,
+                  radius: 24,
+                  child: Text(_initials(post.userName),
+                      style: const TextStyle(color: Colors.white, fontSize: 18)),
+                ),
+              ),
               const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.userName,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+              Expanded(
+                child: GestureDetector(
+                  onTap: _openProfile,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(post.userName,
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                overflow: TextOverflow.ellipsis),
+                          ),
+                          if (post.isPinned)
+                            const Padding(
+                              padding: EdgeInsets.only(left: 6),
+                              child: Icon(Icons.push_pin, size: 14, color: kCIOPink),
+                            ),
+                        ],
+                      ),
+                      Text(_formatDate(post.dateCreated),
+                          style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                    ],
                   ),
-                   Text(
-                    formatDate(widget.dateString),
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
-                  ),
+                ),
+              ),
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_horiz),
+                onSelected: (v) => _onMenuSelected(v, provider),
+                itemBuilder: (context) => [
+                  if (!isOwn)
+                    const PopupMenuItem(value: 'report', child: Text('Report post')),
+                  if (!isOwn)
+                    const PopupMenuItem(value: 'block', child: Text('Block user')),
+                  if (provider.isAdmin) ...[
+                    const PopupMenuItem(value: 'hide', child: Text('Hide (admin)')),
+                    const PopupMenuItem(value: 'remove', child: Text('Remove (admin)')),
+                  ],
                 ],
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
-          LayoutBuilder(
-            builder: (context, constraints) {
-              // Check if contentText exceeds three lines
-              final textPainter = TextPainter(
-                text: TextSpan(text: widget.description, style: const TextStyle(fontSize: 14)),
-                maxLines: _isExpanded ? null : 3,
-                textDirection: TextDirection.ltr,
-              )..layout(maxWidth: constraints.maxWidth);
-
-              final isOverflowing = textPainter.didExceedMaxLines;
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.description,
-                    maxLines: _isExpanded ? null : 3,
-                    overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
-                  ),
-                  if (_showReadMore)
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _isExpanded = !_isExpanded;
-                        });
-                      },
-                      child: Text(
-                        _isExpanded ? 'Show Less' : 'Read More',
-                        style: const TextStyle(
-                          color: kPrimaryColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                ],
-              );
-            },
-          ),
-
-          // Post content
-
-          const SizedBox(height: 5),
-
-          SizedBox(height: 12),
-
-          // Image
-          if(widget.imageUrl!="no image")ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-            child: Image.network(
-              "${BaseURL.Baseurl}/assets/${widget.imageUrl}",
-             // height: 300,
-              width: double.infinity,
-              fit: BoxFit.cover,
+          // Description with tappable #/@ + Read More
+          if (post.postDescription.trim().isNotEmpty) ...[
+            SocialRichText(
+              text: post.postDescription,
+              maxLines: _isExpanded ? null : 4,
             ),
-          ),
-          const SizedBox(height: 12),
+            _ReadMoreToggle(
+              text: post.postDescription,
+              expanded: _isExpanded,
+              onToggle: () => setState(() => _isExpanded = !_isExpanded),
+            ),
+            const SizedBox(height: 8),
+          ],
 
-          // Likes and Comments
-           Row(
+          // Optimized image
+          if (DirectusImage.hasImage(post.pictureLink))
+            GestureDetector(
+              onTap: _viewImage,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: CachedNetworkImage(
+                  imageUrl: DirectusImage.thumb(post.pictureLink),
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  placeholder: (c, _) => Container(
+                    height: 200,
+                    color: Colors.grey.withOpacity(0.15),
+                    child: const Center(
+                        child: SizedBox(
+                            height: 24, width: 24, child: CircularProgressIndicator(strokeWidth: 2))),
+                  ),
+                  errorWidget: (c, _, __) => Container(
+                    height: 120,
+                    color: Colors.grey.withOpacity(0.15),
+                    child: const Icon(Icons.broken_image, color: Colors.grey),
+                  ),
+                ),
+              ),
+            ),
+          const SizedBox(height: 10),
+
+          // Reactions + comments
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  GestureDetector(
-                      onTap: ()async{
-                       await addLikeToPost(postId: widget.postID,
-                           userID: widget.currentUserID, newLike: LikesModel(
-                           // ID of the user making the comment
-                           postId: widget.postID, // ID of the post being commented on
-                   likerId: widget.currentUserID, // Name of the user making the comment
-                         ),);
-                      },
-                      child: const Icon(Icons.favorite, color: kPrimaryColor, size: 25)),
-                  const SizedBox(width: 4),
-                  Text(widget.likes.toString()),
-                ],
-              ),
-               GestureDetector(onTap: () {
-                 showModalBottomSheet(
-                   backgroundColor: kGradientLighterBlue,
-                   context: context,
-                   isScrollControlled: true,
-                   builder: (_) {
-                     return Container(
-                       height: MediaQuery.of(context).size.height * 0.85,
-                       child: CommentsBottomSheet(comments: widget.comments, postId: widget.postID,
-                         currentUserID: widget.currentUserID, currentUserName: widget.currentUsername,),
-                     );
-                   },
-                 );
-               },
-                 child: Row(
+              GestureDetector(
+                onTap: () => provider.toggleReaction(
+                    post.id, type: myType ?? ReactionType.like),
+                onLongPress: () async {
+                  final picked = await showReactionPicker(context);
+                  if (picked != null) {
+                    provider.toggleReaction(post.id, type: picked);
+                  }
+                },
+                child: Row(
                   children: [
-                    const Icon(Icons.comment, color: Colors.grey, size: 20),
-                    const SizedBox(width: 4),
-                    Text(widget.comments.length.toString()),
+                    if (reacted)
+                      Text(ReactionType.emojiFor(myType), style: const TextStyle(fontSize: 20))
+                    else
+                      const Icon(Icons.favorite_border, color: kPrimaryColor, size: 24),
+                    const SizedBox(width: 6),
+                    Text(
+                      reacted ? ReactionType.labelFor(myType) : 'Like',
+                      style: TextStyle(
+                        color: reacted ? kPrimaryColor : null,
+                        fontWeight: reacted ? FontWeight.w600 : FontWeight.normal,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(post.reactionCount.toString()),
                   ],
+                ),
               ),
-               ),
+              GestureDetector(
+                onTap: _openComments,
+                child: Row(
+                  children: [
+                    const Icon(Icons.mode_comment_outlined, color: Colors.grey, size: 22),
+                    const SizedBox(width: 6),
+                    Text(post.commentCount.toString()),
+                  ],
+                ),
+              ),
             ],
           ),
         ],
@@ -360,199 +270,70 @@ class _SocialMediaPostState extends State<SocialMediaPost> {
     );
   }
 }
-class CommentsBottomSheet extends StatefulWidget {
-  final List<CommentModel> comments;
-  int postId;
-  int currentUserID;
-  String currentUserName;
 
-   CommentsBottomSheet({super.key, required this.comments,
-     required this.currentUserID,required this.currentUserName,
-     required this.postId});
+/// Shows a "Read More/Less" toggle only when [text] overflows [collapsedLines].
+class _ReadMoreToggle extends StatelessWidget {
+  final String text;
+  final bool expanded;
+  final VoidCallback onToggle;
+  final int collapsedLines;
 
-  @override
-  State<CommentsBottomSheet> createState() => _CommentsBottomSheetState();
-}
-
-class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
-  TextEditingController commentController=TextEditingController();
-  bool isSubmittingComment = false;
-
-
-  addCommentToPost({required int postId, required CommentModel newComment}) async {
-    try {
-      // Step 1: Fetch the post to get existing comments
-      final response = await DioFetchService().fetchSinglePost(postId: postId);
-
-      if (response.statusCode == 200) {
-        // Step 2: Parse the existing comments
-        var existingComments = <CommentModel>[];
-
-          // Access the nested 'data' key first
-          final postData = response.data['data'];
-
-          // Check if 'Comments' exists and is a list
-          if (postData != null && postData['Comments'] is List) {
-            existingComments = List<CommentModel>.from(
-              (postData['Comments'] as List<dynamic>).map((data) => CommentModel.fromJson(data)),
-            );
-          }
-
-
-        // Step 3: Add the new comment to the list
-        existingComments.add(newComment);
-
-        // Step 4: Send PATCH request with updated comments list
-        final commentBody = {
-          "Comments": existingComments.map((comment) => comment.toJson()).toList(),
-        };
-        await DioPostService().patchComments(
-          body: commentBody,
-          postID: postId,
-        );
-      }
-    } catch (e) {
-      Fluttertoast.showToast(msg: "Error:Check your internet and retry");
-    }
-  }
-
+  const _ReadMoreToggle({
+    required this.text,
+    required this.expanded,
+    required this.onToggle,
+    this.collapsedLines = 4,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Flexible(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final tp = TextPainter(
+          text: TextSpan(text: text, style: const TextStyle(fontSize: 14)),
+          maxLines: collapsedLines,
+          textDirection: TextDirection.ltr,
+        )..layout(maxWidth: constraints.maxWidth);
+        if (!tp.didExceedMaxLines) return const SizedBox.shrink();
+        return GestureDetector(
+          onTap: onToggle,
           child: Padding(
-            padding: EdgeInsets.only(
-              top: 25,
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(expanded ? 'Show Less' : 'Read More',
+                style: const TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold)),
+          ),
+        );
+      },
+    );
+  }
+}
 
-              bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-               widget.comments.isEmpty?
-               Center(child: Column(
-                 children: [
-                   SizedBox(height:100,width:100,child: Image.asset("assets/icons/no_comment.png")),
-                   const Text("No comments yet. Leave one",style: TextStyle(color:kScreenDark ,fontSize: 15),),
-                   verticalSpace(height: 20)
-                 ],
-               ),): Expanded(
-                  child: ListView.builder(
-                    itemCount: widget.comments.length,
-                    itemBuilder: (context, index) {
-                      final comment = widget.comments.reversed.toList()[index];
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            CircleAvatar(backgroundColor:kGoldColor,
-                          radius: 25,
-                          child: Text(getInitials(comment.commenterName),
-                            style:  const TextStyle(color: Colors.white,fontSize: 20),),),
-                        horizontalSpace(width: 10),
-                        ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.75,
-                          ),
-                          child: Card(
-                            color: kRightBubble.withOpacity(0.7),
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    comment.commenterName,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 15,
-                                      color: kToggleDark,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    comment.comment,
-                                    style: const TextStyle(fontSize: 12, color: kToggleDark,fontWeight: FontWeight.w200),
-                                    maxLines: 5, // Set a maximum number of lines
-                                    overflow: TextOverflow.ellipsis, // Show ellipsis if overflow
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        )
+/// Full-screen, zoomable viewer for a post image (full-resolution transform).
+class _PostImageViewer extends StatelessWidget {
+  final String assetId;
+  const _PostImageViewer({required this.assetId});
 
-                        ],),
-                      );
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Flexible(
-                        child: TextFormField(
-                          keyboardType: TextInputType.multiline,
-                         // controller: _postTextController,
-                          maxLines: null,
-                          controller: commentController,
-                          decoration: const InputDecoration(
-                            labelText: 'Add a comment...',
-                            border: OutlineInputBorder(),
-                          ),
-
-                        ),
-                      ),
-                      !isSubmittingComment?IconButton(onPressed: ()async{
-                       if(commentController.text.isNotEmpty ){
-                         setState(() {
-                           isSubmittingComment=true;
-                         });
-                         await addCommentToPost(postId: widget.postId,
-                           newComment: CommentModel(
-                           comment: commentController.text,
-                           commenterId: widget.currentUserID, // ID of the user making the comment
-                           postId: widget.postId, // ID of the post being commented on
-                           commenterName: widget.currentUserName, // Name of the user making the comment
-                         ),
-
-                         );
-
-                         await UserPointsService().
-                         createOrUpdateUserPoints(userId: widget.currentUserID,actionId: 12);
-                         setState(() {
-                           isSubmittingComment=false;
-                         });
-
-                         Fluttertoast.showToast(msg: "Comment submitted");
-                         commentController.clear();
-                         Navigator.pushReplacement(
-                             context,
-                             MaterialPageRoute(
-                                 builder: (BuildContext context) => SocialFeed()));
-                         await DioFetchService().fetchSocialPosts();
-                         setState(() {
-
-                         });
-
-                       }else{
-                         Fluttertoast.showToast(msg: "Cannot send empty text");
-                       }
-                      }, icon: const Icon(Icons.send,size: 40,color: kCIOPink,)): const SizedBox(height: 25 ,width: 25,child: CircularProgressIndicator(),)
-                    ],
-                  ),
-                ),
-              ],
-            ),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: Center(
+        child: InteractiveViewer(
+          maxScale: 4,
+          child: CachedNetworkImage(
+            imageUrl: DirectusImage.full(assetId),
+            fit: BoxFit.contain,
+            placeholder: (c, _) =>
+                const CircularProgressIndicator(color: Colors.white),
+            errorWidget: (c, _, __) =>
+                const Icon(Icons.broken_image, color: Colors.white54, size: 48),
           ),
         ),
-      ],
+      ),
     );
   }
 }

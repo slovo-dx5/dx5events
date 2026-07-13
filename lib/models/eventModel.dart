@@ -106,7 +106,7 @@ class SponsorAssociation {
   factory SponsorAssociation.fromJson(Map<String, dynamic> json) {
     return SponsorAssociation(
       sponsor: Reference.fromJson(json['sponsor']),
-      category: json['category'],
+      category: json['category'] ?? '',
     );
   }
 }

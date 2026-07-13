@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 75.81.17+91
+version: 75.81.21+95
 
 
 environment:
@@ -88,11 +88,23 @@ dependencies:
   pretty_dio_logger: ^1.2.0-beta-1
   #flutter_downloader: any
 
+  # Masonry gallery (mixed portrait/landscape photos)
+  flutter_staggered_grid_view: ^0.7.0
+
+  # Harry AI assistant
+  speech_to_text: ^7.0.0
+  flutter_tts: ^4.2.0
+  timezone: ^0.9.4
+
   #persistent_bottom_nav_bar_v2: ^5.3.0
 
 dependency_overrides:
   flutter_widget_from_html_core: ^0.15.2
   permission_handler_apple: 9.4.5
+  # speech_to_text 7.x needs json_annotation >=4.4 (JsonKey.includeFromJson);
+  # the abandoned dio_http_cache otherwise pins it back to 4.1.0. Pinned to
+  # 4.9.0 (not ^) because 4.10+ require Dart 3.9, above this SDK (3.8).
+  json_annotation: 4.9.0
 
 dev_dependencies:
 
@@ -118,14 +130,17 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/themes/
-    - assets/images/themes/bfsi_landscape.png
-    - assets/images/themes/bfsi_portrait.jpg
+    - assets/images/themes/smart_gov_landscape.jpg
+    - assets/images/themes/smart_gov_portraitt.jpg
     - assets/icons/
     - assets/images/
     - assets/images/backgrounds/
     - assets/images/sponsors/
+    - assets/images/gallery/
+    - assets/images/shop/
     - assets/serviceacc.json
     - assets/connected agenda.pdf
+    - assets/.env
 
   #   - images/a_dot_ham.jpeg
 
