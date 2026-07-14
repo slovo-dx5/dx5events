@@ -120,11 +120,12 @@ class _CISOSponsorsScreenState extends State<CISOSponsorsScreen>
         .toList()
       ..sort((a, b) => a.order.compareTo(b.order));
 
-    // 5. Split: exhibitors are category == 'exhibitor_only', rest are sponsors
-    final exhibitors =
-        enriched.where((s) => s.category == 'exhibitor_only').toList();
-    final sponsors =
-        enriched.where((s) => s.category != 'exhibitor_only').toList();
+    // 5. Split: exhibitors are category == 'exhibitor_only' (case-insensitive),
+    //    rest are sponsors
+    bool isExhibitor(_EnrichedSponsor s) =>
+        s.category.toLowerCase() == 'exhibitor_only';
+    final exhibitors = enriched.where(isExhibitor).toList();
+    final sponsors = enriched.where((s) => !isExhibitor(s)).toList();
 
     return _SponsorsResult(sponsors: sponsors, exhibitors: exhibitors);
   }
@@ -207,11 +208,27 @@ class _SponsorsTab extends StatelessWidget {
       grouped.putIfAbsent(s.category, () => []).add(s);
     }
 
-    // Build section list in canonical order, skipping empty categories
-    final sections = categoryOrder
-        .where((c) => grouped.containsKey(c) && grouped[c]!.isNotEmpty)
-        .map((c) => MapEntry(c, grouped[c]!))
-        .toList();
+    // Build section list: known categories first (in canonical order),
+    // matched case-insensitively, then any remaining categories appended so
+    // nothing is ever silently dropped.
+    final canonicalLower = categoryOrder.map((c) => c.toLowerCase()).toList();
+    final sections = <MapEntry<String, List<_EnrichedSponsor>>>[];
+    final usedKeys = <String>{};
+
+    for (final canonical in canonicalLower) {
+      for (final entry in grouped.entries) {
+        if (entry.key.toLowerCase() == canonical && entry.value.isNotEmpty) {
+          sections.add(MapEntry(entry.key, entry.value));
+          usedKeys.add(entry.key);
+        }
+      }
+    }
+    // Append any categories not present in the canonical order.
+    for (final entry in grouped.entries) {
+      if (!usedKeys.contains(entry.key) && entry.value.isNotEmpty) {
+        sections.add(MapEntry(entry.key, entry.value));
+      }
+    }
 
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 12),

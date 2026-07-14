@@ -61,7 +61,8 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
     super.initState();
     getAttendeeID();
     setState(() {
-      _selectedDate = DateTime(widget.eventYear, widget.eventMonth, widget.eventDay);
+      _selectedDate = _dateOnly(
+          DateTime(widget.eventYear, widget.eventMonth, widget.eventDay));
     });
     _loadSessions();
     ActivityLogger.instance.log(
@@ -98,10 +99,21 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
       final speakerIds = <int>{};
       for (final day in agendaModel.days) {
         for (final session in day.sessions) {
-          if (session.speakers == null) continue;
-          for (final a in session.speakers!) {
-            final k = a.speaker.key;
-            if (k is int) speakerIds.add(k);
+          if (session.speakers != null) {
+            for (final a in session.speakers!) {
+              final k = a.speaker.key;
+              if (k is int) speakerIds.add(k);
+            }
+          }
+          // Breakout session speakers share the same speaker collection.
+          if (session.breakoutSessions != null) {
+            for (final breakout in session.breakoutSessions!) {
+              if (breakout.speakers == null) continue;
+              for (final s in breakout.speakers!) {
+                final k = s.key;
+                if (k is int) speakerIds.add(k);
+              }
+            }
           }
         }
       }
@@ -116,7 +128,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
         agendaDays = agendaModel.days;
         _speakerMap = speakerMap;
         _extractAvailableStages();
-        _dayToAgendaMap = { for (var item in agendaDays) (item).date : item };
+        _dayToAgendaMap = { for (var item in agendaDays) _dateOnly(item.date as DateTime) : item };
         isFetching = false;
       });
       debugPrint('Loaded ${agendaDays.length} days with ${_dayToAgendaMap.length} mapped days and ${_speakerMap.length} speakers');
@@ -128,6 +140,11 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
       });
     }
   }
+
+  // Strip any time/timezone component so agenda-day keys and the selected
+  // date compare by calendar day only. Backend dates can arrive with a time
+  // or UTC offset, which broke raw DateTime equality on single-day events.
+  DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
 
   void _extractAvailableStages() {
     Set<String> stages = {};
@@ -536,6 +553,11 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
     final type = breakout.type?.toString().trim() ?? '';
     final summary = breakout.summary?.toString().trim() ?? '';
     final hasSummary = summary.isNotEmpty && summary.toLowerCase() != 'summary';
+    final speakers = breakout.speakers
+            ?.map((s) => _speakerMap[s.key])
+            .whereType<IndividualSpeaker>()
+            .toList() ??
+        const <IndividualSpeaker>[];
 
     return Container(
       width: double.infinity,
@@ -595,6 +617,10 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
               ),
             ),
           ],
+          if (speakers.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            ...speakers.map((speaker) => _buildSpeakerItem(speaker, false)),
+          ],
         ],
       ),
     );
@@ -610,7 +636,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
       child: GestureDetector(
         onTap: () {
           setState(() {
-            _selectedDate = date;
+            _selectedDate = _dateOnly(date);
           });
         },
         child: Column(

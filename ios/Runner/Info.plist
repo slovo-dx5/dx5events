@@ -37,7 +37,9 @@
 	<key>NSContactsUsageDescription</key>
 	<string>This app requires contacts access to function properly.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Permission required by AppStore</string>
+	<string>Harry, your in-app assistant, uses the microphone so you can talk to it instead of typing.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Harry uses speech recognition to turn what you say into text so it can answer your questions.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Permission required to select profile pictures.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

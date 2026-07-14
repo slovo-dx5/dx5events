@@ -7,6 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
 
+// Temporary feature flags — flip back to true to re-enable.
+const bool kGalleryFeatureEnabled = false;
+const bool kShopFeatureEnabled = false;
+
 const kIconBlue = Color(0xFF2398cd);
 const kIconPurple = Color(0xFF8f3b9d);
 const kIconYellow = Color(0xFFd59a3e);

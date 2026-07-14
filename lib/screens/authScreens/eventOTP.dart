@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -19,6 +20,7 @@ import 'package:dio/dio.dart';
 import '../../dioServices/dioOTPService.dart';
 import '../../dioServices/dioPostService.dart';
 import '../../mainNavigationPage.dart';
+import '../../providers/harry_controller.dart';
 import '../../services/activity_logger.dart';
 import '../../testScreen.dart';
 
@@ -77,7 +79,6 @@ class _OTPScreenState extends State<OTPScreen> {
 
   @override
   void initState() {
-    print("attendee id is ${widget.id}");
     super.initState();
 
   }
@@ -152,6 +153,20 @@ class _OTPScreenState extends State<OTPScreen> {
         setIntPref(key: kUserID, value: widget.id);
         setBoolPref(key: "isAuthenticated", value: true);
 
+        // Enable the Harry assistant now that the user is logged in, and give
+        // it the event the user actually joined.
+        if (mounted) {
+          final harry = context.read<HarryController>();
+          harry.setAuthenticated(true, firstName: widget.firstName);
+          harry.updateEvent(
+            eventId: widget.eventID,
+            name: widget.eventName,
+            date: widget.eventDate,
+            location: widget.eventLocation,
+            description: widget.shortEventDescription,
+          );
+        }
+
         ///Try to create account in firebase
         try{
           final _auth = FirebaseAuth.instance;
@@ -168,18 +183,18 @@ class _OTPScreenState extends State<OTPScreen> {
           if (e is FirebaseAuthException) {
             if (e.code == 'email-already-in-use') {
             try{
-              print("EMail in use loggin in");
+              debugPrint("EMail in use loggin in");
               await DioPostService().updateSignIn(body: {"app_sign_in":true}, recordID: widget.recordID);
 
               await createUserInFirestore();
               await _auth.signInWithEmailAndPassword(email: email, password: kDefaultPassword);
             }catch(e){
-              print("The erroror here is $e");
+              debugPrint("The erroror here is $e");
             }
 
             } else {
               // Handle other Firebase Authentication errors.
-              print('Error: ${e.code}');
+              debugPrint('Error: ${e.code}');
             }
 
 
@@ -380,7 +395,6 @@ class _OTPScreenState extends State<OTPScreen> {
 
                                         }catch(e){
                                           if (e is DioError) {
-                                            print("is dio eroro");
                                             if (e.response != null &&e.response!.data["message"]=="OTP has expired" ) {
                                               setState(() {
                                                 isValidating=false;

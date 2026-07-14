@@ -24,10 +24,23 @@ class AgendaModel {
   });
 
   factory AgendaModel.fromJson(Map<String, dynamic> json) {
+    // Guard against an empty/missing `data` array or a missing `day` list,
+    // which the API returns when no agenda has been published yet. Without
+    // this, `data[0]` throws RangeError (Valid value range is empty: 0).
+    final data = json['data'];
+    if (data is! List || data.isEmpty) {
+      return AgendaModel(days: []);
+    }
+
+    final dayList = (data[0] is Map) ? data[0]['day'] : null;
+    if (dayList is! List) {
+      return AgendaModel(days: []);
+    }
+
     return AgendaModel(
      // id: json['data']['id'],
 
-      days: List<AgendaDay>.from(json['data'][0]['day'].map((x) => AgendaDay.fromJson(x))),
+      days: List<AgendaDay>.from(dayList.map((x) => AgendaDay.fromJson(x))),
     );
   }
 
@@ -144,14 +157,19 @@ class BreakoutSession {
   });
 
   factory BreakoutSession.fromJson(Map<String, dynamic> json) {
-   // var speakersList = json['breakout_session_speakers'] as List;
-   // List<Speaker> speakerObjects = speakersList.map((speakerJson) => Speaker.fromJson(speakerJson)).toList();
+    final speakersJson = json['breakout_session_speakers'] as List<dynamic>?;
+    final speakerObjects = speakersJson != null
+        ? speakersJson
+            .where((x) => x is Map && x['speaker'] != null && x['speaker']['key'] != null)
+            .map((x) => Speaker.fromJson(Map<String, dynamic>.from(x as Map)))
+            .toList()
+        : <Speaker>[];
 
     return BreakoutSession(
       title: json['breakout_session_title'],
       type: json['breakout_session_type'],
       summary: json['breakout_session_summary'] ??"Summary",
-      //speakers: speakerObjects,
+      speakers: speakerObjects,
     );
   }
 }

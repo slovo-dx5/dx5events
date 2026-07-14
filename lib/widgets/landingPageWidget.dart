@@ -223,7 +223,7 @@ class _ActiveEventWidgetState extends State<ActiveEventWidget> {
             // Background image
             Positioned.fill(
               child: Image.asset(
-                'assets/images/themes/bfsi_portrait.jpg',
+                'assets/images/themes/smart_gov_portraitt.jpg',
                 fit: BoxFit.cover,
               ),
             ),

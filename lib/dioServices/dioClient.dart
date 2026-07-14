@@ -8,8 +8,10 @@ class DioClient {
   Dio init() {
     Dio _dio = new Dio();
     _dio.interceptors.add(PrettyDioLogger(
-      requestHeader: true,
-      requestBody: true,
+      requestHeader: false,
+      requestBody: false,
+      responseBody: false,
+      responseHeader: false,
     ));
     //
     _dio.transformer as DefaultTransformer; //.jsonDecodeCallback = parseJson;

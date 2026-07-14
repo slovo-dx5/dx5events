@@ -45,6 +45,6 @@ app.*.map.json
 /android/app/release
 /assets/serviceaccount.json
 /assets/serviceacc.json
-.env
-*.env
-!.env.example
+
+# Harry AI keys — never commit
+/assets/.env
