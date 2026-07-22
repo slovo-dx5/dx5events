@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../constants.dart';
 import 'accepted_meetings_screen.dart';
+import 'meeting_reminders_screen.dart';
 
 
 class MeetingTabs extends StatefulWidget {
@@ -18,6 +19,7 @@ class _MeetingTabsState extends State<MeetingTabs> {
   final List<Tab> tabs = <Tab>[
     const Tab(child: Text("Confirmed",style: TextStyle(color:kConnectedBlue ),)),
     const Tab(child: Text("Pending",style: TextStyle(color:kConnectedBlue ),),),
+    const Tab(child: Text("Reminders",style: TextStyle(color:kConnectedBlue ),),),
   ];
 
 
@@ -31,6 +33,7 @@ class _MeetingTabsState extends State<MeetingTabs> {
       pages = <Widget>[
         AcceptedMeetingsScreen(),
         PendingMeetingsScreen(),
+        const MeetingRemindersScreen(),
       ];
     });
   }

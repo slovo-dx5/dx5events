@@ -15,6 +15,7 @@ import '../constants.dart';
 import '../dioServices/dioPostService.dart';
 import '../helpers/analytics_helper.dart';
 import '../services/activity_logger.dart';
+import '../services/meeting_reminders.dart';
 
 class PendingMeetingsScreen extends StatefulWidget {
   @override
@@ -158,12 +159,34 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                               // Add 30 minutes to get end time
                               DateTime endTime = parsedStart.add(Duration(minutes: 30));
                               String formattedEndTime = format.format(endTime);
+
+                              // Structured meeting moment (may be absent on
+                              // legacy requests made before day-selection).
+                              final itemData =
+                                  items.data() as Map<String, dynamic>?;
+                              final Timestamp? meetingTs = itemData != null &&
+                                      itemData.containsKey('meeting_time')
+                                  ? itemData['meeting_time'] as Timestamp?
+                                  : null;
+
                               setState(() {
                                 isAccepting = true;
                               });
                               await items.reference.update(<String, dynamic>{
                                 'isAccepted': true,
                               });
+
+                              // Schedule this device's (the accepter's) 15-min
+                              // reminder. The requester's device schedules its
+                              // own from the Reminders tab.
+                              if (meetingTs != null) {
+                                await MeetingReminderService.instance
+                                    .scheduleForMeeting(
+                                  meetingId: items["id"].toString(),
+                                  withName: items["requested_by"].toString(),
+                                  meetingTime: meetingTs.toDate(),
+                                );
+                              }
 
                               print("other id is ${items["requested_by_id"]}");
                               await usersRef
@@ -191,6 +214,9 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                                 "date_requested": Timestamp.now(),
                                 "message": items["message"],
                                 "startTime": items["startTime"],
+                                // Preserve the meeting moment so the requester's
+                                // device can schedule its own reminder.
+                                "meeting_time": meetingTs,
 
                                 "company": items["company"],
                               });
@@ -248,6 +274,8 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                                 .collection("meetings")
                                 .doc(items["id"])
                                 .delete();
+                            await MeetingReminderService.instance
+                                .cancel(items["id"].toString());
                             Fluttertoast.showToast(msg: "Meeting Declined");},
                             message: items["message"],
                             requesterName: items["requested_by"],
@@ -280,6 +308,8 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                                   .collection("meetings")
                                   .doc(items["id"])
                                   .delete();
+                              await MeetingReminderService.instance
+                                  .cancel(items["id"].toString());
                               Fluttertoast.showToast(msg: "Meeting Declined");
                             },
                             message: items["message"],

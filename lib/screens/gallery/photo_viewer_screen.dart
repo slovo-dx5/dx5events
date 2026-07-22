@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 // Import only the function we need — the package re-exports package:path,
 // whose top-level `context` symbol otherwise collides with BuildContext.
 import 'package:downloadsfolder/downloadsfolder.dart'
@@ -50,9 +52,24 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
         await Permission.storage.request();
       }
 
-      final data = await rootBundle.load(photo.assetPath);
-      final bytes = data.buffer.asUint8List();
-      final fileName = 'dx5ve_${photo.assetPath.split('/').last}';
+      final List<int> bytes;
+      final String fileName;
+      if (photo.isAsset) {
+        final data = await rootBundle.load(photo.assetPath!);
+        bytes = data.buffer.asUint8List();
+        fileName = 'dx5ve_${photo.assetPath!.split('/').last}';
+      } else {
+        // Best quality for save/export: xlarge, or the closest that exists.
+        final variant =
+            photo.variantFor(const ['xlarge', 'large', 'medium', 'small']);
+        if (variant == null) throw Exception('no variant available');
+        final res = await Dio().get<List<int>>(
+          variant.url,
+          options: Options(responseType: ResponseType.bytes),
+        );
+        bytes = res.data!;
+        fileName = 'dx5ve_${photo.id}.${photo.fileExtension}';
+      }
       final tmp = File('${Directory.systemTemp.path}/$fileName');
       await tmp.writeAsBytes(bytes);
 
@@ -63,12 +80,49 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
             : 'Could not save the photo.'),
       ));
     } catch (e) {
-      messenger.showSnackBar(SnackBar(
+      messenger.showSnackBar(const SnackBar(
         content: Text('Download failed: this photo is not available yet.'),
       ));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
+  }
+
+  Widget _image(GalleryPhoto photo) {
+    if (photo.isAsset) {
+      return Image.asset(
+        photo.assetPath!,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => Image.asset(
+          GalleryRepository.placeholder,
+          width: 120,
+          color: Colors.white24,
+        ),
+      );
+    }
+    // Medium is the guide's recommendation for a lightbox; the grid's thumb
+    // stays visible via the cache while the bigger variant loads.
+    final variant = photo.variantFor(const ['medium', 'large', 'small']);
+    if (variant == null) {
+      return Image.asset(
+        GalleryRepository.placeholder,
+        width: 120,
+        color: Colors.white24,
+      );
+    }
+    return CachedNetworkImage(
+      imageUrl: variant.url,
+      cacheKey: '${photo.id}-${variant.label}',
+      fit: BoxFit.contain,
+      placeholder: (_, __) => const Center(
+        child: CircularProgressIndicator(color: Colors.white54),
+      ),
+      errorWidget: (_, __, ___) => Image.asset(
+        GalleryRepository.placeholder,
+        width: 120,
+        color: Colors.white24,
+      ),
+    );
   }
 
   @override
@@ -108,17 +162,7 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
               return InteractiveViewer(
                 minScale: 1,
                 maxScale: 4,
-                child: Center(
-                  child: Image.asset(
-                    widget.photos[i].assetPath,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => Image.asset(
-                      GalleryRepository.placeholder,
-                      width: 120,
-                      color: Colors.white24,
-                    ),
-                  ),
-                ),
+                child: Center(child: _image(widget.photos[i])),
               );
             },
           ),

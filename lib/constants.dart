@@ -8,7 +8,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 
 
 // Temporary feature flags — flip back to true to re-enable.
-const bool kGalleryFeatureEnabled = false;
+const bool kGalleryFeatureEnabled = true;
 const bool kShopFeatureEnabled = false;
 
 const kIconBlue = Color(0xFF2398cd);
@@ -129,6 +129,25 @@ final kCISOFirstDay =
     DateTime(kCISOToday.year, kCISOToday.month - 30, kCISOToday.day);
 final kCISOLastDay =
     DateTime(kCISOToday.year, kCISOToday.month + 30, kCISOToday.day);
+
+/// The current event's date span. Update these two dates per event — every
+/// calendar day in the inclusive range is offered when requesting a meeting.
+final DateTime kEventStart = DateTime(2026, 7, 22);
+final DateTime kEventEnd = DateTime(2026, 7, 24);
+
+/// Every day the event runs (inclusive), midnight-normalised. Used to populate
+/// the meeting-request date picker so a user can book a meeting on any event
+/// day, not just today.
+List<DateTime> get kEventDays {
+  final days = <DateTime>[];
+  var day = DateTime(kEventStart.year, kEventStart.month, kEventStart.day);
+  final last = DateTime(kEventEnd.year, kEventEnd.month, kEventEnd.day);
+  while (!day.isAfter(last)) {
+    days.add(day);
+    day = day.add(const Duration(days: 1));
+  }
+  return days;
+}
 
 final RegExp emailValidatorRegExp =
     RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+");

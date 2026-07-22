@@ -129,7 +129,9 @@ class _IndividualAttendeeScreenState
     meetingWith: "${widget.FirstName} ${widget.LastName}",
     otherUSerID: widget.id, company: widget.Company, recipientEmail: widget.email,
       requestedByphone:widget.requestedByphone,
-      meetingWithPhone: widget.meetingWithPhone, hasDownloadedApp: widget.hasDownloadedApp ,),
+      meetingWithPhone: widget.meetingWithPhone, hasDownloadedApp: widget.hasDownloadedApp,
+      // Offer every event day (not just today) as a meeting date.
+      eventDays: kEventDays,),
 
 
         ]),

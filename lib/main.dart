@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dx5veevents/constants.dart';
 
 import 'package:dx5veevents/providers.dart';
@@ -35,9 +37,12 @@ import 'notifications/pushNotifications.dart';
 import 'providers/cart_provider.dart';
 import 'providers/social_provider.dart';
 import 'providers/harry_controller.dart';
+import 'screens/gallery/event_gallery_screen.dart';
 import 'services/activity_logger.dart';
+import 'services/gallery/pix_api_config.dart';
 import 'services/harry/harry_config.dart';
 import 'services/harry/harry_reminders.dart';
+import 'services/meeting_reminders.dart';
 import 'widgets/harry/harry_overlay.dart';
 const AndroidNotificationChannel _meetingChannel = AndroidNotificationChannel(
   'meeting_notifications',
@@ -52,6 +57,25 @@ const AndroidNotificationChannel _harryReminderChannel =
   HarryReminders.channelId,
   HarryReminders.channelName,
   description: 'Reminders you asked Harry to set',
+  importance: Importance.high,
+);
+
+// Channel for the 15-minutes-before reminders on accepted meetings.
+const AndroidNotificationChannel _meetingReminderChannel =
+    AndroidNotificationChannel(
+  MeetingReminderService.channelId,
+  MeetingReminderService.channelName,
+  description: MeetingReminderService.channelDescription,
+  importance: Importance.high,
+);
+
+// Channel for "new event photos" pushes from the galleryPhotoNotifier Cloud
+// Function. The channelId must match the one that function sets on its FCM
+// message so background/terminated deliveries land here on Android.
+const AndroidNotificationChannel _galleryChannel = AndroidNotificationChannel(
+  'gallery_notifications',
+  'Event Photos',
+  description: 'Alerts when new event photos are available',
   importance: Importance.high,
 );
 
@@ -129,6 +153,15 @@ final router = GoRouter(
       builder: (context, state) => const _NotificationsLauncher(),
     ),
     GoRoute(
+      // Opened by tapping a "new event photos" push. pixEventId lets the
+      // gallery skip name-matching; day preselects the relevant day filter.
+      path: '/gallery',
+      builder: (context, state) => EventGalleryScreen(
+        pixEventId: state.uri.queryParameters['pixEventId'],
+        initialDay: state.uri.queryParameters['day'],
+      ),
+    ),
+    GoRoute(
       path: '/test-contact',
       builder: (context, state) => ContactSaveTest(),
     ),
@@ -196,14 +229,21 @@ void main() async{
           AndroidFlutterLocalNotificationsPlugin>();
   await androidNotifications?.createNotificationChannel(_meetingChannel);
   await androidNotifications?.createNotificationChannel(_harryReminderChannel);
+  await androidNotifications?.createNotificationChannel(_meetingReminderChannel);
+  await androidNotifications?.createNotificationChannel(_galleryChannel);
   // Needed on Android 13+ for Harry's scheduled reminders to appear.
   await androidNotifications?.requestNotificationsPermission();
 
   // Timezone DB is required for scheduling Harry's reminders (zonedSchedule).
   tzdata.initializeTimeZones();
 
+  // Share the notifications plugin with the meeting-reminder scheduler.
+  MeetingReminderService.instance.init(_localNotifications);
+
   // Load Harry's AI keys from assets/.env (falls back to --dart-define).
   await HarryConfig.load();
+  // Gallery (Event Image Service) credentials, same .env / dart-define scheme.
+  await PixApiConfig.load();
 
   Get.put<MyDrawerController>(MyDrawerController());
 
@@ -342,6 +382,17 @@ if(Platform.isIOS){
     final String targetPage = data['targetPage'] ?? 'notifications';
     if (targetPage == 'meetings') {
       router.go('/meetings');
+    } else if (targetPage == 'gallery') {
+      // push (not go) so the AppBar back button returns to the landing page.
+      final query = <String, String>{};
+      final pixEventId = data['pixEventId'];
+      final day = data['day'];
+      if (pixEventId != null) query['pixEventId'] = pixEventId.toString();
+      if (day != null) query['day'] = day.toString();
+      router.push(
+        Uri(path: '/gallery', queryParameters: query.isEmpty ? null : query)
+            .toString(),
+      );
     } else {
       router.go('/notifications');
     }
@@ -372,10 +423,20 @@ if(Platform.isIOS){
   Future<void> _storeNotification(String? title, String? body) async {
     // ignore: unnecessary_null_comparison
     if (title != null && body != null) {
-      final String timestamp = DateTime.now().toString();
+      // ISO-8601 so it round-trips through DateTime.parse. Stored as JSON per
+      // entry: the old "title:body:timestamp" join broke whenever the title,
+      // body, or timestamp contained a ':' (which the timestamp always does),
+      // so the notifications screen could never parse them back out.
+      final String timestamp = DateTime.now().toIso8601String();
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      notifications.add({"title": title, "body": body, "timestamp": timestamp,});
-      prefs.setStringList('notifications', notifications.map((notification) => "${notification['title']}:${notification['body']}:${notification['timestamp']}").toList());
+      // Merge with anything already persisted so a restart (which starts with
+      // an empty in-memory list) doesn't wipe earlier notifications.
+      final existing = prefs.getStringList('notifications') ?? [];
+      final entry =
+          jsonEncode({"title": title, "body": body, "timestamp": timestamp});
+      existing.add(entry);
+      await prefs.setStringList('notifications', existing);
+      notifications.add({"title": title, "body": body, "timestamp": timestamp});
       setState(() {});
     }
   }

@@ -339,11 +339,18 @@ requestMeeting(
     required String message,
     required String startTime,
     required String tableSlot,
+    DateTime? meetingDateTime,
 
     required String requestedByID,
     required String meetingWithI,
     required String company}) async{
   String meetingID = const Uuid().v4();
+
+  // Absolute meeting moment (chosen day + start time). Stored structurally so
+  // reminders can be scheduled 15 minutes before it. Null for legacy/no-date
+  // requests, in which case no reminder can be scheduled.
+  final Timestamp? meetingTime =
+      meetingDateTime != null ? Timestamp.fromDate(meetingDateTime) : null;
 
  //Create meeting in senders collection
   await usersRef.doc(currentUserID.toString()).collection("meetings").doc(meetingID).set({
@@ -367,6 +374,7 @@ requestMeeting(
     "message": message,
     "tableSlot": tableSlot,
     "startTime": startTime,
+    "meeting_time": meetingTime,
 
 
     "company": company,
@@ -404,6 +412,7 @@ requestMeeting(
     "date_requested": Timestamp.now(),
     "message": message,
     "startTime": startTime,
+    "meeting_time": meetingTime,
 
 
     "company": company,

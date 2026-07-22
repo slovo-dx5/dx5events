@@ -20,6 +20,7 @@ import '../screens/dx5veScreens/eventAgendaScreen.dart';
 import '../screens/contact_scanning/getContact.dart';
 import '../screens/feedback_page.dart';
 import '../screens/gallery/event_gallery_screen.dart';
+import '../services/gallery/gallery_notifications.dart';
 import '../screens/rewardsPage.dart';
 import '../screens/shop/shop_screen.dart';
 import '../map_screen.dart';
@@ -72,6 +73,11 @@ class _HomePageWidgetState extends State<HomePageWidget> {
         checkVersion();
       }
     });
+    // Subscribe this device to new-photo pushes for the event being viewed.
+    // Topic is keyed on the app event id; fire-and-forget.
+    if (kGalleryFeatureEnabled) {
+      GalleryNotifications.subscribeForEvent(widget.eventID);
+    }
   }
   Future<void> checkVersion() async {
     try {
@@ -306,7 +312,10 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                             title: 'Gallery',
                             iconPath: 'assets/icons/photo-gallery.png',
                             color: kNashPurple,
-                            screen: EventGalleryScreen(eventId: widget.eventID),
+                            screen: EventGalleryScreen(
+                              eventId: widget.eventID,
+                              eventName: widget.eventName,
+                            ),
                             analyticsAction: 'gallery_page_opened',
                           ),
                         ],

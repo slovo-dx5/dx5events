@@ -65,11 +65,11 @@ class _ActiveEventsState extends State<ActiveEvents> {
         //height: MediaQuery.of(context).size.height * 0.85,
         child: ActiveEventWidget(
           imagePath: 'assets/images/themes/smart_gov_portraitt.jpg',
-          dayMonth: 'WED, JUL',
+          dayMonth: 'THUR, JUL',
           date: '23rd',
           endDate: '23rd',
           location: 'KENYA',
-          endDayMonth: 'WED, JUL',
+          endDayMonth: 'THUR, JUL',
           onPressedFunct: () {
             Navigator.of(context).push(
               MaterialPageRoute(
@@ -77,15 +77,15 @@ class _ActiveEventsState extends State<ActiveEvents> {
                         coverImagePath: 'assets/images/themes/smart_gov_landscape.jpg',
                         eventName: 'SMART GOVERNMENT SUMMIT',
                         //eventHappeningDates: 'WED, JULY, 16TH - THUR, MAY, 29TH',
-                        eventHappeningDates: 'WED, JUL, 23RD',
+                        eventHappeningDates: 'THUR, JUL, 23RD',
                         shortEventDescription:
                             "Powering Africa's Financial Transformation",
                         eventLocation: 'KENYA',
                         followingScreen: EventLogin(
                           coverImagePath:
-                              'WED, JUL, 23rd',
+                              'THUR, JUL, 23rd',
                           eventName: 'SMART GOVERNMENT SUMMIT',
-                          eventDate: 'WED, JUl, 23rd',
+                          eventDate: 'THUR, JUl, 23rd',
                           shortEventDescription:
                               "Bridging the gap between advanced digital technologies and government operations",
                           eventLocation: 'KENYA',
@@ -100,7 +100,7 @@ class _ActiveEventsState extends State<ActiveEvents> {
                     eventDay: 23,
                     eventMonth: 07,
                     eventYear: 2026,
-                        eventDayOfWeek: 'WED',
+                        eventDayOfWeek: 'THUR',
                         isCustomerEvent: false,
                       )),
             );

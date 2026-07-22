@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dx5veevents/constants.dart';
 import 'package:dx5veevents/meetings/meeting_tabs.dart';
@@ -56,29 +58,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final readIds = readList.toSet();
 
     final broadcasts = stored
-        .map((entry) {
-          final colonIdx = entry.lastIndexOf(':');
-          if (colonIdx == -1) return null;
-          final tsStr = entry.substring(colonIdx + 1).trim();
-          final ts = DateTime.tryParse(tsStr);
-          if (ts == null) return null;
-          final rest = entry.substring(0, colonIdx);
-          final sepIdx = rest.indexOf(':');
-          if (sepIdx == -1) return null;
-          final title = rest.substring(0, sepIdx);
-          final subtitle = rest.substring(sepIdx + 1);
-          final notifId = 'broadcast_$entry';
-          return _NotificationItem(
-            id: notifId,
-            title: title,
-            subtitle: subtitle,
-            time: ts,
-            icon: Icons.campaign,
-            iconColor: Colors.deepPurple,
-            isMeeting: false,
-            isRead: readIds.contains(notifId),
-          );
-        })
+        .map((entry) => _parseBroadcast(entry, readIds))
         .whereType<_NotificationItem>()
         .toList();
 
@@ -90,6 +70,65 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         _deletedMeetingIds = deletedList.toSet();
       });
     }
+  }
+
+  /// Parses one stored broadcast entry into a notification item.
+  ///
+  /// New entries are JSON (`{title, body, timestamp}`). Legacy entries used a
+  /// `title:body:timestamp` join that was unparseable because the timestamp
+  /// (and possibly the title/body) contained ':' — those are recovered
+  /// best-effort by locating the trailing date-time by pattern rather than by
+  /// splitting on the last colon. Returns null if no timestamp can be found.
+  _NotificationItem? _parseBroadcast(String entry, Set<String> readIds) {
+    final notifId = 'broadcast_$entry';
+    String? title;
+    String? subtitle;
+    DateTime? ts;
+
+    // Preferred format: JSON.
+    try {
+      final decoded = jsonDecode(entry);
+      if (decoded is Map) {
+        title = decoded['title']?.toString();
+        subtitle = decoded['body']?.toString();
+        final tsRaw = decoded['timestamp']?.toString();
+        if (tsRaw != null) ts = DateTime.tryParse(tsRaw);
+      }
+    } catch (_) {
+      // Not JSON — fall through to legacy parsing.
+    }
+
+    // Legacy "title:body:<DateTime.toString()>" fallback.
+    if (ts == null) {
+      final matches = RegExp(r'\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(\.\d+)?')
+          .allMatches(entry);
+      if (matches.isNotEmpty) {
+        final last = matches.last;
+        ts = DateTime.tryParse(last.group(0)!);
+        var head = entry.substring(0, last.start);
+        if (head.endsWith(':')) head = head.substring(0, head.length - 1);
+        final sep = head.indexOf(':');
+        if (sep != -1) {
+          title = head.substring(0, sep);
+          subtitle = head.substring(sep + 1);
+        } else {
+          title = head;
+          subtitle = '';
+        }
+      }
+    }
+
+    if (ts == null) return null;
+    return _NotificationItem(
+      id: notifId,
+      title: (title == null || title.isEmpty) ? 'Notification' : title,
+      subtitle: subtitle ?? '',
+      time: ts,
+      icon: Icons.campaign,
+      iconColor: Colors.deepPurple,
+      isMeeting: false,
+      isRead: readIds.contains(notifId),
+    );
   }
 
   Future<void> _markAsRead(String id) async {

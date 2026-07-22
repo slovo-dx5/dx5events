@@ -255,6 +255,12 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
     // TODO: implement initState
     super.initState();
 
+    // Single-day event: there's only one possible date, so pick it up front
+    // and skip making the user open the picker.
+    if (widget.eventDays != null && widget.eventDays!.length == 1) {
+      selectedDate = widget.eventDays!.first;
+    }
+
     placeholderText =
     "Hello ${widget.meetingWith}. I'd like to have a 30 minute meeting with you.";
 
@@ -472,9 +478,13 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
                     const Text("Meeting Date: ", style: TextStyle(fontSize: 15)),
                     Expanded(
                       child: GestureDetector(
-                        onTap: () {
-                          _showDatePickerBottomSheet();
-                        },
+                        // Single-day event: date is fixed and pre-selected, so
+                        // don't open the picker.
+                        onTap: widget.eventDays!.length == 1
+                            ? null
+                            : () {
+                                _showDatePickerBottomSheet();
+                              },
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                           decoration: BoxDecoration(
@@ -493,7 +503,12 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
                                   color: selectedDate != null ? Colors.black : Colors.grey,
                                 ),
                               ),
-                              const Icon(Icons.calendar_today, size: 18),
+                              Icon(
+                                widget.eventDays!.length == 1
+                                    ? Icons.event_available
+                                    : Icons.calendar_today,
+                                size: 18,
+                              ),
                             ],
                           ),
                         ),
@@ -575,6 +590,22 @@ verticalSpace(height: 50),
                            ? DateFormat('EEEE, MMMM d, yyyy').format(selectedDate!)
                            : '';
 
+                       // Combine the chosen day with the chosen start time into
+                       // one absolute DateTime so reminders can be scheduled
+                       // against the real meeting moment (not just prose).
+                       DateTime? meetingDateTime;
+                       if (selectedDate != null) {
+                         final parsedStart =
+                             DateFormat("h:mm a").parse(startTime);
+                         meetingDateTime = DateTime(
+                           selectedDate!.year,
+                           selectedDate!.month,
+                           selectedDate!.day,
+                           parsedStart.hour,
+                           parsedStart.minute,
+                         );
+                       }
+
                        String meetingMessage = "$placeholderText.\n\n"
                            "${hasEventDays ? "Proposed date: $formattedDate\n" : ""}"
                            "Proposed time:\n"
@@ -591,6 +622,7 @@ verticalSpace(height: 50),
                            otherUserID: widget.otherUSerID,
                            startTime: startTime,
                            tableSlot: tableSlot,
+                           meetingDateTime: meetingDateTime,
                            requestedByID: profileProvider.userID.toString(),
                            meetingWithI: widget.otherUSerID.toString(), requestedByEmail: profileProvider.email,
                            meetingWithEmail: widget.recipientEmail,
