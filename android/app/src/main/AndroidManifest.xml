@@ -58,6 +58,14 @@
             </intent-filter>
         </activity>
 
+        <!-- uCrop, the Android half of image_cropper. Required by the plugin;
+             used by the gallery's face search to let the user crop a selfie
+             down to their own face before it's uploaded. -->
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

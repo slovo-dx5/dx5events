@@ -62,7 +62,9 @@ dependencies:
   image_picker: ^1.0.7
   qr_flutter: ^4.1.0
   video_player: ^2.9.2
-  #image_cropper: any
+  # Crop/zoom step before a face-search selfie is uploaded, so a photo with
+  # more than one person can be narrowed to the user's own face.
+  image_cropper: ^9.0.0
   cached_network_image: ^3.3.1
 
   flutter_zoom_drawer: ^3.1.2

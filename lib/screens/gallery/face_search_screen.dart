@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:shimmer/shimmer.dart';
@@ -20,8 +21,13 @@ import 'photo_viewer_screen.dart';
 ///    allows only 10 requests/minute per user);
 ///  - "no matches" is rendered as a valid outcome, visually distinct from an
 ///    error;
-///  - the selfie is never copied anywhere — it goes straight from the picker
-///    into the request and is not retained afterwards.
+///  - the selfie is never copied anywhere — it goes straight from the picker,
+///    through the cropper, into the request, and is not retained afterwards.
+///
+/// Picking is always followed by a crop step. The API picks whichever face it
+/// is most confident about when a photo contains several, with no way for the
+/// client to say which one is the user — so letting them crop down to their own
+/// face is the only control we have over that.
 class FaceSearchScreen extends StatefulWidget {
   const FaceSearchScreen({
     Key? key,
@@ -60,19 +66,71 @@ class _FaceSearchScreenState extends State<FaceSearchScreen> {
     try {
       picked = await _picker.pickImage(
         source: source,
-        // The endpoint caps uploads at 15 MB, and a tightly cropped, well-lit
-        // face is what detection wants anyway — downscaling keeps us clear of
-        // the cap and of a slow upload without hurting the match.
-        maxWidth: 1600,
-        maxHeight: 1600,
-        imageQuality: 88,
+        // Generous here so the cropper still has pixels to work with after the
+        // user zooms into one face in a group shot; the crop step below does
+        // the real size reduction.
+        maxWidth: 2400,
+        maxHeight: 2400,
+        imageQuality: 92,
         preferredCameraDevice: CameraDevice.front,
       );
     } catch (e) {
       debugPrint('[FaceSearch] picker failed: $e');
     }
     if (picked == null || !mounted) return;
-    await _search(File(picked.path));
+
+    final cropped = await _crop(picked.path);
+    // Backing out of the cropper cancels the search rather than falling back
+    // to the uncropped frame — the user chose not to send that photo.
+    if (cropped == null || !mounted) return;
+
+    await _search(File(cropped.path));
+  }
+
+  /// Square crop/zoom/rotate step between picking and searching.
+  ///
+  /// Locked to 1:1 because a face fills a square better than the source
+  /// aspect ratio, and the 1600px/q88 output keeps a cropped selfie far below
+  /// the endpoint's 15 MB cap. A cropper failure is non-fatal: it falls back
+  /// to the picked file so the feature still works if the native view can't
+  /// open.
+  Future<CroppedFile?> _crop(String sourcePath) async {
+    try {
+      return await ImageCropper().cropImage(
+        sourcePath: sourcePath,
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        maxWidth: 1600,
+        maxHeight: 1600,
+        compressFormat: ImageCompressFormat.jpg,
+        compressQuality: 88,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Crop to your face',
+            toolbarColor: kConnectedBlue,
+            toolbarWidgetColor: Colors.white,
+            // Light icons, to read against the blue toolbar.
+            statusBarLight: false,
+            backgroundColor: Colors.black,
+            activeControlsWidgetColor: kConnectedBlue,
+            lockAspectRatio: true,
+            // Rotate/scale controls stay available — a sideways photo is a
+            // common reason detection fails.
+            hideBottomControls: false,
+          ),
+          IOSUiSettings(
+            title: 'Crop to your face',
+            doneButtonTitle: 'Use photo',
+            cancelButtonTitle: 'Cancel',
+            aspectRatioLockEnabled: true,
+            resetAspectRatioEnabled: false,
+            aspectRatioPickerButtonHidden: true,
+          ),
+        ],
+      );
+    } catch (e) {
+      debugPrint('[FaceSearch] cropper failed, using the original: $e');
+      return CroppedFile(sourcePath);
+    }
   }
 
   Future<void> _search(File selfie) async {
@@ -245,8 +303,9 @@ class _FaceSearchScreenState extends State<FaceSearchScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Works best with a well-lit photo of just you, with your '
-                  'face clearly visible and filling most of the frame.',
+                  'Works best with a well-lit photo of just you. If there are '
+                  'other people in the shot, crop in on your own face — we '
+                  "can't tell the search which face is yours.",
                   style: TextStyle(
                     fontSize: 12.5,
                     height: 1.4,
@@ -491,6 +550,14 @@ class _FaceSearchScreenState extends State<FaceSearchScreen> {
           photos: _results,
           initialIndex: i,
           heroPrefix: 'face-',
+          // A match only carries a signed thumbnail, so the viewer resolves
+          // the full record by photo id before rendering full-screen. The
+          // match's own `day` narrows the lookup to that day's photos.
+          resolveFullPhoto: (photo) => GalleryRepository.resolveFullPhoto(
+            widget.pixEventId,
+            photo.id,
+            day: photo.day,
+          ),
         ),
         withNavBar: false,
         pageTransitionAnimation: PageTransitionAnimation.fade,

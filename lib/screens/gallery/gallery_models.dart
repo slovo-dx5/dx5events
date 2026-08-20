@@ -78,6 +78,21 @@ class GalleryPhoto {
   double get aspectRatio =>
       (width != null && height != null && height! > 0) ? width! / height! : 1.0;
 
+  /// Whether a specific variant rung was returned for this photo.
+  ///
+  /// Unlike [variantFor], this never falls back — callers use it to ask "do I
+  /// actually have a full-size rung, or only the thumbnail?", which is how a
+  /// face-search result (thumbnail only) is told apart from a gallery photo.
+  bool hasVariant(String label) => variants.any((v) => v.label == label);
+
+  /// True when this photo carries nothing better than a thumbnail, and so
+  /// needs resolving against the photos endpoint before a full-size render.
+  bool get isThumbnailOnly =>
+      !isAsset &&
+      !hasVariant('medium') &&
+      !hasVariant('large') &&
+      !hasVariant('xlarge');
+
   /// The variant for the first label in [preferred] that exists, falling back
   /// to the largest available one. Not every rung exists for small source
   /// images, so callers must treat labels as "closest that exists".
@@ -173,13 +188,15 @@ extension FaceSearchStrictnessX on FaceSearchStrictness {
 
 /// One photo returned by the face search endpoint.
 ///
-/// Note this is a *lighter* shape than [GalleryPhoto] — the API only signs a
-/// single thumbnail, with no variant ladder and no dimensions.
+/// Note this is a *lighter* shape than [GalleryPhoto] — the API signs a
+/// thumbnail and a full-size image, with no variant ladder in between and no
+/// dimensions.
 class FaceMatch {
   const FaceMatch({
     required this.photoId,
     required this.matchConfidencePercent,
     this.thumbnailUrl,
+    this.fullImageUrl,
     this.caption,
     this.sessionId,
     this.sessionName,
@@ -191,6 +208,7 @@ class FaceMatch {
         matchConfidencePercent:
             (json['matchConfidencePercent'] as num?)?.toInt() ?? 0,
         thumbnailUrl: json['thumbnailUrl'] as String?,
+        fullImageUrl: json['fullImageUrl'] as String?,
         caption: json['caption'] as String?,
         sessionId: json['sessionId'] as String?,
         sessionName: json['sessionName'] as String?,
@@ -206,6 +224,15 @@ class FaceMatch {
   /// Temporary signed URL, expires in ~1 hour — never persist it.
   final String? thumbnailUrl;
 
+  /// Full-size image for this match, so opening it needs no second lookup by
+  /// [photoId]. Signed and short-lived just like [thumbnailUrl].
+  ///
+  /// Added to the endpoint after the original spec
+  /// (`assets/face-search-api.pdf`) was written, so it stays optional: when
+  /// it's absent the viewer falls back to resolving the photo by id against
+  /// `GET /events/:id/photos`.
+  final String? fullImageUrl;
+
   final String? caption;
   final String? sessionId;
   final String? sessionName;
@@ -213,24 +240,38 @@ class FaceMatch {
 
   /// Adapts a match into the shape the grid/viewer already know how to render.
   ///
-  /// The single signed thumbnail is registered as a `thumb` variant so
-  /// [GalleryPhoto.variantFor] resolves it for every request; dimensions are
-  /// unknown, so the tile falls back to a square aspect ratio.
+  /// Both signed URLs become variants — `thumb` for the grid and `xlarge`
+  /// for full-screen — so [GalleryPhoto.variantFor] picks between them exactly
+  /// as it does for a gallery photo.
+  ///
+  /// `fullImageUrl` is labelled `xlarge` because it *is* the xlarge rendition:
+  /// the same object the photos endpoint signs under that label. Sharing the
+  /// label means both paths share the `<id>-xlarge` image cache entry, so a
+  /// photo opened from face search and later from the gallery downloads once.
+  /// Widths are recorded as 0 because the endpoint reports no pixel
+  /// dimensions; selection here is always by label, and the tile falls back to
+  /// a square ratio.
   GalleryPhoto toPhoto() => GalleryPhoto(
         id: photoId,
         caption: caption,
         day: day,
         sessionId: sessionId,
-        variants: thumbnailUrl == null
-            ? const []
-            : [
-                PhotoVariant(
-                  label: 'thumb',
-                  width: 0,
-                  height: 0,
-                  url: thumbnailUrl!,
-                ),
-              ],
+        variants: [
+          if (thumbnailUrl != null)
+            PhotoVariant(
+              label: 'thumb',
+              width: 0,
+              height: 0,
+              url: thumbnailUrl!,
+            ),
+          if (fullImageUrl != null)
+            PhotoVariant(
+              label: 'xlarge',
+              width: 0,
+              height: 0,
+              url: fullImageUrl!,
+            ),
+        ],
       );
 }
 
