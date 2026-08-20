@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../screens/gallery/gallery_models.dart';
 import 'pix_api_config.dart';
 
 /// Client for the Event Image Service API (`assets/mobile-gallery-api.md`).
@@ -73,6 +76,113 @@ class PixApiClient {
   /// `GET /events/:id/sessions` — special sessions for filtering.
   Future<List<dynamic>> getSessions(String eventId) async =>
       (await _get('/events/$eventId/sessions')) as List<dynamic>;
+
+  /// `POST /events/:id/face-search` — find photos containing [selfie].
+  ///
+  /// See `assets/face-search-api.pdf`. Multipart body, field name `image`,
+  /// results ranked best-first and capped at 100. Every documented failure is
+  /// translated into a typed [FaceSearchException] so the UI can tell
+  /// "not enabled for this event" apart from "no clear face" apart from a
+  /// genuine error — an empty match list is a *success*, not an error.
+  ///
+  /// The selfie is only read to build the request; nothing is kept, here or
+  /// on the server.
+  Future<List<FaceMatch>> faceSearch(
+    String eventId,
+    File selfie, {
+    FaceSearchStrictness strictness = FaceSearchStrictness.normal,
+  }) async {
+    debugPrint('[PixApi] POST /events/$eventId/face-search '
+        'strictness=${strictness.value}');
+    final url = '${PixApiConfig.baseUrl}/events/$eventId/face-search';
+    final query = {'strictness': strictness.value};
+
+    Future<Response<dynamic>> send(String token) async => _dio.post(
+          url,
+          queryParameters: query,
+          data: FormData.fromMap({
+            'image': await MultipartFile.fromFile(
+              selfie.path,
+              filename: selfie.path.split(Platform.pathSeparator).last,
+            ),
+          }),
+          options: Options(
+            headers: {'Authorization': 'Bearer $token'},
+            // Face detection runs before the response, so this is slower than
+            // a normal gallery fetch.
+            receiveTimeout: 60000,
+          ),
+        );
+
+    Response<dynamic> res;
+    try {
+      res = await send(await _validToken());
+    } on DioError catch (e) {
+      if (e.response?.statusCode == 401) {
+        // Same backstop as _get: one forced re-auth, one retry.
+        debugPrint('[PixApi] face-search 401 → forcing re-auth and one retry');
+        _token = null;
+        try {
+          res = await send(await _validToken());
+        } on DioError catch (e2) {
+          throw _faceSearchError(e2);
+        }
+      } else {
+        throw _faceSearchError(e);
+      }
+    }
+
+    final data = Map<String, dynamic>.from(res.data as Map);
+    final raw = (data['matches'] as List?) ?? const [];
+    debugPrint('[PixApi] face-search → ${raw.length} match(es)');
+    return raw
+        .map((m) => FaceMatch.fromJson(Map<String, dynamic>.from(m)))
+        .toList();
+  }
+
+  /// Maps a failed face-search call onto the documented error table.
+  ///
+  /// 403 and 422 are each overloaded with two different meanings that need
+  /// different UI, so the `{ "error": ... }` body decides between them; an
+  /// unrecognisable body degrades to the more conservative case.
+  FaceSearchException _faceSearchError(DioError e) {
+    final status = e.response?.statusCode;
+    final body = e.response?.data;
+    final message =
+        (body is Map && body['error'] is String) ? body['error'] as String : '';
+    final lower = message.toLowerCase();
+    debugPrint('[PixApi] face-search failed: status=$status, '
+        'type=${e.type}, body=$body');
+    switch (status) {
+      case 400:
+        return FaceSearchException(FaceSearchError.missingImage, message);
+      case 403:
+        // "not enabled for this organization" → hide the feature.
+        // A bare 403 → this account can't see the event at all.
+        return FaceSearchException(
+          lower.contains('not enabled')
+              ? FaceSearchError.notEnabled
+              : FaceSearchError.noAccess,
+          message,
+        );
+      case 404:
+        return FaceSearchException(FaceSearchError.noAccess, message);
+      case 422:
+        return FaceSearchException(
+          lower.contains('no clear face')
+              ? FaceSearchError.noFaceDetected
+              : FaceSearchError.unreadableImage,
+          message,
+        );
+      case 429:
+        return FaceSearchException(FaceSearchError.rateLimited, message);
+      case 502:
+        return FaceSearchException(FaceSearchError.serviceUnavailable, message);
+      default:
+        return FaceSearchException(
+            FaceSearchError.unknown, message.isEmpty ? e.message : message);
+    }
+  }
 
   // --------------------------------------------------------------------- http
 

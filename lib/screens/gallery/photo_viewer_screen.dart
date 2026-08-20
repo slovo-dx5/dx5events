@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:permission_handler/permission_handler.dart';
 
+import 'caption_overlay.dart';
 import 'gallery_repository.dart';
 
 /// Full-screen, swipeable, zoomable viewer for event photos with a real
@@ -19,10 +20,16 @@ class PhotoViewerScreen extends StatefulWidget {
     Key? key,
     required this.photos,
     required this.initialIndex,
+    this.heroPrefix = '',
   }) : super(key: key);
 
   final List<GalleryPhoto> photos;
   final int initialIndex;
+
+  /// Prefix for the Hero tags, matching whichever grid pushed this route —
+  /// the same photo can appear in more than one grid, and duplicate tags on
+  /// screen at once break the flight animation.
+  final String heroPrefix;
 
   @override
   State<PhotoViewerScreen> createState() => _PhotoViewerScreenState();
@@ -162,26 +169,25 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
               return InteractiveViewer(
                 minScale: 1,
                 maxScale: 4,
-                child: Center(child: _image(widget.photos[i])),
+                child: Center(
+                  child: Hero(
+                    tag: '${widget.heroPrefix}${widget.photos[i].id}',
+                    child: _image(widget.photos[i]),
+                  ),
+                ),
               );
             },
           ),
-          if (caption != null && caption.isNotEmpty)
+          // The grid only shows a clipped caption; this is where the full
+          // text lives, keyed so a swipe rebuilds it collapsed.
+          if (caption != null && caption.trim().isNotEmpty)
             Positioned(
               left: 0,
               right: 0,
               bottom: 0,
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black87],
-                  ),
-                ),
-                child: Text(caption,
-                    style: const TextStyle(color: Colors.white, fontSize: 15)),
+              child: FullCaptionPanel(
+                key: ValueKey(widget.photos[_index].id),
+                caption: caption,
               ),
             ),
         ],

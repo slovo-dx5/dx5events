@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 
 import '../../services/gallery/pix_api_client.dart';
@@ -108,6 +110,37 @@ class GalleryRepository {
     );
     debugPrint('[Gallery] fetchPhotos → parsed ${page.photos.length} photo(s)');
     return page;
+  }
+
+  /// Events whose organization has face search switched off. There's no
+  /// endpoint to check the flag up front — the only signal is a 403 from the
+  /// search itself — so the first one we see is remembered for the session and
+  /// the "find my photos" entry point stays hidden after that.
+  static final Set<String> _faceSearchUnavailable = <String>{};
+
+  static bool faceSearchAvailable(String eventId) =>
+      isRemote && !_faceSearchUnavailable.contains(eventId);
+
+  static void markFaceSearchUnavailable(String eventId) {
+    debugPrint('[Gallery] face search unavailable for event $eventId');
+    _faceSearchUnavailable.add(eventId);
+  }
+
+  /// Finds photos of the person in [selfie] (`assets/face-search-api.pdf`).
+  ///
+  /// Throws [FaceSearchException] for every documented failure; an empty list
+  /// means "searched fine, nothing matched".
+  static Future<List<FaceMatch>> faceSearch(
+    String eventId,
+    File selfie, {
+    FaceSearchStrictness strictness = FaceSearchStrictness.normal,
+  }) async {
+    debugPrint('[Gallery] faceSearch(eventId=$eventId, '
+        'strictness=${strictness.value})');
+    final matches =
+        await _api.faceSearch(eventId, selfie, strictness: strictness);
+    debugPrint('[Gallery] faceSearch → ${matches.length} match(es)');
+    return matches;
   }
 
   static Future<List<GalleryDay>> fetchDays(String eventId) async =>

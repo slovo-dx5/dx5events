@@ -5,6 +5,8 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../constants.dart';
+import 'caption_overlay.dart';
+import 'face_search_screen.dart';
 import 'gallery_repository.dart';
 import 'photo_viewer_screen.dart';
 
@@ -264,7 +266,41 @@ class _EventGalleryScreenState extends State<EventGalleryScreen> {
           Expanded(child: _body()),
         ],
       ),
+      floatingActionButton: _faceSearchButton(),
     );
+  }
+
+  /// "Find my photos" entry point. Hidden while the gallery is still loading
+  /// or errored, and hidden for good once a face search comes back with the
+  /// "not enabled for this organization" 403 — the API has no way to check
+  /// that flag ahead of time, so a failed call is the only signal we get.
+  Widget? _faceSearchButton() {
+    final eventId = _pixEventId;
+    if (eventId == null ||
+        _loading ||
+        _error != null ||
+        !GalleryRepository.faceSearchAvailable(eventId)) {
+      return null;
+    }
+    return FloatingActionButton.extended(
+      onPressed: () => _openFaceSearch(eventId),
+      backgroundColor: kConnectedBlue,
+      foregroundColor: Colors.white,
+      icon: const Icon(Icons.face_retouching_natural),
+      label: const Text('Find my photos'),
+    );
+  }
+
+  Future<void> _openFaceSearch(String eventId) async {
+    await PersistentNavBarNavigator.pushNewScreen(
+      context,
+      screen: FaceSearchScreen(pixEventId: eventId, knownPhotos: _photos),
+      withNavBar: false,
+      pageTransitionAnimation: PageTransitionAnimation.cupertino,
+    );
+    // The search may have discovered the feature is off for this event, which
+    // retires the button.
+    if (mounted) setState(() {});
   }
 
   Widget _body() {
@@ -503,28 +539,13 @@ class _EventGalleryScreenState extends State<EventGalleryScreen> {
           child: Stack(
             children: [
               _tileImage(photo),
-              if (photo.caption != null)
+              // Truncated here; the viewer shows the caption in full.
+              if (photo.caption != null && photo.caption!.trim().isNotEmpty)
                 Positioned(
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, Colors.black54],
-                      ),
-                    ),
-                    child: Text(
-                      photo.caption!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                  ),
+                  child: CaptionOverlay(caption: photo.caption!),
                 ),
             ],
           ),

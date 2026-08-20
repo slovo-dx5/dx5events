@@ -138,3 +138,168 @@ class PhotosPage {
   /// the `sort` it was issued under.
   final String? nextCursor;
 }
+
+// ---------------------------------------------------------------- face search
+
+/// How confident the server must be before a photo counts as a match
+/// (`strictness` query param on `POST /events/:id/face-search`).
+enum FaceSearchStrictness { strict, normal, loose }
+
+extension FaceSearchStrictnessX on FaceSearchStrictness {
+  String get value => toString().split('.').last;
+
+  String get label {
+    switch (this) {
+      case FaceSearchStrictness.strict:
+        return 'Strict';
+      case FaceSearchStrictness.loose:
+        return 'Loose';
+      case FaceSearchStrictness.normal:
+        return 'Balanced';
+    }
+  }
+
+  String get blurb {
+    switch (this) {
+      case FaceSearchStrictness.strict:
+        return 'Fewer photos, but more likely to be you';
+      case FaceSearchStrictness.loose:
+        return 'More photos, but some may not be you';
+      case FaceSearchStrictness.normal:
+        return 'A good balance for most people';
+    }
+  }
+}
+
+/// One photo returned by the face search endpoint.
+///
+/// Note this is a *lighter* shape than [GalleryPhoto] — the API only signs a
+/// single thumbnail, with no variant ladder and no dimensions.
+class FaceMatch {
+  const FaceMatch({
+    required this.photoId,
+    required this.matchConfidencePercent,
+    this.thumbnailUrl,
+    this.caption,
+    this.sessionId,
+    this.sessionName,
+    this.day,
+  });
+
+  factory FaceMatch.fromJson(Map<String, dynamic> json) => FaceMatch(
+        photoId: json['photoId'] as String,
+        matchConfidencePercent:
+            (json['matchConfidencePercent'] as num?)?.toInt() ?? 0,
+        thumbnailUrl: json['thumbnailUrl'] as String?,
+        caption: json['caption'] as String?,
+        sessionId: json['sessionId'] as String?,
+        sessionName: json['sessionName'] as String?,
+        day: json['day'] as String?,
+      );
+
+  final String photoId;
+
+  /// 0–100 relative ranking score. Deliberately *not* surfaced as a
+  /// probability in the UI (see the face search guide, §3).
+  final int matchConfidencePercent;
+
+  /// Temporary signed URL, expires in ~1 hour — never persist it.
+  final String? thumbnailUrl;
+
+  final String? caption;
+  final String? sessionId;
+  final String? sessionName;
+  final String? day;
+
+  /// Adapts a match into the shape the grid/viewer already know how to render.
+  ///
+  /// The single signed thumbnail is registered as a `thumb` variant so
+  /// [GalleryPhoto.variantFor] resolves it for every request; dimensions are
+  /// unknown, so the tile falls back to a square aspect ratio.
+  GalleryPhoto toPhoto() => GalleryPhoto(
+        id: photoId,
+        caption: caption,
+        day: day,
+        sessionId: sessionId,
+        variants: thumbnailUrl == null
+            ? const []
+            : [
+                PhotoVariant(
+                  label: 'thumb',
+                  width: 0,
+                  height: 0,
+                  url: thumbnailUrl!,
+                ),
+              ],
+      );
+}
+
+/// Why a face search could not produce results. Each case maps to distinct UI
+/// copy — in particular [notEnabled] hides the entry point entirely, and
+/// [noFaceDetected] asks the user to retake rather than reporting a failure.
+enum FaceSearchError {
+  /// 403 — the event's organization has face search turned off.
+  notEnabled,
+
+  /// 403/404 — no access to this event.
+  noAccess,
+
+  /// 400 — no image in the request (a client bug).
+  missingImage,
+
+  /// 422 — the file wasn't a readable image.
+  unreadableImage,
+
+  /// 422 — readable, but no clear face to search with.
+  noFaceDetected,
+
+  /// 429 — 10 requests/minute per user.
+  rateLimited,
+
+  /// 502 — face detection service down; safe to retry shortly.
+  serviceUnavailable,
+
+  /// Anything else (network, timeout, 5xx).
+  unknown,
+}
+
+class FaceSearchException implements Exception {
+  const FaceSearchException(this.kind, [this.detail]);
+
+  final FaceSearchError kind;
+  final String? detail;
+
+  /// User-facing copy. "No matches" is deliberately absent — an empty result
+  /// is a success, not an error.
+  String get message {
+    switch (kind) {
+      case FaceSearchError.notEnabled:
+        return 'Photo search isn\'t available for this event.';
+      case FaceSearchError.noAccess:
+        return 'This gallery isn\'t available to you right now.';
+      case FaceSearchError.missingImage:
+        return 'No photo was sent. Please pick a selfie and try again.';
+      case FaceSearchError.unreadableImage:
+        return 'That file couldn\'t be read as a photo. Try another one.';
+      case FaceSearchError.noFaceDetected:
+        return 'We couldn\'t find a clear face in that photo. Try again in '
+            'better light, with your face filling more of the frame.';
+      case FaceSearchError.rateLimited:
+        return 'That\'s a lot of searches in a short time. Wait a minute and '
+            'try again.';
+      case FaceSearchError.serviceUnavailable:
+        return 'Photo search is temporarily unavailable. Please try again in '
+            'a moment.';
+      case FaceSearchError.unknown:
+        return 'Something went wrong searching for your photos. Check your '
+            'connection and try again.';
+    }
+  }
+
+  /// Whether offering a "Try again" button makes sense for this failure.
+  bool get isRetryable =>
+      kind != FaceSearchError.notEnabled && kind != FaceSearchError.noAccess;
+
+  @override
+  String toString() => 'FaceSearchException($kind, $detail)';
+}

@@ -1,8 +1,16 @@
 # Gallery Face Search — "Find My Photos"
 
-**Status:** Design / proposal
+**Status:** Superseded — implemented server-side instead
 **Author:** (drafted with Claude Code)
 **Date:** 2026-07-10
+
+> **Superseded 2026-08-19.** The gallery backend shipped its own face search
+> endpoint (`POST /events/:id/face-search`, see `assets/face-search-api.pdf`),
+> so none of the on-device embedding work below was built. The app now uploads
+> the selfie to that endpoint and renders the ranked matches
+> (`lib/screens/gallery/face_search_screen.dart`); the server does the
+> comparison and discards the selfie. This document is kept for the
+> requirements and privacy analysis in §1–§2, which still describe the feature.
 **Feature:** Let an attendee take a selfie and have the event gallery filter to
 only the photos they appear in, at a scale of 1,000+ (growing) photos per event.
 
