@@ -513,6 +513,25 @@ await test('catalogue without a sales read shows full stock rather than failing'
   assert.deepEqual(r.products[0].available, { '': 2 });
 });
 
+await test('catalogue sends an uploaded photo as a resized asset URL', async () => {
+  const uuid = '0f8b2c9e-1d3a-4b5c-8e7f-123456789abc';
+  const r = await flow4Catalogue({
+    products: [
+      { ...BAG, category: 'B', product_image: uuid, product_description: 'Roomy.' },
+      { ...TEE, category: 'T', product_image: { id: uuid } },
+      { id: 'hd1', name: 'Hoodie', category: 'H', price: 5500, image: 'https://cdn.example/h.jpg' },
+      { id: 'jk1', name: 'Jacket', category: 'J', price: 8900, image: 'not-a-url', product_image: 'nope' },
+    ],
+  });
+  const by = Object.fromEntries(r.products.map((p) => [p.id, p]));
+  assert.equal(by.bp1.image, `https://subscriptions.cioafrica.co/assets/${uuid}?width=800&quality=80`);
+  assert.equal(by.bp1.description, 'Roomy.');
+  assert.equal(by.ts1.image, by.bp1.image, 'an expanded file object works too');
+  assert.equal(by.hd1.image, 'https://cdn.example/h.jpg', 'a pasted URL still works');
+  assert.equal(by.jk1.image, null, 'junk falls back to the bundled photo');
+  assert.equal('product_image' in by.bp1, false);
+});
+
 // ── Flow 5: order history ──────────────────────────────────────────────────
 console.log('\nFlow 5 — my orders');
 

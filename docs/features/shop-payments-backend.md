@@ -110,8 +110,8 @@ amounts are never to be trusted from a client.
 | `category` | string | |
 | `price` | decimal | Whole shillings for KES |
 | `sizes` | json | `[]` for unsized items |
-| `description` | text | Shown on the product page |
-| `image` | string | Optional. An `http(s)` URL, for a product the installed app has no bundled shot for |
+| `product_description` | text | Shown on the product page |
+| `product_image` | file (uuid → `directus_files`) | The product photo. Sent to the app as a resized `/assets/` URL; preferred over the bundled shot |
 | `active` | boolean | Hide without deleting |
 | `stock` | json, nullable | Empty = unlimited. `12` = one pool shared by all sizes; `{"S":10,"L":4}` = per size (a size not listed has none). The **total ever on sale**, not what is left: what is left is derived from `shop_orders` (completed orders, plus pending ones under 30 min old), so nothing is decremented. **To restock, add the new units to this number.** |
 

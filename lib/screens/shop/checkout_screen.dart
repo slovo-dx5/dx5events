@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../constants.dart';
 import '../../providers.dart';
 import '../../providers/cart_provider.dart';
 import '../../services/payments/payment_config.dart';
@@ -11,6 +10,8 @@ import '../../services/payments/payment_service.dart';
 import 'order_status_screen.dart';
 import 'pesapal_checkout_screen.dart';
 import 'shop_repository.dart';
+import 'shop_screen.dart';
+import 'shop_theme.dart';
 
 /// Collects the buyer's billing details, then drives the payment flow:
 /// create the order on our backend → Pesapal's hosted page in a webview →
@@ -166,93 +167,152 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final cart = context.watch<CartProvider>();
 
     return Scaffold(
-      backgroundColor: kScaffoldColor,
-      appBar: AppBar(
-        title: const Text('Checkout'),
-        backgroundColor: kConnectedBlue,
-        foregroundColor: Colors.white,
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  _orderSummary(cart),
-                  const SizedBox(height: 16),
-                  _billingForm(),
-                  if (_error != null) ...[
-                    const SizedBox(height: 14),
-                    _errorBanner(_error!),
-                  ],
-                ],
-              ),
-            ),
-            _payBar(cart),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _card({required String title, required Widget child}) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      backgroundColor: ShopColors.canvas,
+      appBar: shopAppBar(context, title: 'Checkout'),
+      body: Column(
         children: [
-          Text(title,
-              style:
-                  const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 10),
-          child,
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+              physics: const BouncingScrollPhysics(),
+              children: [
+                const _Steps(),
+                const SizedBox(height: 18),
+                _orderSummary(cart),
+                const SizedBox(height: 14),
+                _billingForm(),
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 250),
+                  child: _error == null
+                      ? const SizedBox(width: double.infinity)
+                      : Padding(
+                          padding: const EdgeInsets.only(top: 14),
+                          child: _errorBanner(_error!),
+                        ),
+                ),
+              ],
+            ),
+          ),
+          _payBar(cart),
         ],
       ),
     );
   }
 
+  Widget _cardTitle(IconData icon, String title) {
+    return Row(
+      children: [
+        Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: ShopColors.brand.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(11),
+          ),
+          child: Icon(icon, size: 18, color: ShopColors.brandDeep),
+        ),
+        const SizedBox(width: 12),
+        Text(title,
+            style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: ShopColors.ink)),
+      ],
+    );
+  }
+
   Widget _orderSummary(CartProvider cart) {
-    return _card(
-      title: 'Order summary',
+    return ShopCard(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _cardTitle(Icons.shopping_bag_outlined, 'Order summary'),
+          const SizedBox(height: 16),
           for (final item in cart.items)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
+              padding: const EdgeInsets.only(bottom: 12),
               child: Row(
                 children: [
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: Container(
+                          width: 52,
+                          height: 52,
+                          decoration:
+                              const BoxDecoration(gradient: ShopGradients.photo),
+                          child: ProductImage(product: item.product),
+                        ),
+                      ),
+                      Positioned(
+                        right: -6,
+                        top: -6,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: ShopColors.ink,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: Text('${item.qty}',
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w800)),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 14),
                   Expanded(
-                    child: Text(
-                      '${item.qty} × ${item.product.name}'
-                      '${item.size.isEmpty ? '' : ' (${item.size})'}',
-                      style: const TextStyle(fontSize: 13),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(item.product.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: ShopColors.ink)),
+                        if (item.size.isNotEmpty)
+                          Text('Size ${item.size}',
+                              style: const TextStyle(
+                                  fontSize: 12, color: ShopColors.inkSoft)),
+                      ],
                     ),
                   ),
                   Text(formatPrice(item.lineTotal),
-                      style: const TextStyle(fontSize: 13)),
+                      style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: ShopColors.ink)),
                 ],
               ),
             ),
-          const Divider(height: 20),
+          const Divider(height: 20, color: ShopColors.line),
           Row(
             children: [
               const Text('Total',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: ShopColors.ink)),
               const Spacer(),
               Text(formatPrice(cart.total),
                   style: const TextStyle(
-                      fontWeight: FontWeight.w700, color: kConnectedBlue)),
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: ShopColors.brandDeep)),
             ],
           ),
           const SizedBox(height: 6),
-          Text(
+          const Text(
             'Final total is confirmed by our payment service before you pay.',
-            style: TextStyle(fontSize: 11, color: kLightNormalText),
+            style: TextStyle(fontSize: 11.5, color: ShopColors.inkSoft),
           ),
         ],
       ),
@@ -260,12 +320,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _billingForm() {
-    return _card(
-      title: 'Billing details',
+    return ShopCard(
       child: Form(
         key: _formKey,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _cardTitle(Icons.person_outline_rounded, 'Your details'),
+            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
@@ -281,6 +343,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
             const SizedBox(height: 12),
             _field(_email, 'Email',
+                icon: Icons.alternate_email_rounded,
                 keyboardType: TextInputType.emailAddress,
                 validator: (v) {
                   final value = v?.trim() ?? '';
@@ -293,6 +356,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 }),
             const SizedBox(height: 12),
             _field(_phone, 'Phone (recommended)',
+                icon: Icons.phone_iphone_rounded,
                 keyboardType: TextInputType.phone,
                 required: false,
                 inputFormatters: [
@@ -308,6 +372,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget _field(
     TextEditingController controller,
     String label, {
+    IconData? icon,
     TextInputType? keyboardType,
     TextCapitalization textCapitalization = TextCapitalization.none,
     List<TextInputFormatter>? inputFormatters,
@@ -315,18 +380,37 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     bool required = true,
     String? helper,
   }) {
+    OutlineInputBorder border(Color c, [double w = 1]) => OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: c, width: w),
+        );
     return TextFormField(
       controller: controller,
       enabled: !_busy,
       keyboardType: keyboardType,
       textCapitalization: textCapitalization,
       inputFormatters: inputFormatters,
+      style: const TextStyle(
+          fontSize: 15, fontWeight: FontWeight.w600, color: ShopColors.ink),
       decoration: InputDecoration(
         labelText: label,
         helperText: helper,
-        isDense: true,
-        border:
-            OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        prefixIcon: icon == null
+            ? null
+            : Icon(icon, size: 20, color: ShopColors.inkSoft),
+        filled: true,
+        fillColor: ShopColors.canvas,
+        labelStyle: const TextStyle(color: ShopColors.inkSoft),
+        floatingLabelStyle: const TextStyle(
+            color: ShopColors.brandDeep, fontWeight: FontWeight.w700),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        border: border(Colors.transparent),
+        enabledBorder: border(Colors.transparent),
+        disabledBorder: border(Colors.transparent),
+        focusedBorder: border(ShopColors.brand, 1.6),
+        errorBorder: border(ShopColors.danger),
+        focusedErrorBorder: border(ShopColors.danger, 1.6),
       ),
       validator: validator ??
           (v) => required && (v?.trim().isEmpty ?? true)
@@ -337,17 +421,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Widget _errorBanner(String message) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: kLogoutRed.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(10),
+        color: ShopColors.danger.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: ShopColors.danger.withValues(alpha: 0.25)),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.error_outline, color: kLogoutRed, size: 20),
+          const Icon(Icons.error_outline_rounded,
+              color: ShopColors.danger, size: 20),
           const SizedBox(width: 10),
           Expanded(
-              child: Text(message, style: const TextStyle(fontSize: 13))),
+              child: Text(message,
+                  style: const TextStyle(
+                      fontSize: 13.5,
+                      height: 1.4,
+                      color: ShopColors.ink,
+                      fontWeight: FontWeight.w500))),
         ],
       ),
     );
@@ -356,61 +448,123 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget _payBar(CartProvider cart) {
     final configured = PaymentConfig.isConfigured;
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-      decoration: const BoxDecoration(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+      decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8)],
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+        boxShadow: ShopShadows.bar,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!configured)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 10),
+                child: Text(
+                  'Payments are not configured for this build — set the '
+                  'PAYMENTS_* values in assets/.env.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: ShopColors.inkSoft),
+                ),
+              ),
+            ShopPrimaryButton(
+              busy: _busy,
+              icon: cart.total <= 0 ? Icons.check_rounded : Icons.lock_rounded,
+              label: cart.total <= 0
+                  ? 'Place order'
+                  : 'Pay ${formatPrice(cart.total)}',
+              onPressed: (cart.isEmpty || !configured) ? null : _pay,
+            ),
+            const SizedBox(height: 10),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.verified_user_outlined,
+                    size: 14, color: ShopColors.success),
+                SizedBox(width: 6),
+                Text('Payment is handled securely by Pesapal',
+                    style: TextStyle(
+                        fontSize: 11.5,
+                        color: ShopColors.inkSoft,
+                        fontWeight: FontWeight.w500)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Cart ✓ — Details ● — Payment ○
+class _Steps extends StatelessWidget {
+  const _Steps();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(
         children: [
-          if (!configured)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Text(
-                'Payments are not configured for this build — set the '
-                'PAYMENTS_* values in assets/.env.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: kLightNormalText),
-              ),
-            ),
-          SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: ElevatedButton(
-              onPressed: (_busy || cart.isEmpty || !configured) ? null : _pay,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: kConnectedBlue,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-              child: _busy
-                  ? const SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2.5, color: Colors.white),
-                    )
-                  : Text(
-                      cart.total <= 0
-                          ? 'Place order'
-                          : 'Pay ${formatPrice(cart.total)}',
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w600)),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.lock_outline, size: 13, color: kLightNormalText),
-              const SizedBox(width: 5),
-              Text('Payment is handled securely by Pesapal',
-                  style: TextStyle(fontSize: 11, color: kLightNormalText)),
-            ],
-          ),
+          _step('Cart', done: true),
+          _bar(active: true),
+          _step('Details', current: true),
+          _bar(),
+          _step('Payment'),
         ],
+      ),
+    );
+  }
+
+  Widget _step(String label, {bool done = false, bool current = false}) {
+    final on = done || current;
+    return Column(
+      children: [
+        Container(
+          width: 30,
+          height: 30,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: on ? ShopGradients.brand : null,
+            color: on ? null : Colors.white,
+            border: on ? null : Border.all(color: ShopColors.line, width: 2),
+            boxShadow: current ? ShopShadows.soft : null,
+          ),
+          child: done
+              ? const Icon(Icons.check_rounded, size: 17, color: Colors.white)
+              : current
+                  ? Center(
+                      child: Container(
+                        width: 9,
+                        height: 9,
+                        decoration: const BoxDecoration(
+                            color: Colors.white, shape: BoxShape.circle),
+                      ),
+                    )
+                  : null,
+        ),
+        const SizedBox(height: 6),
+        Text(label,
+            style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: on ? FontWeight.w800 : FontWeight.w600,
+                color: on ? ShopColors.ink : ShopColors.inkSoft)),
+      ],
+    );
+  }
+
+  Widget _bar({bool active = false}) {
+    return Expanded(
+      child: Container(
+        height: 3,
+        margin: const EdgeInsets.only(bottom: 22, left: 6, right: 6),
+        decoration: BoxDecoration(
+          gradient: active ? ShopGradients.brand : null,
+          color: active ? null : ShopColors.line,
+          borderRadius: BorderRadius.circular(2),
+        ),
       ),
     );
   }

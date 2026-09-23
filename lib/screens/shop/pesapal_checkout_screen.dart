@@ -3,6 +3,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../constants.dart';
 import '../../services/payments/payment_config.dart';
+import 'shop_theme.dart';
 
 /// How the buyer left Pesapal's hosted checkout page.
 ///
@@ -131,16 +132,29 @@ class _PesapalCheckoutScreenState extends State<PesapalCheckoutScreen> {
       },
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: const Text('Secure payment'),
-          backgroundColor: kConnectedBlue,
-          foregroundColor: Colors.white,
+        // maybePop goes through the PopScope above, so leaving mid-payment
+        // still asks first.
+        appBar: shopAppBar(
+          context,
+          title: 'Secure payment',
+          subtitle: 'Powered by Pesapal',
+          actions: const [
+            Padding(
+              padding: EdgeInsets.only(right: 8),
+              child: Icon(Icons.lock_rounded,
+                  size: 20, color: ShopColors.success),
+            ),
+          ],
         ),
         body: Stack(
           children: [
             WebViewWidget(controller: _controller),
             if (_loading)
-              const LinearProgressIndicator(minHeight: 3),
+              const LinearProgressIndicator(
+                minHeight: 3,
+                color: ShopColors.brand,
+                backgroundColor: ShopColors.tile,
+              ),
           ],
         ),
       ),

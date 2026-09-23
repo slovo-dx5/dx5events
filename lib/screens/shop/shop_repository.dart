@@ -6,9 +6,10 @@ import '../../services/payments/payment_config.dart';
 
 /// A merchandise product.
 ///
-/// Images are bundled assets under `assets/images/shop/`, looked up by product
-/// id. A product added on the backend that has no bundled asset can carry an
-/// `image` URL instead; failing both, it shows the placeholder.
+/// The photo comes from the backend (`product_image` uploaded in Directus,
+/// sent by Flow 4 as a URL). The assets under `assets/images/shop/`, looked up
+/// by product id, are what shows while it loads, if it fails, or when no photo
+/// has been uploaded; failing both, the placeholder.
 class Product {
   const Product({
     required this.id,
@@ -32,7 +33,7 @@ class Product {
   /// Empty for items without sizes (e.g. backpacks).
   final List<String> sizes;
 
-  /// Remote image, when the backend supplies one. Preferred over [imageAsset].
+  /// Uploaded photo, when the backend supplies one. Preferred over [imageAsset].
   final String? imageUrl;
 
   /// Units left per size (`''` for an unsized product), or null when there is
@@ -46,10 +47,7 @@ class Product {
   bool get soldOut =>
       available != null && available!.values.every((units) => units <= 0);
 
-  /// Parses a row from the catalogue flow. The image is *not* taken from the
-  /// backend by default — product shots ship with the app so the shop renders
-  /// instantly and offline — but a new product the app has no asset for can
-  /// point at a URL.
+  /// Parses a row from the catalogue flow (flow4_catalogue.js).
   factory Product.fromJson(Map<String, dynamic> json) {
     final id = '${json['id'] ?? ''}';
     final image = '${json['image'] ?? ''}';

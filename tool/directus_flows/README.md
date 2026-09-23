@@ -584,10 +584,13 @@ curl -sX POST "https://subscriptions.cioafrica.co/flows/trigger/<flow-4-uuid>"  
 
 Then put the id in `assets/.env` as `PAYMENTS_CATALOGUE_FLOW_ID`.
 
-**Optional `image` column.** Product shots ship with the app, keyed by product
-id in `ShopRepository._assets`, so the grid renders offline and instantly. Add an
-`image` string field to `shop_products` only if you need a product the installed
-app has no asset for; an `http(s)` value there is loaded over the network.
+**Photos and descriptions.** `shop_products.product_image` is a file field
+(upload in Directus) and `product_description` a text field. Flow 4 sends the
+photo as `https://subscriptions.cioafrica.co/assets/<uuid>?width=800&quality=80`
+— resized server-side — which the app loads without a session because the
+public role can read `directus_files`. The app shows the uploaded photo when
+there is one, and otherwise the shot bundled for that product id (`ts1`,
+`hd1`, `bp1`, `jk1` only). A new product with no upload shows a placeholder.
 
 ---
 

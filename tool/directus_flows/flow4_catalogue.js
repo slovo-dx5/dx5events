@@ -99,6 +99,29 @@ function stockKey(product, size) {
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Where Directus serves uploaded files. Public read on directus_files is what
+// lets the app, which has no Directus session, load these.
+const ASSETS_URL = 'https://subscriptions.cioafrica.co/assets/';
+
+/**
+ * The product photo as a URL the app can load, or null.
+ *
+ * `product_image` is a Directus file field: the Read Data result holds the
+ * file's uuid (or the file object, if the query ever expands it). Sized down
+ * server-side, because an uploaded phone photo can be several MB and the grid
+ * shows a dozen at once. The older `image` string column is still honoured
+ * for an http(s) URL pasted by hand.
+ */
+function imageUrl(row) {
+  const file = row.product_image;
+  const id = file && typeof file === 'object' ? file.id : file;
+  if (id && /^[0-9a-f-]{36}$/i.test(String(id))) {
+    return ASSETS_URL + id + '?width=800&quality=80';
+  }
+  const legacy = row.image ? String(row.image) : '';
+  return /^https?:\/\//.test(legacy) ? legacy : null;
+}
+
 /**
  * Units left per size, `{"": n}` for an unsized product, or null when
  * unlimited. Only what is left is published — never the total or sales.
@@ -121,10 +144,11 @@ function publicProduct(row, held) {
     category: String(row.category || ''),
     price: Number(row.price),
     sizes: sizes,
-    description: String(row.description || ''),
-    // Optional. An http(s) value is loaded over the network by the app;
-    // anything else (or null) falls back to the asset bundled for this id.
-    image: row.image ? String(row.image) : null,
+    // `product_description` is the column in Directus; `description` is the
+    // name the app has always read, kept as a fallback.
+    description: String(row.product_description || row.description || ''),
+    // Null means the app uses the photo bundled for this id, if it has one.
+    image: imageUrl(row),
     available: availability(row, sizes, held),
   };
 }
