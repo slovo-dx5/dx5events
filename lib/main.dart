@@ -40,6 +40,7 @@ import 'providers/harry_controller.dart';
 import 'screens/gallery/event_gallery_screen.dart';
 import 'services/activity_logger.dart';
 import 'services/gallery/pix_api_config.dart';
+import 'services/payments/payment_config.dart';
 import 'services/harry/harry_config.dart';
 import 'services/harry/harry_reminders.dart';
 import 'services/meeting_reminders.dart';
@@ -244,6 +245,8 @@ void main() async{
   await HarryConfig.load();
   // Gallery (Event Image Service) credentials, same .env / dart-define scheme.
   await PixApiConfig.load();
+  // Shop payment backend (Directus Flows), same .env / dart-define scheme.
+  await PaymentConfig.load();
 
   Get.put<MyDrawerController>(MyDrawerController());
 

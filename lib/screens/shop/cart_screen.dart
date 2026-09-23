@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../constants.dart';
 import '../../providers/cart_provider.dart';
+import '../../services/payments/payment_config.dart';
+import 'checkout_screen.dart';
 import 'shop_repository.dart';
 import 'shop_screen.dart';
 
@@ -85,6 +87,20 @@ class CartScreen extends StatelessWidget {
   }
 
   Future<void> _checkout(BuildContext context, CartProvider cart) async {
+    if (PaymentConfig.isConfigured) {
+      await Navigator.of(context).push<bool>(
+        MaterialPageRoute(builder: (_) => const CheckoutScreen()),
+      );
+      // CheckoutScreen clears the cart itself on a confirmed payment; on any
+      // other outcome the cart is intentionally left alone so the buyer can
+      // retry, and we just return to it.
+      return;
+    }
+    await _demoCheckout(context, cart);
+  }
+
+  /// Fallback for builds without payment config, so the shop still demos.
+  Future<void> _demoCheckout(BuildContext context, CartProvider cart) async {
     final total = cart.total;
     final proceed = await showModalBottomSheet<bool>(
       context: context,
@@ -175,7 +191,7 @@ class _CartTile extends StatelessWidget {
             child: SizedBox(
               width: 64,
               height: 64,
-              child: ProductImage(assetPath: item.product.imageAsset),
+              child: ProductImage(product: item.product),
             ),
           ),
           const SizedBox(width: 12),

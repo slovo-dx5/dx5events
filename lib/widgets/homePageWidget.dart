@@ -274,8 +274,37 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                         ),
                       ],
                     ),
+                    if (kGalleryFeatureEnabled || kShopFeatureEnabled) ...[
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          if (kGalleryFeatureEnabled)
+                            _buildFeatureCard(
+                              context: context,
+                              title: 'Gallery',
+                              iconPath: 'assets/icons/photo-gallery.png',
+                              color: kNashPurple,
+                              screen: EventGalleryScreen(
+                                eventId: widget.eventID,
+                                eventName: widget.eventName,
+                              ),
+                              analyticsAction: 'gallery_page_opened',
+                            ),
+                          if (kGalleryFeatureEnabled && kShopFeatureEnabled)
+                            const SizedBox(width: 12),
+                          if (kShopFeatureEnabled)
+                            _buildFeatureCard(
+                              context: context,
+                              title: 'Shop',
+                              iconPath: 'assets/icons/shop.png',
+                              color: kGoldColor,
+                              screen: const ShopScreen(),
+                              analyticsAction: 'shop_page_opened',
+                            ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 12),
-
                     Row(
                       children: [
 
@@ -303,39 +332,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                         ),
                       ],
                     ),
-                    if (kGalleryFeatureEnabled) ...[
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          _buildFeatureCard(
-                            context: context,
-                            title: 'Gallery',
-                            iconPath: 'assets/icons/photo-gallery.png',
-                            color: kNashPurple,
-                            screen: EventGalleryScreen(
-                              eventId: widget.eventID,
-                              eventName: widget.eventName,
-                            ),
-                            analyticsAction: 'gallery_page_opened',
-                          ),
-                        ],
-                      ),
-                    ],
-                    if (kShopFeatureEnabled) ...[
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          _buildFeatureCard(
-                            context: context,
-                            title: 'Shop',
-                            iconPath: 'assets/icons/shop.png',
-                            color: kGoldColor,
-                            screen: const ShopScreen(),
-                            analyticsAction: 'shop_page_opened',
-                          ),
-                        ],
-                      ),
-                    ],
+
+
                   ],
                 ),
               ),

@@ -23,15 +23,44 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.product.sizes.isNotEmpty) _size = widget.product.sizes.first;
+    final sizes = widget.product.sizes;
+    if (sizes.isNotEmpty) {
+      // Open on the first size that can actually be bought.
+      _size = sizes.firstWhere(
+        (s) => (widget.product.unitsLeft(s) ?? 1) > 0,
+        orElse: () => sizes.first,
+      );
+    }
+  }
+
+  /// How many more of the selected size can go in the cart: units left minus
+  /// what is already there. Null when the product has no stock limit.
+  int? _canAdd(CartProvider cart) {
+    final size = _size ?? '';
+    final left = widget.product.unitsLeft(size);
+    if (left == null) return null;
+    final inCart = cart.items
+        .where((i) => i.product.id == widget.product.id && i.size == size)
+        .fold<int>(0, (sum, i) => sum + i.qty);
+    return (left - inCart).clamp(0, left);
+  }
+
+  void _selectSize(String size) {
+    setState(() {
+      _size = size;
+      final max = _canAdd(context.read<CartProvider>());
+      if (max != null && max > 0 && _qty > max) _qty = max;
+      if (_qty < 1) _qty = 1;
+    });
   }
 
   void _addToCart() {
-    context.read<CartProvider>().add(
-          widget.product,
-          size: _size ?? '',
-          qty: _qty,
-        );
+    final cart = context.read<CartProvider>();
+    final max = _canAdd(cart);
+    final qty = max == null || _qty <= max ? _qty : max;
+    if (qty < 1) return;
+    cart.add(widget.product, size: _size ?? '', qty: qty);
+    setState(() => _qty = 1);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('Added ${widget.product.name} to cart'),
       action: SnackBarAction(
@@ -48,6 +77,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final p = widget.product;
+    final canAdd = _canAdd(context.watch<CartProvider>());
+    final left = p.unitsLeft(_size ?? '');
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -62,7 +93,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           children: [
             AspectRatio(
               aspectRatio: 1,
-              child: Hero(tag: p.id, child: ProductImage(assetPath: p.imageAsset)),
+              child: Hero(tag: p.id, child: ProductImage(product: p)),
             ),
             Padding(
               padding: const EdgeInsets.all(16),
@@ -91,10 +122,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       spacing: 8,
                       children: p.sizes.map((s) {
                         final selected = s == _size;
+                        final gone = p.unitsLeft(s) == 0;
                         return ChoiceChip(
-                          label: Text(s),
+                          label: Text(s,
+                              style: gone
+                                  ? const TextStyle(
+                                      decoration: TextDecoration.lineThrough)
+                                  : null),
                           selected: selected,
-                          onSelected: (_) => setState(() => _size = s),
+                          onSelected: gone ? null : (_) => _selectSize(s),
                           selectedColor: kConnectedBlue,
                           labelStyle: TextStyle(
                             color: selected ? Colors.white : kLightBoldText,
@@ -109,9 +145,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       const Text('Quantity',
                           style: TextStyle(fontWeight: FontWeight.w600)),
                       const Spacer(),
-                      _qtyStepper(),
+                      _qtyStepper(canAdd),
                     ],
                   ),
+                  if (left != null && left > 0 && left <= 5)
+                    Text('Only $left left',
+                        style: const TextStyle(
+                            color: Colors.deepOrange,
+                            fontWeight: FontWeight.w600)),
                 ],
               ),
             ),
@@ -124,9 +165,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           child: SizedBox(
             height: 52,
             child: ElevatedButton.icon(
-              onPressed: _addToCart,
+              onPressed: canAdd == 0 ? null : _addToCart,
               icon: const Icon(Icons.add_shopping_cart),
-              label: Text('Add to Cart · ${formatPrice(p.price * _qty)}'),
+              label: Text(canAdd != 0
+                  ? 'Add to Cart · ${formatPrice(p.price * _qty)}'
+                  : left == 0
+                      ? 'Sold out'
+                      : 'All $left left are in your cart'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: kConnectedBlue,
                 foregroundColor: Colors.white,
@@ -140,7 +185,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-  Widget _qtyStepper() {
+  Widget _qtyStepper(int? canAdd) {
     return Row(
       children: [
         IconButton(
@@ -149,8 +194,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         ),
         Text('$_qty', style: const TextStyle(fontSize: 16)),
         IconButton(
-          onPressed: () => setState(() => _qty++),
-          icon: const Icon(Icons.add_circle_outline, color: kConnectedBlue),
+          onPressed: canAdd == null || _qty < canAdd
+              ? () => setState(() => _qty++)
+              : null,
+          icon: Icon(Icons.add_circle_outline,
+              color: canAdd == null || _qty < canAdd ? kConnectedBlue : null),
         ),
       ],
     );
