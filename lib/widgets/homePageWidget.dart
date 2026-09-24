@@ -13,7 +13,6 @@ import '../providers.dart';
 import '../screens/dx5ve_social/social_feed.dart';
 import '../screens/dx5veScreens/eventSpeakersScreen.dart';
 import '../screens/dx5veScreens/partners_screen.dart';
-import '../screens/dx5veScreens/event_sessions_screen.dart';
 import '../screens/dx5veScreens/sponsors_screen.dart';
 import '../screens/dx5veScreens/dx5veAttendeesScreen.dart';
 import '../screens/dx5veScreens/eventAgendaScreen.dart';

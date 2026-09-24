@@ -11,18 +11,6 @@ class DioPostService extends DioClient {
   DioClient _client = new DioClient();
   final baseURL="${BaseURL.Baseurl}/items/";
 
-  Future<Response> createSession({required Map<String, dynamic> sessionBody}) async {
-    print("session bosy is $sessionBody");
-    try {
-      return await _client
-          .init()
-          .post("${BaseURL.Baseurl}/items/user_sessions",
-        data: sessionBody,);
-    }  on DioError catch (ex) {
-      throw Exception("Session create error: ${ex.response!.data!}");
-    }
-  }
-
   Future<Response> createSponsorSubmission({required Map<String, dynamic> sessionBody}) async {
     try {
       return await _client

@@ -31,6 +31,9 @@ class MeetingReminderService {
 
   void init(FlutterLocalNotificationsPlugin plugin) => _plugin = plugin;
 
+  /// The shared plugin, for other reminder kinds (agenda sessions).
+  FlutterLocalNotificationsPlugin? get plugin => _plugin;
+
   /// Stable, positive 31-bit notification id for a meeting, so scheduling is
   /// idempotent and [cancel] can target it without bookkeeping.
   int _idFor(String meetingId) => meetingId.hashCode & 0x7fffffff;

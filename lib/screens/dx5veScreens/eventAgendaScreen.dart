@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dx5veevents/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 
 import 'package:provider/provider.dart';
@@ -15,6 +16,7 @@ import '../../providers.dart';
 import '../../repositories/agenda_repository.dart';
 import '../../repositories/speakers_repository.dart';
 import '../../services/activity_logger.dart';
+import '../../services/agenda_bookmarks.dart';
 
 class EventAgendaScreen extends StatefulWidget {
   String eventID;
@@ -54,11 +56,20 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
   String? _selectedStage;
   List<String> _availableStages = [];
   final Set<int> _expandedSessions = {};
+  final AgendaBookmarkService _bookmarks = AgendaBookmarkService.instance;
+
+  /// "My agenda": show only bookmarked sessions.
+  bool _myAgendaOnly = false;
+
+  void _onBookmarksChanged() {
+    if (mounted) setState(() {});
+  }
 
   @override
   void initState() {
     debugPrint("Event dat is ${widget.eventDay}");
     super.initState();
+    _bookmarks.addListener(_onBookmarksChanged);
     getAttendeeID();
     setState(() {
       _selectedDate = _dateOnly(
@@ -69,6 +80,12 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
       action: ActivityAction.viewAgenda,
       eventId: widget.eventID,
     );
+  }
+
+  @override
+  void dispose() {
+    _bookmarks.removeListener(_onBookmarksChanged);
+    super.dispose();
   }
 
   Future<void> getAttendeeID() async {
@@ -132,6 +149,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
         isFetching = false;
       });
       debugPrint('Loaded ${agendaDays.length} days with ${_dayToAgendaMap.length} mapped days and ${_speakerMap.length} speakers');
+      _syncBookmarks();
     } catch (e) {
       debugPrint('Error loading sessions: $e');
       if (!mounted) return;
@@ -139,6 +157,63 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
         isFetching = false;
       });
     }
+  }
+
+  /// Loads this attendee's bookmarks and matches them to the agenda just
+  /// loaded, which also (re)schedules their reminders.
+  Future<void> _syncBookmarks() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final id = prefs.getInt(kUserID);
+      if (id == null) return;
+      attendeeID = id;
+      await _bookmarks.load(eventId: widget.eventID, attendeeId: id);
+      await _bookmarks.reconcile(agendaDays);
+    } catch (e) {
+      debugPrint('Error loading bookmarks: $e');
+    }
+  }
+
+  Future<void> _toggleBookmark(DateTime day, Session session) async {
+    if (attendeeID == 0) {
+      Fluttertoast.showToast(msg: 'Sign in to build your agenda');
+      return;
+    }
+    final added = await _bookmarks.toggle(day: day, session: session);
+    if (added == null) {
+      Fluttertoast.showToast(msg: 'Could not update My agenda. Check your internet.');
+    } else if (added) {
+      Fluttertoast.showToast(
+          msg: "Added to My agenda — we'll remind you 10 minutes before");
+    } else {
+      Fluttertoast.showToast(msg: 'Removed from My agenda');
+    }
+  }
+
+  Widget _buildBookmarkButton(DateTime day, Session session) {
+    final key = AgendaBookmarkService.keyFor(day, session);
+    final saved = _bookmarks.isBookmarked(key);
+    return SizedBox(
+      width: 36,
+      height: 32,
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        tooltip: saved ? 'Remove from My agenda' : 'Add to My agenda',
+        onPressed:
+            _bookmarks.isBusy(key) ? null : () => _toggleBookmark(day, session),
+        icon: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          transitionBuilder: (child, anim) =>
+              ScaleTransition(scale: anim, child: child),
+          child: Icon(
+            saved ? Icons.bookmark : Icons.bookmark_border,
+            key: ValueKey(saved),
+            color: saved ? kCIOPink : Colors.grey[600],
+            size: 24,
+          ),
+        ),
+      ),
+    );
   }
 
   // Strip any time/timezone component so agenda-day keys and the selected
@@ -160,7 +235,13 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
 
 
 
-  List<Session> _getFilteredSessions(List<Session> sessions) {
+  List<Session> _getFilteredSessions(List<Session> sessions, DateTime day) {
+    if (_myAgendaOnly) {
+      sessions = sessions
+          .where((s) =>
+              _bookmarks.isBookmarked(AgendaBookmarkService.keyFor(day, s)))
+          .toList();
+    }
     if (_selectedStage == null) {
       return sessions; // Show all sessions when no filter is selected
     }
@@ -250,6 +331,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
     required bool isNow,
     required bool showTimeline,
     required int index,
+    required DateTime day,
   }) {
     final sessionColor = _getSessionColor(index);
     final hasBreakouts =
@@ -347,6 +429,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                               ),
                             ),
                           ),
+                        _buildBookmarkButton(day, session),
                         if (hasBreakouts)
                           Padding(
                             padding: const EdgeInsets.only(left: 8),
@@ -753,6 +836,14 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
           actions: [
             IconButton(
               icon: Icon(
+                _myAgendaOnly ? Icons.bookmarks : Icons.bookmarks_outlined,
+                color: _myAgendaOnly ? kCIOPink : Colors.black,
+              ),
+              tooltip: _myAgendaOnly ? 'Show full agenda' : 'My agenda',
+              onPressed: () => setState(() => _myAgendaOnly = !_myAgendaOnly),
+            ),
+            IconButton(
+              icon: Icon(
                 Icons.filter_list,
                 color: _selectedStage != null ? Colors.blue : Colors.black,
               ),
@@ -776,6 +867,32 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
               ),
             ),
             Divider(height: 1, thickness: 1, color: Colors.grey[300]),
+            if (_myAgendaOnly)
+              Container(
+                width: double.infinity,
+                color: kCIOPink.withOpacity(0.08),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  children: [
+                    const Icon(Icons.bookmarks, size: 18, color: kCIOPink),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'My agenda · ${_bookmarks.count} saved session${_bookmarks.count == 1 ? '' : 's'}',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w600, color: kCIOPink),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => setState(() => _myAgendaOnly = false),
+                      child: const Text('Show all',
+                          style: TextStyle(
+                              color: kCIOPink,
+                              decoration: TextDecoration.underline)),
+                    ),
+                  ],
+                ),
+              ),
             Visibility(
               visible: isFetching == false,
               replacement: const CircularProgressIndicator(),
@@ -799,12 +916,22 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                   child: _dayToAgendaMap.containsKey(_selectedDate)
                       ? Builder(
                           builder: (context) {
+                            final day = _dayToAgendaMap[_selectedDate]!.date as DateTime;
                             final filteredSessions = _getFilteredSessions(
-                                _dayToAgendaMap[_selectedDate]!.sessions);
+                                _dayToAgendaMap[_selectedDate]!.sessions, day);
 
                             if (filteredSessions.isEmpty) {
                               return Center(
-                                child: Text('No sessions available for the selected stage'),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(32),
+                                  child: Text(
+                                    _myAgendaOnly
+                                        ? 'Nothing saved for this day yet.\nTap the bookmark on any session to add it to My agenda.'
+                                        : 'No sessions available for the selected stage',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: Colors.grey[700], height: 1.4),
+                                  ),
+                                ),
                               );
                             }
 
@@ -826,6 +953,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                                   isNow: isNow,
                                   showTimeline: showTimeline,
                                   index: index,
+                                  day: day,
                                 );
                           },
                             );

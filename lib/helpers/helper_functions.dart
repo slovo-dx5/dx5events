@@ -109,39 +109,6 @@ getSpeakerImage({required String id}) async {
   }
 }
 
-createSession(
-    {required int currentUserId,
-
-    required int sessionID,
-    required DateTime date,
-    }) async {
-
-
-  Map<String, dynamic> sessionBodyData = {
-    "attendee_id": currentUserId,
-   "event_date": date.toString(),
-    "session_id": sessionID,
-
-  };
-
-
-
-  print("attendee id is $currentUserId");
-  print("date id is ${date.toString()}");
-  print("session id is $sessionID");
-  final response =
-      await DioPostService().createSession(sessionBody: sessionBodyData);
-  if (response.statusCode == 200) {
-    log("Session Success:${response.data.toString()}");
-    Fluttertoast.showToast(msg: "Session bookmarked successfully");
-    return true;
-  } else {
-    log("Session Error:${response.data.toString()}");
-    Fluttertoast.showToast(msg: "Error:Check your internet");
-    return false;
-  }
-}
-
 submitProposalToSPeak(
     {
     required String firstName,
