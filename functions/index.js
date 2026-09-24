@@ -232,3 +232,10 @@ exports.galleryPhotoNotifier = onSchedule(
     }
   },
 );
+
+// ----------------------------------------------------------- meeting emails
+
+// Sent from here rather than the app, which must not hold the mailer key.
+const meetingEmails = require("./meeting_emails");
+exports.meetingRequestEmail = meetingEmails.meetingRequestEmail;
+exports.meetingAcceptedEmail = meetingEmails.meetingAcceptedEmail;

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -12,7 +11,6 @@ import '../../../providers.dart';
 import '../../widgets/meeting_widget.dart';
 import '../../widgets/outgoing_meeting_widget.dart';
 import '../constants.dart';
-import '../dioServices/dioPostService.dart';
 import '../helpers/analytics_helper.dart';
 import '../services/activity_logger.dart';
 import '../services/meeting_reminders.dart';
@@ -153,13 +151,6 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                                 },
                               );
 
-                              DateFormat format = DateFormat("h:mm a");
-                              DateTime parsedStart = format.parse(items["startTime"]);
-
-                              // Add 30 minutes to get end time
-                              DateTime endTime = parsedStart.add(Duration(minutes: 30));
-                              String formattedEndTime = format.format(endTime);
-
                               // Structured meeting moment (may be absent on
                               // legacy requests made before day-selection).
                               final itemData =
@@ -224,31 +215,9 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                                 isAccepting = false;
                               });
 
-                              ///Send email to requester
-                              await DioPostService().sendMeetingEmail(body: {
-                                "emailAddress": items["requested_by_email"],
-                                "subject":
-                                    "Meeting Accepted",
-                                "body": """
-  <div style="max-width: 100%;">
-    <img src="https://admin.connected.go.ke/assets/a14f7470-d026-4d56-848e-4e0d5e0ebc18?email_banner.jpg" alt="Meeting Banner" style="width: 100%; max-width: 600px; height: auto; margin-bottom: 20px;">
-  </div>
-  
-  <p>"
-      Hello ${items["requested_by"]}<br>
-      ${items["wants_to_meet_with"]} accepted your meeting
-      request.<br>
-      Our meetings concierge service team will reach out to show you the meeting venue.
-      
-  
-  "</p>
-  <p><strong>Meeting time:</strong><br>
-  Start time: ${items["startTime"]}<br>
-  End time: $formattedEndTime</p>
-
- 
-""",
-                              });
+                              // The "Meeting Accepted" email is sent by the meetingAcceptedEmail
+                              // Cloud Function (functions/meeting_emails.js) off the
+                              // isAccepted update above.
                             },
 
                             declineMeetingFunc: () async {

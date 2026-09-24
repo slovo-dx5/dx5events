@@ -10,7 +10,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 import '../constants.dart';
-import '../dioServices/dioPostService.dart';
 import '../helpers/helper_functions.dart';
 import '../helpers/info_dialog.dart';
 import '../helpers/time_dropdown.dart';
@@ -343,53 +342,9 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
   sendMeetingNotification({required int ownerID}) async {
     // get receiver token
     String? receiverToken;
-    String formattedDate = selectedDate != null
-        ? DateFormat('EEEE, MMMM d, yyyy').format(selectedDate!)
-        : '';
-    String htmlBody = (
-        "$placeholderText.\n\n"
-            "Proposed date: $formattedDate\n"
-            "Start time: $startTime\n"
-            "End time: $formattedEndTime\n"
-    ).replaceAll('\n', '<br>');
-
+    // The request email is sent by the meetingRequestEmail Cloud Function
+    // (functions/meeting_emails.js) when the meeting document is created.
     try {
-
-      await DioPostService().sendMeetingEmail(body: {
-        "emailAddress": widget.recipientEmail,
-        "subject": "Meeting Requested by ${widget.userName} from ${widget.company}",
-        "body": """
-  <div style="max-width: 100%;">
-    <img src="https://subscriptions.cioafrica.co/assets/923024d9-53c8-459a-942a-1d487e0099f9?banner.jpg" alt="Meeting Banner" style="width: 100%; max-width: 600px; height: auto; margin-bottom: 20px;">
-  </div>
-
-  <p>${placeholderText.replaceAll('\n', '<br>')}</p>
-  <p><strong>Proposed meeting:</strong><br>
-  Date: $formattedDate<br>
-  Start time: $startTime<br>
-  End time: $formattedEndTime</p>
-
-  <p>
-    <a href="https://cioafrica.co/meetings" 
-       style="display: inline-block; padding: 10px 20px; background-color: #007BFF; 
-              color: white; text-decoration: none; border-radius: 4px;">
-       Accept Request
-    </a>
-  </p>
-
-  <p>If you have not downloaded the app, you can get it using the buttons below:</p>
-  <p>
-    <a href="https://play.google.com/store/apps/details?id=com.cioafrica.dx5veevents&hl=en" style="margin-right: 10px; display: inline-block;">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play" style="height: 40px;">
-    </a>
-    <a href="https://apps.apple.com/lt/app/dx5ve-events/id6479024266" style="display: inline-block;">
-      <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" style="height: 40px;">
-    </a>
-  </p>
-"""
-      });
-
-
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
           .collection("users")
           .doc(widget.otherUSerID.toString())
