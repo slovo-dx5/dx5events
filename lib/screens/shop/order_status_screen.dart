@@ -20,6 +20,7 @@ class OrderStatusScreen extends StatefulWidget {
     Key? key,
     required this.orderId,
     this.cancelledByBuyer = false,
+    this.receiptEmail,
   }) : super(key: key);
 
   final String orderId;
@@ -27,6 +28,11 @@ class OrderStatusScreen extends StatefulWidget {
   /// Set when Pesapal sent the buyer to our cancellation URL — we still poll
   /// (a payment may have gone through anyway) but say so if it stays unpaid.
   final bool cancelledByBuyer;
+
+  /// Where the receipt goes (the billing email), set only straight after a
+  /// checkout. Orders reopened from history may predate receipts, so they
+  /// promise nothing.
+  final String? receiptEmail;
 
   @override
   State<OrderStatusScreen> createState() => _OrderStatusScreenState();
@@ -185,12 +191,17 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
     }
     switch (_order?.status ?? PaymentStatus.unknown) {
       case PaymentStatus.completed:
+        // Flows 1-3 email the receipt as they settle the order.
+        final email = widget.receiptEmail?.trim() ?? '';
+        final receipt = email.isEmpty
+            ? 'Keep the reference below for your records.'
+            : 'A receipt is on its way to $email.';
         if ((_order?.amount ?? 0) <= 0) {
-          return 'Thanks! Your order is confirmed — there was nothing to pay.';
+          return 'Thanks! Your order is confirmed — there was nothing to pay. '
+              '$receipt';
         }
-        // No receipt email yet (needs SMTP on Directus), so don't promise one.
         return 'Thanks! Your payment went through and your order is '
-            'confirmed. Keep the reference below for your records.';
+            'confirmed. $receipt';
       case PaymentStatus.failed:
         return 'The payment did not go through. Nothing has been charged — you '
             'can try again from your cart.';

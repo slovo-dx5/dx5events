@@ -146,6 +146,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         builder: (_) => OrderStatusScreen(
           orderId: orderId,
           cancelledByBuyer: cancelledByBuyer,
+          receiptEmail: _email.text,
         ),
       ),
     );

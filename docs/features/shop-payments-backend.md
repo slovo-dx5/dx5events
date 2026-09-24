@@ -319,9 +319,10 @@ of `tool/directus_flows/flow5_orders.js`.
 - `shop_orders` needs three fields added for the above: `attendee_id`, `email`
   and Directus's `date_created`. Orders created before that have none of them and
   will not appear in anyone's history.
-- The Mail operation needs SMTP configured on Directus (`EMAIL_*`). Until it is,
-  leave the receipt steps out of Flow 3 and soften the "a receipt has been sent
-  to your email" line in `order_status_screen.dart`, which currently promises
-  something that doesn't happen.
+- Receipts go through the CIO Africa mailer (`mailer.cioafrica.co/api/email/send`,
+  the service behind the meeting emails) via a Request URL operation, not
+  Directus Mail — there is no SMTP. The mailer needs an API key, stored as
+  `app_secrets.mailer_api_key`. Deployed to Flows 1–3 and proven
+  live on 2026-09-24 (paid and free receipts delivered).
 - Stock is not tracked. Nothing decrements on a sale and nothing stops an order
   for a sold-out size.

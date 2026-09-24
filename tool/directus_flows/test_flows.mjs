@@ -347,12 +347,36 @@ await test('no address skips instead of failing a paid order', async () => {
   assert.equal(r.skipped, 'no email address');
 });
 
-await test('amounts are grouped and the Markdown table survives', async () => {
+await test('amounts are grouped in the HTML table', async () => {
   const r = await flow3Receipt({ order: [PAID_ORDER], apply: { update: { payment_method: 'MpesaKE' } } });
-  assert.match(r.body, /\| Event Logo Tee \(L\) \| 2 \| KES 5,000 \|/);
-  assert.match(r.body, /\*\*Total paid:\*\* KES 8,000/);
-  // Blank lines between blocks must survive the filter that drops absent details.
-  assert.match(r.body, /\| --- \| --- \| --- \|\n\| Event/);
+  assert.match(r.body, /Event Logo Tee \(L\)<\/td><td[^>]*>2<\/td><td[^>]*>KES 5,000</);
+  assert.match(r.body, /Total paid<\/strong><\/td><td[^>]*><strong>KES 8,000</);
+});
+
+await test('the mailer request is exactly the shape the mailer takes', async () => {
+  const r = await flow3Receipt({ order: [PAID_ORDER], apply: { update: {} } });
+  assert.deepEqual(Object.keys(r.request).sort(), ['body', 'emailAddress', 'from', 'subject']);
+  assert.equal(r.request.emailAddress, 'buyer@x.com');
+  assert.equal(r.request.body, r.body);
+});
+
+await test('typed text is escaped, not injected into the email', async () => {
+  const r = await flow3Receipt({
+    order: [{ ...PAID_ORDER, billing: { email_address: 'b@x.com', first_name: '<b>Eve</b>' },
+      items: [{ name: '<script>x</script>', qty: 1, line_total: 1 }] }],
+    apply: { update: {} },
+  });
+  assert.equal(r.body.includes('<script>'), false);
+  assert.equal(r.body.includes('<b>Eve'), false);
+  assert.match(r.body, /&lt;script&gt;/);
+});
+
+await test('a free order from Flow 1 gets a receipt without "Paid with: free"', async () => {
+  const r = await flow3Receipt({ plan: { order_row: { ...PAID_ORDER, amount: 0, payment_method: 'free' } } });
+  assert.equal(r.to, 'buyer@x.com');
+  assert.match(r.body, /<strong>Free<\/strong>/);
+  assert.equal(r.body.includes('Paid with'), false);
+  assert.equal(r.body.includes('Total paid'), false);
 });
 
 await test('details the gateway did not send are omitted, not printed as null', async () => {

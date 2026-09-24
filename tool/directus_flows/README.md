@@ -165,6 +165,21 @@ Leave the Condition's reject (✗) branch empty.
 
 ### Operation 6 — email the receipt
 
+Receipts go through the **CIO Africa mailer** — the same API the app uses for
+meeting emails — not Directus's Mail operation. Directus has no SMTP configured
+and the backend team does not use SMTP.
+
+```
+POST https://mailer.cioafrica.co/api/email/send
+{ "emailAddress": "...", "subject": "...", "body": "<html>", "from": "CIO Africa Store" }
+```
+
+It rejects a request without its API key in the `X-API-Key` header
+(`401 Unauthorized - Invalid or missing API key`). Full docs:
+https://mailer.cioafrica.co/docs. The key is stored as a row in `app_secrets`:
+`key = mailer_api_key`. It must never be put in the app — it is the key to an
+open relay that sends as CIO Africa.
+
 Hangs off `save`, so it only ever runs on an order that just became settled.
 `apply` already short-circuits an order that was `completed` before this webhook
 arrived, which is what keeps a duplicate IPN from sending a second receipt.
@@ -172,20 +187,32 @@ arrived, which is what keeps a duplicate IPN from sending a second receipt.
 | # | Type | Key | Config |
 |---|---|---|---|
 | 6 | Condition | `is_paid` | `{"apply":{"status":{"_eq":"completed"}}}` |
-| 7 | Run Script | `receipt` | `flow3_receipt.js` — edit `SHOP_NAME` / `SUPPORT_EMAIL` at the top |
-| 8 | Mail | `mail` | To `{{receipt.to}}` · Subject `{{receipt.subject}}` · Type **Markdown** · Body `{{receipt.body}}` |
+| 7 | Run Script | `receipt` | `flow3_receipt.js` — edit `SHOP_NAME` / `SUPPORT_EMAIL` / `BANNER_URL` at the top |
+| 8 | Read Data | `mailer_key_row` | `app_secrets`, **$full**, `{"filter":{"key":{"_eq":"mailer_api_key"}},"limit":1}` |
+| 9 | Request URL | `mail` | see below |
+
+Step 9:
+
+```
+Method   POST
+URL      https://mailer.cioafrica.co/api/email/send
+Headers  X-API-Key: {{mailer_key_row[0].value}}
+         Content-Type: application/json
+Body     {{receipt.request}}
+```
+
+The body is one lone mustache, so Directus sends the object as JSON rather than
+a string — the same thing Flow 1's `gateway` step does with
+`{{plan.gateway_body}}`. The script builds `request` in exactly the mailer's
+shape, with an HTML body.
 
 `is_paid` matters because `save` also runs for a `failed` or `reversed` payment,
 and nobody wants a "thanks for your order" email for a declined card.
 
-Leave `is_paid`'s reject branch empty. This flow's trigger is asynchronous, so a
-mail server outage cannot turn into a non-200 for the gateway — it shows up as a
-failed run in the flow log, with the payment already correctly recorded.
-
-Directus needs working SMTP (`EMAIL_*` in its env) for the Mail operation. If it
-is not configured, build steps 1–5 now and leave 6–8 out rather than shipping a
-flow that fails on every payment — and soften the "a receipt has been sent to
-your email" line in `order_status_screen.dart` until it is true.
+Leave `is_paid`'s reject branch and `mail`'s error branch empty. This flow's
+trigger is asynchronous, so a mailer outage cannot turn into a non-200 for the
+gateway — it shows up as a failed run in the flow log, with the payment already
+correctly recorded.
 
 ### Test it before moving on
 
@@ -246,7 +273,8 @@ its order id when a checkout is retried (`_orderId` in `checkout_screen.dart`).
 
 ```
 api_key_row ─▶ products ─▶ existing ─▶ sales ─▶ plan ─▶ is_new ─┬─✓─▶ create ─▶ needs_gateway ─┬─✓─▶ gateway ─▶ track ─▶ respond
-                                                        │                              └─✗─▶ respond_free
+                                                        │                              └─✗─▶ receipt ─▶ mailer_key_row ─▶ mail ─┬─✓─▶ respond_free
+                                                        │                                                                        └─✗(error)─▶ respond_free_mail_down
                                                         └─✗─▶ respond_existing
 ```
 
@@ -277,6 +305,24 @@ amount and no webhook would ever arrive to complete it. The app gets
 confirmation screen. To add this to an existing Flow 1: drag `create`'s
 resolve connector off `gateway` onto a new `needs_gateway` Condition, connect
 its ✓ to `gateway`, and hang `respond_free` off its ✗.
+
+**Receipt for free orders.** No webhook ever settles a free order, so Flow 1
+sends its receipt itself. Insert these between `needs_gateway`'s ✗ and
+`respond_free` — `respond_free` must stay the last operation, because this
+trigger answers with the data of whatever ran last:
+
+| # | Type | Key | Config |
+|---|---|---|---|
+| 6c | Run Script | `receipt` | ✗ branch of step 6a · `flow3_receipt.js` (reads `plan.order_row`) |
+| 6d | Read Data | `mailer_key_row` | `app_secrets`, **$full**, `{"filter":{"key":{"_eq":"mailer_api_key"}},"limit":1}` |
+| 6e | Request URL | `mail` | same as Flow 3's step 9 |
+| 6b | Run Script | `respond_free` | off `mail`'s ✓ |
+| 6f | Run Script | `respond_free_mail_down` | off `mail`'s **error** connector · `flow1_respond_existing.js` |
+
+Step 6f is required: without it a mailer outage ends the flow with an empty 200
+and the app reports a free order that was in fact placed as a failed checkout.
+No guard is needed in front of `receipt` — this branch only runs on the POST
+that created the row; a retry takes `respond_existing`.
 
 Step 10 hangs off the Condition's **reject** connector, not off `respond`. Wire
 it after `respond` by mistake and it runs last on the new-order path, returning
@@ -516,10 +562,15 @@ Hang the receipt operations off step 8 (`write`), exactly as in Flow 3:
 |---|---|---|---|
 | 8a | Condition | `is_paid` | `{"recover":{"update":{"status":{"_eq":"completed"}}}}` |
 | 8b | Run Script | `receipt` | `flow3_receipt.js` |
-| 8c | Mail | `mail` | To `{{receipt.to}}`, Subject `{{receipt.subject}}`, Type Markdown, Body `{{receipt.body}}` |
+| 8c | Read Data | `mailer_key_row` | `app_secrets`, **$full**, `{"filter":{"key":{"_eq":"mailer_api_key"}},"limit":1}` |
+| 8d | Request URL | `mail` | same as Flow 3's step 9 |
 
-Then `reply_recovered` hangs off the **✗** of `is_paid` *and* off `mail` — two
-copies again, for the same tree reason.
+Then `reply_recovered` needs **three** copies: off the ✗ of `is_paid`, off
+`mail`'s ✓, and off `mail`'s **error** connector. The last one is not
+optional. This trigger is synchronous, and a failed operation with nothing on
+its error branch answers the app with 200 and an empty body — which the app
+reads as a failed poll. A mailer outage must not stop a paid order from
+showing as paid.
 
 `recover` only ever runs for an order the row still calls `pending`, so this
 cannot double up with Flow 3's receipt. Two *simultaneous* polls could in
