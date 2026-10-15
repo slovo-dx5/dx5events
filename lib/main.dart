@@ -38,9 +38,13 @@ import 'providers/cart_provider.dart';
 import 'providers/social_provider.dart';
 import 'providers/harry_controller.dart';
 import 'screens/gallery/event_gallery_screen.dart';
+import 'services/active_event/active_event.dart';
+import 'services/active_event/active_event_service.dart';
 import 'services/activity_logger.dart';
 import 'services/gallery/pix_api_config.dart';
 import 'services/payments/payment_config.dart';
+import 'services/gamification/gamification_config.dart';
+import 'services/gamification/gamification_service.dart';
 import 'services/harry/harry_config.dart';
 import 'services/harry/harry_reminders.dart';
 import 'services/meeting_reminders.dart';
@@ -90,21 +94,22 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // _notificationSetup.eventListenerCallback();
   print("Handling a background message: $message");
 }
-// Default event params for launching the full app shell (MainNavigationPage)
-// from a notification cold-start. Mirrors the values defined in landingPage2.dart.
+// Launches the full app shell (MainNavigationPage) from a notification
+// cold-start, on the same active event the landing page opens.
 MainNavigationPage _buildMainNavShell({int initialTabIndex = 0}) {
+  final event = ActiveEventService.instance.current;
   return MainNavigationPage(
     initialTabIndex: initialTabIndex,
-    coverImagePath: 'assets/images/themes/smart_gov_landscape.jpg',
-    eventName: 'BFSI WEEK',
-    eventDate: 'WED, JUN, 17TH',
-    shortEventDescription: "Powering Africa's Financial Transformation",
-    eventLocation: 'KENYA',
-    eventID: '104',
-    eventDay: 14,
-    eventMonth: 6,
-    eventYear: 2026,
-    eventDayOfWeek: 'WED',
+    coverImagePath: ActiveEvent.bundledCoverImage,
+    eventName: event.displayName,
+    eventDate: event.dateLabel,
+    shortEventDescription: event.tagline,
+    eventLocation: event.displayLocation,
+    eventID: event.id,
+    eventDay: event.dateFrom.day,
+    eventMonth: event.dateFrom.month,
+    eventYear: event.dateFrom.year,
+    eventDayOfWeek: event.dayOfWeek,
     isCustomerEvent: false,
   );
 }
@@ -170,15 +175,18 @@ final router = GoRouter(
 );
 // Builds the Harry assistant controller with its reminder scheduler and an
 // app-navigation handler (go_router lives here). Event context defaults to the
-// active event surfaced on the landing page (Smart Government Summit, id 107)
-// and can be refreshed later via HarryController.updateEvent.
+// active event surfaced on the landing page (ActiveEventService) and can be
+// refreshed later via HarryController.updateEvent.
 HarryController _buildHarryController() {
   final controller = HarryController();
   controller.reminders = HarryReminders(_localNotifications);
+  final event = ActiveEventService.instance.current;
   controller.updateEvent(
-    eventId: '107',
-    name: 'Smart Government Summit',
-    location: 'Kenya',
+    eventId: event.id,
+    name: event.displayName,
+    date: event.dateLabel,
+    location: event.venue.isNotEmpty ? event.venue : event.country,
+    description: event.tagline,
   );
   controller.navigateHandler = (target) async {
     switch (target) {
@@ -247,10 +255,19 @@ void main() async{
   await PixApiConfig.load();
   // Shop payment backend (Directus Flows), same .env / dart-define scheme.
   await PaymentConfig.load();
+  // The event the app opens on: last fetched one now, current one from
+  // Directus (app_config.active_event) in the background.
+  await ActiveEventService.instance.loadCached();
+  ActiveEventService.instance.refresh();
 
   Get.put<MyDrawerController>(MyDrawerController());
 
   ActivityLogger.instance.init();
+
+  // Rewards: Flow ids from assets/.env, then the daily-open log and the
+  // "you earned points" toasts that follow each activity flush.
+  await GamificationConfig.load();
+  GamificationService.instance.init();
 
   if(Platform.isAndroid){
     await FirebaseMessaging.instance.subscribeToTopic("SmartGovBroadCast");
@@ -454,6 +471,7 @@ if(Platform.isIOS){
         ChangeNotifierProvider(create: (_) => _buildHarryController()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => SocialProvider()),
+        ChangeNotifierProvider.value(value: ActiveEventService.instance),
         //// New provider
       ],
       builder: (context, _) {

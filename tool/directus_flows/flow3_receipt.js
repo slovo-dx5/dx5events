@@ -35,6 +35,13 @@ const SUPPORT_EMAIL = 'support@cioafrica.co';
 // Same banner the meeting-request email uses.
 const BANNER_URL =
   'https://subscriptions.cioafrica.co/assets/923024d9-53c8-459a-942a-1d487e0099f9?banner.jpg';
+// App sponsor credit at the foot of the receipt (mirrors AppSponsor in
+// lib/widgets/app_sponsor.dart). Set to null to drop it.
+const SPONSOR = {
+  name: 'MBCOM Technologies',
+  logoUrl:
+    'https://subscriptions.cioafrica.co/assets/6990f48c-b77b-4fd0-bc27-36e548876d51?width=600',
+};
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** "KES 2,500" — thousands separators without Intl, which the sandbox lacks. */
@@ -147,6 +154,12 @@ module.exports = async function (data) {
     '<p>Questions? Write to <a href="mailto:' + SUPPORT_EMAIL + '">' +
       SUPPORT_EMAIL + '</a>.</p>',
     '<p>— ' + esc(SHOP_NAME) + '</p>',
+    SPONSOR
+      ? '<div style="margin-top:28px;padding-top:16px;border-top:1px solid #eee;text-align:center;">' +
+        '<div style="font-size:11px;letter-spacing:1px;color:#888;margin-bottom:8px;">APP SPONSORED BY</div>' +
+        '<img src="' + SPONSOR.logoUrl + '" alt="' + esc(SPONSOR.name) + '" style="height:36px;width:auto;">' +
+        '</div>'
+      : '',
     '</div>',
   ].join('\n');
 

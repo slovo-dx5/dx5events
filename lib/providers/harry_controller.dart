@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../constants.dart';
+import '../services/activity_logger.dart';
 import '../services/harry/harry_brain.dart';
 import '../services/harry/harry_client.dart';
 import '../services/harry/harry_config.dart';
@@ -124,8 +125,8 @@ class HarryController extends ChangeNotifier {
   Future<void> Function(String text)? speakHandler;
   bool speakReplies = false;
 
-  // ---- Event context (defaults mirror the active event in landingPage2). ----
-  String eventId = '107';
+  // ---- Event context (set from ActiveEventService in main.dart). ----
+  String eventId = '';
   String eventName = 'the current event';
   String eventDate = '';
   String eventLocation = '';
@@ -209,6 +210,12 @@ class HarryController extends ChangeNotifier {
 
     messages.add(HarryMessage(sender: HarrySender.user, text: text));
     _history.add({'role': 'user', 'content': text});
+    // The question text stays on the device; only the fact that one was asked
+    // is logged. user_id comes from prefs.
+    ActivityLogger.instance.log(
+      action: ActivityAction.harryQuestion,
+      eventId: eventId,
+    );
     isBusy = true;
     _current = null;
     notifyListeners();

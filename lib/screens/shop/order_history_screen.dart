@@ -40,7 +40,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     });
     try {
       final orders = await PaymentService.instance.fetchOrders(
-        attendeeId: profile.profileId ?? '',
+        attendeeId: profile.userID?.toString() ?? '',
         email: profile.email,
       );
       if (!mounted) return;

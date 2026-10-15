@@ -8,6 +8,8 @@ import 'package:timezone/timezone.dart' as tz;
 import '../dioServices/base_url.dart';
 import '../dioServices/dioClient.dart';
 import '../models/agendaModel.dart';
+import '../widgets/app_sponsor.dart';
+import 'activity_logger.dart';
 import 'meeting_reminders.dart';
 
 /// One bookmarked agenda session.
@@ -300,6 +302,16 @@ class AgendaBookmarkService extends ChangeNotifier {
         }
         await _saveCache();
         await _scheduleReminder(key, day, session);
+        // Bookmark-then-unbookmark re-logs with the same target, which the
+        // distinct rules ignore, so toggling can't farm points.
+        ActivityLogger.instance.log(
+          action: ActivityAction.agendaBookmarkAdded,
+          eventId: eventId,
+          userId: attendeeId,
+          targetType: 'session',
+          targetId: key,
+          metadata: {'date': b.date},
+        );
         return true;
       }
 
@@ -363,7 +375,8 @@ class AgendaBookmarkService extends ChangeNotifier {
       await plugin.zonedSchedule(
         _notificationId(key),
         'Starting in 10 minutes',
-        '${s.title ?? 'Your session'}${stage.isEmpty ? '' : ' · $stage'}',
+        '${s.title ?? 'Your session'}${stage.isEmpty ? '' : ' · $stage'}'
+        '${AppSponsor.reminderCredit}',
         tz.TZDateTime.from(remindAt, tz.local),
         const NotificationDetails(
           android: AndroidNotificationDetails(

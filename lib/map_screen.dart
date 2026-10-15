@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 
+import 'widgets/app_sponsor.dart';
+
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
 
@@ -225,6 +227,12 @@ class _MapScreenState extends State<MapScreen> {
         child: Stack(
           children: [
             WebViewWidget(controller: _controller),
+            const Positioned(
+              top: 12,
+              left: 16,
+              right: 16,
+              child: Center(child: AppSponsorMapChip()),
+            ),
             if (_locationServicesDisabled)
               Positioned(
                 left: 0,

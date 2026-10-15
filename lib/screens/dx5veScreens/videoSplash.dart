@@ -4,6 +4,7 @@ import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 
 import '../../constants.dart';
+import '../../widgets/app_sponsor.dart';
 
 class VideoSplashScreen extends StatefulWidget {
   @override
@@ -59,10 +60,20 @@ class _VideoSplashScreenState extends State<VideoSplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kScreenDark,
-      body: Center(
-        child: _chewieController != null && _chewieController!.videoPlayerController.value.isInitialized
-            ? Chewie(controller: _chewieController!)
-            : CircularProgressIndicator(),
+      body: Stack(
+        children: [
+          Center(
+            child: _chewieController != null && _chewieController!.videoPlayerController.value.isInitialized
+                ? Chewie(controller: _chewieController!)
+                : CircularProgressIndicator(),
+          ),
+          const Positioned(
+            left: 0,
+            right: 0,
+            bottom: 48,
+            child: Center(child: AppSponsorBadge(placement: 'splash')),
+          ),
+        ],
       ),
     );
   }

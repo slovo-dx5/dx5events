@@ -20,12 +20,18 @@ import '../screens/contact_scanning/getContact.dart';
 import '../screens/feedback_page.dart';
 import '../screens/gallery/event_gallery_screen.dart';
 import '../services/gallery/gallery_notifications.dart';
-import '../screens/rewardsPage.dart';
 import '../screens/shop/shop_screen.dart';
+import '../services/gamification/gamification_service.dart';
 import '../map_screen.dart';
 import '../testScreen.dart';
+import '../services/active_event/active_event.dart';
+import '../services/active_event/active_event_service.dart';
 import 'cio_widgets.dart';
+import 'event_image.dart';
+import 'app_sponsor.dart';
 import 'clickableBanner.dart';
+import 'rewards_home_card.dart';
+import 'shop_promo.dart';
 
 class HomePageWidget extends StatefulWidget {
   String coverImagepath;
@@ -131,6 +137,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     final profileProvider = Provider.of<ProfileProvider>(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    final activeEvent = context.watch<ActiveEventService>().current;
 
     return Scaffold(
         body: SingleChildScrollView(
@@ -140,8 +147,13 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               Stack(
                 children: [
                   // Cover Image
-                  Image.asset(
-                    "assets/images/themes/smart_gov_landscape.jpg",
+                  // Directus artwork for the app's active event; any other
+                  // event keeps the bundled cover.
+                  EventImage(
+                    url: widget.eventID == activeEvent.id
+                        ? activeEvent.coverImageUrl
+                        : null,
+                    fallbackAsset: ActiveEvent.bundledCoverImage,
                     width: screenWidth,
                    // height: screenHeight * 0.3, // Made taller for more visual impact
                     fit: BoxFit.contain,
@@ -151,51 +163,26 @@ class _HomePageWidgetState extends State<HomePageWidget> {
 
                 ],
               ),
-              // App Sponsor Section
-              // Container(
-              //   margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              //   padding: const EdgeInsets.all(16),
-              //   decoration: BoxDecoration(
-              //     color: Colors.white,
-              //     borderRadius: BorderRadius.circular(12),
-              //     boxShadow: [
-              //       BoxShadow(
-              //         color: Colors.black.withOpacity(0.08),
-              //         blurRadius: 10,
-              //         offset: const Offset(0, 2),
-              //       ),
-              //     ],
-              //   ),
-              //   child: Column(
-              //     children: [
-              //       Text(
-              //         "APP SPONSOR",
-              //         style: TextStyle(
-              //           fontSize: 11,
-              //           fontWeight: FontWeight.w600,
-              //           letterSpacing: 1.2,
-              //           color: Colors.grey[600],
-              //         ),
-              //       ),
-              //       const SizedBox(height: 12),
-              //       SizedBox(
-              //         height: 50,
-              //         child: Image.asset(
-              //           "assets/images/sponsors/mbcom.png",
-              //           fit: BoxFit.contain,
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
+              // Exclusive app sponsor, directly below the banner.
+              const AppSponsorBanner(),
 
-              const Divider(),
 
               // Main Navigation Grid - Redesigned with card approach
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 child: Column(
                   children: [
+                    if (kShopFeatureEnabled) ...[
+                      const ShopHomeCard(),
+                      const SizedBox(height: 12),
+                    ],
+                    if (kRewardsFeatureEnabled && GamificationService.instance.isEnabled) ...[
+                      RewardsHomeCard(
+                        userID: profileProvider.userID,
+                        screenBuilder: (key) => _rewardScreen(key, profileProvider),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
                     Row(
                       children: [
                         _buildFeatureCard(
@@ -232,15 +219,29 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     verticalSpace(height: 12),
                     Row(
                       children: [
-                        _buildFeatureCard(
-                         context:  context,
-                         title:  'Venue Map',
-                         iconPath:  'assets/icons/map.png',
-                         color:  kConnectedBlue,
-                         screen:  MapScreen(),
-                         analyticsAction:  'map_screen_opened',
-                        ),
-                        const SizedBox(width: 12),
+                        // _buildFeatureCard(
+                        //  context:  context,
+                        //  title:  'Venue Map',
+                        //  iconPath:  'assets/icons/map.png',
+                        //  color:  kConnectedBlue,
+                        //  screen:  MapScreen(),
+                        //  analyticsAction:  'map_screen_opened',
+                        // ),
+                       // const SizedBox(width: 12),
+                        if (kGalleryFeatureEnabled) ...[
+                          _buildFeatureCard(
+                            context: context,
+                            title: 'Gallery',
+                            iconPath: 'assets/icons/photo-gallery.png',
+                            color: kNashPurple,
+                            screen: EventGalleryScreen(
+                              eventId: widget.eventID,
+                              eventName: widget.eventName,
+                            ),
+                            analyticsAction: 'gallery_page_opened',
+                          ),
+                        ],                          const SizedBox(width: 12),
+
                         _buildFeatureCard(
                          context:  context,
                         title:   'QR Scanner',
@@ -273,36 +274,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                         ),
                       ],
                     ),
-                    if (kGalleryFeatureEnabled || kShopFeatureEnabled) ...[
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          if (kGalleryFeatureEnabled)
-                            _buildFeatureCard(
-                              context: context,
-                              title: 'Gallery',
-                              iconPath: 'assets/icons/photo-gallery.png',
-                              color: kNashPurple,
-                              screen: EventGalleryScreen(
-                                eventId: widget.eventID,
-                                eventName: widget.eventName,
-                              ),
-                              analyticsAction: 'gallery_page_opened',
-                            ),
-                          if (kGalleryFeatureEnabled && kShopFeatureEnabled)
-                            const SizedBox(width: 12),
-                          if (kShopFeatureEnabled)
-                            _buildFeatureCard(
-                              context: context,
-                              title: 'Shop',
-                              iconPath: 'assets/icons/shop.png',
-                              color: kGoldColor,
-                              screen: const ShopScreen(),
-                              analyticsAction: 'shop_page_opened',
-                            ),
-                        ],
-                      ),
-                    ],
+
                     const SizedBox(height: 12),
                     Row(
                       children: [
@@ -343,6 +315,51 @@ class _HomePageWidgetState extends State<HomePageWidget> {
         ),
     );
 
+  }
+
+  /// Screens a Rewards challenge card can open, keyed by the rule's
+  /// `screen_name` in Directus. Unknown keys return null (card not tappable).
+  Widget? _rewardScreen(String key, ProfileProvider profileProvider) {
+    switch (key) {
+      case 'agenda':
+        return EventAgendaScreen(
+          eventID: widget.eventID,
+          eventDay: widget.eventDay,
+          eventMonth: widget.eventMonth,
+          eventYear: widget.eventYear,
+          eventLocation: widget.eventLocation,
+          eventDayOfWeek: widget.eventDayOfWeek,
+          eventName: 'AGENDA',
+        );
+      case 'networking':
+        return AttendeesScreen(eventID: widget.eventID);
+      case 'scanner':
+        final id = profileProvider.userID;
+        return id == null ? null : GetContact(ownerID: id);
+      case 'speakers':
+        return EventSpeakersScreen(eventID: widget.eventID);
+      case 'sponsors':
+        return CISOSponsorsScreen(eventID: widget.eventID);
+      case 'social':
+        return const SocialFeed();
+      case 'gallery':
+        return kGalleryFeatureEnabled
+            ? EventGalleryScreen(eventId: widget.eventID, eventName: widget.eventName)
+            : null;
+      case 'shop':
+        return kShopFeatureEnabled ? const ShopScreen() : null;
+      case 'feedback':
+        final pid = profileProvider.profileId;
+        return pid == null
+            ? null
+            : FeedbackPage(
+                eventID: widget.eventID,
+                attendeeID: pid,
+                attendeeName: "${profileProvider.firstName} ${profileProvider.lastName}",
+              );
+      default:
+        return null;
+    }
   }
 
   // Enhanced feature card widget

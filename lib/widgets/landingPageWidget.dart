@@ -8,6 +8,7 @@ import '../initialScreen.dart';
 import '../mainNavigationPage.dart';
 import '../screens/authScreens/eventLogin.dart';
 import '../screens/pastEvents/past_navigation.dart';
+import 'event_image.dart';
 
 // Custom CurvedImageContainer widget
 class CurvedImageContainer extends StatelessWidget {
@@ -155,6 +156,8 @@ class CurvedImageContainer extends StatelessWidget {
 
 class ActiveEventWidget extends StatefulWidget {
   final String imagePath;
+  /// Directus artwork; [imagePath] (a bundled asset) shows when null.
+  final String? imageUrl;
   final String dayMonth;
   final String endDayMonth;
   final String location;
@@ -173,6 +176,7 @@ class ActiveEventWidget extends StatefulWidget {
   ActiveEventWidget({
     Key? key,
     required this.imagePath,
+    this.imageUrl,
     required this.shortDescription,
     required this.dayMonth,
     required this.date,
@@ -222,9 +226,9 @@ class _ActiveEventWidgetState extends State<ActiveEventWidget> {
           children: [
             // Background image
             Positioned.fill(
-              child: Image.asset(
-                'assets/images/themes/smart_gov_portraitt.jpg',
-                fit: BoxFit.cover,
+              child: EventImage(
+                url: widget.imageUrl,
+                fallbackAsset: widget.imagePath,
               ),
             ),
 

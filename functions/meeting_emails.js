@@ -40,6 +40,23 @@ const PLAY_URL =
 const APP_STORE_URL = "https://apps.apple.com/lt/app/dx5ve-events/id6479024266";
 const MEETING_MINUTES = 30;
 
+// App sponsor credit at the foot of every email (mirrors AppSponsor in
+// lib/widgets/app_sponsor.dart). Set to null to drop it.
+const SPONSOR = {
+  name: "MBCOM Technologies",
+  logoUrl: "https://subscriptions.cioafrica.co/assets/6990f48c-b77b-4fd0-bc27-36e548876d51?width=600",
+};
+
+function sponsorFooter() {
+  if (!SPONSOR) return "";
+  return [
+    "<div style=\"margin-top:28px;padding-top:16px;border-top:1px solid #eee;text-align:center;\">",
+    "<div style=\"font-size:11px;letter-spacing:1px;color:#888;margin-bottom:8px;\">APP SPONSORED BY</div>",
+    `<img src="${SPONSOR.logoUrl}" alt="${esc(SPONSOR.name)}" style="height:36px;width:auto;">`,
+    "</div>",
+  ].join("\n");
+}
+
 /** Everything here is typed by attendees; none of it is trusted HTML. */
 function esc(value) {
   return String(value == null ? "" : value)
@@ -79,6 +96,7 @@ function layout(inner) {
       "<img src=\"https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg\" " +
       "alt=\"Download on the App Store\" style=\"height:40px;\"></a>",
     "</p>",
+    sponsorFooter(),
     "</div>",
   ].join("\n");
 }

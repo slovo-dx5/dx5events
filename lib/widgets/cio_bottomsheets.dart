@@ -359,8 +359,8 @@ class _MeetingRequestBottomSheetState extends State<MeetingRequestBottomSheet> {
         });
         return documentSnapshot.get('messaging_token').toString();
       } else {
-        UserPointsService().createOrUpdateUserPoints(userId: ownerID,actionId: 10);
-
+        // Meeting points come from the meeting_request_sent / meeting_accepted
+        // activity logs now, not from this lookup.
         return 'Document does not exist';
       }
 

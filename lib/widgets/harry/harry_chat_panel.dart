@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../constants.dart';
 import '../../providers/harry_controller.dart';
 import '../../services/harry/harry_voice.dart';
+import '../app_sponsor.dart';
 import 'harry_message.dart';
 
 /// The expanded chat surface for Harry. Hand-rolled bubble list (reusing the
@@ -107,6 +108,8 @@ class _HarryChatPanelState extends State<HarryChatPanel> {
         child: Column(
           children: [
             _header(controller),
+            const AppSponsorStrip(
+                lead: 'Harry is powered by', placement: 'harry'),
             Expanded(
               child: ListView.builder(
                 controller: _scroll,

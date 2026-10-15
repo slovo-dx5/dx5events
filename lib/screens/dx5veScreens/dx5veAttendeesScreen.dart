@@ -9,6 +9,7 @@ import '../../models/eventAttendeesModel.dart';
 import '../../providers.dart';
 import '../../repositories/attendees_repository.dart';
 import '../../services/activity_logger.dart';
+import '../../widgets/app_sponsor.dart';
 import '../../widgets/search_debouncer.dart';
 
 class AttendeesScreen extends StatefulWidget {
@@ -38,13 +39,11 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
   // Attendees data
   List<EventAttendeeModel> _attendeesList = [];
   final _searchDebouncer = SearchDebouncer();
-  String _sponsorPhoneNumber = "";
 
   @override
   void initState() {
     super.initState();
 
-    _loadSponsorPhone();
     _scrollController.addListener(_scrollListener);
     _fetchAttendees();
     ActivityLogger.instance.log(
@@ -61,13 +60,6 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
     _refreshController.dispose();
     _searchDebouncer.dispose();
     super.dispose();
-  }
-
-  void _loadSponsorPhone() async {
-    final phone = await getStringPref(kSponsorPhone);
-    setState(() {
-      _sponsorPhoneNumber = phone;
-    });
   }
 
   void _scrollListener() {
@@ -139,9 +131,15 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
     });
   }
 
+  /// Attendees per sponsor card. The list runs in blocks of this many
+  /// attendees followed by one sponsor card.
+  static const int _sponsorEvery = AppSponsor.attendeeInterval;
+  static const bool _showSponsor = AppSponsor.enabled;
+
   int _calculateTotalItemCount() {
-    // Calculate how many sponsor widgets to insert (after every 5 attendees)
-    int sponsorCount = _attendeesList.length ~/ 5;
+    // A sponsor card after every full block of attendees.
+    final sponsorCount =
+        _showSponsor ? _attendeesList.length ~/ _sponsorEvery : 0;
     // Total = attendees + sponsors + (loading indicator if hasMore)
     return _attendeesList.length + sponsorCount + (_hasMore ? 1 : 0);
   }
@@ -207,22 +205,13 @@ class _AttendeesScreenState extends State<AttendeesScreen> {
             controller: _scrollController,
             itemCount:  _calculateTotalItemCount(),
             itemBuilder: (context, index) {
-              // Calculate sponsor positions (after every 5 attendees)
-              // Position 5, 11, 17, 23... (formula: 5 + (n * 6))
-              int sponsorInsertions = (index + 1) ~/ 6;
-              int actualAttendeeIndex = index - sponsorInsertions;
-
-              // Check if current position should show sponsor
-              bool isSponsorPosition = (index + 1) % 6 == 0 && index < _attendeesList.length + sponsorInsertions;
-
-              // if (isSponsorPosition) {
-              //   return sponsorWidget(
-              //     context: context,
-              //     sponsorName: "MBCom",
-              //     sponsorLogoPath: "assets/images/sponsors/mbcom_profile.png",
-              //     sponsorNumber: _sponsorPhoneNumber,
-              //   );
-              // }
+              // Rows come in blocks of _sponsorEvery attendees + 1 sponsor.
+              final block = _showSponsor ? _sponsorEvery + 1 : 1 << 30;
+              if (_showSponsor && index % block == _sponsorEvery) {
+                return const AppSponsorAttendeeCard();
+              }
+              final actualAttendeeIndex =
+                  (index ~/ block) * _sponsorEvery + index % block;
 
               // Show loading indicator at the end if more items are available
               if (actualAttendeeIndex >= _attendeesList.length) {

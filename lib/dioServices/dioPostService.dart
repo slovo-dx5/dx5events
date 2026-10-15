@@ -305,25 +305,13 @@ class DioPostService extends DioClient {
 
   }
 
-  Future<Response> updateUserPoints({required Map<String, dynamic> body, required int userPointsId}) async {
+  Future<Response> updateSignIn({required Map<String, dynamic> body, required int recordID}) async {
     try {
       return await _client.init().patch(
-          "${BaseURL.Baseurl}/items/user_points/$userPointsId",
+          "${BaseURL.Baseurl}/items/event_registrations/$recordID",
           data: body);
     } on DioError catch (ex) {
       throw Exception(ex);
-    }
-  }
-
-  updateSignIn({required Map<String, dynamic> body, required int recordID}) async {
-    print("trying to update sign in");
-    try {
-       await _client.init().patch(
-          "${BaseURL.Baseurl}/items/event_registrations/$recordID",
-          data: body);
-      print("update successful sign in");
-    }  catch (ex) {
-      print("Eroror updatinf sign in is $ex");
     }
   }
 
@@ -336,16 +324,6 @@ class DioPostService extends DioClient {
       throw Exception(ex);
     }
   }
-  Future<Response> createUserPointsEntry({required Map<String, dynamic> body, }) async {
-    try {
-      return await _client.init().post(
-          "${BaseURL.Baseurl}/items/user_points",
-          data: body);
-    } on DioError catch (ex) {
-      throw Exception(ex);
-    }
-  }
-
   Future<Response> createSocialPost({required Map<String, dynamic> body, }) async {
     try {
       return await _client.init().post(

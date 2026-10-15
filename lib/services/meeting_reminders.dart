@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
+import '../widgets/app_sponsor.dart';
+
 /// Schedules "your meeting starts in 15 minutes" local notifications for
 /// accepted meetings.
 ///
@@ -67,7 +69,8 @@ class MeetingReminderService {
     await plugin.zonedSchedule(
       _idFor(meetingId),
       'Upcoming meeting',
-      'Your meeting with $withName starts in 15 minutes.',
+      'Your meeting with $withName starts in 15 minutes.'
+      '${AppSponsor.reminderCredit}',
       scheduled,
       const NotificationDetails(
         android: AndroidNotificationDetails(

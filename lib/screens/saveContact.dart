@@ -2,13 +2,13 @@ import 'package:dx5veevents/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-import '../helpers/helper_functions.dart';
 import '../models/contactModel.dart';
 import '../widgets/cool_background.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 
 import '../widgets/textStyles.dart';
 import '../database/scanned_contacts_db.dart';
+import '../services/activity_logger.dart';
 
 class SaveContact extends StatefulWidget {
   String firstName;
@@ -18,12 +18,12 @@ class SaveContact extends StatefulWidget {
   String company;
   String role;
   int ownerID;
+  /// The scanned delegate. Used as the target of the `contact_scanned` log so
+  /// the Networker challenge counts distinct people, not repeat scans.
+  int? attendeeID;
 
-
-
-   //
    SaveContact({required this.email,required this.ownerID, required this.firstName, required this.company,
-    required this.role, required this.phone,required this.lastName,super.key});
+    required this.role, required this.phone,required this.lastName,this.attendeeID,super.key});
 
   @override
   State<SaveContact> createState() => _SaveContactState();
@@ -159,10 +159,14 @@ class _SaveContactState extends State<SaveContact> {
       );
       await ScannedContactsDatabase.instance.create(scannedContact);
 
-      await UserPointsService().createOrUpdateUserPoints(
-        userId: widget.ownerID,
-        actionId: 3,
-      );
+      if (widget.attendeeID != null && widget.attendeeID != widget.ownerID) {
+        ActivityLogger.instance.log(
+          action: ActivityAction.contactScanned,
+          userId: widget.ownerID,
+          targetType: 'attendee',
+          targetId: widget.attendeeID.toString(),
+        );
+      }
 
       Fluttertoast.showToast(
         msg: "Contact saved successfully!",

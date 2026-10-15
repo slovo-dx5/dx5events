@@ -11,6 +11,14 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 const bool kGalleryFeatureEnabled = true;
 const bool kShopFeatureEnabled = true;
 
+/// Rewards / points. The screens also hide themselves when the gamification
+/// Flow ids are missing from assets/.env (see GamificationConfig).
+const bool kRewardsFeatureEnabled = true;
+
+/// Prefix of the scavenger-hunt QR codes printed around the venue, e.g.
+/// `hunt:coffee-bar`. Everything after the prefix is the code id.
+const String kHuntCodePrefix = "hunt:";
+
 const kIconBlue = Color(0xFF2398cd);
 const kIconPurple = Color(0xFF8f3b9d);
 const kIconYellow = Color(0xFFd59a3e);

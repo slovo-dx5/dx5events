@@ -10,8 +10,8 @@ import 'package:provider/provider.dart';
 
 import '../../constants.dart';
 import '../../helpers/analytics_helper.dart';
-import '../../helpers/helper_functions.dart';
 import '../../providers/social_provider.dart';
+import '../../services/activity_logger.dart';
 import '../../utils/profanity_filter.dart';
 import '../../utils/social_text_parser.dart';
 
@@ -117,7 +117,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
     try {
       final hashtags = SocialTextParser.extractHashtags(_postTextController.text);
-      await DioPostService().createSocialPost(body: {
+      final created = await DioPostService().createSocialPost(body: {
         "user_id": userID,
         "picture_link": imageID ?? "no image",
         "post_description": _postTextController.text,
@@ -128,6 +128,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         "hashtags": hashtags,
       });
       await Dx5veAnalytics().logdx5veEvent(eventName: "socialPostCreated");
+      ActivityLogger.instance.log(
+        action: ActivityAction.socialPostCreated,
+        userId: userID,
+        targetType: 'social_post',
+        targetId: created.data?['data']?['id']?.toString(),
+        metadata: {'has_image': imageID != null},
+      );
 
       Fluttertoast.showToast(msg: "Post created successfully");
       _postTextController.clear();

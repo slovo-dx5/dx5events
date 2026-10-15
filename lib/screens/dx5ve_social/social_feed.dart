@@ -6,9 +6,13 @@ import 'package:provider/provider.dart';
 
 import '../../constants.dart';
 import '../../providers/social_provider.dart';
+import '../../widgets/app_sponsor.dart';
 import '../../widgets/profile_initials_widget.dart';
 import '../../widgets/socialPostWidget.dart';
 import 'createPostScreen.dart';
+
+/// Rows above the posts: the sponsor's pinned post.
+const int _pinned = AppSponsor.enabled ? 1 : 0;
 
 class SocialFeed extends StatefulWidget {
   const SocialFeed({super.key});
@@ -143,8 +147,10 @@ class _SocialFeedState extends State<SocialFeed> {
       onRefresh: () => provider.loadFeed(refresh: true),
       child: ListView.builder(
         controller: _scroll,
-        itemCount: posts.length + (provider.isLoadingMore ? 1 : 0),
+        itemCount: posts.length + _pinned + (provider.isLoadingMore ? 1 : 0),
         itemBuilder: (context, index) {
+          if (index < _pinned) return const AppSponsorFeedPost();
+          index -= _pinned;
           if (index >= posts.length) {
             return const Padding(
               padding: EdgeInsets.all(16),

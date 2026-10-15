@@ -8,9 +8,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import '../dioServices/dioPostService.dart';
-import '../helpers/helper_functions.dart';
 import '../mainNavigationPage.dart';
 import '../providers.dart';
+import '../services/activity_logger.dart';
 import 'package:dx5veevents/constants.dart';
 
 
@@ -49,8 +49,13 @@ class _SponsorScannerState extends State<SponsorScanner> {
 
             sponsorID = scanData.code!;
           });
-          sendSponsorData().then(()async{  await UserPointsService().
-          createOrUpdateUserPoints(userId:widget.attendeeID!,actionId: 6);
+          sendSponsorData().then((_) {
+            ActivityLogger.instance.log(
+              action: ActivityAction.sponsorBoothScan,
+              userId: widget.attendeeID,
+              targetType: 'sponsor',
+              targetId: sponsorID,
+            );
           });
         }
         else if (scanData.code!.startsWith("checkin")) {

@@ -5,6 +5,7 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../constants.dart';
+import '../../widgets/app_sponsor.dart';
 import 'caption_overlay.dart';
 import 'face_search_screen.dart';
 import 'gallery_repository.dart';
@@ -263,6 +264,8 @@ class _EventGalleryScreenState extends State<EventGalleryScreen> {
         children: [
           if (_days.isNotEmpty) _dayChips(),
           if (_sessions.isNotEmpty) _sessionChips(),
+          const AppSponsorStrip(
+              lead: 'Photos brought to you by', placement: 'gallery'),
           Expanded(child: _body()),
         ],
       ),

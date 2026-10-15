@@ -18,6 +18,8 @@ import 'providers/harry_controller.dart';
 import 'gallery_screen.dart';
 import 'homeScreen.dart';
 import 'meetings/meeting_tabs.dart';
+import 'screens/shop/shop_screen.dart';
+import 'widgets/shop_promo.dart';
 
 _MainNavigationPageState mainNavigationPageState = _MainNavigationPageState();
 
@@ -150,6 +152,9 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
   }
 
+  /// Position of the Shop tab, right after Meetings (only when it exists).
+  static const int _shopTabIndex = 3;
+
   List<Widget> _buildScreens() {
     return [
       HomeScreen(  eventDay: widget.eventDay ?? 0, eventMonth: widget.eventMonth ?? 0, eventYear: widget.eventYear ?? 0, coverImagePath: widget.coverImagePath ?? '', eventName: widget.eventName ?? '',
@@ -158,6 +163,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         eventLocation: widget.eventLocation ?? '', eventID: widget.eventID ?? '', eventDayOfWeek: widget.eventDayOfWeek ?? '', isCustomerEvent: widget.isCustomerEvent ?? false,),
       AllChatsScreen(),
       MeetingTabs(),
+      if (kShopFeatureEnabled) const ShopScreen(),
       //SocialFeed(),
        ProfileScreen(eventId: int.tryParse(widget.eventID ?? '0') ?? 0,),
     ];
@@ -189,7 +195,13 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
           activeColorPrimary: kConnectedBlue,
           inactiveColorPrimary: Colors.grey,
         ),
-
+        if (kShopFeatureEnabled)
+          PersistentBottomNavBarItem(
+            icon: const ShopTabIcon(),
+            title: "Shop",
+            activeColorPrimary: kConnectedBlue,
+            inactiveColorPrimary: Colors.grey,
+          ),
 
         PersistentBottomNavBarItem(
           icon: const Icon(Icons.person),
@@ -221,6 +233,11 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         controller: controller,
         screens: _buildScreens(),
         items: _navBarsItems(),
+        onItemSelected: (index) {
+          if (kShopFeatureEnabled && index == _shopTabIndex) {
+            ShopPromo.tap('nav_tab');
+          }
+        },
         confineToSafeArea: true,
         backgroundColor: kLightAppbar, // Default is Colors.white.
         handleAndroidBackButtonPress: true, // Default is true.

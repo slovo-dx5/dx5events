@@ -13,6 +13,7 @@ import '../../constants.dart';
 import '../../dioServices/dioFetchService.dart';
 import '../../dioServices/dioOTPService.dart';
 import '../../services/activity_logger.dart';
+import '../../widgets/app_sponsor.dart';
 import 'eventOTP.dart';
 
 class EventLogin extends StatefulWidget {
@@ -403,7 +404,9 @@ class _EventLoginState extends State<EventLogin> {
                       ),
                     ],
                   ),
-                  verticalSpace(height: 30)
+                  verticalSpace(height: 30),
+                  const Center(child: AppSponsorBadge(placement: 'login')),
+                  verticalSpace(height: 24),
                 ]),
           ),
         ],

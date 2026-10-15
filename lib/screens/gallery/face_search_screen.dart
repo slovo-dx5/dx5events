@@ -9,6 +9,7 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../constants.dart';
+import '../../services/activity_logger.dart';
 import 'caption_overlay.dart';
 import 'gallery_repository.dart';
 import 'photo_viewer_screen.dart';
@@ -143,6 +144,12 @@ class _FaceSearchScreenState extends State<FaceSearchScreen> {
         widget.pixEventId,
         selfie,
         strictness: _strictness,
+      );
+      ActivityLogger.instance.log(
+        action: ActivityAction.galleryFaceSearch,
+        targetType: 'pix_event',
+        targetId: widget.pixEventId.toString(),
+        metadata: {'matches': matches.length},
       );
       if (!mounted) return;
       final known = {for (final p in widget.knownPhotos) p.id: p};

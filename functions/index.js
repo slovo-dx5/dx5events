@@ -40,7 +40,7 @@ const MIN_PHOTOS = 1;
 
 // Maps a pix event to the app's (Directus) event id, which is what the topic
 // is keyed on. The app subscribes to `gallery_<appEventId>` using the id from
-// landingPage2.dart (e.g. 107 = Smart Government Summit) with no pix lookup, so
+// landingPage2.dart (e.g. 107 = CIO100 SYMPOSIUM & AWARDS) with no pix lookup, so
 // the pix->app translation lives here. Keyed by normalized pix title or slug.
 // Add one entry per event the app should receive photo pushes for.
 const APP_EVENT_ID_BY_PIX = {

@@ -1,6 +1,8 @@
 import 'package:dx5veevents/dioServices/dioPostService.dart';
 import 'package:flutter/material.dart';
 
+import '../services/activity_logger.dart';
+
 class FeedbackPage extends StatefulWidget {
   String attendeeName;
   String attendeeID;
@@ -80,6 +82,12 @@ class _FeedbackPageState extends State<FeedbackPage> {
        "other_name":_otherNameController.text,
 
      });
+      ActivityLogger.instance.log(
+        action: ActivityAction.feedbackSubmitted,
+        eventId: widget.eventID,
+        targetType: 'feedback',
+        targetId: _selectedItem,
+      );
 
       if (mounted) {
         setState(() {

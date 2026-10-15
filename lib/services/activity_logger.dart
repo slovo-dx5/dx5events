@@ -28,6 +28,30 @@ class ActivityAction {
   static const meetingAccepted = 'meeting_accepted';
   static const meetingDeclined = 'meeting_declined';
   static const meetingCancelled = 'meeting_cancelled';
+
+  static const sponsorImpression = 'sponsor_impression';
+  static const sponsorTap = 'sponsor_tap';
+  static const sponsorBoothScan = 'sponsor_booth_scan';
+
+  static const shopImpression = 'shop_impression';
+  static const shopTap = 'shop_tap';
+
+  // Gamification signals. Points are worked out server-side from these rows
+  // (see docs/features/gamification-backend.md) — the app never awards points
+  // itself, so target_id must be stable for "distinct" rules to count right.
+  static const appOpen = 'app_open';
+  static const profilePhotoUpdated = 'profile_photo_updated';
+  static const agendaBookmarkAdded = 'agenda_bookmark_added';
+  static const contactScanned = 'contact_scanned';
+  static const sessionRated = 'session_rated';
+  static const socialPostCreated = 'social_post_created';
+  static const socialReaction = 'social_reaction';
+  static const socialComment = 'social_comment';
+  static const harryQuestion = 'harry_question';
+  static const galleryFaceSearch = 'gallery_face_search';
+  static const feedbackSubmitted = 'feedback_submitted';
+  // Also used for the daily entrance check-in codes (rules match on target_id).
+  static const huntCodeFound = 'hunt_code_found';
 }
 
 /// Singleton activity logger. Writes go to a local sqflite queue first, then
@@ -44,6 +68,11 @@ class ActivityLogger {
 
   Timer? _flushTimer;
   bool _flushing = false;
+  final List<VoidCallback> _flushListeners = [];
+
+  /// Called after rows reach the server — e.g. to re-read points, which a
+  /// Directus Flow awards from those rows.
+  void addFlushListener(VoidCallback listener) => _flushListeners.add(listener);
   bool _initialized = false;
   String? _platform;
 
@@ -151,6 +180,14 @@ class ActivityLogger {
           .whereType<int>()
           .toList(growable: false);
       await ActivityQueueDatabase.instance.deleteByIds(ids);
+
+      for (final listener in List.of(_flushListeners)) {
+        try {
+          listener();
+        } catch (e) {
+          debugPrint('ActivityLogger flush listener failed: $e');
+        }
+      }
 
       // If we just drained a full batch, more may be waiting.
       if (batch.length == _batchSize) {

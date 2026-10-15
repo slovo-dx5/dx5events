@@ -6,6 +6,7 @@ import '../../dioServices/dioFetchService.dart';
 import '../../models/eventModel.dart';
 import '../../models/sponsor_data_model.dart';
 import '../../widgets/cio_bottomsheets.dart';
+import '../../widgets/app_sponsor.dart';
 import '../../widgets/sponsor_widget.dart';
 
 // ---------------------------------------------------------------------------
@@ -198,13 +199,23 @@ class _SponsorsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (sponsors.isEmpty) {
+    // The app sponsor gets its own headline card, so drop its regular entry
+    // if the event also lists it in a tier.
+    final tiered = AppSponsor.enabled
+        ? sponsors
+            .where((s) => !(s.data.sponsorName ?? '')
+                .toLowerCase()
+                .contains(AppSponsor.nameMatch))
+            .toList()
+        : sponsors;
+
+    if (tiered.isEmpty && !AppSponsor.enabled) {
       return const Center(child: Text('No sponsors available'));
     }
 
     // Group by category, preserving per-category order from the sorted list
     final grouped = <String, List<_EnrichedSponsor>>{};
-    for (final s in sponsors) {
+    for (final s in tiered) {
       grouped.putIfAbsent(s.category, () => []).add(s);
     }
 
@@ -230,13 +241,16 @@ class _SponsorsTab extends StatelessWidget {
       }
     }
 
+    final lead = AppSponsor.enabled ? 1 : 0;
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 12),
-      itemCount: sections.length,
-      itemBuilder: (context, i) => _CategorySection(
-        category: sections[i].key,
-        sponsors: sections[i].value,
-      ),
+      itemCount: sections.length + lead,
+      itemBuilder: (context, i) => i < lead
+          ? const AppSponsorFeatureCard()
+          : _CategorySection(
+              category: sections[i - lead].key,
+              sponsors: sections[i - lead].value,
+            ),
     );
   }
 }

@@ -94,7 +94,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         // lookup key the history screen will send, and the buyer is free to
         // type a different address in the form (a colleague's, for the
         // receipt) without that hiding the order from their own history.
-        attendeeId: profile.profileId,
+        // The user id also credits the purchase in Rewards.
+        attendeeId: profile.userID?.toString(),
         attendeeEmail: profile.email,
         orderId: _orderId,
       );

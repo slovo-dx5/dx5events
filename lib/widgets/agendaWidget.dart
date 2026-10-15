@@ -177,6 +177,7 @@ agendaItemWithSpeakers({required BuildContext context,
                                                 attendeeID: attendeeID,
                                                 speakerName: '${snapshot.data!.first!.firstName} ${snapshot.data!.first!.lastName}',
                                                 eventId: 10, sessionTitle: title,
+                                                sessionDate: sessionDate,
                                               );
                                             },
                                           );

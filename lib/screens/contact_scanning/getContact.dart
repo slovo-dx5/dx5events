@@ -18,6 +18,8 @@ import '../../helpers/analytics_helper.dart';
 import '../../mainNavigationPage.dart';
 import '../../models/contactModel.dart';
 import '../../providers.dart';
+import '../../services/activity_logger.dart';
+import '../../widgets/app_sponsor.dart';
 import 'package:dx5veevents/constants.dart';
 
 import 'package:permission_handler/permission_handler.dart';
@@ -80,7 +82,28 @@ class _GetContactState extends State<GetContact> with SingleTickerProviderStateM
     if(Platform.isIOS)await contactController?.pauseCamera();
     if(response.statusCode==200){
       if(Platform.isIOS)await contactController?.pauseCamera();
-      Fluttertoast.showToast(msg: "Success");
+      if (sponsorID == AppSponsor.boothCode && AppSponsor.enabled) {
+        // Booth challenge: a branded thank-you instead of a toast. The log
+        // below doubles as the Booth crawl signal for this booth.
+        final userId = profileProvider.userID;
+        ActivityLogger.instance.log(
+          action: ActivityAction.sponsorBoothScan,
+          userId: userId,
+          targetType: 'app_sponsor',
+          targetId: 'booth',
+        );
+        if (mounted) await showAppSponsorBoothReward(context);
+      } else {
+        // Booth crawl: one distinct target per sponsor booth code.
+        ActivityLogger.instance.log(
+          action: ActivityAction.sponsorBoothScan,
+          userId: profileProvider.userID,
+          targetType: 'sponsor',
+          targetId: sponsorID,
+        );
+        Fluttertoast.showToast(msg: "Success");
+      }
+      if (!mounted) return;
       Navigator.of(context).pop(
 
       );
@@ -127,7 +150,14 @@ class _GetContactState extends State<GetContact> with SingleTickerProviderStateM
       // Pause camera immediately to prevent further scans
       await controller.pauseCamera();
 
-      if (code.startsWith("sponsor")) {
+      if (code.startsWith(kHuntCodePrefix)) {
+        await _recordHuntCode(code);
+        setState(() {
+          hasScanned = false;
+          lastScannedCode = null;
+        });
+        await controller.resumeCamera();
+      } else if (code.startsWith("sponsor")) {
         setState(() {
           isSending = true;
           sponsorID = code;
@@ -152,12 +182,30 @@ class _GetContactState extends State<GetContact> with SingleTickerProviderStateM
   // - Attendee badge: contains ":" with a numeric ID as the last segment
   bool _isValidQrFormat(String code) {
     if (code.startsWith("sponsor")) return true;
+    if (code.startsWith(kHuntCodePrefix) && code.length > kHuntCodePrefix.length) return true;
     final parts = code.split(':');
     if (parts.length >= 2) {
       final id = int.tryParse(parts.last);
       return id != null && id > 0;
     }
     return false;
+  }
+
+  /// Scavenger-hunt codes are printed around the venue. Whether a code counts
+  /// (and when it unlocks) is decided server-side by the hunt rules, so the app
+  /// only records the find.
+  Future<void> _recordHuntCode(String code) async {
+    final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
+    ActivityLogger.instance.log(
+      action: ActivityAction.huntCodeFound,
+      userId: profileProvider.userID,
+      targetType: 'hunt_code',
+      targetId: code.substring(kHuntCodePrefix.length).trim().toLowerCase(),
+    );
+    Fluttertoast.showToast(
+      msg: "Hunt code found! Check Rewards for your points.",
+      toastLength: Toast.LENGTH_LONG,
+    );
   }
 
   void _handleInvalidQr() {
@@ -206,6 +254,7 @@ class _GetContactState extends State<GetContact> with SingleTickerProviderStateM
             role: attendeeDetails["role"],
             email: attendeeDetails["email"],
             ownerID: widget.ownerID,
+            attendeeID: attendeeID,
           ),
           withNavBar: false,
           pageTransitionAnimation: PageTransitionAnimation.slideRight,

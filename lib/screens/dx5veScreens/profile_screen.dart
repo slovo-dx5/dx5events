@@ -25,6 +25,7 @@ import '../../dioServices/dioFetchService.dart';
 import '../../dioServices/dioPostService.dart';
 import '../../helpers/helper_widgets.dart';
 import '../../providers.dart';
+import '../../services/activity_logger.dart';
 
 
 
@@ -175,6 +176,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         imageID = jsonResponse['data']['id'];
       });
+      ActivityLogger.instance.log(
+        action: ActivityAction.profilePhotoUpdated,
+        userId: ownerID is int ? ownerID : null,
+        targetType: 'file',
+        targetId: imageID?.toString(),
+      );
       Map<String, dynamic> imageidDAta = {
         "profile_photo": imageID,
 

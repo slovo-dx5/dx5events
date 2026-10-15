@@ -6,6 +6,8 @@ import '../initialScreen.dart';
 import '../providers.dart';
 import '../providers/harry_controller.dart';
 import '../providers/themeProvider.dart';
+import '../services/active_event/active_event.dart';
+import '../services/active_event/active_event_service.dart';
 import '../widgets/cio_bottomsheets.dart';
 import '../widgets/landingPageWidget.dart';
 import 'authScreens/eventLogin.dart';
@@ -61,55 +63,54 @@ class ActiveEvents extends StatefulWidget {
 class _ActiveEventsState extends State<ActiveEvents> {
   @override
   Widget build(BuildContext context) {
+    // The event comes from Directus (app_config.active_event) via
+    // ActiveEventService, so switching events needs no new build.
+    final event = context.watch<ActiveEventService>().current;
     return SizedBox(
         //height: MediaQuery.of(context).size.height * 0.85,
         child: ActiveEventWidget(
-          imagePath: 'assets/images/themes/smart_gov_portraitt.jpg',
-          dayMonth: 'THUR, JUL',
-          date: '23rd',
-          endDate: '23rd',
-          location: 'KENYA',
-          endDayMonth: 'THUR, JUL',
+          imagePath: ActiveEvent.bundledCardImage,
+          imageUrl: event.cardImageUrl,
+          dayMonth: ActiveEvent.dayLabel(event.dateFrom),
+          date: '${event.dateFrom.day}',
+          endDate: '${event.dateTo.day}',
+          location: event.displayLocation,
+          endDayMonth: ActiveEvent.dayLabel(event.dateTo),
           onPressedFunct: () {
             Navigator.of(context).push(
               MaterialPageRoute(
                   builder: (_) => InitialScreen(
-                        coverImagePath: 'assets/images/themes/smart_gov_landscape.jpg',
-                        eventName: 'SMART GOVERNMENT SUMMIT',
-                        //eventHappeningDates: 'WED, JULY, 16TH - THUR, MAY, 29TH',
-                        eventHappeningDates: 'THUR, JUL, 23RD',
-                        shortEventDescription:
-                            "Powering Africa's Financial Transformation",
-                        eventLocation: 'KENYA',
+                        coverImagePath: ActiveEvent.bundledCoverImage,
+                        eventName: event.displayName,
+                        eventHappeningDates: event.dateLabel,
+                        shortEventDescription: event.tagline,
+                        eventLocation: event.displayLocation,
                         followingScreen: EventLogin(
-                          coverImagePath:
-                              'THUR, JUL, 23rd',
-                          eventName: 'SMART GOVERNMENT SUMMIT',
-                          eventDate: 'THUR, JUl, 23rd',
-                          shortEventDescription:
-                              "Bridging the gap between advanced digital technologies and government operations",
-                          eventLocation: 'KENYA',
-                          eventID: '107',
-                          eventDay: 23,
-                          eventMonth: 07,
-                          eventYear: 2026,
-                          eventDayOfWeek: 'WED',
+                          coverImagePath: ActiveEvent.bundledCoverImage,
+                          eventName: event.displayName,
+                          eventDate: event.dateLabel,
+                          shortEventDescription: event.tagline,
+                          eventLocation: event.displayLocation,
+                          eventID: event.id,
+                          eventDay: event.dateFrom.day,
+                          eventMonth: event.dateFrom.month,
+                          eventYear: event.dateFrom.year,
+                          eventDayOfWeek: event.dayOfWeek,
                           isCustomerEvent: false,
                         ),
-                        eventID: '107',
-                    eventDay: 23,
-                    eventMonth: 07,
-                    eventYear: 2026,
-                        eventDayOfWeek: 'THUR',
+                        eventID: event.id,
+                        eventDay: event.dateFrom.day,
+                        eventMonth: event.dateFrom.month,
+                        eventYear: event.dateFrom.year,
+                        eventDayOfWeek: event.dayOfWeek,
                         isCustomerEvent: false,
                       )),
             );
           },
-          eventName: 'SMART GOVERNMENT SUMMIT',
+          eventName: event.displayName,
           containerColor: kGradientLightBlue.withValues(alpha: 0.7),
-          shortDescription: "Bridging the gap between advanced digital technologies and government operations",
+          shortDescription: event.tagline,
         )
     );
   }
 }
-

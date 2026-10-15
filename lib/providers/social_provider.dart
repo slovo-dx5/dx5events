@@ -4,8 +4,8 @@ import '../constants.dart';
 import '../dioServices/dioFetchService.dart';
 import '../dioServices/dioPostService.dart';
 import '../dioServices/dio_delete_service.dart';
-import '../helpers/helper_functions.dart';
 import '../models/social_post_model.dart';
+import '../services/activity_logger.dart';
 
 /// Central state for the revamped social feed.
 ///
@@ -227,7 +227,12 @@ class SocialProvider with ChangeNotifier {
         final newId = res.data['data']?['id'];
         if (newId is int) _myReactionId[postId] = newId;
         _bumpReactionCount(postId);
-        UserPointsService().createOrUpdateUserPoints(userId: _userId!, actionId: 13);
+        ActivityLogger.instance.log(
+          action: ActivityAction.socialReaction,
+          userId: _userId,
+          targetType: 'social_post',
+          targetId: postId.toString(),
+        );
       } catch (_) {
         _myReactionType.remove(postId);
         _replace(idx, _posts[idx].copyWith(reactionCount: (_posts[idx].reactionCount - 1).clamp(0, 1 << 30)));
@@ -311,7 +316,12 @@ class SocialProvider with ChangeNotifier {
         await _post.patchSocialPost(
             body: {'comment_count': _posts[idx].commentCount}, postID: postId);
       }
-      UserPointsService().createOrUpdateUserPoints(userId: _userId!, actionId: 12);
+      ActivityLogger.instance.log(
+        action: ActivityAction.socialComment,
+        userId: _userId,
+        targetType: 'social_post',
+        targetId: postId.toString(),
+      );
       // Re-sync the thread so the temp row gets its real id.
       await loadComments(postId);
       return true;
