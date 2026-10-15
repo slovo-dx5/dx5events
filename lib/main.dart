@@ -37,6 +37,7 @@ import 'notifications/pushNotifications.dart';
 import 'providers/cart_provider.dart';
 import 'providers/social_provider.dart';
 import 'providers/harry_controller.dart';
+import 'screens/chats/chat_screen.dart';
 import 'screens/gallery/event_gallery_screen.dart';
 import 'services/active_event/active_event.dart';
 import 'services/active_event/active_event_service.dart';
@@ -81,6 +82,15 @@ const AndroidNotificationChannel _galleryChannel = AndroidNotificationChannel(
   'gallery_notifications',
   'Event Photos',
   description: 'Alerts when new event photos are available',
+  importance: Importance.high,
+);
+
+// Channel for chat pushes from the onChatMessageCreated Cloud Function; the
+// channelId must match the one that function sets.
+const AndroidNotificationChannel _chatChannel = AndroidNotificationChannel(
+  'chat_messages',
+  'Chat Messages',
+  description: 'New messages from other delegates',
   importance: Importance.high,
 );
 
@@ -142,6 +152,47 @@ class _NotificationsLauncherState extends State<_NotificationsLauncher> {
   Widget build(BuildContext context) => _buildMainNavShell();
 }
 
+// Opens a 1:1 conversation from a chat push. The current user comes from
+// ProfileProvider when it's loaded, otherwise from SharedPreferences.
+class _ChatLauncher extends StatelessWidget {
+  final int otherId;
+  final String otherName;
+
+  const _ChatLauncher({required this.otherId, required this.otherName});
+
+  Future<(int, String)> _fromPrefs() async =>
+      (await getIntPref(kUserID), await getStringPref(kFirstName));
+
+  @override
+  Widget build(BuildContext context) {
+    final profile = Provider.of<ProfileProvider>(context, listen: false);
+    final providerId = profile.userID;
+    if (providerId != null && providerId > 0) {
+      return CioChatScreen(
+        chattingWithName: otherName,
+        chattingWithID: otherId,
+        currentUserID: providerId,
+        currentUserName: profile.firstName,
+      );
+    }
+    return FutureBuilder<(int, String)>(
+      future: _fromPrefs(),
+      builder: (context, snap) {
+        final me = snap.data;
+        if (me == null) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+        return CioChatScreen(
+          chattingWithName: otherName,
+          chattingWithID: otherId,
+          currentUserID: me.$1,
+          currentUserName: me.$2,
+        );
+      },
+    );
+  }
+}
+
 final router = GoRouter(
   routes: [
     GoRoute(
@@ -165,6 +216,24 @@ final router = GoRouter(
       builder: (context, state) => EventGalleryScreen(
         pixEventId: state.uri.queryParameters['pixEventId'],
         initialDay: state.uri.queryParameters['day'],
+      ),
+    ),
+    GoRoute(
+      // Opened by tapping a chat push: /chat?with=<user id>&name=<name>.
+      path: '/chat',
+      redirect: (context, state) async {
+        final otherId = int.tryParse(state.uri.queryParameters['with'] ?? '');
+        if (otherId == null) return '/';
+        final providerId =
+            Provider.of<ProfileProvider>(context, listen: false).userID;
+        if (providerId != null && providerId > 0) return null;
+        return await getIntPref(kUserID) > 0 ? null : '/';
+      },
+      builder: (context, state) => _ChatLauncher(
+        otherId: int.parse(state.uri.queryParameters['with']!),
+        otherName: (state.uri.queryParameters['name'] ?? '').isNotEmpty
+            ? state.uri.queryParameters['name']!
+            : 'Delegate',
       ),
     ),
     GoRoute(
@@ -240,6 +309,7 @@ void main() async{
   await androidNotifications?.createNotificationChannel(_harryReminderChannel);
   await androidNotifications?.createNotificationChannel(_meetingReminderChannel);
   await androidNotifications?.createNotificationChannel(_galleryChannel);
+  await androidNotifications?.createNotificationChannel(_chatChannel);
   // Needed on Android 13+ for Harry's scheduled reminders to appear.
   await androidNotifications?.requestNotificationsPermission();
 
@@ -413,6 +483,11 @@ if(Platform.isIOS){
         Uri(path: '/gallery', queryParameters: query.isEmpty ? null : query)
             .toString(),
       );
+    } else if (targetPage == 'chat' && data['chatWith'] != null) {
+      router.push(Uri(path: '/chat', queryParameters: {
+        'with': data['chatWith'].toString(),
+        'name': (data['chatWithName'] ?? '').toString(),
+      }).toString());
     } else {
       router.go('/notifications');
     }

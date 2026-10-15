@@ -239,3 +239,9 @@ exports.galleryPhotoNotifier = onSchedule(
 const meetingEmails = require("./meeting_emails");
 exports.meetingRequestEmail = meetingEmails.meetingRequestEmail;
 exports.meetingAcceptedEmail = meetingEmails.meetingAcceptedEmail;
+
+// ------------------------------------------------------------- chat messages
+
+// Chat summary, legacy contacts and push, done here instead of on the device.
+const chatMessages = require("./chat_messages");
+exports.onChatMessageCreated = chatMessages.onChatMessageCreated;

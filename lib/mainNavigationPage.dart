@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:dx5veevents/screens/dx5veScreens/profile_screen.dart';
 import 'package:dx5veevents/screens/chats/all_chats.dart';
+import 'package:dx5veevents/screens/chats/widgets/inbox_tab_icon.dart';
 import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -161,7 +162,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         eventDate: widget.eventDate ?? '',
         shortEventDescription: widget.shortEventDescription ?? '',
         eventLocation: widget.eventLocation ?? '', eventID: widget.eventID ?? '', eventDayOfWeek: widget.eventDayOfWeek ?? '', isCustomerEvent: widget.isCustomerEvent ?? false,),
-      AllChatsScreen(),
+      const AllChatsScreen(),
       MeetingTabs(),
       if (kShopFeatureEnabled) const ShopScreen(),
       //SocialFeed(),
@@ -182,7 +183,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
           inactiveColorPrimary: Colors.grey,
         ),
         PersistentBottomNavBarItem(
-          icon: const Icon(Icons.inbox),
+          icon: const InboxTabIcon(),
           title: "Inbox",
           //  textStyle: style,
           activeColorPrimary: kConnectedBlue,
