@@ -9,7 +9,6 @@
 | Inbox ("Messages") + tab badge | `lib/screens/chats/all_chats.dart`, `widgets/inbox_*.dart` |
 | Conversation | `lib/screens/chats/chat_screen.dart` (`CioChatScreen`), `widgets/chat_*.dart` |
 | Summaries + push | `functions/chat_messages.js` (`onChatMessageCreated`) |
-| One-off backfill | `functions/scripts/backfill_chats.js` |
 | Notification tap | `lib/main.dart`: `targetPage == 'chat'` → `/chat?with=<id>&name=<name>` |
 
 **Firestore**
@@ -33,16 +32,14 @@ New threads use the id `<lower>-<higher>` (numeric). Old threads were keyed by `
    ```
    firebase deploy --only functions:onChatMessageCreated --project dx5ve-events
    ```
-2. **Backfill summaries for existing threads.** Use credentials with Firestore access, e.g. `gcloud auth application-default login`. Run from `functions/`:
-   ```
-   node scripts/backfill_chats.js            # dry run
-   node scripts/backfill_chats.js --apply
-   ```
-3. **Firestore rules.** They aren't in this repo, so check them in the console. Signed-in users need:
+2. **Firestore rules.** They aren't in this repo, so check them in the console. Signed-in users need:
    - read on `chats` docs where they are in `participants`;
    - update of only `unread.<their id>` on those docs;
    - the existing read/write on `messages`.
-4. **Ship the app build.**
+3. **Ship the app build.**
+
+Older threads are not backfilled: a conversation gets its summary, and so
+appears in the new inbox, when its next message is sent.
 
 ## Tests
 
