@@ -12,7 +12,16 @@ class RewardsHomeCard extends StatefulWidget {
   final int? userID;
   final RewardScreenBuilder screenBuilder;
 
-  const RewardsHomeCard({super.key, required this.userID, required this.screenBuilder});
+  /// Trims spacing and folds the points/rank into the subtitle so the card can
+  /// sit in a half-width row beside the Shop card.
+  final bool compact;
+
+  const RewardsHomeCard({
+    super.key,
+    required this.userID,
+    required this.screenBuilder,
+    this.compact = false,
+  });
 
   @override
   State<RewardsHomeCard> createState() => _RewardsHomeCardState();
@@ -48,6 +57,13 @@ class _RewardsHomeCardState extends State<RewardsHomeCard> {
     if (!_service.isEnabled || userId == null) return const SizedBox.shrink();
     final p = _service.progress;
     final open = p?.rules.where((r) => !r.complete && !r.expired && !r.upcoming).length;
+    final compact = widget.compact;
+
+    final subtitle = p == null
+        ? 'Earn points all event long'
+        : open == null || open == 0
+            ? 'Check the leaderboard'
+            : '$open challenge${open == 1 ? '' : 's'} waiting';
 
     return GestureDetector(
       onTap: () async {
@@ -62,7 +78,7 @@ class _RewardsHomeCardState extends State<RewardsHomeCard> {
       },
       child: Container(
         height: 84,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.symmetric(horizontal: compact ? 14 : 16),
         decoration: BoxDecoration(
           gradient: const LinearGradient(colors: [kPrimaryColor, kNashPurple]),
           borderRadius: BorderRadius.circular(12),
@@ -78,11 +94,12 @@ class _RewardsHomeCardState extends State<RewardsHomeCard> {
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: EdgeInsets.all(compact ? 9 : 10),
               decoration: const BoxDecoration(color: Colors.white24, shape: BoxShape.circle),
-              child: const Icon(Icons.emoji_events_rounded, color: Colors.white, size: 28),
+              child: Icon(Icons.emoji_events_rounded,
+                  color: Colors.white, size: compact ? 24 : 28),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: compact ? 10 : 14),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -92,26 +109,32 @@ class _RewardsHomeCardState extends State<RewardsHomeCard> {
                       style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 2),
                   Text(
-                    p == null
-                        ? 'Earn points all event long'
-                        : open == null || open == 0
-                            ? 'Check the leaderboard'
-                            : '$open challenge${open == 1 ? '' : 's'} waiting',
-                    style: const TextStyle(color: Colors.white70, fontSize: 13),
+                    // In compact mode the trailing points column is gone, so
+                    // surface the points/rank in the subtitle instead.
+                    compact
+                        ? (p == null
+                            ? subtitle
+                            : '${p.total} pts${p.rank == null ? '' : ' · #${p.rank}'}')
+                        : subtitle,
+                    maxLines: compact ? 2 : 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        color: Colors.white70, fontSize: compact ? 12 : 13),
                   ),
                 ],
               ),
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(p == null ? '—' : '${p.total}',
-                    style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800)),
-                Text(p?.rank == null ? 'pts' : 'pts · #${p!.rank}',
-                    style: const TextStyle(color: Colors.white70, fontSize: 12)),
-              ],
-            ),
+            if (!compact)
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(p == null ? '—' : '${p.total}',
+                      style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800)),
+                  Text(p?.rank == null ? 'pts' : 'pts · #${p!.rank}',
+                      style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                ],
+              ),
           ],
         ),
       ),

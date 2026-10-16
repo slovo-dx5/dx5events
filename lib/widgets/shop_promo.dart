@@ -96,9 +96,13 @@ class _SeenState extends State<_Seen> {
   Widget build(BuildContext context) => widget.child;
 }
 
-/// Home grid: the full-width store card that heads the feature grid.
+/// Home grid: the store card that heads the feature grid. [compact] trims the
+/// spacing and drops the trailing chevron so it can sit in a half-width row
+/// beside the Rewards card.
 class ShopHomeCard extends StatelessWidget {
-  const ShopHomeCard({super.key});
+  const ShopHomeCard({super.key, this.compact = false});
+
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +113,7 @@ class ShopHomeCard extends StatelessWidget {
         onTap: () => ShopPromo.openShop(context, placement: 'home_tile'),
         child: Container(
           height: 84,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: compact ? 14 : 16),
           decoration: BoxDecoration(
             gradient: ShopGradients.hero,
             borderRadius: BorderRadius.circular(12),
@@ -118,19 +122,19 @@ class ShopHomeCard extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(compact ? 10 : 12),
                 decoration: BoxDecoration(
                   color: ShopColors.accent.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Image.asset(
                   'assets/icons/shop.png',
-                  width: 24,
-                  height: 24,
+                  width: compact ? 22 : 24,
+                  height: compact ? 22 : 24,
                   color: ShopColors.accent,
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: compact ? 10 : 14),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -147,17 +151,19 @@ class ShopHomeCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       'Official event merchandise · pay in the app',
-                      maxLines: 1,
+                      maxLines: compact ? 2 : 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.75),
-                        fontSize: 12.5,
+                        fontSize: compact ? 11.5 : 12.5,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded, color: ShopColors.accent),
+              if (!compact)
+                const Icon(Icons.chevron_right_rounded,
+                    color: ShopColors.accent),
             ],
           ),
         ),

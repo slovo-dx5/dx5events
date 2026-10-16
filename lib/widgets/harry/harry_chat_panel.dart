@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
@@ -11,9 +13,17 @@ import 'harry_message.dart';
 /// The expanded chat surface for Harry. Hand-rolled bubble list (reusing the
 /// app's existing chat bubble colours) + an input row with text, mic and send.
 class HarryChatPanel extends StatefulWidget {
-  const HarryChatPanel({Key? key, required this.onClose}) : super(key: key);
+  const HarryChatPanel({
+    Key? key,
+    required this.onClose,
+    required this.maxHeight,
+  }) : super(key: key);
 
   final VoidCallback onClose;
+
+  /// Upper bound on the panel's height, so its header (and close button) can
+  /// never be pushed above the top safe area when the keyboard is open.
+  final double maxHeight;
 
   @override
   State<HarryChatPanel> createState() => _HarryChatPanelState();
@@ -89,7 +99,7 @@ class _HarryChatPanelState extends State<HarryChatPanel> {
     _scrollToBottom();
 
     final media = MediaQuery.of(context);
-    final height = media.size.height * 0.62;
+    final height = math.min(media.size.height * 0.62, widget.maxHeight);
     final width = media.size.width - 24;
 
     return Material(

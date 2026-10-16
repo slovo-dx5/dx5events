@@ -102,7 +102,7 @@ class _HarryOverlayState extends State<HarryOverlay> {
     final pos = _pos ??= _defaultPos(screen, pad);
 
     if (controller.isOpen) {
-      return _panelLayer(controller, pad);
+      return _panelLayer(controller, screen, pad);
     }
 
     return Stack(
@@ -126,24 +126,40 @@ class _HarryOverlayState extends State<HarryOverlay> {
     );
   }
 
-  Widget _panelLayer(HarryController controller, EdgeInsets pad) {
+  /// Dismiss the panel and drop the keyboard. Closing without unfocusing
+  /// leaves the system keyboard open over the page underneath (notably when
+  /// dismissing via the tap-outside scrim), so always release focus first.
+  void _dismiss(HarryController controller) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    controller.close();
+  }
+
+  Widget _panelLayer(HarryController controller, Size screen, EdgeInsets pad) {
     // Lift the panel above the keyboard when it's open.
     final keyboard = MediaQuery.of(context).viewInsets.bottom;
+    final bottomOffset = (keyboard > 0 ? keyboard : pad.bottom) + 16;
+    // Cap the panel so its top (the header with the close button) always stays
+    // below the top safe area / Dynamic Island. Without this, a tall panel
+    // plus the keyboard pushes the header — and its X button — off-screen.
+    final maxHeight = screen.height - bottomOffset - pad.top - _margin;
     return Stack(
       children: [
         // Tap-outside scrim to dismiss.
         Positioned.fill(
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: controller.close,
+            onTap: () => _dismiss(controller),
             child: const SizedBox.shrink(),
           ),
         ),
         Positioned(
           left: 12,
           right: 12,
-          bottom: (keyboard > 0 ? keyboard : pad.bottom) + 16,
-          child: HarryChatPanel(onClose: controller.close),
+          bottom: bottomOffset,
+          child: HarryChatPanel(
+            onClose: () => _dismiss(controller),
+            maxHeight: maxHeight,
+          ),
         ),
       ],
     );

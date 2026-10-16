@@ -172,17 +172,37 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 child: Column(
                   children: [
-                    if (kShopFeatureEnabled) ...[
-                      const ShopHomeCard(),
-                      const SizedBox(height: 12),
-                    ],
-                    if (kRewardsFeatureEnabled && GamificationService.instance.isEnabled) ...[
-                      RewardsHomeCard(
-                        userID: profileProvider.userID,
-                        screenBuilder: (key) => _rewardScreen(key, profileProvider),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
+                    ...() {
+                      const showShop = kShopFeatureEnabled;
+                      final showRewards = kRewardsFeatureEnabled &&
+                          GamificationService.instance.isEnabled;
+                      if (!showShop && !showRewards) return const <Widget>[];
+                      // Both enabled: share one row to save vertical space;
+                      // otherwise the single card keeps the full width.
+                      final Widget banners = showShop && showRewards
+                          ? Row(
+                              children: [
+                                const Expanded(child: ShopHomeCard(compact: true)),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: RewardsHomeCard(
+                                    userID: profileProvider.userID,
+                                    screenBuilder: (key) =>
+                                        _rewardScreen(key, profileProvider),
+                                    compact: true,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : showShop
+                              ? const ShopHomeCard()
+                              : RewardsHomeCard(
+                                  userID: profileProvider.userID,
+                                  screenBuilder: (key) =>
+                                      _rewardScreen(key, profileProvider),
+                                );
+                      return [banners, const SizedBox(height: 12)];
+                    }(),
                     Row(
                       children: [
                         _buildFeatureCard(
