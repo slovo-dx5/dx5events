@@ -211,9 +211,11 @@ class _InboxRow extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final unread = chat.unread > 0;
-    final preview = chat.lastText.isEmpty
+    // Photo messages store the image URL as their text; don't show it.
+    final lastText = chat.lastType != 0 ? '📷 Photo' : chat.lastText;
+    final preview = lastText.isEmpty
         ? ''
-        : (chat.lastIsMine ? 'You: ${chat.lastText}' : chat.lastText);
+        : (chat.lastIsMine ? 'You: $lastText' : lastText);
     final muted = scheme.onSurfaceVariant;
 
     return InkWell(

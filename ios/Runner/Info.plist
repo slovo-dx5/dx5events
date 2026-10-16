@@ -33,7 +33,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Permission required to scan QR Codes</string>
+	<string>The camera is used to scan QR codes and to take photos you send in chat.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>This app requires contacts access to function properly.</string>
 	<key>NSMicrophoneUsageDescription</key>
@@ -41,7 +41,7 @@
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Harry uses speech recognition to turn what you say into text so it can answer your questions.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Permission required to select profile pictures.</string>
+	<string>Photo access lets you choose a profile picture and send photos in chat.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This app needs your location to show your position on the map and provide location-based features.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>

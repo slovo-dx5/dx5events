@@ -2,17 +2,25 @@ import 'package:flutter/material.dart';
 
 import '../../../constants.dart';
 
-/// Text field + send button at the bottom of a conversation.
+/// Attach button + text field + send button at the bottom of a conversation.
 class ChatComposer extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode? focusNode;
   final VoidCallback onSend;
+
+  /// Opens the photo picker. Hidden when null.
+  final VoidCallback? onAttach;
+
+  /// True while a photo uploads; the attach button shows a spinner.
+  final bool attaching;
   final bool enabled;
 
   const ChatComposer({
     super.key,
     required this.controller,
     required this.onSend,
+    this.onAttach,
+    this.attaching = false,
     this.focusNode,
     this.enabled = true,
   });
@@ -62,10 +70,24 @@ class _ChatComposerState extends State<ChatComposer> {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 6, 8),
+          padding: EdgeInsets.fromLTRB(widget.onAttach == null ? 12 : 2, 8, 6, 8),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
+              if (widget.onAttach != null)
+                IconButton(
+                  tooltip: 'Send a photo',
+                  onPressed: widget.enabled && !widget.attaching ? widget.onAttach : null,
+                  icon: widget.attaching
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.add_photo_alternate_outlined),
+                  color: kPrimaryColor,
+                  disabledColor: scheme.onSurface.withValues(alpha: 0.3),
+                ),
               Expanded(
                 child: TextField(
                   controller: widget.controller,

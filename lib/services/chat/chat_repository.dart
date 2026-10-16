@@ -1,8 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:http_parser/http_parser.dart';
 
+import '../../dioServices/base_url.dart';
+import '../../dioServices/dioPostService.dart';
 import 'chat_models.dart';
 
 export 'chat_models.dart';
@@ -172,6 +177,52 @@ class ChatRepository {
         .collection(chatId)
         .doc(messageId)
         .set(data);
+  }
+
+  /// Uploads [file] to Directus and sends it as a photo message (type 1,
+  /// content = the image URL). Older builds already render type 1 as an
+  /// image, and the Cloud Function pushes it as "Sent you an attachment".
+  Future<void> sendImage({
+    required String chatId,
+    required String fromId,
+    required String fromName,
+    String? fromPhoto,
+    required String toId,
+    required String toName,
+    required File file,
+  }) async {
+    var ext = file.path.split('.').last.toLowerCase();
+    if (ext == 'jpg') ext = 'jpeg';
+    final form = FormData.fromMap({
+      'file': await MultipartFile.fromFile(
+        file.path,
+        filename: 'chat_${chatId}_${DateTime.now().millisecondsSinceEpoch}.$ext',
+        contentType: MediaType('image', ext),
+      ),
+    });
+    final response = await DioPostService().uploadProfilePic(form);
+    final fileId = (response.data as Map?)?['data']?['id'];
+    if (fileId is! String || fileId.isEmpty) {
+      throw StateError('Directus upload returned no file id');
+    }
+
+    final messageId = '${DateTime.now().millisecondsSinceEpoch}_$fromId';
+    await _db
+        .collection('messages')
+        .doc(chatId)
+        .collection(chatId)
+        .doc(messageId)
+        .set({
+      'idFrom': fromId,
+      'idTo': toId,
+      'content': '${BaseURL.Baseurl}/assets/$fileId',
+      'type': 1,
+      'timestamp': FieldValue.serverTimestamp(),
+      'isread': false,
+      'sentFrom': fromName,
+      'sentTo': toName,
+      if (fromPhoto != null && fromPhoto.isNotEmpty) 'fromPhoto': fromPhoto,
+    });
   }
 
   /// Marks the other person's messages to [myId] as read and clears
