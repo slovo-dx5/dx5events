@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:http_parser/http_parser.dart';
 
 import 'package:image_picker/image_picker.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -15,12 +16,16 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../landingPage2.dart';
 
 import '../../constants.dart';
 import '../../dioServices/dioFetchService.dart';
 import '../../dioServices/dioPostService.dart';
 import '../../helpers/helper_widgets.dart';
 import '../../providers.dart';
+import '../../services/activity_logger.dart';
 
 
 
@@ -171,6 +176,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         imageID = jsonResponse['data']['id'];
       });
+      ActivityLogger.instance.log(
+        action: ActivityAction.profilePhotoUpdated,
+        userId: ownerID is int ? ownerID : null,
+        targetType: 'file',
+        targetId: imageID?.toString(),
+      );
       Map<String, dynamic> imageidDAta = {
         "profile_photo": imageID,
 
@@ -201,7 +212,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(title: const Text("Profile"),centerTitle: true,automaticallyImplyLeading: true,),
+        appBar: AppBar(
+          title: const Text("Profile"),
+          centerTitle: true,
+          automaticallyImplyLeading: true,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              tooltip: 'Logout',
+              onPressed: () async {
+                // Clear disk state first so LandingPage2 reads correct auth state
+                await clearAllPrefs();
+               // if (!context.mounted) return;
+
+                final provider = Provider.of<ProfileProvider>(context, listen: false);
+                // Clear in-memory profile before navigating
+                provider.clearProfile();
+                // Use Navigator.pushAndRemoveUntil to clear the entire imperative
+                // Navigator stack (context.go('/') only manages GoRouter routes and
+                // leaves imperatively-pushed screens alive, causing rebuild crashes).
+                PersistentNavBarNavigator.pushNewScreen(context, screen: LandingPage2(isFromLogout: true,));
+                // Navigator.of(context).pushAndRemoveUntil(
+                //   MaterialPageRoute(builder: (_) => LandingPage2(isFromLogout: true,)),
+                //   (route) => false,
+                // );
+              },
+            ),
+          ],
+        ),
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

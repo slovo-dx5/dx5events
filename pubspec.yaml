@@ -16,7 +16,8 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 75.80.8+80
+version: 75.81.24+101
+
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -50,21 +51,26 @@ dependencies:
   shared_preferences: ^2.2.2
   cloud_firestore: any
   firebase_messaging: any
+  flutter_local_notifications: ^17.2.2
   provider: ^6.1.2
   #uni_links5: ^0.5.4
 
   url_launcher: ^6.2.4
   webview_flutter_plus: ^0.4.18
+  # Used directly by map_screen and the shop's Pesapal checkout page;
+  # declared explicitly rather than leaned on transitively via _plus.
+  webview_flutter: ^4.13.0
   uuid: ^4.2.2
   intl: ^0.19.0
   image_picker: ^1.0.7
   qr_flutter: ^4.1.0
   video_player: ^2.9.2
-  #image_cropper: any
+  # Crop/zoom step before a face-search selfie is uploaded, so a photo with
+  # more than one person can be narrowed to the user's own face.
+  image_cropper: ^9.0.0
   cached_network_image: ^3.3.1
-  upgrader: ^9.0.0
 
-  flutter_zoom_drawer: ^3.1.2
+  flutter_zoom_drawer: ^3.2.0
   sa3_liquid: ^1.0.1
   table_calendar: ^3.1.0
   pull_to_refresh: ^2.0.0
@@ -79,15 +85,31 @@ dependencies:
   googleapis_auth: ^2.0.0
   googleapis: 15.0.0
   sqflite: ^2.4.2
+  path: ^1.8.0
   percent_indicator: ^4.2.3
   win32: ^5.11.0
+  new_version_plus: any
+
+  pretty_dio_logger: ^1.2.0-beta-1
   #flutter_downloader: any
+
+  # Masonry gallery (mixed portrait/landscape photos)
+  flutter_staggered_grid_view: ^0.7.0
+
+  # Harry AI assistant
+  speech_to_text: ^7.0.0
+  flutter_tts: ^4.2.0
+  timezone: ^0.9.4
 
   #persistent_bottom_nav_bar_v2: ^5.3.0
 
 dependency_overrides:
   flutter_widget_from_html_core: ^0.15.2
   permission_handler_apple: 9.4.5
+  # speech_to_text 7.x needs json_annotation >=4.4 (JsonKey.includeFromJson);
+  # the abandoned dio_http_cache otherwise pins it back to 4.1.0. Pinned to
+  # 4.9.0 (not ^) because 4.10+ require Dart 3.9, above this SDK (3.8).
+  json_annotation: 4.9.0
 
 dev_dependencies:
 
@@ -113,13 +135,17 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/themes/
+    - assets/images/themes/cio100_landscape.jpg
+    - assets/images/themes/cio100_portrait.jpg
     - assets/icons/
     - assets/images/
     - assets/images/backgrounds/
     - assets/images/sponsors/
+    - assets/images/gallery/
+    - assets/images/shop/
     - assets/serviceacc.json
     - assets/connected agenda.pdf
-    - assets/images/themes/Neon-Opening.mp4
+    - assets/.env
 
   #   - images/a_dot_ham.jpeg
 

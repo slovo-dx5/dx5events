@@ -69,7 +69,6 @@ class FullAgendaScreen extends StatefulWidget {
 class _FullAgendaScreenState extends State<FullAgendaScreen> {
   final currentDate = DateTime.now();
   DateTime? targetDate;
-  bool isBookmarking = false;
   int? expandedIndex;
   // getSpeakerImage({required String id})async{
   //

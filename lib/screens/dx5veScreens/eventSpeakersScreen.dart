@@ -1,14 +1,14 @@
-import 'dart:convert';
-
 import 'package:dx5veevents/models/eventModel.dart';
 import 'package:flutter/material.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../constants.dart';
-import '../../dioServices/base_url.dart';
-import '../../dioServices/dioFetchService.dart';
-import '../../helpers/helper_widgets.dart';
-import '../../models/image_model.dart';
+import '../../helpers/speaker_helper.dart';
+import '../../models/agendaModel.dart';
 import '../../models/speakersModel.dart';
+import '../../repositories/agenda_repository.dart';
+import '../../repositories/event_repository.dart';
+import '../../services/activity_logger.dart';
 import '../../widgets/speakerWidget.dart';
 
 class EventSpeakersScreen extends StatefulWidget {
@@ -22,97 +22,116 @@ class EventSpeakersScreen extends StatefulWidget {
 class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
   bool isSearching = false;
   final TextEditingController _searchController = TextEditingController();
-  //List<Map<String, dynamic>> filteredData = [];
-  List<SpeakersModel> events = [];
+  final RefreshController _refreshController = RefreshController();
   List<IndividualSpeaker> speakers = [];
-  List<SpeakerAssociation> neoSpeakers = [];
-  List<IndividualSpeaker> filteredSpeakers = []; // Store filtered speakers
-  bool isFetching=true;
+  List<IndividualSpeaker> filteredSpeakers = [];
+  List<AgendaDay> _agendaDays = [];
+  bool isFetching = true;
+
   @override
   void initState() {
     super.initState();
-
-    fetchEventData();
+    _loadAll();
+    ActivityLogger.instance.log(
+      action: ActivityAction.viewSpeakers,
+      eventId: widget.eventID,
+    );
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _refreshController.dispose();
+    super.dispose();
+  }
 
-  Future fetchEventData()async{
-    setState(() {
-      isFetching=true;
-    });
-    final response= await DioFetchService().fetchEvents(eventID: widget.eventID);
-    final Map<String, dynamic> responseData = response.data['data'];
+  Future<void> _loadAll({bool forceRefresh = false}) async {
+    setState(() => isFetching = true);
 
-    final List<dynamic> speakersData = responseData['speakers'];
+    try {
+      final eventData = await EventRepository.instance.getEventData(
+        eventID: widget.eventID,
+        forceRefresh: forceRefresh,
+      );
+      final List<dynamic> speakersData = eventData['speakers'] ?? [];
 
-    if(speakersData.isNotEmpty){
+      if (speakersData.isNotEmpty) {
+        final associations = speakersData
+            .map((s) => SpeakerAssociation.fromJson(s))
+            .toList();
 
-      for (var speakerData in speakersData) {
-        neoSpeakers.add(SpeakerAssociation.fromJson(speakerData));
-      }
+        final enriched = await getSpeakers(
+          associations,
+          forceRefresh: forceRefresh,
+        );
 
-      for (var speaker in neoSpeakers) {
-        fetchSpeakerById(speaker.speaker.key).then((value) {
-          speakers.add(value!);
-
-          setState(() {
-            filteredSpeakers=speakers;
-          });
-
+        if (!mounted) return;
+        setState(() {
+          speakers = enriched.map((e) => e.speaker).toList();
+          filteredSpeakers = _applySearch(_searchController.text);
+        });
+      } else if (mounted) {
+        setState(() {
+          speakers = [];
+          filteredSpeakers = [];
         });
       }
 
+      // Agenda is used only for per-speaker topics lookup.
+      // If the user already visited the agenda screen, this is a cache hit.
+      final agendaModel = await AgendaRepository.instance.getAgenda(
+        eventID: widget.eventID,
+        forceRefresh: forceRefresh,
+      );
+      if (!mounted) return;
       setState(() {
-        //filteredSpeakers = speakers;
-        isFetching = false;
+        _agendaDays = agendaModel.days;
       });
-
-
-
-      return speakers;
-    }
-    else{
-      print("No speakers");
-    }
-
-
-
-  }
-
-  Future<IndividualSpeaker?> fetchSpeakerById(int key) async {
-    try {
-      final response = await DioFetchService().fetchEventSpeakerByKey(speakerKey: key);
-      final speakerssModel = SpeakersModel.fromJson(response.data);
-
-      // Manually find the speaker to allow returning null.
-      for (var speaker in speakerssModel.data) {
-      if(speaker.id==key){
-        return speaker;
-      }
-
-
-      }
-
     } catch (e) {
-      return null;
+      debugPrint('Error loading speakers screen: $e');
+    } finally {
+      if (mounted) setState(() => isFetching = false);
     }
   }
 
+  List<IndividualSpeaker> _applySearch(String query) {
+    if (query.isEmpty) return List.of(speakers);
+    final q = query.toLowerCase();
+    return speakers.where((data) {
+      return data.firstName.toLowerCase().contains(q) ||
+          data.role.toLowerCase().contains(q);
+    }).toList();
+  }
 
+  // Returns every session (with date & time) in the agenda where this speaker appears.
+  List<SpeakerSession> _getTopicsForSpeaker(int speakerId) {
+    final sessions = <SpeakerSession>[];
+    for (final day in _agendaDays) {
+      for (final session in day.sessions) {
+        if (session.speakers == null) continue;
+        final inSession = session.speakers!.any(
+          (a) => a.speaker.key == speakerId,
+        );
+        if (inSession && session.title != null) {
+          final title = session.title as String;
+          final alreadyAdded = sessions.any((s) => s.title == title);
+          if (!alreadyAdded) {
+            sessions.add(SpeakerSession(
+              title: title,
+              date: day.date as DateTime,
+              startTime: session.startTime?.toString() ?? '',
+              endTime: session.endTime?.toString() ?? '',
+            ));
+          }
+        }
+      }
+    }
+    return sessions;
+  }
 
   void filterData(String query) {
     setState(() {
-      if (query.isEmpty) {
-        filteredSpeakers = speakers;
-      } else {
-        filteredSpeakers = speakers.where((data) {
-          final fullName = '${data.firstName}';
-          return fullName.toLowerCase().contains(query.toLowerCase()) ||
-
-              data.role.toLowerCase().contains(query.toLowerCase())
-          ;
-        }).toList();
-      }
+      filteredSpeakers = _applySearch(query);
     });
   }
 
@@ -157,40 +176,44 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
             },
           ),],
         ),
-        body:
-        Padding(padding: EdgeInsets.only(top: 8),
-          child: isFetching
-              ? const Center(child: CircularProgressIndicator(),)
-              : ListView.builder(
-
-            padding:  EdgeInsets.all(8),
-            itemCount: filteredSpeakers.length,
-            itemBuilder: (context, index) {
-              final IndividualSpeaker speaker = filteredSpeakers[index];
-
-              return Column(children: [
-                speakerWidget(context: context,
-
-                  name: "${speaker.firstName} ${speaker.lastName}",
-
-
-                  title: "${speaker.role} at ${speaker.company}",
-
-                  bio: speaker!.bio! ?? "",
-
-                  imageURL: "${BaseURL.Baseurl}/assets/${speaker!.photo!}",
-                  linkedinurl: speaker.linkedinProfile ??"linkedin.com"),
-                Divider(color: Colors.green,),
-                verticalSpace(height: 10)],);
-
-              //   speakerWidget(context: context, name: speaker.name,
-              //     title: speaker.title, bio: speaker.bio,imageURL: url
-              // );
-            },
-          ),
-
-
-        )
-    );
+        body: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: isFetching && speakers.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : SmartRefresher(
+                  controller: _refreshController,
+                  enablePullDown: true,
+                  header: const WaterDropHeader(waterDropColor: kCIOPink),
+                  onRefresh: () async {
+                    await _loadAll(forceRefresh: true);
+                    _refreshController.refreshCompleted();
+                  },
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(8),
+                    itemCount: filteredSpeakers.length,
+                    itemBuilder: (context, index) {
+                      final IndividualSpeaker speaker =
+                          filteredSpeakers[index];
+                      return Column(
+                        children: [
+                          speakerWidget(
+                            context: context,
+                            name: "${speaker.firstName} ${speaker.lastName}",
+                            title:
+                                "${speaker.role} at ${speaker.company}",
+                            bio: speaker.bio ?? "",
+                            imageURL: speaker.photo,
+                            linkedinurl:
+                                speaker.linkedinProfile ?? "linkedin.com",
+                            sessions: _getTopicsForSpeaker(speaker.id),
+                          ),
+                          const Divider(color: Colors.green),
+                          verticalSpace(height: 10),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+        ));
   }
 }

@@ -60,10 +60,11 @@ class _ProfileInitialsState extends State<ProfileInitials> {
   @override
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
+    final firstInitial = profileProvider.firstName.isNotEmpty ? profileProvider.firstName[0].toUpperCase() : '';
+    final lastInitial = profileProvider.lastName.isNotEmpty ? profileProvider.lastName[0].toUpperCase() : '';
     return  CircleAvatar(backgroundColor:randomBackgroundColor,
       radius: widget.circleRadius,
-      child: Center(child: Text("${profileProvider.firstName[0].toUpperCase()}"
-          "${profileProvider.lastName[0].toUpperCase()}",
+      child: Center(child: Text("$firstInitial$lastInitial",
         style:  TextStyle(color: Colors.white,fontSize: widget.fontSize),)),);
 
   }

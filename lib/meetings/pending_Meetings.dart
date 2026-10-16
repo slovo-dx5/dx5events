@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -12,8 +11,9 @@ import '../../../providers.dart';
 import '../../widgets/meeting_widget.dart';
 import '../../widgets/outgoing_meeting_widget.dart';
 import '../constants.dart';
-import '../dioServices/dioPostService.dart';
 import '../helpers/analytics_helper.dart';
+import '../services/activity_logger.dart';
+import '../services/meeting_reminders.dart';
 
 class PendingMeetingsScreen extends StatefulWidget {
   @override
@@ -141,19 +141,43 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                             startTime: items["startTime"],
                             acceptMeetingFunc: () async {
                               await Dx5veAnalytics().logdx5veEvent(eventName: "meetingAccepted");
+                              ActivityLogger.instance.log(
+                                action: ActivityAction.meetingAccepted,
+                                userId: profileProvider.userID,
+                                targetType: 'meeting',
+                                targetId: items["id"]?.toString(),
+                                metadata: {
+                                  'requested_by_id': items["requested_by_id"],
+                                },
+                              );
 
-                              DateFormat format = DateFormat("h:mm a");
-                              DateTime parsedStart = format.parse(items["startTime"]);
+                              // Structured meeting moment (may be absent on
+                              // legacy requests made before day-selection).
+                              final itemData =
+                                  items.data() as Map<String, dynamic>?;
+                              final Timestamp? meetingTs = itemData != null &&
+                                      itemData.containsKey('meeting_time')
+                                  ? itemData['meeting_time'] as Timestamp?
+                                  : null;
 
-                              // Add 30 minutes to get end time
-                              DateTime endTime = parsedStart.add(Duration(minutes: 30));
-                              String formattedEndTime = format.format(endTime);
                               setState(() {
                                 isAccepting = true;
                               });
                               await items.reference.update(<String, dynamic>{
                                 'isAccepted': true,
                               });
+
+                              // Schedule this device's (the accepter's) 15-min
+                              // reminder. The requester's device schedules its
+                              // own from the Reminders tab.
+                              if (meetingTs != null) {
+                                await MeetingReminderService.instance
+                                    .scheduleForMeeting(
+                                  meetingId: items["id"].toString(),
+                                  withName: items["requested_by"].toString(),
+                                  meetingTime: meetingTs.toDate(),
+                                );
+                              }
 
                               print("other id is ${items["requested_by_id"]}");
                               await usersRef
@@ -181,6 +205,9 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                                 "date_requested": Timestamp.now(),
                                 "message": items["message"],
                                 "startTime": items["startTime"],
+                                // Preserve the meeting moment so the requester's
+                                // device can schedule its own reminder.
+                                "meeting_time": meetingTs,
 
                                 "company": items["company"],
                               });
@@ -188,35 +215,22 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                                 isAccepting = false;
                               });
 
-                              ///Send email to requester
-                              await DioPostService().sendMeetingEmail(body: {
-                                "emailAddress": items["requested_by_email"],
-                                "subject":
-                                    "Meeting Accepted",
-                                "body": """
-  <div style="max-width: 100%;">
-    <img src="https://admin.connected.go.ke/assets/a14f7470-d026-4d56-848e-4e0d5e0ebc18?email_banner.jpg" alt="Meeting Banner" style="width: 100%; max-width: 600px; height: auto; margin-bottom: 20px;">
-  </div>
-  
-  <p>"
-      Hello ${items["requested_by"]}<br>
-      ${items["wants_to_meet_with"]} accepted your meeting
-      request.<br>
-      Our meetings concierge service team will reach out to show you the meeting venue.
-      
-  
-  "</p>
-  <p><strong>Meeting time:</strong><br>
-  Start time: ${items["startTime"]}<br>
-  End time: $formattedEndTime</p>
-
- 
-""",
-                              });
+                              // The "Meeting Accepted" email is sent by the meetingAcceptedEmail
+                              // Cloud Function (functions/meeting_emails.js) off the
+                              // isAccepted update above.
                             },
 
                             declineMeetingFunc: () async {
                               await Dx5veAnalytics().logdx5veEvent(eventName: "meetingDeclined");
+                              ActivityLogger.instance.log(
+                                action: ActivityAction.meetingDeclined,
+                                userId: profileProvider.userID,
+                                targetType: 'meeting',
+                                targetId: items["id"]?.toString(),
+                                metadata: {
+                                  'requested_by_id': items["requested_by_id"],
+                                },
+                              );
 
                               await items.reference.delete();
                             await usersRef
@@ -229,6 +243,8 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                                 .collection("meetings")
                                 .doc(items["id"])
                                 .delete();
+                            await MeetingReminderService.instance
+                                .cancel(items["id"].toString());
                             Fluttertoast.showToast(msg: "Meeting Declined");},
                             message: items["message"],
                             requesterName: items["requested_by"],
@@ -241,6 +257,15 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                             startTime: items["startTime"],
 
                             cancelMeetingFunc: () async {
+                              ActivityLogger.instance.log(
+                                action: ActivityAction.meetingCancelled,
+                                userId: profileProvider.userID,
+                                targetType: 'meeting',
+                                targetId: items["id"]?.toString(),
+                                metadata: {
+                                  'wants_to_meet_with_id': items["wants_to_meet_with_id"],
+                                },
+                              );
                               await items.reference.delete();
                               await usersRef
                                   .doc(items["requested_by_id"])
@@ -252,6 +277,8 @@ class _PendingMeetingsScreenState extends State<PendingMeetingsScreen> {
                                   .collection("meetings")
                                   .doc(items["id"])
                                   .delete();
+                              await MeetingReminderService.instance
+                                  .cancel(items["id"].toString());
                               Fluttertoast.showToast(msg: "Meeting Declined");
                             },
                             message: items["message"],

@@ -1,699 +1,362 @@
-import 'dart:io';
-
-import 'package:cached_network_image/cached_network_image.dart';
-import '../../constants.dart';
-import '../../dioServices/dioPostService.dart';
-import '../../models/contact_model.dart';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers.dart';
+import '../../services/chat/chat_repository.dart';
+import 'widgets/chat_avatar.dart';
+import 'widgets/chat_bubble.dart';
+import 'widgets/chat_composer.dart';
+import 'widgets/chat_day_separator.dart';
 
-
-
-
-
-// ignore: must_be_immutable
+/// 1:1 conversation. All reads/writes go through [ChatRepository]; the
+/// `onChatMessageCreated` Cloud Function maintains `chats/{chatId}` and sends
+/// the push to the recipient.
 class CioChatScreen extends StatefulWidget {
-  int currentUserID;
-  int chattingWithID;
-  String chattingWithName;
-  String currentUserName;
+  final int currentUserID;
+  final int chattingWithID;
+  final String chattingWithName;
+  final String currentUserName;
 
-
-
-  CioChatScreen({
-    required this.chattingWithName, required this.chattingWithID,required this.currentUserID,required this.currentUserName
+  const CioChatScreen({
+    super.key,
+    required this.chattingWithName,
+    required this.chattingWithID,
+    required this.currentUserID,
+    required this.currentUserName,
   });
 
   @override
-  _CioChatScreenState createState() => _CioChatScreenState();
+  State<CioChatScreen> createState() => _CioChatScreenState();
 }
 
-class _CioChatScreenState extends State<CioChatScreen> {
-  //String futureHiringPostOwnerID;
-  // Future<DocumentSnapshot> getOwnerInfo() async {
-  //   return await FirebaseFirestore.instance
-  //       .collection("users")
-  //       .doc(widget.futureHiringPostOwnerID)
-  //       .get();
-  // }
+class _CioChatScreenState extends State<CioChatScreen> with WidgetsBindingObserver {
+  static const Duration _groupWindow = Duration(minutes: 5);
 
+  final ChatRepository _repo = ChatRepository.instance;
+  final TextEditingController _text = TextEditingController();
+  final ScrollController _scroll = ScrollController();
+  final FocusNode _focus = FocusNode();
 
-  final TextEditingController textEditingController = TextEditingController();
-  final ScrollController listscrollController = ScrollController();
-  final FocusNode focusNode = FocusNode();
-  String? currentuid;
-  String? id;
-  String? newreceiverId;
-  String? chatId;
-  String? mynotificationId;
-  String? othernotificationId;
-  String? sentToname;
-  String? sentFromname;
-  String? receiverToken;
-  var listMessage;
-  var imageFile;
-  String ?ImageUrl;
-  bool? isLoading=false;
-  final picker = ImagePicker();
-  String? lastMessage;
-  String? sentFromID;
+  late final String _myId = '${widget.currentUserID}';
+  late final String _otherId = '${widget.chattingWithID}';
+
+  String? _chatId;
+  Object? _error;
+
+  int _limit = ChatRepository.pageSize;
+  bool _hasMore = true;
+  bool _loadingMore = false;
+  bool _loaded = false;
+  List<ChatMessage> _messages = const [];
+  StreamSubscription<List<ChatMessage>>? _sub;
+  StreamSubscription<int>? _unreadSub;
+
+  bool _resumed = true;
+  Timer? _readDebounce;
+  String? _lastIncomingId;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    focusNode.addListener(onFocusChange);
-    getReceiverToken();
-
-
-    chatId = "";
-    // getmessages().then((results) {
-    //   setState(() {
-    //     usermessages = results;
-    //   });
-    // });
-
-    readLocal();
-
-
+    WidgetsBinding.instance.addObserver(this);
+    final state = WidgetsBinding.instance.lifecycleState;
+    _resumed = state == null || state == AppLifecycleState.resumed;
+    _scroll.addListener(_onScroll);
+    _init();
   }
 
-  Future getReceiverInfo() async {
-    //String name;
-    // var firebaseUser = await FirebaseAuth.instance.currentUser();
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _readDebounce?.cancel();
+    _sub?.cancel();
+    _unreadSub?.cancel();
+    _scroll.dispose();
+    _text.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _resumed = state == AppLifecycleState.resumed;
+    if (_resumed) _scheduleMarkRead();
+  }
 
-    setState(() {
-      sentToname = widget.chattingWithName;
+  Future<void> _init() async {
+    try {
+      final id = await _repo.resolveChatId(_myId, _otherId);
+      if (!mounted) return;
+      setState(() => _chatId = id);
+      _subscribe();
+      _markRead();
+      // The Cloud Function may count a message as unread after this screen
+      // already marked it read; clear it again while the chat is open.
+      _unreadSub = _repo.watchUnread(id, _myId).listen((n) {
+        if (n > 0) _scheduleMarkRead();
+      }, onError: (Object e) => debugPrint('chat: unread watch failed: $e'));
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _error = e);
+    }
+  }
 
+  void _subscribe() {
+    final chatId = _chatId;
+    if (chatId == null) return;
+    _sub?.cancel();
+    final requested = _limit;
+    _sub = _repo.watchMessages(chatId, limit: requested).listen((msgs) {
+      if (!mounted) return;
+      setState(() {
+        _messages = msgs;
+        _loaded = true;
+        _error = null;
+        _loadingMore = false;
+        _hasMore = msgs.length >= requested;
+      });
+      _onMessages(msgs);
+    }, onError: (Object e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e;
+        _loadingMore = false;
+      });
     });
   }
-  Future getSenderInfo() async {
-    //String name;
-    // var firebaseUser = await FirebaseAuth.instance.currentUser();
-    var document = await FirebaseFirestore.instance
-        .collection("users")
-        .doc(id)
-        .get();
-    setState(() {
-      sentFromname = widget.currentUserName;
-      sentFromID=widget.currentUserID.toString();
-    });
 
-
-  }
-
-  getReceiverToken()async {
- try{
-   DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-     .collection("users").doc(widget.chattingWithID.toString()).get();
-       //.collection("users").doc("158").get();
-
-   if (documentSnapshot.exists) {
-     // Replace 'field_name' with the name of the field you want to fetch
-     setState(() {
-       receiverToken=documentSnapshot.get('messaging_token').toString();
-       print("receiver token is $receiverToken");
-     });
-     return documentSnapshot.get('messaging_token').toString();
-   } else {
-     return 'Document does not exist';
-   }
- }catch(e){
-   print("Coul not get user id");
- }
-  }
-
-
-  DocumentReference getContactsDocument({required String of, required String forContact})=>
-      FirebaseFirestore.instance
-          .collection("users")
-          .doc(of)
-          .collection("contacts")
-          .doc(forContact);
-
-  Future<void>AddTosendersContacts(String senderId,String otherpersonId,currentTime)async{
-    DocumentSnapshot sendersnapshot=await getContactsDocument(of: senderId,forContact: otherpersonId).get();
-
-    if(!sendersnapshot.exists){
-      await getReceiverInfo();
-      await getSenderInfo();
-     // await getLastMessage();
-
-      //if senders doc does not exist
-      ChatContactModel receiverContact=ChatContactModel(
-          otherpersonuid:otherpersonId,
-          addedOn:currentTime,
-          sentto:widget.chattingWithName,
-          sentFrom:widget.currentUserName,
-          latestMessage:textEditingController.text,
-          myId: id!,
-          senderID: otherpersonId,
-          chatId: chatId!,
-
-
-
-
-      );
-      var receiverMap= receiverContact.toMap(receiverContact);
-      await getContactsDocument(of: senderId,forContact: otherpersonId).set(receiverMap);
-
-    }
-  }
-  // ignore: non_constant_identifier_names
-  Future<void>AddToOtherPersonContacts(String senderId,String otherpersonId,currentTime)async{
-    DocumentSnapshot otherpersonsnapshot=await getContactsDocument(of: otherpersonId,forContact:senderId ).get();
-
-    if(!otherpersonsnapshot.exists){
-      await getReceiverInfo();
-      await getSenderInfo();
-     // await getLastMessage();
-      await readLocal();
-
-      //if senders doc does not exist
-      ChatContactModel senderContact=ChatContactModel(
-        otherpersonuid:otherpersonId,
-        addedOn:currentTime,
-        sentto:sentToname!,
-        latestMessage:textEditingController.text,
-        sentFrom:sentFromname!,
-        myId:otherpersonId,
-        senderID: senderId,
-        chatId: chatId!,
-
-
-
-      );
-      var senderMap= senderContact.toMap(senderContact);
-      await getContactsDocument(of: otherpersonId,forContact: senderId).set(senderMap);
-
-    }
-  }
-  addtocontacts({required String senderId, required String otherpersonId})async{
-    Timestamp currentTime=Timestamp.now();
-    await AddTosendersContacts(senderId, otherpersonId, currentTime);
-    await AddToOtherPersonContacts(senderId, otherpersonId, currentTime);
-    // FirebaseFirestore.instance
-    //     .collection("users")
-    //     .doc(id)
-    //     .collection("contacts").doc(otherpersonId);
-
-  }
-
-  onSendMessage(String messagecontent, int type) async{
-
-
-
-    if (messagecontent != "") {
-      textEditingController.clear();
-      var docref = FirebaseFirestore.instance
-          .collection("messages")
-          .doc(chatId)
-          .collection(chatId!)
-          .doc(DateTime.now().millisecondsSinceEpoch.toString());
-
-     await addtocontacts( senderId:id!, otherpersonId: newreceiverId!);
-
-   await   FirebaseFirestore.instance.runTransaction((transaction) async{
-        transaction.set(docref,{
-          'idFrom': id,
-          'idTo': newreceiverId,
-
-          // 'timestamp': DateTime.now().millisecondsSinceEpoch,
-          'timestamp': FieldValue.serverTimestamp(),
-          'content': messagecontent,
-          'type':type,
-          'isread':false,
-          "sentTo":sentToname,
-          "sentFrom":sentFromname,
-        },);
+  void _onScroll() {
+    if (!_scroll.hasClients || !_hasMore || _loadingMore || !_loaded) return;
+    final pos = _scroll.position;
+    // Reversed list: the oldest messages are at maxScrollExtent.
+    if (pos.pixels >= pos.maxScrollExtent - 300) {
+      setState(() {
+        _loadingMore = true;
+        _limit += ChatRepository.pageSize;
       });
-
-
-
-      await addtonotifications();
-
-      await DioPostService().sendNotification({"to": receiverToken,
-        "notification":{
-          "title": sentFromname,
-          "body": messagecontent
-        }
-      });
-      listscrollController.animateTo(0.0,
-          duration: Duration(microseconds: 300), curve: Curves.easeOut);
-      await getSenderInfo();
-
-    } else {
-      Fluttertoast.showToast(msg: "Cannot Send an empty message");
-    }
-
-  }
-  addtonotifications(){
-    bool isPostOwner = currentuid == newreceiverId;
-    if (isPostOwner) {
-      notificationsRef.doc(othernotificationId)
-          .collection(othernotificationId!).add(
-          {"chattid":chatId,
-            "isread":false,
-
-
-          });}
-    else if(!isPostOwner){ notificationsRef.doc(newreceiverId)
-        .collection(newreceiverId!).add(
-        {"chattid":chatId,
-          "isread":false,
-
-
-        });}
-
-
-  }
-
-
-  onFocusChange(){}
-
-  getImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    imageFile=File(pickedFile!.path);
-    if (imageFile != null) {
-      //return Text("Loading");
-      isLoading = true;
+      _subscribe();
     }
   }
 
-
-  readLocal() async {
-
-    currentuid=widget.currentUserID.toString();
-    id=widget.currentUserID.toString();
-
-
-    newreceiverId = widget.chattingWithID.toString();
-
-    id.hashCode <= newreceiverId.hashCode
-        ? chatId='$id-$newreceiverId'
-        : chatId='$newreceiverId-$id';
-
-    id.hashCode <= newreceiverId.hashCode
-        ? mynotificationId=id
-        : othernotificationId=id;
-
-
-    // if (id.hashCode <= receiverid.hashCode) {
-    //chatId = '$id-$newreceiverId';
-    //  chatId = '$id-$receiverid';
-
-
-    //}
-    // else {
-    //   chatId = '$newreceiverId-$id';
-    // }
-
-    setState(() {});
+  void _onMessages(List<ChatMessage> msgs) {
+    ChatMessage? newestIncoming;
+    for (final m in msgs) {
+      if (!m.isMine(_myId)) {
+        newestIncoming = m;
+        break;
+      }
+    }
+    if (newestIncoming == null) return;
+    final changed = newestIncoming.id != _lastIncomingId;
+    _lastIncomingId = newestIncoming.id;
+    if (changed && !newestIncoming.isRead) _scheduleMarkRead();
   }
-  bool IsLastMsgLeft(int index) {
-    if ((index > 0 &&
-        listMessage != null
-        &&
-        listMessage[index - 1]["idFrom"] != id) ||
-        index == 0) {
-      return true;
-    } else {
-      return false;
+
+  void _scheduleMarkRead() {
+    if (_chatId == null) return;
+    _readDebounce?.cancel();
+    _readDebounce = Timer(const Duration(milliseconds: 500), _markRead);
+  }
+
+  Future<void> _markRead() async {
+    final chatId = _chatId;
+    if (chatId == null || !_resumed || !mounted) return;
+    try {
+      await _repo.markRead(chatId, _myId);
+    } catch (e) {
+      debugPrint('chat: markRead failed: $e');
     }
   }
 
-  bool IsLastMsgRight(int index) {
-    if ((index > 0 &&
-        listMessage != null &&
-        listMessage[index - 1]["idFrom"] == id) ||
-        index == 0) {
-      return true;
-    } else {
-      return false;
+  Future<void> _send() async {
+    final chatId = _chatId;
+    final text = _text.text.trim();
+    if (chatId == null || text.isEmpty) return;
+    final profile = Provider.of<ProfileProvider>(context, listen: false);
+    final photo = profile.profileId;
+    _text.clear();
+    if (_scroll.hasClients && _scroll.offset > 0) {
+      _scroll.animateTo(0, duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
     }
-  }
-  Widget createItem(int index, DocumentSnapshot document) {
-    DateTime myDateTime = (document['timestamp']).toDate();
-    var messageTime=DateFormat.MMMd().add_jm().format(myDateTime);
-    //current users messages right side
-    if (document["idFrom"] == id) {
-      return Padding(
-        padding: const EdgeInsets.only(left:40.0),
-        child: Row(
-
-          mainAxisAlignment: MainAxisAlignment.end,
-
-          children: [
-            //text message
-            document["type"] == 0
-                ? Flexible(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left:2.0,bottom: 8,top: 8),
-                    child: Material(
-                      borderRadius: BorderRadius.only(topLeft:Radius.circular(15.0),bottomLeft: Radius.circular(15.0),bottomRight: Radius.circular(15.0)),
-                      elevation: 5.0 ,
-                      color:kRightBubble,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 7.5,horizontal: 7.5),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Row(mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Flexible(
-                                child: Column(mainAxisAlignment: MainAxisAlignment.start,mainAxisSize: MainAxisSize.min,crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      document["content"],
-                                      style: const TextStyle(fontWeight: FontWeight.w500),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 5.0,),
-                              Padding(
-                                padding: const EdgeInsets.only(right:0.0,top: 20.0,left: 15.0,bottom: 1),
-                                child: Text(messageTime,style: const TextStyle(color: Colors.black54,fontSize: 9.0),),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )
-                :
-            //image message
-            Container(
-              margin: EdgeInsets.only(
-                  bottom: IsLastMsgRight(index) ? 20.0 : 10.0, right: 10.0),
-              child: TextButton(
-                child: Material(
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(8.0),
-                  ),
-                  child: CachedNetworkImage(
-                    placeholder: (context, url) => Container(
-                      width: 200.0,
-                      height: 200.0,
-                      padding: const EdgeInsets.all(70.0),
-                      decoration: const BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(8.0),
-                        ),
-                      ),
-                      child: const CircularProgressIndicator(
-                        valueColor:
-                        AlwaysStoppedAnimation<Color>(Colors.pink),
-                      ),
-                    ),
-                    errorWidget: (context, url, error) => Material(
-                      borderRadius: const BorderRadius.all(
-                        Radius.circular(8.0),
-                      ),
-                      clipBehavior: Clip.hardEdge,
-                      child: Image.asset(
-                        "assets/images/imagenotavailable.jpg",
-                        width: 200.0,
-                        height: 200.0,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    imageUrl: document["content"],
-                    width: 200.0,
-                    height: 200.0,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                onPressed: () {
-
-
-                },
-              ),
-            ),
-          ],
-        ),
+    try {
+      await _repo.sendText(
+        chatId: chatId,
+        fromId: _myId,
+        fromName: widget.currentUserName,
+        fromPhoto: (photo != null && photo.isNotEmpty) ? photo : null,
+        toId: _otherId,
+        toName: widget.chattingWithName,
+        text: text,
+      );
+    } catch (e) {
+      debugPrint('chat: send failed: $e');
+      if (!mounted) return;
+      if (_text.text.trim().isEmpty) {
+        _text.text = text;
+        _text.selection = TextSelection.collapsed(offset: text.length);
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Couldn't send your message. Please try again.")),
       );
     }
-    //messages being received left side
-    else {
-      return
-        Padding(
-          padding: const EdgeInsets.only(right:40.0),
-          child: Row(
-            children: [
-              IsLastMsgLeft(index)?
-              const Material(
-
-                borderRadius: BorderRadius.all(Radius.circular(18.0),
-
-                ),
-                clipBehavior: Clip.hardEdge,
-              ):
-              Container(padding: const EdgeInsets.only(left:4.0,right: 2.0),),
-              //display messages
-              document["type"] == 0
-                  ? Expanded(
-                child: Column(mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left:2.0,bottom: 8.0,top:8.0),
-                      child: Material(
-                        borderRadius: const BorderRadius.only(topRight:Radius.circular(15.0),bottomLeft: Radius.circular(15.0),bottomRight: Radius.circular(15.0)),
-                        elevation: 5.0 ,
-                        color: kLightGrayishOrange,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 20.0),
-                          child: Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Flexible(
-                                child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      document["content"],
-                                      style: const TextStyle(fontWeight: FontWeight.w400),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 5.0,),
-
-                              Padding(
-                                padding: const EdgeInsets.only(right:0.0,top: 20.0,left: 15.0,bottom: 1),
-                                child: Text(messageTime
-                                  // document["timestamp"].toDate().toString()
-
-                                  ,style: const TextStyle(color: Colors.black54,fontSize: 9.0),),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-                  :
-              //image message
-              Container(
-                margin: const EdgeInsets.only(
-                    left: 10.0),
-                child: TextButton(
-                  child: Material(
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(8.0),
-                    ),
-                    child: CachedNetworkImage(
-                      placeholder: (context, url) => Container(
-                        width: 200.0,
-                        height: 200.0,
-                        padding: const EdgeInsets.all(70.0),
-                        decoration: const BoxDecoration(
-                          color: Colors.green,
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(8.0),
-                          ),
-                        ),
-                        child: const CircularProgressIndicator(
-                          valueColor:
-                          AlwaysStoppedAnimation<Color>(Colors.pink),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Material(
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(8.0),
-                        ),
-                        clipBehavior: Clip.hardEdge,
-                        child: Image.asset(
-                          "assets/images/imagenotavailable.jpg",
-                          width: 200.0,
-                          height: 200.0,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      imageUrl: document["content"],
-                      width: 200.0,
-                      height: 200.0,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  onPressed: () {
-
-                  },
-                ),
-              ),
-              IsLastMsgLeft(index)
-                  ? Container(
-
-                margin: const EdgeInsets.only(left: 50.0,top: 50.0,bottom: 5.0),
-              )
-                  : Container()
-            ],
-          ),
-        );
-
-    }
-  }
-  createMessageList() {
-
-    return Flexible(
-      child: chatId == ""
-          ? const Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue),
-        ),
-      )
-          : StreamBuilder(
-
-
-          stream: FirebaseFirestore.instance
-              .collection('messages')
-              .doc(chatId)
-              .collection(chatId!)
-              .orderBy('timestamp', descending: true)
-              .snapshots(),
-          //addtocontacts(){}
-
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Center(
-                //child: Text("getting messages"),
-                child: CircularProgressIndicator(),
-              );
-            } else {
-              listMessage = snapshot.data!.docs;
-              return ListView.builder(
-                padding: const EdgeInsets.all(10.0),
-                itemBuilder: (context,index)=>createItem(index, snapshot.data!.docs[index]),
-                itemCount: snapshot.data!.docs.length,
-                reverse: true,
-                controller: listscrollController,
-
-              );
-            }
-          }
-      ),
-    );
   }
 
-  createInput() {
-    return Container(
-      width: double.infinity,
-      height: 80,
-      decoration: const BoxDecoration(
-        border: Border(
-          top: BorderSide(color: Colors.grey, width: 0.5),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(left: 12.0,right: 12,),
-        child: Row(
-          children: [
-            //pick image from gallery
-            // IconButton(
-            //     icon: const Icon(Icons.image),
-            //     color: Colors.lightBlueAccent,
-            //     onPressed: () => getImage()
-            //   //onPressed: () => getMessages()
-            //
-            // ),
-
-            //text field
-            Flexible(
-              child: TextField(
-                style: const TextStyle(fontSize: 15.0),
-                maxLines: null,
-                controller: textEditingController,
-                decoration: const InputDecoration.collapsed(
-                  hintText: "Text Message",
-                  hintStyle: TextStyle(color: Colors.grey),
-                ),
-                focusNode: focusNode,
-              ),
-            ),
-            //send message icon button
-            IconButton(
-              icon: Icon(Icons.send),
-              // onPressed: () => onSendMessage(textEditingController.text, 0),
-              onPressed: (){ onSendMessage(textEditingController.text, 0);
-              },
-            )
-          ],
-        ),
-      ),
-    );
+  String get _firstName {
+    final parts = widget.chattingWithName.trim().split(RegExp(r'\s+'));
+    return parts.isEmpty || parts.first.isEmpty ? 'them' : parts.first;
   }
 
+  static bool _sameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
 
-
-
+  bool _grouped(ChatMessage a, ChatMessage b) {
+    if (a.fromId != b.fromId) return false;
+    final ta = a.sentAt ?? DateTime.now();
+    final tb = b.sentAt ?? DateTime.now();
+    if (!_sameDay(ta, tb)) return false;
+    return ta.difference(tb).abs() <= _groupWindow;
+  }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-        appBar: AppBar(
-          centerTitle: false,
-
-          title: Text(
-            widget.chattingWithName,style: const TextStyle(
-            fontWeight: FontWeight.bold,
+      appBar: AppBar(
+        centerTitle: false,
+        titleSpacing: 0,
+        title: Row(
+          children: [
+            ChatInitialsAvatar(name: widget.chattingWithName),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                widget.chattingWithName,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: Column(
+        children: [
+          Expanded(child: _buildBody(context)),
+          ChatComposer(
+            controller: _text,
+            focusNode: _focus,
+            enabled: _chatId != null,
+            onSend: _send,
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    if (_error != null && !_loaded) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.cloud_off, size: 40, color: scheme.onSurfaceVariant),
+              const SizedBox(height: 12),
+              Text(
+                "Couldn't load this conversation.",
+                style: TextStyle(color: scheme.onSurfaceVariant),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () {
+                  setState(() => _error = null);
+                  if (_chatId == null) {
+                    _init();
+                  } else {
+                    _subscribe();
+                  }
+                },
+                child: const Text('Retry'),
+              ),
+            ],
           ),
         ),
-        body: Stack(
-    children: [
-    Column(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.stretch ,
-      children: [
-        createMessageList(),
-        //input controllers
-        createInput()
-      ],
-    )
-    ],
-    )
+      );
+    }
+    if (_chatId == null || !_loaded) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_messages.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ChatInitialsAvatar(name: widget.chattingWithName, radius: 36),
+              const SizedBox(height: 16),
+              Text(
+                'Say hello to $_firstName 👋',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Your messages will appear here.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: scheme.onSurfaceVariant),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
+    final msgs = _messages;
+    final showLoader = _hasMore && _loadingMore;
+    return GestureDetector(
+      onTap: () => _focus.unfocus(),
+      child: ListView.builder(
+        controller: _scroll,
+        reverse: true,
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+        itemCount: msgs.length + (showLoader ? 1 : 0),
+        itemBuilder: (context, i) {
+          if (i == msgs.length) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Center(
+                child: SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            );
+          }
+          final m = msgs[i];
+          // Newest first: i + 1 is the older (visually above) message.
+          final older = i + 1 < msgs.length ? msgs[i + 1] : null;
+          final newer = i > 0 ? msgs[i - 1] : null;
+          final at = m.sentAt ?? DateTime.now();
+          final newDay = older == null || !_sameDay(older.sentAt ?? DateTime.now(), at);
+          final bubble = ChatBubble(
+            key: ValueKey(m.id),
+            message: m,
+            isMine: m.isMine(_myId),
+            groupedWithOlder: !newDay && _grouped(m, older),
+            groupedWithNewer: newer != null && _grouped(m, newer),
+          );
+          if (!newDay) return bubble;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [ChatDaySeparator(day: at), bubble],
+          );
+        },
+      ),
     );
   }
 }
-
-
-
-
-
-
-
-

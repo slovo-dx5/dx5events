@@ -11,18 +11,6 @@ class DioPostService extends DioClient {
   DioClient _client = new DioClient();
   final baseURL="${BaseURL.Baseurl}/items/";
 
-  Future<Response> createSession({required Map<String, dynamic> sessionBody}) async {
-    print("session bosy is $sessionBody");
-    try {
-      return await _client
-          .init()
-          .post("${BaseURL.Baseurl}/items/user_sessions",
-        data: sessionBody,);
-    }  on DioError catch (ex) {
-      throw Exception("Session create error: ${ex.response!.data!}");
-    }
-  }
-
   Future<Response> createSponsorSubmission({required Map<String, dynamic> sessionBody}) async {
     try {
       return await _client
@@ -317,49 +305,13 @@ class DioPostService extends DioClient {
 
   }
 
-sendMeetingEmail({required Map<String, dynamic> body}) async {
-    try{
-      return await _client
-          .init()
-          .post(BaseURL.MailerBaseurl,
-        data: body,
-
-
-        // Set headers using the 'headers' parameter
-      ).then((onValue){
-        print("Email sent succssfully");
-
-      });
-
-    } catch (ex) {
-
-      Fluttertoast.showToast(msg: "Error: Check your internet");
-      throw Exception("Sponsor data create error: ${ex}");
-    }
-
-  }
-
-
-
-  Future<Response> updateUserPoints({required Map<String, dynamic> body, required int userPointsId}) async {
+  Future<Response> updateSignIn({required Map<String, dynamic> body, required int recordID}) async {
     try {
       return await _client.init().patch(
-          "${BaseURL.Baseurl}/items/user_points/$userPointsId",
+          "${BaseURL.Baseurl}/items/event_registrations/$recordID",
           data: body);
     } on DioError catch (ex) {
       throw Exception(ex);
-    }
-  }
-
-  updateSignIn({required Map<String, dynamic> body, required int recordID}) async {
-    print("trying to update sign in");
-    try {
-       await _client.init().patch(
-          "${BaseURL.Baseurl}/items/event_registrations/$recordID",
-          data: body);
-      print("update successful sign in");
-    }  catch (ex) {
-      print("Eroror updatinf sign in is $ex");
     }
   }
 
@@ -372,21 +324,86 @@ sendMeetingEmail({required Map<String, dynamic> body}) async {
       throw Exception(ex);
     }
   }
-  Future<Response> createUserPointsEntry({required Map<String, dynamic> body, }) async {
+  Future<Response> createSocialPost({required Map<String, dynamic> body, }) async {
     try {
       return await _client.init().post(
-          "${BaseURL.Baseurl}/items/user_points",
+          "${BaseURL.Baseurl}/items/Social",
           data: body);
     } on DioError catch (ex) {
       throw Exception(ex);
     }
   }
 
-  Future<Response> createSocialPost({required Map<String, dynamic> body, }) async {
+  // ---- Revamped social feature (normalized collections) --------------------
+
+  /// Generic PATCH of a Social post row (e.g. moderation status, counters).
+  Future<Response> patchSocialPost({required Map<String, dynamic> body, required int postID}) async {
     try {
-      return await _client.init().post(
-          "${BaseURL.Baseurl}/items/Social",
-          data: body);
+      return await _client.init().patch("${BaseURL.Baseurl}/items/Social/$postID", data: body);
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> createReaction({required Map<String, dynamic> body}) async {
+    try {
+      return await _client.init().post("${BaseURL.Baseurl}/items/post_reactions", data: body);
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> updateReaction({required int reactionId, required Map<String, dynamic> body}) async {
+    try {
+      return await _client.init().patch("${BaseURL.Baseurl}/items/post_reactions/$reactionId", data: body);
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> createComment({required Map<String, dynamic> body}) async {
+    try {
+      return await _client.init().post("${BaseURL.Baseurl}/items/post_comments", data: body);
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> patchComment({required int commentId, required Map<String, dynamic> body}) async {
+    try {
+      return await _client.init().patch("${BaseURL.Baseurl}/items/post_comments/$commentId", data: body);
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> createReport({required Map<String, dynamic> body}) async {
+    try {
+      return await _client.init().post("${BaseURL.Baseurl}/items/post_reports", data: body);
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> createBlock({required Map<String, dynamic> body}) async {
+    try {
+      return await _client.init().post("${BaseURL.Baseurl}/items/user_blocks", data: body);
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> createSocialProfile({required Map<String, dynamic> body}) async {
+    try {
+      return await _client.init().post("${BaseURL.Baseurl}/items/social_profiles", data: body);
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> updateSocialProfile({required int profileId, required Map<String, dynamic> body}) async {
+    try {
+      return await _client.init().patch("${BaseURL.Baseurl}/items/social_profiles/$profileId", data: body);
     } on DioError catch (ex) {
       throw Exception(ex);
     }

@@ -46,4 +46,17 @@ class ProfileProvider with ChangeNotifier {
     profileId=newProfileId;
     notifyListeners();
   }
+
+  clearProfile() {
+    firstName="";
+    lastName="";
+    email="";
+    phone="";
+    company="";
+    role="";
+    isAdmin="false";
+    profileId=null;
+    userID=null;
+    notifyListeners();
+  }
 }

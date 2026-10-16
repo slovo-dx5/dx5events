@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dx5veevents/constants.dart';
 
 import 'package:dx5veevents/providers.dart';
@@ -7,7 +9,7 @@ import 'package:dx5veevents/screens/dx5veScreens/notificationsScreen.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
 import 'package:dx5veevents/screens/test.dart';
 import 'package:dx5veevents/scripts/doLastMinuteShyet.dart';
-import 'package:dx5veevents/test.dart';
+import 'package:dx5veevents/map_screen.dart';
 import 'package:dx5veevents/testScreen.dart';
 
 import 'package:flutter/services.dart';
@@ -17,6 +19,7 @@ import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:provider/provider.dart';
@@ -24,75 +27,327 @@ import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 
+import 'package:timezone/data/latest.dart' as tzdata;
+
 import 'helpers/themeData.dart';
 import 'homeScreen.dart';
+import 'mainNavigationPage.dart';
 import 'meetings/meeting_tabs.dart';
 import 'notifications/pushNotifications.dart';
+import 'providers/cart_provider.dart';
+import 'providers/social_provider.dart';
+import 'providers/harry_controller.dart';
+import 'screens/chats/chat_screen.dart';
+import 'screens/gallery/event_gallery_screen.dart';
+import 'services/active_event/active_event.dart';
+import 'services/active_event/active_event_service.dart';
+import 'services/activity_logger.dart';
+import 'services/gallery/pix_api_config.dart';
+import 'services/payments/payment_config.dart';
+import 'services/gamification/gamification_config.dart';
+import 'services/gamification/gamification_service.dart';
+import 'services/harry/harry_config.dart';
+import 'services/harry/harry_reminders.dart';
+import 'services/meeting_reminders.dart';
+import 'widgets/harry/harry_overlay.dart';
+const AndroidNotificationChannel _meetingChannel = AndroidNotificationChannel(
+  'meeting_notifications',
+  'Meeting Notifications',
+  description: 'Notifications for meeting requests and updates',
+  importance: Importance.high,
+);
+
+// Channel for reminders the user asks Harry (the AI assistant) to set.
+const AndroidNotificationChannel _harryReminderChannel =
+    AndroidNotificationChannel(
+  HarryReminders.channelId,
+  HarryReminders.channelName,
+  description: 'Reminders you asked Harry to set',
+  importance: Importance.high,
+);
+
+// Channel for the 15-minutes-before reminders on accepted meetings.
+const AndroidNotificationChannel _meetingReminderChannel =
+    AndroidNotificationChannel(
+  MeetingReminderService.channelId,
+  MeetingReminderService.channelName,
+  description: MeetingReminderService.channelDescription,
+  importance: Importance.high,
+);
+
+// Channel for "new event photos" pushes from the galleryPhotoNotifier Cloud
+// Function. The channelId must match the one that function sets on its FCM
+// message so background/terminated deliveries land here on Android.
+const AndroidNotificationChannel _galleryChannel = AndroidNotificationChannel(
+  'gallery_notifications',
+  'Event Photos',
+  description: 'Alerts when new event photos are available',
+  importance: Importance.high,
+);
+
+// Channel for chat pushes from the onChatMessageCreated Cloud Function; the
+// channelId must match the one that function sets.
+const AndroidNotificationChannel _chatChannel = AndroidNotificationChannel(
+  'chat_messages',
+  'Chat Messages',
+  description: 'New messages from other delegates',
+  importance: Importance.high,
+);
+
+final FlutterLocalNotificationsPlugin _localNotifications =
+    FlutterLocalNotificationsPlugin();
+
 @pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message ) async {
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final NotificationSetup _notificationSetup=NotificationSetup();
   _notificationSetup.configurePushNotifications();
   // _notificationSetup.eventListenerCallback();
   print("Handling a background message: $message");
 }
+// Launches the full app shell (MainNavigationPage) from a notification
+// cold-start, on the same active event the landing page opens.
+MainNavigationPage _buildMainNavShell({int initialTabIndex = 0}) {
+  final event = ActiveEventService.instance.current;
+  return MainNavigationPage(
+    initialTabIndex: initialTabIndex,
+    coverImagePath: ActiveEvent.bundledCoverImage,
+    eventName: event.displayName,
+    eventDate: event.dateLabel,
+    shortEventDescription: event.tagline,
+    eventLocation: event.displayLocation,
+    eventID: event.id,
+    eventDay: event.dateFrom.day,
+    eventMonth: event.dateFrom.month,
+    eventYear: event.dateFrom.year,
+    eventDayOfWeek: event.dayOfWeek,
+    isCustomerEvent: false,
+  );
+}
+
+// Renders the full app shell and pushes NotificationsScreen on top so the user
+// retains the bottom nav bar and can navigate home from a notification cold-start.
+class _NotificationsLauncher extends StatefulWidget {
+  const _NotificationsLauncher();
+
+  @override
+  State<_NotificationsLauncher> createState() => _NotificationsLauncherState();
+}
+
+class _NotificationsLauncherState extends State<_NotificationsLauncher> {
+  bool _pushed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_pushed || !mounted) return;
+      _pushed = true;
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => _buildMainNavShell();
+}
+
+// Opens a 1:1 conversation from a chat push. The current user comes from
+// ProfileProvider when it's loaded, otherwise from SharedPreferences.
+class _ChatLauncher extends StatelessWidget {
+  final int otherId;
+  final String otherName;
+
+  const _ChatLauncher({required this.otherId, required this.otherName});
+
+  Future<(int, String)> _fromPrefs() async =>
+      (await getIntPref(kUserID), await getStringPref(kFirstName));
+
+  @override
+  Widget build(BuildContext context) {
+    final profile = Provider.of<ProfileProvider>(context, listen: false);
+    final providerId = profile.userID;
+    if (providerId != null && providerId > 0) {
+      return CioChatScreen(
+        chattingWithName: otherName,
+        chattingWithID: otherId,
+        currentUserID: providerId,
+        currentUserName: profile.firstName,
+      );
+    }
+    return FutureBuilder<(int, String)>(
+      future: _fromPrefs(),
+      builder: (context, snap) {
+        final me = snap.data;
+        if (me == null) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+        return CioChatScreen(
+          chattingWithName: otherName,
+          chattingWithID: otherId,
+          currentUserID: me.$1,
+          currentUserName: me.$2,
+        );
+      },
+    );
+  }
+}
+
 final router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-     builder: (context, state) =>  LandingPage2(),
-     //builder: (context, state) =>  MapScreenTest(),
-    //builder: (context, state) =>  ContactSaveTest(),
-     //builder: (context, state) =>  StructureLAstMinute(),
-     //builder: (context, state) =>  ExamplePage(),
-  //  builder: (context, state) =>  MapScreen(),
-      //builder: (context, state) =>  ProfileScreen(),
+     builder: (context, state) =>  LandingPage2(isFromLogout: false,),
     ),
     GoRoute(
       path: '/meetings',
-      //builder: (context, state) => MainNavigationPage(initialTabIndex: 2),
-      builder: (context, state) => MeetingTabs(),
+      // Render the full app shell so the user keeps the bottom nav and can
+      // leave the meetings tab when cold-started from a notification.
+      builder: (context, state) => _buildMainNavShell(initialTabIndex: 2),
     ),
     GoRoute(
       path: '/notifications',
-      builder: (context, state) => NotificationsScreen(),
+      builder: (context, state) => const _NotificationsLauncher(),
+    ),
+    GoRoute(
+      // Opened by tapping a "new event photos" push. pixEventId lets the
+      // gallery skip name-matching; day preselects the relevant day filter.
+      path: '/gallery',
+      builder: (context, state) => EventGalleryScreen(
+        pixEventId: state.uri.queryParameters['pixEventId'],
+        initialDay: state.uri.queryParameters['day'],
+      ),
+    ),
+    GoRoute(
+      // Opened by tapping a chat push: /chat?with=<user id>&name=<name>.
+      path: '/chat',
+      redirect: (context, state) async {
+        final otherId = int.tryParse(state.uri.queryParameters['with'] ?? '');
+        if (otherId == null) return '/';
+        final providerId =
+            Provider.of<ProfileProvider>(context, listen: false).userID;
+        if (providerId != null && providerId > 0) return null;
+        return await getIntPref(kUserID) > 0 ? null : '/';
+      },
+      builder: (context, state) => _ChatLauncher(
+        otherId: int.parse(state.uri.queryParameters['with']!),
+        otherName: (state.uri.queryParameters['name'] ?? '').isNotEmpty
+            ? state.uri.queryParameters['name']!
+            : 'Delegate',
+      ),
     ),
     GoRoute(
       path: '/test-contact',
       builder: (context, state) => ContactSaveTest(),
     ),
-    // GoRoute(
-    //   path: '/meetings/:id',
-    //   builder: (context, state) {
-    //     final meetingId = state.pathParameters['id'];
-    //     return MeetingsDetailScreen(meetingId: meetingId);
-    //   },
-    // ),
   ],
 );
+// Builds the Harry assistant controller with its reminder scheduler and an
+// app-navigation handler (go_router lives here). Event context defaults to the
+// active event surfaced on the landing page (ActiveEventService) and can be
+// refreshed later via HarryController.updateEvent.
+HarryController _buildHarryController() {
+  final controller = HarryController();
+  controller.reminders = HarryReminders(_localNotifications);
+  final event = ActiveEventService.instance.current;
+  controller.updateEvent(
+    eventId: event.id,
+    name: event.displayName,
+    date: event.dateLabel,
+    location: event.venue.isNotEmpty ? event.venue : event.country,
+    description: event.tagline,
+  );
+  controller.navigateHandler = (target) async {
+    switch (target) {
+      case 'meetings':
+        router.go('/meetings');
+        return 'Opened your Meetings.';
+      case 'notifications':
+        router.go('/notifications');
+        return 'Opened Notifications.';
+      case 'home':
+        router.go('/');
+        return 'Opened Home.';
+      default:
+        return 'I can only open Meetings, Notifications or Home directly — '
+            'for anything else, tell the user which tab or tile to tap.';
+    }
+  };
+  return controller;
+}
+
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
 
 
-  try {
+  // Initialize Firebase only if not already initialized
+  if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
-      // name: "dx5ve_events",
+      name: "dx5veevents",
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    print('Firebase initialized successfully');
-  } catch (e) {
-    print('Failed to initialize Firebase: $e');
+    debugPrint('Firebase initialized successfully');
+  } else {
+    debugPrint('Firebase already initialized');
   }
+
+  // Initialise local notifications with both Android and iOS settings
+  await _localNotifications.initialize(
+    const InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      iOS: DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      ),
+    ),
+  );
+  final androidNotifications = _localNotifications
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+  await androidNotifications?.createNotificationChannel(_meetingChannel);
+  await androidNotifications?.createNotificationChannel(_harryReminderChannel);
+  await androidNotifications?.createNotificationChannel(_meetingReminderChannel);
+  await androidNotifications?.createNotificationChannel(_galleryChannel);
+  await androidNotifications?.createNotificationChannel(_chatChannel);
+  // Needed on Android 13+ for Harry's scheduled reminders to appear.
+  await androidNotifications?.requestNotificationsPermission();
+
+  // Timezone DB is required for scheduling Harry's reminders (zonedSchedule).
+  tzdata.initializeTimeZones();
+
+  // Share the notifications plugin with the meeting-reminder scheduler.
+  MeetingReminderService.instance.init(_localNotifications);
+
+  // Load Harry's AI keys from assets/.env (falls back to --dart-define).
+  await HarryConfig.load();
+  // Gallery (Event Image Service) credentials, same .env / dart-define scheme.
+  await PixApiConfig.load();
+  // Shop payment backend (Directus Flows), same .env / dart-define scheme.
+  await PaymentConfig.load();
+  // The event the app opens on: last fetched one now, current one from
+  // Directus (app_config.active_event) in the background.
+  await ActiveEventService.instance.loadCached();
+  ActiveEventService.instance.refresh();
+
   Get.put<MyDrawerController>(MyDrawerController());
 
+  ActivityLogger.instance.init();
+
+  // Rewards: Flow ids from assets/.env, then the daily-open log and the
+  // "you earned points" toasts that follow each activity flush.
+  await GamificationConfig.load();
+  GamificationService.instance.init();
+
   if(Platform.isAndroid){
-    await FirebaseMessaging.instance.subscribeToTopic("CIO1002025Broadcast");
+    await FirebaseMessaging.instance.subscribeToTopic("SmartGovBroadCast");
     //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }else if(Platform.isIOS){
     try{ await NotificationSetup().getIOSPermission();
     await FirebaseMessaging.instance.getAPNSToken();
 
     await FirebaseMessaging.instance.getAPNSToken().then((value)async{
-      await FirebaseMessaging.instance.subscribeToTopic("connectedAfricaBroadcast");
+      await FirebaseMessaging.instance.subscribeToTopic("SmartGovBroadCast");
     } );
 
     //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -131,40 +386,42 @@ if(Platform.isIOS){
   try{
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       _handleNotificationClick(message.data);
-      _storeNotification(message.notification!.title, message.notification!.body);
+      _storeNotification(message.notification?.title, message.notification?.body);
     });
 
     _firebaseMessaging.getInitialMessage().then((RemoteMessage? message) {
       if (message != null) {
         _handleNotificationClick(message.data);
-        _storeNotification(message.notification!.title, message.notification!.body);
+        _storeNotification(message.notification?.title, message.notification?.body);
       }
     });
 
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       if (message.notification != null) {
         _storeNotification(message.notification!.title, message.notification!.body);
+        await _showForegroundNotification(message);
       }
     });
-  }catch(e){
+  } catch (e) {
     print("firebase messaging config error $e");
   }
-}else{
+} else {
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
     _handleNotificationClick(message.data);
-    _storeNotification(message.notification!.title, message.notification!.body);
+    _storeNotification(message.notification?.title, message.notification?.body);
   });
 
   _firebaseMessaging.getInitialMessage().then((RemoteMessage? message) {
     if (message != null) {
       _handleNotificationClick(message.data);
-      _storeNotification(message.notification!.title, message.notification!.body);
+      _storeNotification(message.notification?.title, message.notification?.body);
     }
   });
 
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
     if (message.notification != null) {
       _storeNotification(message.notification!.title, message.notification!.body);
+      await _showForegroundNotification(message);
     }
   });
 }
@@ -208,28 +465,73 @@ if(Platform.isIOS){
     }
   }
 
-  void _handleNotificationClick(Map<String, dynamic> data)async {
-    String? targetPage = data['targetPage'];
-    bool isAuthenticated=false;
-    await getBoolPref("isAuthenticated").then((value) {
-      setState(() {
-        isAuthenticated=value;
-        print("auth status is $value");
-      });
-    });
-    if (targetPage == 'notifications' && isAuthenticated==true) {
-      navigatorKey.currentState?.push(MaterialPageRoute(builder: (context) => LandingPage2()));
-    }else{
-      navigatorKey.currentState?.push(MaterialPageRoute(builder: (context) => LandingPage2()));
+  void _handleNotificationClick(Map<String, dynamic> data) async {
+    final bool isAuthenticated = await getBoolPref("isAuthenticated");
+    if (!isAuthenticated) return;
+
+    final String targetPage = data['targetPage'] ?? 'notifications';
+    if (targetPage == 'meetings') {
+      router.go('/meetings');
+    } else if (targetPage == 'gallery') {
+      // push (not go) so the AppBar back button returns to the landing page.
+      final query = <String, String>{};
+      final pixEventId = data['pixEventId'];
+      final day = data['day'];
+      if (pixEventId != null) query['pixEventId'] = pixEventId.toString();
+      if (day != null) query['day'] = day.toString();
+      router.push(
+        Uri(path: '/gallery', queryParameters: query.isEmpty ? null : query)
+            .toString(),
+      );
+    } else if (targetPage == 'chat' && data['chatWith'] != null) {
+      router.push(Uri(path: '/chat', queryParameters: {
+        'with': data['chatWith'].toString(),
+        'name': (data['chatWithName'] ?? '').toString(),
+      }).toString());
+    } else {
+      router.go('/notifications');
     }
   }
 
+  Future<void> _showForegroundNotification(RemoteMessage message) async {
+    if (!Platform.isAndroid) return; // iOS shows foreground banners natively
+    final notification = message.notification;
+    if (notification == null) return;
+
+    await _localNotifications.show(
+      message.hashCode,
+      notification.title,
+      notification.body,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'meeting_notifications',
+          'Meeting Notifications',
+          channelDescription: 'Notifications for meeting requests and updates',
+          importance: Importance.high,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+        ),
+      ),
+    );
+  }
+
   Future<void> _storeNotification(String? title, String? body) async {
+    // ignore: unnecessary_null_comparison
     if (title != null && body != null) {
-      final String timestamp = DateTime.now().toString();
+      // ISO-8601 so it round-trips through DateTime.parse. Stored as JSON per
+      // entry: the old "title:body:timestamp" join broke whenever the title,
+      // body, or timestamp contained a ':' (which the timestamp always does),
+      // so the notifications screen could never parse them back out.
+      final String timestamp = DateTime.now().toIso8601String();
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      notifications.add({"title": title, "body": body, "timestamp": timestamp,});
-      prefs.setStringList('notifications', notifications.map((notification) => "${notification['title']}:${notification['body']}:${notification['timestamp']}").toList());
+      // Merge with anything already persisted so a restart (which starts with
+      // an empty in-memory list) doesn't wipe earlier notifications.
+      final existing = prefs.getStringList('notifications') ?? [];
+      final entry =
+          jsonEncode({"title": title, "body": body, "timestamp": timestamp});
+      existing.add(entry);
+      await prefs.setStringList('notifications', existing);
+      notifications.add({"title": title, "body": body, "timestamp": timestamp});
       setState(() {});
     }
   }
@@ -241,6 +543,10 @@ if(Platform.isIOS){
       providers: [
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => _buildHarryController()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => SocialProvider()),
+        ChangeNotifierProvider.value(value: ActiveEventService.instance),
         //// New provider
       ],
       builder: (context, _) {
@@ -256,6 +562,16 @@ if(Platform.isIOS){
               themeMode: ThemeMode.light,
               theme: lightTheme,
               //darkTheme: darkTheme,
+              // Harry floats above every routed screen and survives
+              // navigation. HarryRoot wraps it in its own Overlay so tooltips
+              // and the chat TextField's selection toolbar work (the app's own
+              // Overlay is inside `child`, not above this builder).
+              builder: (context, child) => Stack(
+                children: [
+                  child ?? const SizedBox.shrink(),
+                  const Positioned.fill(child: HarryRoot()),
+                ],
+              ),
 
          // home: LandingPage2(),
          // home: StructureLAstMinute(),

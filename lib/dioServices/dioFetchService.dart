@@ -6,7 +6,7 @@ import 'dioClient.dart';
 import 'endpoints/endpoint.dart';
 
 class DioFetchService extends DioClient {
-  DioClient _client = new DioClient();
+  final DioClient _client =  DioClient();
 
   // Future<Response> fetchCIOAttendees({required String eventID}) async {
   //   try {
@@ -30,7 +30,8 @@ class DioFetchService extends DioClient {
       final int offset = (page - 1) * pageSize;
 
       // Start with base filters
-      String filterParams = "&filter[eventId][_eq]=$eventID&filter[status][_eq]=approved";
+    //  String filterParams = "&filter[eventId][_eq]=$eventID&filter[status][_eq]=approved";
+      String filterParams = "&filter[eventId][_eq]=$eventID";
 
       // Add search query if provided
       if (searchQuery.isNotEmpty) {
@@ -72,7 +73,7 @@ class DioFetchService extends DioClient {
     try {
       return await _client
           .init()
-          .get("${BaseURL.Baseurl}/items/event_registrations?filter[eventId][_eq]=$eventID&filter[status][_eq]=approved&limit=2500",
+          .get("${BaseURL.Baseurl}/items/event_registrations?filter[eventId][_eq]=$eventID&limit=2500",
         //   options: buildCacheOptions(const Duration(minutes: 30)),
       );
     } on DioError catch (ex) {
@@ -144,19 +145,6 @@ class DioFetchService extends DioClient {
     }
   }
 
-  Future<Response> fetchIndividualSessions({required String attendeeID}) async {
-
-    try {
-      return await _client
-          .init()
-         // .get("${BaseURL.Baseurl}/items/agenda?filter[event_id][_eq]=$eventID",
-          .get("${BaseURL.Baseurl}/items/user_sessions?filter[attendee_id][_eq]=$attendeeID",
-        //options: buildCacheOptions(const Duration(minutes: 30)),
-           );
-    } on DioError catch (ex) {
-      throw Exception(ex);
-    }
-  }
   Future<Response> fetchEventSponsors() async {
     try {
       return await _client
@@ -250,6 +238,92 @@ class DioFetchService extends DioClient {
       throw Exception(ex);
     }
   }
+
+  // ---- Revamped social feature (normalized collections) --------------------
+
+  /// Paginated, published-only feed, newest first.
+  Future<Response> fetchSocialFeed({int limit = 20, int offset = 0}) async {
+    try {
+      return await _client.init().get(
+        "${BaseURL.Baseurl}/items/Social"
+        "?filter[status][_eq]=published"
+        "&sort=-date_created&limit=$limit&offset=$offset",
+        options: buildCacheOptions(const Duration(seconds: 15)),
+      );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  /// Posts authored by a single user (for the profile screen).
+  Future<Response> fetchPostsByUser({required int userId, int limit = 20, int offset = 0}) async {
+    try {
+      return await _client.init().get(
+        "${BaseURL.Baseurl}/items/Social"
+        "?filter[user_id][_eq]=$userId&filter[status][_eq]=published"
+        "&sort=-date_created&limit=$limit&offset=$offset",
+      );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  /// Posts tagged with a given hashtag (without the leading #).
+  Future<Response> fetchPostsByHashtag({required String tag, int limit = 20, int offset = 0}) async {
+    try {
+      return await _client.init().get(
+        "${BaseURL.Baseurl}/items/Social"
+        "?filter[hashtags][_contains]=$tag&filter[status][_eq]=published"
+        "&sort=-date_created&limit=$limit&offset=$offset",
+      );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> fetchPostReactions({required int postId}) async {
+    try {
+      return await _client.init().get(
+        "${BaseURL.Baseurl}/items/post_reactions?filter[post_id][_eq]=$postId&limit=-1",
+      );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> fetchPostComments({required int postId}) async {
+    try {
+      return await _client.init().get(
+        "${BaseURL.Baseurl}/items/post_comments"
+        "?filter[post_id][_eq]=$postId&filter[status][_eq]=published"
+        "&sort=date_created&limit=-1",
+      );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> fetchSocialProfile({required int userId}) async {
+    try {
+      return await _client.init().get(
+        "${BaseURL.Baseurl}/items/social_profiles?filter[user_id][_eq]=$userId&limit=1",
+      );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  /// The user's block list, used to filter authors out of the feed.
+  Future<Response> fetchUserBlocks({required int blockerId}) async {
+    try {
+      return await _client.init().get(
+        "${BaseURL.Baseurl}/items/user_blocks?filter[blocker_id][_eq]=$blockerId&limit=-1",
+      );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
   Future<Response> fetchCISOPartners() async {
     try {
       return await _client
@@ -281,6 +355,28 @@ class DioFetchService extends DioClient {
           .get("${BaseURL.Baseurl}/items/speakers?filter[id][_eq]=$speakerKey",
       //  options: buildCacheOptions(const Duration(minutes: 30)),
            );
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> fetchSpeakersByIds(List<int> ids) async {
+    final idList = ids.join(',');
+    try {
+      return await _client
+          .init()
+          .get("${BaseURL.Baseurl}/items/speakers?filter[id][_in]=$idList&limit=-1");
+    } on DioError catch (ex) {
+      throw Exception(ex);
+    }
+  }
+
+  Future<Response> fetchSponsorsByIds(List<int> ids) async {
+    final idList = ids.join(',');
+    try {
+      return await _client
+          .init()
+          .get("${BaseURL.Baseurl}/items/sponsors?filter[id][_in]=$idList&limit=-1");
     } on DioError catch (ex) {
       throw Exception(ex);
     }
@@ -327,107 +423,6 @@ class DioFetchService extends DioClient {
     }
   }
 
-  Future<Response> getActionDetails({required int actionId,}) async {
-    try {
-
-
-      return await _client
-          .init()
-          .get(
-        "${BaseURL.Baseurl}/items/point_actions/$actionId",
-        // options: buildCacheOptions(const Duration(seconds: 30,),),
-
-        // Set headers using the 'headers' parameter
-      );
-    } on DioError catch (ex) {
-      throw Exception("Action fetch error: ${ex.response!.data!}");
-    }
-  }
-
-
-Future<Response> checkUserPoints({required int actionId, required int userId}) async {
-    try {
-
-
-      return await _client
-          .init()
-          .get(
-        "${BaseURL.Baseurl}/items/user_points?filter[user_id][_eq]=$userId&filter[action_id][_eq]=$actionId",
-        // options: buildCacheOptions(const Duration(seconds: 30,),),
-
-        // Set headers using the 'headers' parameter
-      );
-    } on DioError catch (ex) {
-      throw Exception("Session fetch error: ${ex.response!.data!}");
-    }
-  }
-
-  Future<Response> getAllActions() async {
-    try {
-
-
-      return await _client
-          .init()
-          .get(
-        "${BaseURL.Baseurl}/point_actions",
-        // options: buildCacheOptions(const Duration(seconds: 30,),),
-
-        // Set headers using the 'headers' parameter
-      );
-    } on DioError catch (ex) {
-      throw Exception("Session fetch error: ${ex.response!.data!}");
-    }
-  }
-
-  Future<Response> getUserPointsResponse({required int userId}) async {
-    try {
-
-
-      return await _client
-          .init()
-          .get(
-        "${BaseURL.Baseurl}/items/user_points?filter[user_id][_eq]=$userId",
-        // options: buildCacheOptions(const Duration(seconds: 30,),),
-
-        // Set headers using the 'headers' parameter
-      );
-    } on DioError catch (ex) {
-      throw Exception("Session fetch error: ${ex.response!.data!}");
-    }
-  }
-
-  Future<Response> getAllUserPoints() async {
-    try {
-
-
-      return await _client
-          .init()
-          .get(
-        "${BaseURL.Baseurl}/items/user_points",
-        // options: buildCacheOptions(const Duration(seconds: 30,),),
-
-        // Set headers using the 'headers' parameter
-      );
-    } on DioError catch (ex) {
-      throw Exception("Session fetch error: ${ex.response!.data!}");
-    }
-  }
- Future<Response> fetchUserPoints({required int userID}) async {
-    try {
-
-
-      return await _client
-          .init()
-          .get(
-        "${BaseURL.Baseurl}/items/user_points?filter[user_id][_eq]=$userID",
-        // options: buildCacheOptions(const Duration(seconds: 30,),),
-
-        // Set headers using the 'headers' parameter
-      );
-    } on DioError catch (ex) {
-      throw Exception("Session fetch error: ${ex.response!.data!}");
-    }
-  }
  Future<Response> fetchSocialPosts() async {
     try {
 
@@ -447,6 +442,16 @@ Future<Response> checkUserPoints({required int actionId, required int userId}) a
 
 
 
+
+  /// Bulk-inserts activity log rows into `app_activity_logs`.
+  /// Directus accepts an array body for batched creation.
+  /// DioError is rethrown unwrapped so the caller can inspect response.data
+  /// (e.g. RECORD_NOT_UNIQUE for idempotency handling).
+  Future<Response> postActivityLogs(List<Map<String, dynamic>> rows) {
+    return _client
+        .init()
+        .post("${BaseURL.Baseurl}/items/app_activity_logs", data: rows);
+  }
 
   Future<Response> updateUserData({required int recordid,required int eventId,required Map<String, dynamic> body}) async {
 

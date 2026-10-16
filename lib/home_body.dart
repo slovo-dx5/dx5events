@@ -25,10 +25,7 @@ class HomeBody extends StatefulWidget {
 }
 
 class _HomeBodyState extends State<HomeBody> {
-  final GlobalKey _one = GlobalKey();
-  final GlobalKey _two = GlobalKey();
-  final GlobalKey _three = GlobalKey();
-  final GlobalKey _four = GlobalKey();
+
   bool isFirstTime = true;
   void checkFirstTime() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

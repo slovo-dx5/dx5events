@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../constants.dart';
-import '../helpers/helper_functions.dart';
+import 'package:intl/intl.dart';
+
+import '../services/activity_logger.dart';
 
 class RatingDialog extends StatefulWidget {
 
@@ -11,7 +13,10 @@ class RatingDialog extends StatefulWidget {
   String speakerName;
   String sessionTitle;
   int eventId;
-   RatingDialog({required this.attendeeID,required this.eventId, required this.sessionTitle, required this.speakerName,super.key});
+  /// Day the session runs. Part of the `session_rated` target so the same
+  /// title on two days counts as two sessions.
+  DateTime? sessionDate;
+   RatingDialog({required this.attendeeID,required this.eventId, required this.sessionTitle, required this.speakerName,this.sessionDate,super.key});
 
   @override
   State<RatingDialog> createState() => _RatingDialogState();
@@ -102,7 +107,19 @@ class _RatingDialogState extends State<RatingDialog> {
                     speakerName: widget.speakerName,
                     speakerComment: _speakerCommentController.text,
                     sessionTitle: widget.sessionTitle);
-                await UserPointsService().createOrUpdateUserPoints(userId: widget.attendeeID,actionId: 5);
+                final day = widget.sessionDate == null
+                    ? null
+                    : DateFormat('yyyy-MM-dd').format(widget.sessionDate!);
+                ActivityLogger.instance.log(
+                  action: ActivityAction.sessionRated,
+                  userId: widget.attendeeID,
+                  targetType: 'session',
+                  targetId: '${day ?? ''}|${widget.sessionTitle.trim().toLowerCase()}',
+                  metadata: {
+                    'speaker': widget.speakerName.trim(),
+                    if (day != null) 'date': day,
+                  },
+                );
 
                 Fluttertoast.showToast(backgroundColor:kLogoutRed,msg: "Your response has been recorded");
                 Navigator.of(context).pop();

@@ -2,20 +2,25 @@ import 'dart:developer';
 
 import 'package:dx5veevents/screens/dx5veScreens/profile_screen.dart';
 import 'package:dx5veevents/screens/chats/all_chats.dart';
+import 'package:dx5veevents/screens/chats/widgets/inbox_tab_icon.dart';
 import 'package:dx5veevents/screens/dx5ve_social/social_feed.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 
 
 import '../../constants.dart';
 import 'dioServices/dioFetchService.dart';
 import 'models/sponsor_contact_model.dart';
+import 'providers/harry_controller.dart';
 
 import 'gallery_screen.dart';
 import 'homeScreen.dart';
 import 'meetings/meeting_tabs.dart';
+import 'screens/shop/shop_screen.dart';
+import 'widgets/shop_promo.dart';
 
 _MainNavigationPageState mainNavigationPageState = _MainNavigationPageState();
 
@@ -60,6 +65,24 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
     getFirebaseMessagingToken();
     fetchAndStoreSponsorPhone();
+
+    // Show the Harry assistant while inside the event, and give it this
+    // event's context (covers every entry path, incl. notification cold-start).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final harry = context.read<HarryController>();
+      harry.setInEvent(true);
+      final id = widget.eventID ?? '';
+      if (id.isNotEmpty) {
+        harry.updateEvent(
+          eventId: id,
+          name: widget.eventName,
+          date: widget.eventDate,
+          location: widget.eventLocation,
+          description: widget.shortEventDescription,
+        );
+      }
+    });
   }
 
   fetchAndStoreSponsorPhone() async {
@@ -130,19 +153,20 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
   }
 
+  /// Position of the Shop tab, right after Meetings (only when it exists).
+  static const int _shopTabIndex = 3;
+
   List<Widget> _buildScreens() {
     return [
-      HomeScreen(  eventDay: widget.eventDay!, eventMonth: widget.eventMonth!, eventYear: widget.eventYear!,coverImagePath: widget.coverImagePath!, eventName: widget.eventName!,
-        //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
-        eventDate: widget.eventDate!,
-        //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
-        shortEventDescription: widget.shortEventDescription!,
-        //eventLocation: 'Nigeria',);
-        eventLocation: widget.eventLocation!, eventID: widget.eventID!, eventDayOfWeek:widget.eventDayOfWeek!, isCustomerEvent: widget.isCustomerEvent! ,),
-      AllChatsScreen(),
+      HomeScreen(  eventDay: widget.eventDay ?? 0, eventMonth: widget.eventMonth ?? 0, eventYear: widget.eventYear ?? 0, coverImagePath: widget.coverImagePath ?? '', eventName: widget.eventName ?? '',
+        eventDate: widget.eventDate ?? '',
+        shortEventDescription: widget.shortEventDescription ?? '',
+        eventLocation: widget.eventLocation ?? '', eventID: widget.eventID ?? '', eventDayOfWeek: widget.eventDayOfWeek ?? '', isCustomerEvent: widget.isCustomerEvent ?? false,),
+      const AllChatsScreen(),
       MeetingTabs(),
+      if (kShopFeatureEnabled) const ShopScreen(),
       //SocialFeed(),
-       ProfileScreen(eventId: int.parse(widget.eventID!), ),
+       ProfileScreen(eventId: int.tryParse(widget.eventID ?? '0') ?? 0,),
     ];
   }
 
@@ -159,7 +183,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
           inactiveColorPrimary: Colors.grey,
         ),
         PersistentBottomNavBarItem(
-          icon: const Icon(Icons.inbox),
+          icon: const InboxTabIcon(),
           title: "Inbox",
           //  textStyle: style,
           activeColorPrimary: kConnectedBlue,
@@ -172,7 +196,13 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
           activeColorPrimary: kConnectedBlue,
           inactiveColorPrimary: Colors.grey,
         ),
-
+        if (kShopFeatureEnabled)
+          PersistentBottomNavBarItem(
+            icon: const ShopTabIcon(),
+            title: "Shop",
+            activeColorPrimary: kConnectedBlue,
+            inactiveColorPrimary: Colors.grey,
+          ),
 
         PersistentBottomNavBarItem(
           icon: const Icon(Icons.person),
@@ -183,17 +213,14 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
           routeAndNavigatorSettings: RouteAndNavigatorSettings(
             initialRoute: '/',
             routes: {
-              '/first': (context) => HomeScreen(eventDay: widget.eventDay!, eventMonth: widget.eventMonth!, eventYear: widget.eventYear!,
-                coverImagePath: widget.coverImagePath!, eventName: widget.eventName!,
-                //eventDate: 'THUR, MAY, 2nd - FRIDAY MAY 3rd',
-                eventDate: widget.eventDate!,
-                //shortEventDescription: 'The Africa Cloud and Cybersecurity Summit is a pivotal event, addressing the accelerating growth of cloud computing and the critical importance of cybersecurity in the African region.',
-                shortEventDescription: widget.shortEventDescription!,
-                //eventLocation: 'Nigeria',);
-                eventLocation: widget.eventLocation!, eventID: widget.eventID!, eventDayOfWeek: widget.eventDayOfWeek!, isCustomerEvent: widget.isCustomerEvent!,),
+              '/first': (context) => HomeScreen(eventDay: widget.eventDay ?? 0, eventMonth: widget.eventMonth ?? 0, eventYear: widget.eventYear ?? 0,
+                coverImagePath: widget.coverImagePath ?? '', eventName: widget.eventName ?? '',
+                eventDate: widget.eventDate ?? '',
+                shortEventDescription: widget.shortEventDescription ?? '',
+                eventLocation: widget.eventLocation ?? '', eventID: widget.eventID ?? '', eventDayOfWeek: widget.eventDayOfWeek ?? '', isCustomerEvent: widget.isCustomerEvent ?? false,),
               '/second': (context) => MeetingTabs(),
               '/third': (context) => const GalleryScreen(),
-              '/fourth': (context) =>  ProfileScreen(eventId: int.parse(widget.eventID!),),
+              '/fourth': (context) => ProfileScreen(eventId: int.tryParse(widget.eventID ?? '0') ?? 0,),
             },
           ),
         ),
@@ -207,6 +234,11 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         controller: controller,
         screens: _buildScreens(),
         items: _navBarsItems(),
+        onItemSelected: (index) {
+          if (kShopFeatureEnabled && index == _shopTabIndex) {
+            ShopPromo.tap('nav_tab');
+          }
+        },
         confineToSafeArea: true,
         backgroundColor: kLightAppbar, // Default is Colors.white.
         handleAndroidBackButtonPress: true, // Default is true.

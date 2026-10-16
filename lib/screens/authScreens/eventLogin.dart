@@ -12,6 +12,8 @@ import 'dart:ui';
 import '../../constants.dart';
 import '../../dioServices/dioFetchService.dart';
 import '../../dioServices/dioOTPService.dart';
+import '../../services/activity_logger.dart';
+import '../../widgets/app_sponsor.dart';
 import 'eventOTP.dart';
 
 class EventLogin extends StatefulWidget {
@@ -48,6 +50,7 @@ class _EventLoginState extends State<EventLogin> {
 
   bool isEmail(String input) => EmailValidator.validate(input);
   bool isCreating=false;
+  String? emailNotFoundError;
 
   @override
   void initState() {
@@ -61,6 +64,7 @@ class _EventLoginState extends State<EventLogin> {
     );
   }
   sendOTP({required String email})async{
+    print("Sending otp");
     Map<String, dynamic> emailData = {
       "email": email,
 
@@ -68,15 +72,21 @@ class _EventLoginState extends State<EventLogin> {
     };
     try{  ///1.Try to generate otp
       final response=await DioOTPService().generateOTP(emailData);
+      print("otp service response is ${response.data}");
 
       if(response.statusCode==200){
         EventAttendeeModel? attendee = findAttendeeByEmail(email);
+        ActivityLogger.instance.log(
+          action: ActivityAction.otpRequest,
+          eventId: widget.eventID,
+          userId: attendee?.attendeeId,
+        );
         setState(() {
           isCreating=false;
         });
 
         if(mounted){
-          print("login screen attendee id is ${attendee!.id!}");
+          attendee!; // promote to non-null for the OTPScreen args below
           PersistentNavBarNavigator.pushNewScreen(
             context,
             screen: OTPScreen(eventDay: widget.eventDay, eventMonth: widget.eventMonth, eventYear: widget.eventYear,email: email,
@@ -110,7 +120,7 @@ class _EventLoginState extends State<EventLogin> {
     catch(e){
       if (e is DioError) {
         if (e.response != null &&e.response!.data["success"]==false ) {
-          print("Doing catch patch");
+          // otp already exists -> fall through to patch/update
         }
         final patchResponse=await DioOTPService().updateOTP(emailData);
         if(patchResponse.statusCode==200){
@@ -150,6 +160,15 @@ class _EventLoginState extends State<EventLogin> {
         }
       } else {
         print('Error: $e');
+      }
+    }
+    finally {
+      // Guarantee the spinner is cleared on every path (success, non-200,
+      // patch failure, isCustomerEvent==true, or a thrown exception).
+      if (mounted) {
+        setState(() {
+          isCreating = false;
+        });
       }
     }
 
@@ -194,7 +213,7 @@ class _EventLoginState extends State<EventLogin> {
 
   Future fetchAllAttendees() async {
 
-    final response = widget.isCustomerEvent==true?await DioFetchService().fetchCustomerEventsAttendees(eventID: widget.eventID):await DioFetchService().fetchAllCIOAttendees(eventID: widget.eventID);
+    final response = await DioFetchService().fetchAllCIOAttendees(eventID: widget.eventID);
 
 
 
@@ -210,7 +229,6 @@ class _EventLoginState extends State<EventLogin> {
         setState(() {
           attendees=userList;
           //  print(attendees![624].firstName);
-          print(attendees!.last.firstName);
 
         });
 
@@ -287,6 +305,28 @@ class _EventLoginState extends State<EventLogin> {
 
                               //Email
                               buildEmail(),
+                              if (emailNotFoundError != null) ...[
+                                verticalSpace(height: 8),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.error_outline,
+                                        size: 16, color: kKeyRedBG),
+                                    horizontalSpace(width: 6),
+                                    Flexible(
+                                      child: Text(
+                                        emailNotFoundError!,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          color: kKeyRedBG,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                               verticalSpace(height: 10),
 
 
@@ -329,6 +369,7 @@ class _EventLoginState extends State<EventLogin> {
                                     if (_formKey.currentState!.validate()) {
                                       setState(() {
                                         isCreating=true;
+                                        emailNotFoundError=null;
                                       });
                                       bool emailExists = doesEmailExist(emailController.text);
                                       ///Send otp
@@ -345,6 +386,7 @@ class _EventLoginState extends State<EventLogin> {
                                         Fluttertoast.showToast(msg: "Error: Email not found!",backgroundColor: kKeyRedBG);
                                         setState(() {
                                           isCreating=false;
+                                          emailNotFoundError="Email not found. Please use the email address you registered with for this event.";
                                         });
                                       }
 
@@ -362,7 +404,9 @@ class _EventLoginState extends State<EventLogin> {
                       ),
                     ],
                   ),
-                  verticalSpace(height: 30)
+                  verticalSpace(height: 30),
+                  const Center(child: AppSponsorBadge(placement: 'login')),
+                  verticalSpace(height: 24),
                 ]),
           ),
         ],

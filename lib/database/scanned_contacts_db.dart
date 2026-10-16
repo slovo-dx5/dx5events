@@ -11,6 +11,7 @@ class ScannedContact {
   final String role;
   final int ownerID;
   final DateTime scannedAt;
+  final String note;
 
   ScannedContact({
     this.id,
@@ -22,6 +23,7 @@ class ScannedContact {
     required this.role,
     required this.ownerID,
     required this.scannedAt,
+    this.note = '',
   });
 
   Map<String, dynamic> toMap() {
@@ -35,6 +37,7 @@ class ScannedContact {
       'role': role,
       'ownerID': ownerID,
       'scannedAt': scannedAt.toIso8601String(),
+      'note': note,
     };
   }
 
@@ -49,6 +52,7 @@ class ScannedContact {
       role: map['role'],
       ownerID: map['ownerID'],
       scannedAt: DateTime.parse(map['scannedAt']),
+      note: (map['note'] as String?) ?? '',
     );
   }
 }
@@ -71,8 +75,9 @@ class ScannedContactsDatabase {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
     );
   }
 
@@ -91,15 +96,70 @@ class ScannedContactsDatabase {
       company $textType,
       role $textType,
       ownerID $intType,
-      scannedAt $textType
+      scannedAt $textType,
+      note TEXT NOT NULL DEFAULT ''
     )
     ''');
+  }
+
+  Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute(
+        "ALTER TABLE scanned_contacts ADD COLUMN note TEXT NOT NULL DEFAULT ''",
+      );
+    }
+  }
+
+  // Returns the matching existing contact for this owner if one exists,
+  // matching on email (when present) or otherwise on phone. Used to prevent
+  // duplicate saves of the same scanned contact.
+  Future<ScannedContact?> findExistingContact({
+    required int ownerID,
+    required String email,
+    required String phone,
+  }) async {
+    final db = await instance.database;
+    final hasEmail = email.trim().isNotEmpty;
+    final hasPhone = phone.trim().isNotEmpty;
+    if (!hasEmail && !hasPhone) return null;
+
+    final whereParts = <String>['ownerID = ?'];
+    final whereArgs = <dynamic>[ownerID];
+    final orParts = <String>[];
+    if (hasEmail) {
+      orParts.add('email = ?');
+      whereArgs.add(email.trim());
+    }
+    if (hasPhone) {
+      orParts.add('phone = ?');
+      whereArgs.add(phone.trim());
+    }
+    whereParts.add('(${orParts.join(' OR ')})');
+
+    final result = await db.query(
+      'scanned_contacts',
+      where: whereParts.join(' AND '),
+      whereArgs: whereArgs,
+      limit: 1,
+    );
+    if (result.isEmpty) return null;
+    return ScannedContact.fromMap(result.first);
   }
 
   Future<ScannedContact> create(ScannedContact contact) async {
     final db = await instance.database;
     final id = await db.insert('scanned_contacts', contact.toMap());
     return contact.copyWith(id: id);
+  }
+
+  Future<int> updateNote({required int id, required String note}) async {
+    final db = await instance.database;
+    return await db.update(
+      'scanned_contacts',
+      {'note': note},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   Future<List<ScannedContact>> getAllContacts(int ownerID) async {
@@ -152,6 +212,7 @@ extension ScannedContactCopy on ScannedContact {
     String? role,
     int? ownerID,
     DateTime? scannedAt,
+    String? note,
   }) {
     return ScannedContact(
       id: id ?? this.id,
@@ -163,6 +224,7 @@ extension ScannedContactCopy on ScannedContact {
       role: role ?? this.role,
       ownerID: ownerID ?? this.ownerID,
       scannedAt: scannedAt ?? this.scannedAt,
+      note: note ?? this.note,
     );
   }
 }

@@ -94,14 +94,6 @@ agendaItemWithSpeakers({required BuildContext context,
 
                         const Spacer(),
 
-                        //
-                        // Padding(
-                        //   padding:  const EdgeInsets.only(right:10,),
-                        //   child: GestureDetector(onTap:
-                        //
-                        //   onPressedFunction
-                        //       ,child: const Icon(Icons.bookmark,color: kIconDeepBlue,)),
-                        // )
                       ],
                     ),
                     Expanded(
@@ -185,6 +177,7 @@ agendaItemWithSpeakers({required BuildContext context,
                                                 attendeeID: attendeeID,
                                                 speakerName: '${snapshot.data!.first!.firstName} ${snapshot.data!.first!.lastName}',
                                                 eventId: 10, sessionTitle: title,
+                                                sessionDate: sessionDate,
                                               );
                                             },
                                           );
@@ -293,14 +286,6 @@ agendaItemWithoutSpeakers({required BuildContext context,
 
                    const Spacer(),
 
-
-                      // Padding(
-                      //   padding:  const EdgeInsets.only(right:10,),
-                      //   child: GestureDetector(onTap:
-                      //
-                      //   onPressedFunction
-                      //   ,child: const Icon(Icons.bookmark,color: kIconDeepBlue,)),
-                      // )
                     ],
                   ),Column(
                     mainAxisAlignment:

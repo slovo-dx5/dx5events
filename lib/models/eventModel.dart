@@ -79,14 +79,20 @@ class Agenda {
 
 class SpeakerAssociation {
   final Reference speaker;
-//  final String assumedRole;
+  final String? assumedRole;
+  final String? uniqueStylingProperty;
 
-  SpeakerAssociation({required this.speaker, });
+  SpeakerAssociation({
+    required this.speaker,
+    this.assumedRole,
+    this.uniqueStylingProperty,
+  });
 
   factory SpeakerAssociation.fromJson(Map<String, dynamic> json) {
     return SpeakerAssociation(
       speaker: Reference.fromJson(json['speaker']),
-    //  assumedRole: json['assumed_role'],
+      assumedRole: json['assumed_role'],
+      uniqueStylingProperty: json['unique_styling_property'],
     );
   }
 }
@@ -100,7 +106,7 @@ class SponsorAssociation {
   factory SponsorAssociation.fromJson(Map<String, dynamic> json) {
     return SponsorAssociation(
       sponsor: Reference.fromJson(json['sponsor']),
-      category: json['category'],
+      category: json['category'] ?? '',
     );
   }
 }

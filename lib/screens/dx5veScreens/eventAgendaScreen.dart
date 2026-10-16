@@ -1,11 +1,7 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:dx5veevents/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 
 import 'package:provider/provider.dart';
@@ -14,15 +10,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../dioServices/base_url.dart';
-import '../../dioServices/dioFetchService.dart';
-import '../../helpers/analytics_helper.dart';
-import '../../helpers/helper_functions.dart';
 import '../../models/agendaModel.dart';
 import '../../models/speakersModel.dart';
 import '../../providers.dart';
-import '../../widgets/agendaWidget.dart';
-import '../../widgets/appbarWidget.dart';
-import 'eventFullAgenda.dart';
+import '../../repositories/agenda_repository.dart';
+import '../../repositories/speakers_repository.dart';
+import '../../services/activity_logger.dart';
+import '../../services/agenda_bookmarks.dart';
+import '../../widgets/app_sponsor.dart';
 
 class EventAgendaScreen extends StatefulWidget {
   String eventID;
@@ -54,22 +49,44 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
   Map<DateTime, AgendaDay> _dayToAgendaMap = {};
   DateTime? _selectedDate;
   final RefreshController _refreshController = RefreshController();
-  DioCacheManager dioCacheManager = DioCacheManager(CacheConfig());
 
   List<AgendaDay> agendaDays = [];
+  Map<int, IndividualSpeaker> _speakerMap = {};
   bool isFetching = true;
   int attendeeID = 0;
   String? _selectedStage;
   List<String> _availableStages = [];
+  final Set<int> _expandedSessions = {};
+  final AgendaBookmarkService _bookmarks = AgendaBookmarkService.instance;
+
+  /// "My agenda": show only bookmarked sessions.
+  bool _myAgendaOnly = false;
+
+  void _onBookmarksChanged() {
+    if (mounted) setState(() {});
+  }
 
   @override
   void initState() {
+    debugPrint("Event dat is ${widget.eventDay}");
     super.initState();
+    _bookmarks.addListener(_onBookmarksChanged);
     getAttendeeID();
     setState(() {
-      _selectedDate = DateTime(widget.eventYear, widget.eventMonth, widget.eventDay);
+      _selectedDate = _dateOnly(
+          DateTime(widget.eventYear, widget.eventMonth, widget.eventDay));
     });
     _loadSessions();
+    ActivityLogger.instance.log(
+      action: ActivityAction.viewAgenda,
+      eventId: widget.eventID,
+    );
+  }
+
+  @override
+  void dispose() {
+    _bookmarks.removeListener(_onBookmarksChanged);
+    super.dispose();
   }
 
   Future<void> getAttendeeID() async {
@@ -86,18 +103,124 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
 
 
 
-  Future<void> _loadSessions() async {
+  Future<void> _loadSessions({bool forceRefresh = false}) async {
     setState(() {
       isFetching = true;
     });
-    await fetchSessions();
-    setState(() {
-      _extractAvailableStages();
-      _dayToAgendaMap = { for (var item in agendaDays) (item).date : item };
-      isFetching = false;
-    });
-    debugPrint('Loaded ${agendaDays.length} days with ${_dayToAgendaMap.length} mapped days');
+
+    try {
+      final agendaModel = await AgendaRepository.instance.getAgenda(
+        eventID: widget.eventID,
+        forceRefresh: forceRefresh,
+      );
+
+      final speakerIds = <int>{};
+      for (final day in agendaModel.days) {
+        for (final session in day.sessions) {
+          if (session.speakers != null) {
+            for (final a in session.speakers!) {
+              final k = a.speaker.key;
+              if (k is int) speakerIds.add(k);
+            }
+          }
+          // Breakout session speakers share the same speaker collection.
+          if (session.breakoutSessions != null) {
+            for (final breakout in session.breakoutSessions!) {
+              if (breakout.speakers == null) continue;
+              for (final s in breakout.speakers!) {
+                final k = s.key;
+                if (k is int) speakerIds.add(k);
+              }
+            }
+          }
+        }
+      }
+
+      final speakerMap = await SpeakersRepository.instance.getByIds(
+        speakerIds.toList(),
+        forceRefresh: forceRefresh,
+      );
+
+      if (!mounted) return;
+      setState(() {
+        agendaDays = agendaModel.days;
+        _speakerMap = speakerMap;
+        _extractAvailableStages();
+        _dayToAgendaMap = { for (var item in agendaDays) _dateOnly(item.date as DateTime) : item };
+        isFetching = false;
+      });
+      debugPrint('Loaded ${agendaDays.length} days with ${_dayToAgendaMap.length} mapped days and ${_speakerMap.length} speakers');
+      _syncBookmarks();
+    } catch (e) {
+      debugPrint('Error loading sessions: $e');
+      if (!mounted) return;
+      setState(() {
+        isFetching = false;
+      });
+    }
   }
+
+  /// Loads this attendee's bookmarks and matches them to the agenda just
+  /// loaded, which also (re)schedules their reminders.
+  Future<void> _syncBookmarks() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final id = prefs.getInt(kUserID);
+      if (id == null) return;
+      attendeeID = id;
+      await _bookmarks.load(eventId: widget.eventID, attendeeId: id);
+      await _bookmarks.reconcile(agendaDays);
+    } catch (e) {
+      debugPrint('Error loading bookmarks: $e');
+    }
+  }
+
+  Future<void> _toggleBookmark(DateTime day, Session session) async {
+    if (attendeeID == 0) {
+      Fluttertoast.showToast(msg: 'Sign in to build your agenda');
+      return;
+    }
+    final added = await _bookmarks.toggle(day: day, session: session);
+    if (added == null) {
+      Fluttertoast.showToast(msg: 'Could not update My agenda. Check your internet.');
+    } else if (added) {
+      Fluttertoast.showToast(
+          msg: "Added to My agenda — we'll remind you 10 minutes before");
+    } else {
+      Fluttertoast.showToast(msg: 'Removed from My agenda');
+    }
+  }
+
+  Widget _buildBookmarkButton(DateTime day, Session session) {
+    final key = AgendaBookmarkService.keyFor(day, session);
+    final saved = _bookmarks.isBookmarked(key);
+    return SizedBox(
+      width: 36,
+      height: 32,
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        tooltip: saved ? 'Remove from My agenda' : 'Add to My agenda',
+        onPressed:
+            _bookmarks.isBusy(key) ? null : () => _toggleBookmark(day, session),
+        icon: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          transitionBuilder: (child, anim) =>
+              ScaleTransition(scale: anim, child: child),
+          child: Icon(
+            saved ? Icons.bookmark : Icons.bookmark_border,
+            key: ValueKey(saved),
+            color: saved ? kCIOPink : Colors.grey[600],
+            size: 24,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Strip any time/timezone component so agenda-day keys and the selected
+  // date compare by calendar day only. Backend dates can arrive with a time
+  // or UTC offset, which broke raw DateTime equality on single-day events.
+  DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
 
   void _extractAvailableStages() {
     Set<String> stages = {};
@@ -113,38 +236,13 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
 
 
 
-  Future<List<Session>> fetchSessions() async {
-    try {
-      final response = await DioFetchService().fetchdx5veAgenda(eventID: widget.eventID);
-      final agendaModel = AgendaModel.fromJson(response.data);
-
-      setState(() {
-        agendaDays = agendaModel.days;
-      });
-
-      return agendaModel.days.expand((day) => day.sessions).toList();
-    } catch (e) {
-      debugPrint("Error fetching sessions: $e");
-      return [];
+  List<Session> _getFilteredSessions(List<Session> sessions, DateTime day) {
+    if (_myAgendaOnly) {
+      sessions = sessions
+          .where((s) =>
+              _bookmarks.isBookmarked(AgendaBookmarkService.keyFor(day, s)))
+          .toList();
     }
-  }
-
-  Future<IndividualSpeaker?> fetchSpeakerById(int key) async {
-    try {
-      final response = await DioFetchService().fetchEventSpeakerByKey(speakerKey: key);
-      final speakersModel = SpeakersModel.fromJson(response.data);
-
-      if (speakersModel.data.isNotEmpty) {
-        return speakersModel.data.first;
-      }
-      return null;
-    } catch (e) {
-      debugPrint('Error fetching speaker by ID: $e');
-      return null;
-    }
-  }
-
-  List<Session> _getFilteredSessions(List<Session> sessions) {
     if (_selectedStage == null) {
       return sessions; // Show all sessions when no filter is selected
     }
@@ -234,8 +332,12 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
     required bool isNow,
     required bool showTimeline,
     required int index,
+    required DateTime day,
   }) {
     final sessionColor = _getSessionColor(index);
+    final hasBreakouts =
+        session.breakoutSessions != null && session.breakoutSessions!.isNotEmpty;
+    final isExpanded = _expandedSessions.contains(session.sessionId);
 
     if (isNow) {
       debugPrint('NOW Session: ${session.title}, Stage: ${session.stage}, Speakers: ${session.speakers?.length ?? 0}');
@@ -255,39 +357,17 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
           // Session card
           Expanded(
             child: GestureDetector(
-              // onTap: () {
-              //   // Fetch speaker details if needed
-              //   final futures = session.speakers != null && session.speakers!.isNotEmpty
-              //       ? session.speakers!.map((speaker) => fetchSpeakerById(speaker.speaker.key)).toList()
-              //       : <Future<IndividualSpeaker?>>[];
-              //
-              //   PersistentNavBarNavigator.pushNewScreen(
-              //     context,
-              //     screen: FullAgendaScreen(
-              //       title: session.title,
-              //       day: widget.eventDay,
-              //       startTime: session.startTime,
-              //       endTime: session.endTime ?? '',
-              //       isFromSession: false,
-              //       type: session.sessionType ?? '',
-              //       userID: profileProvider.userID!,
-              //       description: session.summary,
-              //       speakers: session.speakers ?? [],
-              //       breakOuts: session.breakoutSessions,
-              //       eventLocation: widget.eventLocation,
-              //       eventDay: widget.eventDay,
-              //       eventMonth: widget.eventMonth,
-              //       eventYear: widget.eventYear,
-              //       futures: futures,
-              //       date: widget.eventDayOfWeek,
-              //       sessionId: session.sessionId,
-              //       sessionDate: _dayToAgendaMap[_selectedDate]!.date!,
-              //       eventID: widget.eventID,
-              //     ),
-              //     withNavBar: false,
-              //     pageTransitionAnimation: PageTransitionAnimation.slideRight,
-              //   );
-              // },
+              onTap: hasBreakouts
+                  ? () {
+                      setState(() {
+                        if (isExpanded) {
+                          _expandedSessions.remove(session.sessionId);
+                        } else {
+                          _expandedSessions.add(session.sessionId);
+                        }
+                      });
+                    }
+                  : null,
               child: Container(
                 margin: EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
@@ -350,8 +430,36 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                               ),
                             ),
                           ),
+                        _buildBookmarkButton(day, session),
+                        if (hasBreakouts)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: AnimatedRotation(
+                              turns: isExpanded ? 0.5 : 0,
+                              duration: const Duration(milliseconds: 200),
+                              child: Icon(
+                                Icons.keyboard_arrow_down,
+                                color: sessionColor,
+                                size: 24,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
+
+                    // Tap hint for sessions with breakouts
+                    if (hasBreakouts && !isExpanded)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          'Tap to view ${session.breakoutSessions!.length} breakout sessions',
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w500,
+                            color: sessionColor,
+                          ),
+                        ),
+                      ),
 
                     // Stage/Location
                     if (session.stage != null)
@@ -378,18 +486,16 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                         padding: EdgeInsets.only(top: 12),
                         child: Column(
                           children: session.speakers!.map((speakerAssignment) {
-                            return FutureBuilder<IndividualSpeaker?>(
-                              future: fetchSpeakerById(speakerAssignment.speaker.key),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData && snapshot.data != null) {
-                                  return _buildSpeakerItem(snapshot.data!, isNow);
-                                }
-                                return SizedBox.shrink();
-                              },
-                            );
+                            final speaker = _speakerMap[speakerAssignment.speaker.key];
+                            if (speaker == null) return const SizedBox.shrink();
+                            return _buildSpeakerItem(speaker, isNow);
                           }).toList(),
                         ),
                       ),
+
+                    // Breakout / concurrent sessions (expandable)
+                    if (hasBreakouts && isExpanded)
+                      _buildBreakoutSessions(session.breakoutSessions!, sessionColor),
                               ],
                             ),
                           ),
@@ -497,6 +603,113 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
     );
   }
 
+  Widget _buildBreakoutSessions(
+      List<BreakoutSession> breakouts, Color sessionColor) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.grid_view_rounded, size: 16, color: sessionColor),
+              const SizedBox(width: 6),
+              Text(
+                'Breakout Sessions (${breakouts.length})',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: sessionColor,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ...breakouts.map((breakout) => _buildBreakoutItem(breakout, sessionColor)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBreakoutItem(BreakoutSession breakout, Color sessionColor) {
+    final title = breakout.title?.toString().trim() ?? '';
+    final type = breakout.type?.toString().trim() ?? '';
+    final summary = breakout.summary?.toString().trim() ?? '';
+    final hasSummary = summary.isNotEmpty && summary.toLowerCase() != 'summary';
+    final speakers = breakout.speakers
+            ?.map((s) => _speakerMap[s.key])
+            .whereType<IndividualSpeaker>()
+            .toList() ??
+        const <IndividualSpeaker>[];
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border(
+          left: BorderSide(color: sessionColor, width: 3),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (type.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: sessionColor.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                type,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: sessionColor,
+                ),
+              ),
+            ),
+          if (type.isNotEmpty) const SizedBox(height: 8),
+          if (title.isNotEmpty)
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+          if (hasSummary) ...[
+            const SizedBox(height: 6),
+            Text(
+              summary,
+              style: TextStyle(
+                fontSize: 12.5,
+                height: 1.4,
+                color: Colors.grey[700],
+              ),
+            ),
+          ],
+          if (speakers.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            ...speakers.map((speaker) => _buildSpeakerItem(speaker, false)),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _buildDateTab(AgendaDay agendaDay) {
     final date = agendaDay.date as DateTime;
     final isSelected = isSameDay(_selectedDate, date);
@@ -507,7 +720,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
       child: GestureDetector(
         onTap: () {
           setState(() {
-            _selectedDate = date;
+            _selectedDate = _dateOnly(date);
           });
         },
         child: Column(
@@ -624,6 +837,14 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
           actions: [
             IconButton(
               icon: Icon(
+                _myAgendaOnly ? Icons.bookmarks : Icons.bookmarks_outlined,
+                color: _myAgendaOnly ? kCIOPink : Colors.black,
+              ),
+              tooltip: _myAgendaOnly ? 'Show full agenda' : 'My agenda',
+              onPressed: () => setState(() => _myAgendaOnly = !_myAgendaOnly),
+            ),
+            IconButton(
+              icon: Icon(
                 Icons.filter_list,
                 color: _selectedStage != null ? Colors.blue : Colors.black,
               ),
@@ -647,6 +868,34 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
               ),
             ),
             Divider(height: 1, thickness: 1, color: Colors.grey[300]),
+            const AppSponsorStrip(
+                lead: 'Agenda powered by', placement: 'agenda'),
+            if (_myAgendaOnly)
+              Container(
+                width: double.infinity,
+                color: kCIOPink.withOpacity(0.08),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  children: [
+                    const Icon(Icons.bookmarks, size: 18, color: kCIOPink),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'My agenda · ${_bookmarks.count} saved session${_bookmarks.count == 1 ? '' : 's'}',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w600, color: kCIOPink),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => setState(() => _myAgendaOnly = false),
+                      child: const Text('Show all',
+                          style: TextStyle(
+                              color: kCIOPink,
+                              decoration: TextDecoration.underline)),
+                    ),
+                  ],
+                ),
+              ),
             Visibility(
               visible: isFetching == false,
               replacement: const CircularProgressIndicator(),
@@ -658,12 +907,8 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                     waterDropColor: kCIOPink,
                   ),
                   onRefresh: () async {
-                   // await dioCacheManager.clearAll();
-                    //await fetchDx5veAgendaHere();
-
-                    setState(() {
-                      _refreshController.refreshCompleted();
-                    });
+                    await _loadSessions(forceRefresh: true);
+                    _refreshController.refreshCompleted();
                   },
                   onLoading: () async {
                     await Future.delayed(Duration(milliseconds: 1000));
@@ -674,12 +919,22 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                   child: _dayToAgendaMap.containsKey(_selectedDate)
                       ? Builder(
                           builder: (context) {
+                            final day = _dayToAgendaMap[_selectedDate]!.date as DateTime;
                             final filteredSessions = _getFilteredSessions(
-                                _dayToAgendaMap[_selectedDate]!.sessions);
+                                _dayToAgendaMap[_selectedDate]!.sessions, day);
 
                             if (filteredSessions.isEmpty) {
                               return Center(
-                                child: Text('No sessions available for the selected stage'),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(32),
+                                  child: Text(
+                                    _myAgendaOnly
+                                        ? 'Nothing saved for this day yet.\nTap the bookmark on any session to add it to My agenda.'
+                                        : 'No sessions available for the selected stage',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: Colors.grey[700], height: 1.4),
+                                  ),
+                                ),
                               );
                             }
 
@@ -692,7 +947,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                                 final isNow = _isSessionNow(session.startTime, session.endTime ?? '', sessionDate);
                                 final showTimeline = index < filteredSessions.length - 1;
 
-                                debugPrint('Session $index: title="${session.title}", isNow=$isNow, start=${session.startTime}, end=${session.endTime}, date=$sessionDate');
+                                debugPrint('Session $index: title="${session.title}", isNow=$isNow, start=${session.startTime}, end=${session.endTime}, date=$sessionDate, breakouts=${session.breakoutSessions?.length ?? 0}');
 
                                 return _buildTimelineSessionItem(
                                   context: context,
@@ -701,6 +956,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                                   isNow: isNow,
                                   showTimeline: showTimeline,
                                   index: index,
+                                  day: day,
                                 );
                           },
                             );

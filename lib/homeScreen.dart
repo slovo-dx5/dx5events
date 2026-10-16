@@ -1,19 +1,15 @@
 
 import 'package:dx5veevents/providers.dart';
-import 'package:dx5veevents/providers/themeProvider.dart';
 import 'package:dx5veevents/screens/adminScreens/adminPanelHome.dart';
 import 'package:dx5veevents/screens/contact_scanning/getContact.dart';
 import 'package:dx5veevents/screens/landingPage2.dart';
-import 'package:dx5veevents/screens/pdfAGenda.dart';
-import 'package:dx5veevents/widgets/checkin_widget.dart';
+
 import 'package:dx5veevents/widgets/notifications_widget.dart';
-import 'package:dx5veevents/widgets/qr_scanner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:get/get.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
-import 'package:upgrader/upgrader.dart';
 
 import '../constants.dart';
 import '../helpers/helper_functions.dart';
@@ -62,8 +58,8 @@ class HomeScreen extends GetView<MyDrawerController> {
         moveMenuScreen: false,
         mainScreenScale: 0.2,
         style: DrawerStyle.defaultStyle,
-        shadowLayer1Color: kSkyBlue,
-        shadowLayer2Color: kDarkBlue,
+        shadowLayer1Color: kConnectedOrange,
+        shadowLayer2Color: kConnectedGreen,
         menuBackgroundColor: kDarkerBlue.withValues(alpha: 0.8),
       ),
     );
@@ -104,8 +100,8 @@ class MainScreen extends GetView<MyDrawerController> {
           ),
         ) ,
         backgroundColor: kConnectedBlue,centerTitle: true,
-        title:  const Text("CIO100 SYMPOSIUM AND AWARDS",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),),
-        actions: [NotificationIconButton()],
+        title:   Text(eventName,style: const TextStyle(fontSize: 15,fontWeight: FontWeight.w600),),
+        actions: const [NotificationIconButton()],
         // actions:  [Icon(Icons.notification_important_rounded,color: kTextColorBlackLighter,)],
       ),
       body:  HomeBody(eventDay: eventDay, eventMonth: eventMonth, eventYear: eventYear,coverImagePath: coverImagePath, eventName: eventName, shortEventDescription: shortEventDescription, eventDate: eventDate, eventLocation: eventLocation, eventID: eventID, eventDayOfWeek: eventDayOfWeek, isCustomerEvent: isCustomerEvent,),
@@ -120,7 +116,6 @@ class MenuScreen extends GetView<MyDrawerController> {
 
   @override
   Widget build(BuildContext context) {
-    print("event id is $eventID");
     return buildMenu(context);
   }
 
@@ -128,14 +123,7 @@ class MenuScreen extends GetView<MyDrawerController> {
     final profileProvider = Provider.of<ProfileProvider>(context);
     //final themeProvider = Provider.of<ThemeProvider>(context);
 
-    return UpgradeAlert(
-      upgrader: Upgrader(
-          // dialogStyle: Platform.isAndroid
-          //     ? UpgradeDialogStyle.material
-          //     : UpgradeDialogStyle.cupertino,
-          // showIgnore: false,
-          durationUntilAlertAgain: const Duration(hours: 1)),
-      child: Scaffold(
+    return Scaffold(
         //backgroundColor: themeProvider.themeMode==ThemeModeOptions.dark?kTextColorBlack:Colors.white54,
         backgroundColor:Colors.white70,
         body: SafeArea(
@@ -170,23 +158,23 @@ class MenuScreen extends GetView<MyDrawerController> {
                       //     themeProvider.setThemeMode(newTheme);
                       //   }
                       // ),],),
-                      menuItem(menuText: 'Scan QR',
-                          widgetIcon: Icons.qr_code_2, iconColor: kConnectedGreen, onPressedFunction: () {
-
-                              PersistentNavBarNavigator.pushNewScreen(
-                                context,
-                                screen: SponsorScanner(
-                                  firstName: profileProvider.firstName,
-                                  phone: profileProvider.phone,
-                                  lastName: profileProvider.lastName,
-                                  company: profileProvider.company,
-                                  position: profileProvider.role,
-                                  email: profileProvider.email, eventId: int.parse(eventID), attendeeID: profileProvider.userID!,),
-                                withNavBar: false,
-                                pageTransitionAnimation: PageTransitionAnimation.slideRight,
-                              );
-
-                          }),
+                      // menuItem(menuText: 'Scan QR',
+                      //     widgetIcon: Icons.qr_code_2, iconColor: kConnectedGreen, onPressedFunction: () {
+                      //
+                      //         PersistentNavBarNavigator.pushNewScreen(
+                      //           context,
+                      //           screen: SponsorScanner(
+                      //             firstName: profileProvider.firstName,
+                      //             phone: profileProvider.phone,
+                      //             lastName: profileProvider.lastName,
+                      //             company: profileProvider.company,
+                      //             position: profileProvider.role,
+                      //             email: profileProvider.email, eventId: int.parse(eventID), attendeeID: profileProvider.userID!,),
+                      //           withNavBar: false,
+                      //           pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                      //         );
+                      //
+                      //     }),
 
 
                       // menuItem(menuText: "Logout", widgetIcon: Icons.logout, iconColor: kKeyRedBG, onPressedFunction: (){
@@ -208,15 +196,12 @@ class MenuScreen extends GetView<MyDrawerController> {
                       //       );
                       //
                       //     }),
-                      menuItem(menuText: 'Events Menu',
+                      menuItem(menuText: 'Logout',
                           widgetIcon: Icons.qr_code_2, iconColor: kCIOPink, onPressedFunction: () {
 
-                            PersistentNavBarNavigator.pushNewScreen(
-                              context,
-                              screen:  LandingPage2(
-                            ),
-                              withNavBar: false,
-                              pageTransitionAnimation: PageTransitionAnimation.slideRight,
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(builder: (_) => LandingPage2(isFromLogout: true,)),
+                                  (route) => false,
                             );
 
                           }),
@@ -268,8 +253,8 @@ class MenuScreen extends GetView<MyDrawerController> {
             ),
           ),
         ),
-      ),
-    );
+      );
+
   }
 }
 
