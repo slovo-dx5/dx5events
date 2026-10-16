@@ -129,6 +129,9 @@ class HarryOpenAICompatBrain implements HarryBrain {
       'max_tokens': 1024,
       'stream': true,
       if (tools.isNotEmpty) 'tools': tools,
+      // gpt-oss reasons before answering and those tokens count against
+      // max_tokens; low effort keeps replies fast and stops them being cut off.
+      if (model.contains('gpt-oss')) 'reasoning_effort': 'low',
     };
 
     Response? response;

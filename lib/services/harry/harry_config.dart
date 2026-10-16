@@ -38,7 +38,8 @@ class HarryConfig {
   );
   static String llmModel = const String.fromEnvironment(
     'LLM_MODEL',
-    defaultValue: 'llama-3.3-70b-versatile',
+    // Groq retired llama-3.3-70b-versatile (404 by Oct 2026).
+    defaultValue: 'openai/gpt-oss-120b',
   );
 
   /// Optional explicit brain override: anthropic | gemini | groq | demo.
