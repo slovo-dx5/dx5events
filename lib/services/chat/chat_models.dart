@@ -5,7 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 /// Messages stay where they always were, so existing threads and older app
 /// builds keep working:
 ///   messages/{chatId}/{chatId}/{messageId}
-///     idFrom, idTo (user ids as strings), content, type (0 = text),
+///     idFrom, idTo (user ids as strings), content, type (0 = text,
+///     1 = photo: content is the image URL),
 ///     timestamp (server), isread, sentFrom, sentTo (display names),
 ///     fromPhoto (optional Directus file id of the sender's photo)
 ///
@@ -69,6 +70,9 @@ class ChatSummary {
   /// Directus file id of the other person's photo, if known.
   final String? otherPhoto;
   final String lastText;
+
+  /// [ChatMessage.type] of the last message (0 = text, 1 = photo).
+  final int lastType;
   final String lastFromId;
   final DateTime? updatedAt;
   final int unread;
@@ -80,6 +84,7 @@ class ChatSummary {
     required this.otherName,
     required this.otherPhoto,
     required this.lastText,
+    required this.lastType,
     required this.lastFromId,
     required this.updatedAt,
     required this.unread,
@@ -104,6 +109,7 @@ class ChatSummary {
       otherName: '${names[otherId] ?? 'Delegate'}',
       otherPhoto: photo is String && photo.isNotEmpty ? photo : null,
       lastText: '${last['text'] ?? ''}',
+      lastType: (last['type'] as num?)?.toInt() ?? 0,
       lastFromId: '${last['from'] ?? ''}',
       updatedAt: at is Timestamp ? at.toDate() : null,
       unread: (unread[myId] as num?)?.toInt() ?? 0,

@@ -57,6 +57,32 @@ class ChatBubble extends StatelessWidget {
       ));
   }
 
+  void _openImage(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      fullscreenDialog: true,
+      builder: (context) => Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+        ),
+        body: Center(
+          child: InteractiveViewer(
+            maxScale: 4,
+            child: CachedNetworkImage(
+              imageUrl: message.text,
+              fit: BoxFit.contain,
+              placeholder: (context, url) =>
+                  const CircularProgressIndicator(color: Colors.white),
+              errorWidget: (context, url, error) =>
+                  const Icon(Icons.broken_image_outlined, color: Colors.white54, size: 48),
+            ),
+          ),
+        ),
+      ),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -139,6 +165,7 @@ class ChatBubble extends StatelessWidget {
             borderRadius: _radius,
             clipBehavior: Clip.antiAlias,
             child: InkWell(
+              onTap: message.type != 0 ? () => _openImage(context) : null,
               onLongPress: message.type == 0 ? () => _copy(context) : null,
               child: Padding(
                 padding: message.type != 0

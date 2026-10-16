@@ -19,6 +19,8 @@
   - The app only ever sets its own `unread.{myId}` back to 0.
 - `users/{id}/contacts/{otherId}`: the legacy inbox. The function keeps it updated so old app builds still list conversations.
 
+Message `type` is 0 for text and 1 for a photo. A photo's `content` is its Directus asset URL (`<Baseurl>/assets/<fileId>`); `ChatRepository.sendImage` uploads to Directus `/files` first. Older builds already render type 1 as an image.
+
 New threads use the id `<lower>-<higher>` (numeric). Old threads were keyed by `String.hashCode` order, so `resolveChatId` looks for an existing thread under both orders first.
 
 **Push**

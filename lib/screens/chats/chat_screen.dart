@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers.dart';
@@ -52,6 +54,8 @@ class _CioChatScreenState extends State<CioChatScreen> with WidgetsBindingObserv
   List<ChatMessage> _messages = const [];
   StreamSubscription<List<ChatMessage>>? _sub;
   StreamSubscription<int>? _unreadSub;
+
+  bool _attaching = false;
 
   bool _resumed = true;
   Timer? _readDebounce;
@@ -203,6 +207,73 @@ class _CioChatScreenState extends State<CioChatScreen> with WidgetsBindingObserv
     }
   }
 
+  Future<void> _attach() async {
+    final chatId = _chatId;
+    if (chatId == null || _attaching) return;
+    _focus.unfocus();
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Photo library'),
+              onTap: () => Navigator.pop(context, ImageSource.gallery),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: const Text('Take a photo'),
+              onTap: () => Navigator.pop(context, ImageSource.camera),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (source == null || !mounted) return;
+
+    final XFile? picked;
+    try {
+      // Downscaled + compressed on-device so uploads stay small.
+      picked = await ImagePicker().pickImage(source: source, imageQuality: 70, maxWidth: 1600);
+    } catch (e) {
+      debugPrint('chat: image pick failed: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Couldn't open your photos. Check the app's permissions.")),
+      );
+      return;
+    }
+    if (picked == null || !mounted) return;
+
+    final photo = Provider.of<ProfileProvider>(context, listen: false).profileId;
+    setState(() => _attaching = true);
+    try {
+      await _repo.sendImage(
+        chatId: chatId,
+        fromId: _myId,
+        fromName: widget.currentUserName,
+        fromPhoto: (photo != null && photo.isNotEmpty) ? photo : null,
+        toId: _otherId,
+        toName: widget.chattingWithName,
+        file: File(picked.path),
+      );
+      if (_scroll.hasClients && _scroll.offset > 0) {
+        _scroll.animateTo(0, duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+      }
+    } catch (e) {
+      debugPrint('chat: photo send failed: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Couldn't send your photo. Please try again.")),
+      );
+    } finally {
+      if (mounted) setState(() => _attaching = false);
+    }
+  }
+
   String get _firstName {
     final parts = widget.chattingWithName.trim().split(RegExp(r'\s+'));
     return parts.isEmpty || parts.first.isEmpty ? 'them' : parts.first;
@@ -247,6 +318,8 @@ class _CioChatScreenState extends State<CioChatScreen> with WidgetsBindingObserv
             focusNode: _focus,
             enabled: _chatId != null,
             onSend: _send,
+            onAttach: _attach,
+            attaching: _attaching,
           ),
         ],
       ),
