@@ -63,7 +63,7 @@ class _CheckInWidgetState extends State<CheckInWidget> {
               },  );
               print("update status is ${response.statusCode}");
               if(response.statusCode==200){
-                Fluttertoast.showToast(msg: "Success");
+                Fluttertoast.showToast(msg: "Check-in code generated");
                 setState(() {
                   returnedOTP=response.data["otp"];
                   isSendingOTP=false;

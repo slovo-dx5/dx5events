@@ -21,6 +21,7 @@ import '../screens/feedback_entry.dart';
 import '../screens/gallery/event_gallery_screen.dart';
 import '../services/gallery/gallery_notifications.dart';
 import '../screens/shop/shop_screen.dart';
+import '../screens/venue_map/venue_map_screen.dart';
 import '../services/gamification/gamification_service.dart';
 import '../map_screen.dart';
 import '../testScreen.dart';
@@ -28,10 +29,10 @@ import '../services/active_event/active_event.dart';
 import '../services/active_event/active_event_service.dart';
 import 'cio_widgets.dart';
 import 'event_image.dart';
-import 'app_sponsor.dart';
 import 'clickableBanner.dart';
 import 'rewards_home_card.dart';
 import 'shop_promo.dart';
+import 'sponsor_carousel.dart';
 
 class HomePageWidget extends StatefulWidget {
   String coverImagepath;
@@ -163,8 +164,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
 
                 ],
               ),
-              // Exclusive app sponsor, directly below the banner.
-              const AppSponsorBanner(),
+              // App sponsor plus top-tier event sponsors, below the banner.
+              SponsorCarousel(eventID: widget.eventID),
 
 
               // Main Navigation Grid - Redesigned with card approach
@@ -203,121 +204,93 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                 );
                       return [banners, const SizedBox(height: 12)];
                     }(),
-                    Row(
-                      children: [
+                    ..._buildTileRows([
+                      _buildFeatureCard(
+                        context: context,
+                        title: 'Agenda',
+                        iconPath: 'assets/icons/agenda.png',
+                        color: kConnectedGreen,
+                        screen: EventAgendaScreen(
+                          eventID: widget.eventID,
+                          eventDay: widget.eventDay,
+                          eventMonth: widget.eventMonth,
+                          eventYear: widget.eventYear,
+                          eventLocation: widget.eventLocation,
+                          eventDayOfWeek: widget.eventDayOfWeek,
+                          eventName: 'AGENDA',
+                        ),
+                        analyticsAction: 'agenda_page_opened',
+                      ),
+                      _buildFeatureCard(
+                        context: context,
+                        title: 'Networking',
+                        iconPath: 'assets/icons/attendee.png',
+                        color: kConnectedOrange,
+                        screen: AttendeesScreen(eventID: widget.eventID),
+                        analyticsAction: 'attendees_page_opened',
+                      ),
+                      _buildFeatureCard(
+                        context: context,
+                        title: 'QR Scanner',
+                        iconPath: 'assets/icons/scanner.png',
+                        color: kConnectedRed,
+                        screen: GetContact(ownerID: profileProvider.userID!),
+                        analyticsAction: 'contact_scanner_page_opened',
+                      ),
+                      _buildFeatureCard(
+                        context: context,
+                        title: 'Speakers',
+                        iconPath: 'assets/icons/speaker.png',
+                        color: kConnectedBlue,
+                        screen: EventSpeakersScreen(eventID: widget.eventID),
+                        analyticsAction: 'speakers_page_opened',
+                      ),
+                      _buildFeatureCard(
+                        context: context,
+                        title: 'Sponsors',
+                        iconPath: 'assets/icons/sponsors.png',
+                        color: kConnectedOrange,
+                        screen: CISOSponsorsScreen(eventID: widget.eventID),
+                        analyticsAction: 'sponsors_page_opened',
+                      ),
+                      if (kVenueMapFeatureEnabled)
                         _buildFeatureCard(
                           context: context,
-                         title:  'Agenda',
-                        iconPath:   'assets/icons/agenda.png',
-                        color:   kConnectedGreen,
-                        screen:   EventAgendaScreen(
-                            eventID: widget.eventID,
-                            eventDay: widget.eventDay,
-                            eventMonth: widget.eventMonth,
-                            eventYear: widget.eventYear,
-                            eventLocation: widget.eventLocation,
-                            eventDayOfWeek: widget.eventDayOfWeek,
-                            eventName: 'AGENDA',
-                          ),
-                       analyticsAction:    'agenda_page_opened',
+                          title: 'Venue Map',
+                          iconPath: 'assets/icons/map.png',
+                          color: kConnectedBlue,
+                          screen: const VenueMapScreen(),
+                          analyticsAction: 'venue_map_opened',
                         ),
-                        const SizedBox(width: 12),
-                        _buildFeatureCard(
-                         context:  context,
-                         title:  'Networking',
-                          iconPath: 'assets/icons/attendee.png',
-                          color: kConnectedOrange,
-                        screen:   AttendeesScreen(
-                            eventID: widget.eventID,
-
-
-                          ),
-                          analyticsAction: 'attendees_page_opened',
-                        ),
-                      ],
-                    ),
-                    verticalSpace(height: 12),
-                    Row(
-                      children: [
-                        // _buildFeatureCard(
-                        //  context:  context,
-                        //  title:  'Venue Map',
-                        //  iconPath:  'assets/icons/map.png',
-                        //  color:  kConnectedBlue,
-                        //  screen:  MapScreen(),
-                        //  analyticsAction:  'map_screen_opened',
-                        // ),
-                       // const SizedBox(width: 12),
-                        if (kGalleryFeatureEnabled) ...[
-                          _buildFeatureCard(
-                            context: context,
-                            title: 'Gallery',
-                            iconPath: 'assets/icons/photo-gallery.png',
-                            color: kNashPurple,
-                            screen: EventGalleryScreen(
-                              eventId: widget.eventID,
-                              eventName: widget.eventName,
-                            ),
-                            analyticsAction: 'gallery_page_opened',
-                          ),
-                        ],                          const SizedBox(width: 12),
-
-                        _buildFeatureCard(
-                         context:  context,
-                        title:   'QR Scanner',
-                         iconPath:  'assets/icons/scanner.png',
-                         color:  kConnectedRed,
-                         screen:  GetContact(ownerID: profileProvider.userID!),
-                        analyticsAction:   'contact_scanner_page_opened',
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        _buildFeatureCard(
-                       context:    context,
-                        title:   'Speakers',
-                       iconPath:    'assets/icons/speaker.png',
-                       color:    kConnectedBlue,
-                        screen:   EventSpeakersScreen(eventID: widget.eventID),
-                        analyticsAction:   'speakers_page_opened',
-                        ),
-                        const SizedBox(width: 12),
-                        _buildFeatureCard(
-                         context:  context,
-                          title: 'Sponsors',
-                         iconPath:  'assets/icons/sponsors.png',
-                          color: kConnectedOrange,
-                        screen:   CISOSponsorsScreen(eventID: widget.eventID),
-                         analyticsAction:  'sponsors_page_opened',
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-
-                         _buildFeatureCard(
-                          context: context,
-                         title:  'Feedback',
-                        iconPath:   'assets/icons/feedback.png',
-                         color:  kConnectedOrange,
-                          screen:  FeedbackEntry(eventID: widget.eventID),
-                          analyticsAction: 'feedback_page_opened',
-                                                 ),
-                        const SizedBox(width: 12),
+                      if (kGalleryFeatureEnabled)
                         _buildFeatureCard(
                           context: context,
-                          title: 'Social',
-                          iconPath: 'assets/icons/social-media.png',
-                          color: kConnectedGreen,
-                          screen: const SocialFeed(),
-                          analyticsAction: 'social_page_opened',
+                          title: 'Gallery',
+                          iconPath: 'assets/icons/photo-gallery.png',
+                          color: kNashPurple,
+                          screen: EventGalleryScreen(
+                            eventId: widget.eventID,
+                            eventName: widget.eventName,
+                          ),
+                          analyticsAction: 'gallery_page_opened',
                         ),
-                      ],
-                    ),
+                      _buildFeatureCard(
+                        context: context,
+                        title: 'Feedback',
+                        iconPath: 'assets/icons/feedback.png',
+                        color: kConnectedOrange,
+                        screen: FeedbackEntry(eventID: widget.eventID),
+                        analyticsAction: 'feedback_page_opened',
+                      ),
+                      _buildFeatureCard(
+                        context: context,
+                        title: 'Social',
+                        iconPath: 'assets/icons/social-media.png',
+                        color: kConnectedGreen,
+                        screen: const SocialFeed(),
+                        analyticsAction: 'social_page_opened',
+                      ),
+                    ]),
 
 
                   ],
@@ -370,6 +343,23 @@ class _HomePageWidgetState extends State<HomePageWidget> {
       default:
         return null;
     }
+  }
+
+  /// Lays the menu tiles out three per row. A short last row is padded with
+  /// empty slots so every tile keeps the same width.
+  List<Widget> _buildTileRows(List<Widget> tiles) {
+    const perRow = 3;
+    final rows = <Widget>[];
+    for (var i = 0; i < tiles.length; i += perRow) {
+      final slots = <Widget>[];
+      for (var j = i; j < i + perRow; j++) {
+        if (j > i) slots.add(const SizedBox(width: 12));
+        slots.add(j < tiles.length ? tiles[j] : const Expanded(child: SizedBox()));
+      }
+      if (i > 0) rows.add(const SizedBox(height: 12));
+      rows.add(Row(children: slots));
+    }
+    return rows;
   }
 
   // Enhanced feature card widget
@@ -427,12 +417,20 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 ),
               ),
               const SizedBox(height: 10),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: color,
+              // Tiles are a third of the width; shrink long titles to fit.
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: color,
+                    ),
+                  ),
                 ),
               ),
             ],

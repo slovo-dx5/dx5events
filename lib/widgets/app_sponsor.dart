@@ -296,12 +296,29 @@ class AppSponsorBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!AppSponsor.enabled) return const SizedBox.shrink();
+    return const Padding(
+      padding: EdgeInsets.fromLTRB(16, 14, 16, 4),
+      child: AppSponsorSlide(placement: 'home_banner'),
+    );
+  }
+}
+
+/// The banner card on its own, without outer margin — also the first slide
+/// of the home sponsor carousel.
+class AppSponsorSlide extends StatelessWidget {
+  const AppSponsorSlide({super.key, required this.placement, this.logoHeight = 42});
+
+  final String placement;
+  final double logoHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!AppSponsor.enabled) return const SizedBox.shrink();
     return _Seen(
-      'home_banner',
+      placement,
       GestureDetector(
-        onTap: () => showAppSponsorSheet(context, placement: 'home_banner'),
+        onTap: () => showAppSponsorSheet(context, placement: placement),
         child: Container(
-          margin: const EdgeInsets.fromLTRB(16, 14, 16, 4),
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
           decoration: BoxDecoration(
             color: Colors.white,
@@ -316,11 +333,12 @@ class AppSponsorBanner extends StatelessWidget {
             ],
           ),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const _SponsorLabel(center: true),
               const SizedBox(height: 10),
               SizedBox(
-                height: 42,
+                height: logoHeight,
                 child: Image.asset(AppSponsor.logo, fit: BoxFit.contain),
               ),
             ],

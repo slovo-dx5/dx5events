@@ -1,46 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../constants.dart';
-import '../../dioServices/base_url.dart';
-import '../../dioServices/dioFetchService.dart';
-import '../../models/eventModel.dart';
-import '../../models/sponsor_data_model.dart';
+import '../../services/event_sponsors_service.dart';
 import '../../widgets/cio_bottomsheets.dart';
 import '../../widgets/app_sponsor.dart';
 import '../../widgets/sponsor_widget.dart';
-
-// ---------------------------------------------------------------------------
-// Data helpers
-// ---------------------------------------------------------------------------
-
-class _EnrichedSponsor {
-  final SponsorData data;
-  final String category;
-  final int order;
-
-  const _EnrichedSponsor({
-    required this.data,
-    required this.category,
-    required this.order,
-  });
-
-  /// Resolves a bare Directus UUID to a full asset URL. If already a URL,
-  /// returns as-is. Prefers transparent_logo over logo when present.
-  String get logoUrl {
-    final logo = data.transparent_logo ?? data.logo ?? '';
-    return logo.startsWith('http') ? logo : '${BaseURL.Baseurl}/assets/$logo';
-  }
-
-  String get websiteUrl =>
-      (data.websites?.isNotEmpty == true) ? (data.websites!.first.link ?? '') : '';
-}
-
-class _SponsorsResult {
-  final List<_EnrichedSponsor> sponsors;
-  final List<_EnrichedSponsor> exhibitors;
-
-  const _SponsorsResult({required this.sponsors, required this.exhibitors});
-}
 
 // ---------------------------------------------------------------------------
 // Screen
@@ -57,78 +21,19 @@ class CISOSponsorsScreen extends StatefulWidget {
 class _CISOSponsorsScreenState extends State<CISOSponsorsScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
-  late final Future<_SponsorsResult> _dataFuture;
-
-  // Canonical display order, matching SponsorsSection.svelte
-  static const _categoryOrder = [
-    'simba', 'ndovu', 'kifaru', 'twiga', 'nyati', 'chui', 'duma', 'kiboko',
-  ];
+  late final Future<EventSponsors> _dataFuture;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _dataFuture = _loadData();
+    _dataFuture = EventSponsorsService.instance.load(widget.eventID);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
-  }
-
-  Future<_SponsorsResult> _loadData() async {
-    // 1. Fetch event to get sponsor associations (key + category + order)
-    final eventResponse =
-        await DioFetchService().fetchEvents(eventID: widget.eventID);
-    final Map<String, dynamic> eventData = eventResponse.data['data'];
-
-    final rawSponsors = eventData['sponsors'] as List<dynamic>? ?? [];
-    if (rawSponsors.isEmpty) {
-      return const _SponsorsResult(sponsors: [], exhibitors: []);
-    }
-
-    final associations =
-        rawSponsors.map((s) => SponsorAssociation.fromJson(s)).toList();
-
-    // 2. Record original order and category from the junction records
-    final orderMap = <int, int>{};
-    final categoryMap = <int, String>{};
-    for (var i = 0; i < associations.length; i++) {
-      final id = associations[i].sponsor.key;
-      orderMap[id] = i;
-      categoryMap[id] = associations[i].category;
-    }
-
-    // 3. Bulk-fetch sponsor details in a single API call
-    final ids = associations.map((a) => a.sponsor.key).toList();
-    final sponsorsResponse = await DioFetchService().fetchSponsorsByIds(ids);
-    final sponsorsModel =
-        RootSponsorDataModel.fromJson(sponsorsResponse.data);
-
-    if (sponsorsModel.data == null || sponsorsModel.data!.isEmpty) {
-      return const _SponsorsResult(sponsors: [], exhibitors: []);
-    }
-
-    // 4. Enrich: attach resolved logo, category from junction, original order
-    final enriched = sponsorsModel.data!
-        .where((s) => s.id != null && orderMap.containsKey(s.id))
-        .map((s) => _EnrichedSponsor(
-              data: s,
-              category: categoryMap[s.id!] ?? '',
-              order: orderMap[s.id!] ?? 0,
-            ))
-        .toList()
-      ..sort((a, b) => a.order.compareTo(b.order));
-
-    // 5. Split: exhibitors are category == 'exhibitor_only' (case-insensitive),
-    //    rest are sponsors
-    bool isExhibitor(_EnrichedSponsor s) =>
-        s.category.toLowerCase() == 'exhibitor_only';
-    final exhibitors = enriched.where(isExhibitor).toList();
-    final sponsors = enriched.where((s) => !isExhibitor(s)).toList();
-
-    return _SponsorsResult(sponsors: sponsors, exhibitors: exhibitors);
   }
 
   @override
@@ -154,7 +59,7 @@ class _CISOSponsorsScreenState extends State<CISOSponsorsScreen>
         ),
       ),
       body: SafeArea(
-        child: FutureBuilder<_SponsorsResult>(
+        child: FutureBuilder<EventSponsors>(
           future: _dataFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -174,7 +79,7 @@ class _CISOSponsorsScreenState extends State<CISOSponsorsScreen>
               children: [
                 _SponsorsTab(
                   sponsors: result.sponsors,
-                  categoryOrder: _categoryOrder,
+                  categoryOrder: EventSponsorsService.categoryOrder,
                 ),
                 _ExhibitorsTab(exhibitors: result.exhibitors),
               ],
@@ -191,7 +96,7 @@ class _CISOSponsorsScreenState extends State<CISOSponsorsScreen>
 // ---------------------------------------------------------------------------
 
 class _SponsorsTab extends StatelessWidget {
-  final List<_EnrichedSponsor> sponsors;
+  final List<EventSponsor> sponsors;
   final List<String> categoryOrder;
 
   const _SponsorsTab(
@@ -214,17 +119,27 @@ class _SponsorsTab extends StatelessWidget {
     }
 
     // Group by category, preserving per-category order from the sorted list
-    final grouped = <String, List<_EnrichedSponsor>>{};
+    final grouped = <String, List<EventSponsor>>{};
     for (final s in tiered) {
       grouped.putIfAbsent(s.category, () => []).add(s);
     }
 
-    // Build section list: known categories first (in canonical order),
+    // Build section list: degree tiers (CIO100's '360', '180', '90', '45')
+    // highest first, then known named categories (in canonical order),
     // matched case-insensitively, then any remaining categories appended so
     // nothing is ever silently dropped.
     final canonicalLower = categoryOrder.map((c) => c.toLowerCase()).toList();
-    final sections = <MapEntry<String, List<_EnrichedSponsor>>>[];
+    final sections = <MapEntry<String, List<EventSponsor>>>[];
     final usedKeys = <String>{};
+
+    final degreeKeys = grouped.keys
+        .where((k) => int.tryParse(k.trim()) != null && grouped[k]!.isNotEmpty)
+        .toList()
+      ..sort((a, b) => int.parse(b.trim()).compareTo(int.parse(a.trim())));
+    for (final key in degreeKeys) {
+      sections.add(MapEntry(key, grouped[key]!));
+      usedKeys.add(key);
+    }
 
     for (final canonical in canonicalLower) {
       for (final entry in grouped.entries) {
@@ -257,7 +172,7 @@ class _SponsorsTab extends StatelessWidget {
 
 class _CategorySection extends StatelessWidget {
   final String category;
-  final List<_EnrichedSponsor> sponsors;
+  final List<EventSponsor> sponsors;
 
   const _CategorySection(
       {required this.category, required this.sponsors});
@@ -301,7 +216,7 @@ class _CategorySection extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _ExhibitorsTab extends StatelessWidget {
-  final List<_EnrichedSponsor> exhibitors;
+  final List<EventSponsor> exhibitors;
 
   const _ExhibitorsTab({required this.exhibitors});
 
@@ -326,7 +241,7 @@ class _ExhibitorsTab extends StatelessWidget {
 }
 
 class _ExhibitorCard extends StatelessWidget {
-  final _EnrichedSponsor exhibitor;
+  final EventSponsor exhibitor;
 
   const _ExhibitorCard({required this.exhibitor});
 

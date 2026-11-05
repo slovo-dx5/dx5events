@@ -18,7 +18,9 @@ import '../../helpers/analytics_helper.dart';
 import '../../mainNavigationPage.dart';
 import '../../models/contactModel.dart';
 import '../../providers.dart';
+import '../../services/active_event/active_event_service.dart';
 import '../../services/activity_logger.dart';
+import '../../services/event_sponsors_service.dart';
 import '../../widgets/app_sponsor.dart';
 import 'package:dx5veevents/constants.dart';
 
@@ -101,14 +103,17 @@ class _GetContactState extends State<GetContact> with SingleTickerProviderStateM
           targetType: 'sponsor',
           targetId: sponsorID,
         );
-        Fluttertoast.showToast(msg: "Success");
+        final msg = await EventSponsorsService.instance.boothVisitMessage(
+            ActiveEventService.instance.current.id, sponsorID);
+        Fluttertoast.showToast(msg: msg, toastLength: Toast.LENGTH_LONG);
       }
       if (!mounted) return;
       Navigator.of(context).pop(
 
       );
     }else{
-      Fluttertoast.showToast(msg: "Error: Check your internet");
+      Fluttertoast.showToast(
+          msg: "Couldn't record your booth visit. Check your connection and try again.");
       Navigator.of(context).pop();
 
       setState(() {
@@ -196,14 +201,19 @@ class _GetContactState extends State<GetContact> with SingleTickerProviderStateM
   /// only records the find.
   Future<void> _recordHuntCode(String code) async {
     final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
+    final id = code.substring(kHuntCodePrefix.length).trim().toLowerCase();
     ActivityLogger.instance.log(
       action: ActivityAction.huntCodeFound,
       userId: profileProvider.userID,
       targetType: 'hunt_code',
-      targetId: code.substring(kHuntCodePrefix.length).trim().toLowerCase(),
+      targetId: id,
     );
+    // The registration-desk codes double as the daily check-in.
+    final day = RegExp(r'^entrance-day(\d+)$').firstMatch(id)?.group(1);
     Fluttertoast.showToast(
-      msg: "Hunt code found! Check Rewards for your points.",
+      msg: day != null
+          ? "You're checked in for Day $day. Welcome!"
+          : 'Nice find! Code "$id" collected.',
       toastLength: Toast.LENGTH_LONG,
     );
   }

@@ -10,7 +10,9 @@ import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import '../dioServices/dioPostService.dart';
 import '../mainNavigationPage.dart';
 import '../providers.dart';
+import '../services/active_event/active_event_service.dart';
 import '../services/activity_logger.dart';
+import '../services/event_sponsors_service.dart';
 import 'package:dx5veevents/constants.dart';
 
 
@@ -82,7 +84,9 @@ class _SponsorScannerState extends State<SponsorScanner> {
     if(Platform.isIOS)await controller?.pauseCamera();
     if(response.statusCode==200){
       if(Platform.isIOS)await controller?.pauseCamera();
-      Fluttertoast.showToast(msg: "Success");
+      final msg = await EventSponsorsService.instance.boothVisitMessage(
+          ActiveEventService.instance.current.id, sponsorID);
+      Fluttertoast.showToast(msg: msg, toastLength: Toast.LENGTH_LONG);
       Navigator.of(context).pop(
 
       );

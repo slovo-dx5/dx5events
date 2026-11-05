@@ -11,6 +11,10 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 const bool kGalleryFeatureEnabled = true;
 const bool kShopFeatureEnabled = true;
 
+/// 3D venue map (Mapbox). The screen also shows a "not set up" message when
+/// MAPBOX_ACCESS_TOKEN is missing from assets/.env (see VenueMapConfig).
+const bool kVenueMapFeatureEnabled = true;
+
 /// Rewards / points. The screens also hide themselves when the gamification
 /// Flow ids are missing from assets/.env (see GamificationConfig).
 const bool kRewardsFeatureEnabled = true;
@@ -18,6 +22,11 @@ const bool kRewardsFeatureEnabled = true;
 /// Prefix of the scavenger-hunt QR codes printed around the venue, e.g.
 /// `hunt:coffee-bar`. Everything after the prefix is the code id.
 const String kHuntCodePrefix = "hunt:";
+
+/// Sponsor tiers (event junction `category`) shown in the home carousel after
+/// the app sponsor, highest first. Events name tiers differently (CIO100 uses
+/// degrees up to '360', others 'simba'/'ndovu'), so list each scheme's top tiers.
+const List<String> kCarouselSponsorTiers = ['360', '180', '90', 'simba', 'ndovu'];
 
 const kIconBlue = Color(0xFF2398cd);
 const kIconPurple = Color(0xFF8f3b9d);

@@ -104,6 +104,9 @@ class _SaveContactState extends State<SaveContact> {
     super.dispose();
   }
 
+  String get _contactName =>
+      [widget.firstName, widget.lastName].where((s) => s.trim().isNotEmpty).join(' ');
+
   Future<void> _onSavePressed() async {
     setState(() => _isSaving = true);
 
@@ -116,7 +119,7 @@ class _SaveContactState extends State<SaveContact> {
         await ScannedContactsDatabase.instance
             .updateNote(id: _existingContact!.id!, note: note);
         Fluttertoast.showToast(
-          msg: "Note updated",
+          msg: "Note updated for $_contactName",
           toastLength: Toast.LENGTH_SHORT,
         );
         if (context.mounted) Navigator.of(context).pop();
@@ -169,7 +172,7 @@ class _SaveContactState extends State<SaveContact> {
       }
 
       Fluttertoast.showToast(
-        msg: "Contact saved successfully!",
+        msg: "$_contactName saved to your contacts",
         toastLength: Toast.LENGTH_SHORT,
       );
 

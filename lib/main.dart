@@ -45,6 +45,8 @@ import 'services/activity_logger.dart';
 import 'services/webview_links/webview_links_service.dart';
 import 'services/gallery/pix_api_config.dart';
 import 'services/payments/payment_config.dart';
+import 'services/venue_map/venue_map_config.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' show MapboxOptions;
 import 'services/gamification/gamification_config.dart';
 import 'services/gamification/gamification_service.dart';
 import 'services/harry/harry_config.dart';
@@ -326,6 +328,12 @@ void main() async{
   await PixApiConfig.load();
   // Shop payment backend (Directus Flows), same .env / dart-define scheme.
   await PaymentConfig.load();
+  // Venue map (Mapbox) token, same .env / dart-define scheme. Must be set
+  // before any MapWidget is built.
+  await VenueMapConfig.load();
+  if (VenueMapConfig.isConfigured) {
+    MapboxOptions.setAccessToken(VenueMapConfig.accessToken);
+  }
   // The event the app opens on: last fetched one now, current one from
   // Directus (app_config.active_event) in the background.
   await ActiveEventService.instance.loadCached();

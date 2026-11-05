@@ -81,7 +81,7 @@ Add an index on `user_id`.
 |---|---|---|
 | `event_days` | JSON | `["2026-11-03","2026-11-04","2026-11-05"]` (yyyy-MM-dd, local) |
 | `utc_offset_minutes` | integer | `180` (Nairobi, no DST) |
-| `awards_open_at`, `awards_close_at` | timestamp | Empty means always open. Set `close` to the end of Day 3. |
+| `awards_open_at`, `awards_close_at` | timestamp | Empty means always open. Set `close` to the end of Day 3. Leave `open` empty (or on/before 20 Nov) so Early bird can pay out before the event. |
 | `leaderboard_enabled` | boolean | `true` |
 | `leaderboard_freeze_at` | timestamp | Empty. See G3. |
 | `excluded_user_ids` | JSON | `[]`: staff and sponsor attendee ids |
@@ -241,6 +241,7 @@ with no app release needed. Things to check before the event:
 |---|---|---|
 | Quick wins | Profile photo · Explore agenda · First bookmark · Ask Harry, your AI assistant · Face search · First post · MBCOM booth | one log each |
 | Challenges | Networker (5/15/30) · Booth crawl (3/6/all) · Deal maker (1/3/5) · Reach out (5 × 5 pts) · Session critic · Speaker spotter · Cheerleader · Conversationalist · Agenda architect · First purchase · Loyal shopper · Treasure hunter | distinct targets |
+| Before the event | Early bird (10 pts per day the app is opened from 20 to 24 Nov, the 5 days before Day 1, max 50; `each` on `app_open`, `distinct_by: day`, `active_from`/`active_to` = midnight Nairobi on 20 and 25 Nov) | per pre-event day |
 | Every day | Daily check-in · Hat-trick · On site · Present all three days · Daily review · Critic of the week · Social streak | per event day |
 | Quests | Day 1 Morning booth dash · Day 2 Keynote critic · Day 2 Make it count · Day 3 Closing words | time windows |
 
@@ -253,6 +254,8 @@ with no app release needed. Things to check before the event:
    No new row should appear.
 3. POST `app_open` rows with `occurred_at` on all three days. You should get
    three daily rows plus the Hat-trick row.
+   POST two more on different days between 20 and 24 Nov: two Early bird rows
+   (`…|key:<yyyy-MM-dd>`, 10 points each).
 4. POST a quest log outside its window. Nothing should be awarded.
 5. Call G2 with `curl "<url>/flows/trigger/<G2>?user_id=<id>"` and check that
    `total` equals the ledger sum. G3 should rank the user.

@@ -77,6 +77,27 @@ test('each caps at max_awards and keeps the earliest targets', async () => {
   assert.deepEqual(res.rows.map((r) => r.award_key), ['rule:4|user:7|key:a', 'rule:4|user:7|key:b']);
 });
 
+test('early bird pays once per pre-event day, capped', async () => {
+  const rule = {
+    id: 9, trigger_action: 'app_open', rule_type: 'each', distinct_by: 'day',
+    action_points: 10, max_awards: 2, active_to: '2026-11-03T00:00:00+03:00',
+  };
+  const logs = [
+    log('app_open', '2026-10-30T09:00'),
+    log('app_open', '2026-10-30T20:00'), // same day again
+    log('app_open', '2026-11-01T09:00'),
+    log('app_open', '2026-11-02T23:30'), // third day, over the cap
+    log('app_open', '2026-11-03T08:00'), // event day 1: too late
+  ];
+  const res = await awardRun([rule], logs);
+  assert.deepEqual(res.rows.map((r) => r.award_key),
+    ['rule:9|user:7|key:2026-10-30', 'rule:9|user:7|key:2026-11-01']);
+  assert.ok(res.rows.every((r) => r.points === 10));
+
+  const uncapped = await awardRun([{ ...rule, max_awards: null }], logs);
+  assert.equal(uncapped.rows.length, 3);
+});
+
 test('quest only counts logs inside its window', async () => {
   const rule = {
     id: 5, trigger_action: 'sponsor_booth_scan', rule_type: 'quest', distinct_by: 'target_id',
@@ -214,7 +235,13 @@ test('seed rules all parse and score a busy three-day delegate', async () => {
     assert.ok(['quick', 'challenge', 'daily'].includes(r.category), `${r.action_name}: category`);
     assert.ok(!JSON.stringify(r).includes('map'), `${r.action_name}: map is not part of CIO100`);
   }
-  const logs = [];
+  // Early bird uses fixed dates (20-24 Nov), not the DAYn placeholders: one
+  // open before the window, two inside it (early bird 20).
+  const logs = [
+    log('app_open', '2026-11-19T22:00'),
+    log('app_open', '2026-11-20T09:00'),
+    log('app_open', '2026-11-24T23:00'),
+  ];
   DAYS.forEach((d, i) => {
     logs.push(log('app_open', `${d}T08:00`));
     logs.push(log('hunt_code_found', `${d}T08:05`, { target_id: `entrance-day${i + 1}` }));
@@ -230,7 +257,7 @@ test('seed rules all parse and score a busy three-day delegate', async () => {
   const total = ledger.reduce((s, r) => s + r.points, 0);
   // Daily 30 + hat-trick 30 + on-site 60 + present 50 + daily review 45 + critic 40
   // + keynote critic 50 + session critic 30 + speaker spotter 60 + first post 20
-  // + streak 50 + networker (18 contacts: tiers 5 and 15) 150 = 615
-  assert.equal(total, 615);
+  // + streak 50 + networker (18 contacts: tiers 5 and 15) 150 + early bird 20 = 635
+  assert.equal(total, 635);
   assert.equal(new Set(ledger.map((r) => r.award_key)).size, ledger.length);
 });
