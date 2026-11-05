@@ -305,6 +305,23 @@ class DioPostService extends DioClient {
 
   }
 
+  /// Saves one WebView form submission to `app_webview_links_data`.
+  /// Rethrows so the caller can keep the form open and let the user retry.
+  Future<Response> sendWebviewFormData({
+    required String link,
+    required Map<String, dynamic> userDetails,
+    required Map<String, dynamic> data,
+  }) {
+    return _client.init().post(
+      "${BaseURL.Baseurl}/items/app_webview_links_data",
+      data: {
+        "link": link,
+        "user_details": userDetails,
+        "data": data,
+      },
+    );
+  }
+
   Future<Response> updateSignIn({required Map<String, dynamic> body, required int recordID}) async {
     try {
       return await _client.init().patch(

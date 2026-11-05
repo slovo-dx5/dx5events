@@ -17,7 +17,7 @@ import '../screens/dx5veScreens/sponsors_screen.dart';
 import '../screens/dx5veScreens/dx5veAttendeesScreen.dart';
 import '../screens/dx5veScreens/eventAgendaScreen.dart';
 import '../screens/contact_scanning/getContact.dart';
-import '../screens/feedback_page.dart';
+import '../screens/feedback_entry.dart';
 import '../screens/gallery/event_gallery_screen.dart';
 import '../services/gallery/gallery_notifications.dart';
 import '../screens/shop/shop_screen.dart';
@@ -304,12 +304,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                          title:  'Feedback',
                         iconPath:   'assets/icons/feedback.png',
                          color:  kConnectedOrange,
-                          screen:  FeedbackPage(
-                            eventID: widget.eventID,
-                             attendeeID: profileProvider.profileId!,
-                             attendeeName: "${profileProvider.firstName} ${profileProvider.lastName}",
-
-                          ),
+                          screen:  FeedbackEntry(eventID: widget.eventID),
                           analyticsAction: 'feedback_page_opened',
                                                  ),
                         const SizedBox(width: 12),
@@ -369,14 +364,9 @@ class _HomePageWidgetState extends State<HomePageWidget> {
       case 'shop':
         return kShopFeatureEnabled ? const ShopScreen() : null;
       case 'feedback':
-        final pid = profileProvider.profileId;
-        return pid == null
+        return profileProvider.userID == null
             ? null
-            : FeedbackPage(
-                eventID: widget.eventID,
-                attendeeID: pid,
-                attendeeName: "${profileProvider.firstName} ${profileProvider.lastName}",
-              );
+            : FeedbackEntry(eventID: widget.eventID);
       default:
         return null;
     }

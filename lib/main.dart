@@ -42,6 +42,7 @@ import 'screens/gallery/event_gallery_screen.dart';
 import 'services/active_event/active_event.dart';
 import 'services/active_event/active_event_service.dart';
 import 'services/activity_logger.dart';
+import 'services/webview_links/webview_links_service.dart';
 import 'services/gallery/pix_api_config.dart';
 import 'services/payments/payment_config.dart';
 import 'services/gamification/gamification_config.dart';
@@ -329,6 +330,9 @@ void main() async{
   // Directus (app_config.active_event) in the background.
   await ActiveEventService.instance.loadCached();
   ActiveEventService.instance.refresh();
+  // Hosted form links (app_webview_links): cached now, refreshed in background.
+  await WebviewLinksService.instance.loadCached();
+  WebviewLinksService.instance.refresh();
 
   Get.put<MyDrawerController>(MyDrawerController());
 
@@ -547,6 +551,7 @@ if(Platform.isIOS){
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => SocialProvider()),
         ChangeNotifierProvider.value(value: ActiveEventService.instance),
+        ChangeNotifierProvider.value(value: WebviewLinksService.instance),
         //// New provider
       ],
       builder: (context, _) {
