@@ -17,6 +17,7 @@ import '../../repositories/agenda_repository.dart';
 import '../../repositories/speakers_repository.dart';
 import '../../services/activity_logger.dart';
 import '../../services/agenda_bookmarks.dart';
+import '../../widgets/acls/acls_links.dart';
 import '../../widgets/app_sponsor.dart';
 
 class EventAgendaScreen extends StatefulWidget {
@@ -870,6 +871,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
             Divider(height: 1, thickness: 1, color: Colors.grey[300]),
             const AppSponsorStrip(
                 lead: 'Agenda powered by', placement: 'agenda'),
+            CompanionAgendaBanner(eventID: widget.eventID),
             if (_myAgendaOnly)
               Container(
                 width: double.infinity,

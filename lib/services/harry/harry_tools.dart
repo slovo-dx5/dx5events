@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../../dioServices/dioFetchService.dart';
+import '../active_event/active_event_service.dart';
 import 'harry_reminders.dart';
 
 /// Defines Harry's tool schemas and executes tool calls against the app's
@@ -36,8 +37,19 @@ class HarryTools {
           'description':
               'Get the full agenda/schedule for the current event: days, '
                   'sessions, times, stages and session summaries. Use this for '
-                  'any question about what is happening and when.',
-          'input_schema': {'type': 'object', 'properties': {}},
+                  'any question about what is happening and when. Pass '
+                  'event="acls" for the Africa Channel Leaders Summit (ACLS), '
+                  'which has its own agenda.',
+          'input_schema': {
+            'type': 'object',
+            'properties': {
+              'event': {
+                'type': 'string',
+                'enum': ['main', 'acls'],
+                'description': 'Which agenda: "main" (default) or "acls".',
+              },
+            },
+          },
         },
         {
           'name': 'get_speakers',
@@ -113,6 +125,13 @@ class HarryTools {
   Future<String> execute(String name, Map<String, dynamic> input) async {
     switch (name) {
       case 'get_agenda':
+        if (input['event'] == 'acls') {
+          final acls = ActiveEventService.instance.companion;
+          if (acls == null) {
+            return 'There is no ACLS agenda in the app right now.';
+          }
+          return _readItems(() => _fetch.fetchdx5veAgenda(eventID: acls.id));
+        }
         return _readItems(() => _fetch.fetchdx5veAgenda(eventID: eventId));
       case 'get_speakers':
         return _readItems(() => _fetch.fetchEventSpeakers());

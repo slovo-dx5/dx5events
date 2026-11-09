@@ -394,6 +394,15 @@ await test('the recovery path produces the same receipt as the webhook', async (
 // ── Flow 4: catalogue ──────────────────────────────────────────────────────
 console.log('\nFlow 4 — catalogue');
 
+await test('passes only known stock badges through', async () => {
+  const row = (id, stock_badge) => ({ id, name: id, category: 'C', price: 100, sizes: [], stock_badge });
+  const r = await flow4Catalogue({
+    products: [row('a', 'selling_fast'), row('b', 'Limited'), row('c', 'sold_out'), row('d', null)],
+  });
+  const byId = Object.fromEntries(r.products.map((p) => [p.id, p.badge]));
+  assert.deepEqual(byId, { a: 'selling_fast', b: 'limited', c: null, d: null });
+});
+
 await test('an empty catalogue errors so the app keeps its bundled list', async () => {
   assert.ok((await flow4Catalogue({ products: [] })).error);
 });

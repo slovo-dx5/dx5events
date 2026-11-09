@@ -6,6 +6,7 @@ import 'package:dx5veevents/screens/landingPage2.dart';
 
 import 'package:dx5veevents/widgets/notifications_widget.dart';
 import 'package:flutter/material.dart';
+import 'screens/terms_of_use_screen.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:get/get.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
@@ -236,6 +237,10 @@ class MenuScreen extends GetView<MyDrawerController> {
                             );
 
                           }),
+
+                      menuItem(menuText: 'Terms of Use',
+                          widgetIcon: Icons.description_outlined, iconColor: kCIOPurple,
+                          onPressedFunction: () => TermsOfUseScreen.open(context)),
 
                       verticalSpace(height: 30),
 

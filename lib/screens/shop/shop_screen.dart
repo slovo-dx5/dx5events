@@ -838,7 +838,7 @@ class _ProductCard extends StatelessWidget {
                     Positioned(
                       left: 8,
                       top: 8,
-                      child: StockBadge(left: lowest, soldOut: soldOut),
+                      child: StockBadge(left: lowest, soldOut: soldOut, hype: p.hype),
                     ),
                     if (!soldOut)
                       Positioned(

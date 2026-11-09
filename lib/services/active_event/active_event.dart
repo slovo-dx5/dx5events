@@ -50,6 +50,15 @@ class ActiveEvent {
   static const String bundledCoverImage =
       'assets/images/themes/cio100_landscape.jpg';
 
+  // Africa Channel Leaders Summit, the companion event on CIO100's last day
+  // (see ActiveEventService.companion). Always the bundled art.
+  static const String aclsEventId = '133'; // Directus events.id
+  static const String aclsTitle = 'Africa Channel Leaders Summit';
+  static const String aclsShortName = 'ACLS';
+  static const String aclsCardImage = 'assets/images/themes/acls_portrait.jpg';
+  static const String aclsCoverImage =
+      'assets/images/themes/acls_landscape.jpg';
+
   /// Builds from an `app_config` row fetched with `active_event.*` expanded.
   /// Returns null when the row has no usable event.
   static ActiveEvent? fromAppConfig(Map<String, dynamic> config) {

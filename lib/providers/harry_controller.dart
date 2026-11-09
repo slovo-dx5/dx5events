@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 import '../constants.dart';
+import '../services/active_event/active_event.dart';
+import '../services/active_event/active_event_service.dart';
 import '../services/activity_logger.dart';
 import '../services/harry/harry_brain.dart';
 import '../services/harry/harry_client.dart';
@@ -314,6 +316,15 @@ class HarryController extends ChangeNotifier {
     if (eventDate.isNotEmpty) event.write(', $eventDate');
     if (eventLocation.isNotEmpty) event.write(', $eventLocation');
     if (eventDescription.isNotEmpty) event.write('. $eventDescription');
+    final acls = ActiveEventService.instance;
+    if (acls.companion != null && acls.isCompanionUpcomingOrLive) {
+      final c = acls.companion!;
+      event.write('\n- Also at this event: ${c.title.isNotEmpty ? c.title : ActiveEvent.aclsTitle} '
+          '(ACLS), ${c.dateLabel}, running alongside the main event on its '
+          'last day. It has its own agenda: call get_agenda with event="acls". '
+          'In the app it is reached from the ACLS strip on the Agenda screen '
+          'or by tapping the ACLS banner on Home that day.');
+    }
 
     return '''
 You are Harry, a warm, concise in-app assistant inside the DX5VE Events mobile app (by CIO Africa). You help conference attendees with (1) how to use the app, and (2) information about the current event, plus light actions on their behalf.

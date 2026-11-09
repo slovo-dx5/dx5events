@@ -8,6 +8,7 @@ import '../../services/payments/payment_config.dart';
 import '../../services/payments/payment_models.dart';
 import '../../services/payments/payment_service.dart';
 import 'order_status_screen.dart';
+import '../terms_of_use_screen.dart';
 import 'pesapal_checkout_screen.dart';
 import 'shop_repository.dart';
 import 'shop_screen.dart';
@@ -492,6 +493,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         color: ShopColors.inkSoft,
                         fontWeight: FontWeight.w500)),
               ],
+            ),
+            TextButton(
+              onPressed: () =>
+                  TermsOfUseScreen.open(context, focus: TermsSection.shop),
+              style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  foregroundColor: ShopColors.brandDeep),
+              child: const Text('Collection, delivery and refunds',
+                  style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.underline)),
             ),
           ],
         ),

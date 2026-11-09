@@ -114,6 +114,7 @@ amounts are never to be trusted from a client.
 | `product_image` | file (uuid → `directus_files`) | The product photo. Sent to the app as a resized `/assets/` URL; preferred over the bundled shot |
 | `active` | boolean | Hide without deleting |
 | `stock` | json, nullable | Empty = unlimited. `12` = one pool shared by all sizes; `{"S":10,"L":4}` = per size (a size not listed has none). The **total ever on sale**, not what is left: what is left is derived from `shop_orders` (completed orders, plus pending ones under 30 min old), so nothing is decremented. **To restock, add the new units to this number.** |
+| `stock_badge` | string (dropdown), nullable | FOMO label on the card and product page: `limited` (Limited stock), `selling_fast` (Selling fast), `last_few` (Last few). Empty = none. Real stock wins: at 5 or fewer left the app shows "Only N left", at 0 "Sold out", whatever this says. There is deliberately no "sold out" value: to sell out an item, set its `stock` to what has already sold. Sent by Flow 4 as `badge`. |
 
 ### `shop_orders`
 

@@ -26,6 +26,7 @@ import '../../dioServices/dioPostService.dart';
 import '../../helpers/helper_widgets.dart';
 import '../../providers.dart';
 import '../../services/activity_logger.dart';
+import '../terms_of_use_screen.dart';
 
 
 
@@ -217,6 +218,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           centerTitle: true,
           automaticallyImplyLeading: true,
           actions: [
+            IconButton(
+              icon: const Icon(Icons.description_outlined),
+              tooltip: 'Terms of Use',
+              onPressed: () => TermsOfUseScreen.open(context),
+            ),
             IconButton(
               icon: const Icon(Icons.logout),
               tooltip: 'Logout',

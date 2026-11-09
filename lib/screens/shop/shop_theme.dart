@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../constants.dart';
+import 'shop_repository.dart';
 
 /// Visual language for the shop: one palette, one set of radii and shadows,
 /// and the small building blocks every shop screen shares, so the store reads
@@ -342,36 +343,84 @@ class QtyPill extends StatelessWidget {
   }
 }
 
-/// "Sold out" / "Only 3 left" pill, or nothing when stock isn't worth
-/// mentioning. [left] null means unlimited.
+/// What a product's stock label says, in order of precedence: real stock
+/// first ("Sold out", then "Only 3 left" at 5 or fewer), then the hype label
+/// set in Directus, else nothing. [left] null means unlimited.
+class StockStatus {
+  const StockStatus._(this.text, this.color, this.icon, {this.gone = false});
+
+  final String text;
+  final Color color;
+  final IconData? icon;
+  final bool gone;
+
+  static StockStatus? of({int? left, bool soldOut = false, StockHype? hype}) {
+    if (soldOut || left == 0) {
+      return const StockStatus._('Sold out', ShopColors.ink, null, gone: true);
+    }
+    if (left != null && left <= 5) {
+      return StockStatus._('Only $left left', ShopColors.warning,
+          Icons.hourglass_bottom_rounded);
+    }
+    switch (hype) {
+      case StockHype.sellingFast:
+        return const StockStatus._('Selling fast', ShopColors.danger,
+            Icons.local_fire_department_rounded);
+      case StockHype.lastFew:
+        return const StockStatus._(
+            'Last few', ShopColors.warning, Icons.hourglass_bottom_rounded);
+      case StockHype.limited:
+        return const StockStatus._(
+            'Limited stock', ShopColors.brandDeep, Icons.bolt_rounded);
+      case null:
+        return null;
+    }
+  }
+}
+
+/// Stock pill for product cards: "Sold out", "Only 3 left", "Selling fast",
+/// "Limited stock", "Last few", or nothing. See [StockStatus].
 class StockBadge extends StatelessWidget {
-  const StockBadge({Key? key, required this.left, this.soldOut = false})
+  const StockBadge({Key? key, required this.left, this.soldOut = false, this.hype})
       : super(key: key);
 
   final int? left;
   final bool soldOut;
+  final StockHype? hype;
 
-  static bool shows(int? left, bool soldOut) =>
-      soldOut || (left != null && left <= 5);
+  static bool shows(int? left, bool soldOut, [StockHype? hype]) =>
+      StockStatus.of(left: left, soldOut: soldOut, hype: hype) != null;
 
   @override
   Widget build(BuildContext context) {
-    if (!shows(left, soldOut)) return const SizedBox.shrink();
-    final gone = soldOut || left == 0;
+    final status = StockStatus.of(left: left, soldOut: soldOut, hype: hype);
+    if (status == null) return const SizedBox.shrink();
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
       decoration: BoxDecoration(
-        color: gone ? ShopColors.ink : ShopColors.warning,
+        color: status.color,
         borderRadius: BorderRadius.circular(20),
+        boxShadow: status.gone
+            ? null
+            : [BoxShadow(color: status.color.withValues(alpha: 0.35), blurRadius: 8)],
       ),
-      child: Text(
-        gone ? 'Sold out' : 'Only $left left',
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 10.5,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.2,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (status.icon != null) ...[
+            Icon(status.icon, size: 12, color: Colors.white),
+            const SizedBox(width: 3),
+          ],
+          Text(
+            status.text,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 10.5,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -135,6 +135,16 @@ function availability(row, sizes, held) {
   return out;
 }
 
+// `shop_products.stock_badge`: a scarcity label chosen in Directus. Anything
+// but these three values (including "sold out") is dropped: sold out comes
+// from real stock only, so a label can never hide an item that is for sale.
+const BADGES = ['limited', 'selling_fast', 'last_few'];
+
+function badge(row) {
+  const value = String(row.stock_badge || '').trim().toLowerCase();
+  return BADGES.indexOf(value) === -1 ? null : value;
+}
+
 /** Fields the app is allowed to see. Anything else stays server-side. */
 function publicProduct(row, held) {
   const sizes = Array.isArray(row.sizes) ? row.sizes.map(String) : [];
@@ -150,6 +160,7 @@ function publicProduct(row, held) {
     // Null means the app uses the photo bundled for this id, if it has one.
     image: imageUrl(row),
     available: availability(row, sizes, held),
+    badge: badge(row),
   };
 }
 

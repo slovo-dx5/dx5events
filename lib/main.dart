@@ -20,6 +20,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'widgets/acls/acls_links.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:provider/provider.dart';
@@ -240,6 +241,16 @@ final router = GoRouter(
       ),
     ),
     GoRoute(
+      // Opened by tapping an ACLS push: the companion event's agenda. Falls
+      // back to the inbox if no companion is configured (or it was switched
+      // off after the push went out).
+      path: '/acls',
+      redirect: (context, state) =>
+          ActiveEventService.instance.companion == null ? '/notifications' : null,
+      builder: (context, state) =>
+          companionAgendaScreen(ActiveEventService.instance.companion!),
+    ),
+    GoRoute(
       path: '/test-contact',
       builder: (context, state) => ContactSaveTest(),
     ),
@@ -353,6 +364,8 @@ void main() async{
 
   if(Platform.isAndroid){
     await FirebaseMessaging.instance.subscribeToTopic("SmartGovBroadCast");
+    // ACLS hype pushes, scheduled from the Firebase Console.
+    await FirebaseMessaging.instance.subscribeToTopic(kAclsTopic);
     //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }else if(Platform.isIOS){
     try{ await NotificationSetup().getIOSPermission();
@@ -360,6 +373,7 @@ void main() async{
 
     await FirebaseMessaging.instance.getAPNSToken().then((value)async{
       await FirebaseMessaging.instance.subscribeToTopic("SmartGovBroadCast");
+      await FirebaseMessaging.instance.subscribeToTopic(kAclsTopic);
     } );
 
     //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -495,6 +509,9 @@ if(Platform.isIOS){
         Uri(path: '/gallery', queryParameters: query.isEmpty ? null : query)
             .toString(),
       );
+    } else if (targetPage == 'acls') {
+      // ACLS hype push (Firebase Console, custom data targetPage=acls).
+      router.push('/acls');
     } else if (targetPage == 'chat' && data['chatWith'] != null) {
       router.push(Uri(path: '/chat', queryParameters: {
         'with': data['chatWith'].toString(),

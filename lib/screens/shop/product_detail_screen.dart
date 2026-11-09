@@ -166,7 +166,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               color: ShopColors.brandDeep),
                         ),
                         const Spacer(),
-                        _StockLine(left: left, soldOut: p.soldOut),
+                        _StockLine(left: left, soldOut: p.soldOut, hype: p.hype),
                       ],
                     ),
                     const SizedBox(height: 14),
@@ -291,40 +291,39 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 }
 
-/// Coloured dot + "In stock" / "Only 3 left" / "Sold out".
+/// Coloured dot + "In stock" / "Only 3 left" / "Selling fast" / "Sold out".
 class _StockLine extends StatelessWidget {
-  const _StockLine({required this.left, required this.soldOut});
+  const _StockLine({required this.left, required this.soldOut, this.hype});
   final int? left;
   final bool soldOut;
+  final StockHype? hype;
 
   @override
   Widget build(BuildContext context) {
-    final gone = soldOut || left == 0;
-    final low = !gone && left != null && left! <= 5;
-    final color = gone
-        ? ShopColors.danger
-        : low
-            ? ShopColors.warning
-            : ShopColors.success;
-    final text = gone
-        ? 'Sold out'
-        : low
-            ? 'Only $left left'
-            : 'In stock';
+    final status = StockStatus.of(left: left, soldOut: soldOut, hype: hype);
+    final color = status == null
+        ? ShopColors.success
+        : status.gone
+            ? ShopColors.danger
+            : status.color;
+    final text = status?.text ?? 'In stock';
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(color: color.withValues(alpha: 0.5), blurRadius: 6),
-            ],
+        if (status?.icon != null)
+          Icon(status!.icon, size: 15, color: color)
+        else
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(color: color.withValues(alpha: 0.5), blurRadius: 6),
+              ],
+            ),
           ),
-        ),
         const SizedBox(width: 7),
         Text(text,
             style: TextStyle(

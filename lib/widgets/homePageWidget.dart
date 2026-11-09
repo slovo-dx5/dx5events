@@ -27,6 +27,9 @@ import '../map_screen.dart';
 import '../testScreen.dart';
 import '../services/active_event/active_event.dart';
 import '../services/active_event/active_event_service.dart';
+import 'acls/acls_links.dart';
+import 'acls/showdown_hero.dart';
+import 'acls/signal_hijack_overlay.dart';
 import 'cio_widgets.dart';
 import 'event_image.dart';
 import 'clickableBanner.dart';
@@ -78,13 +81,44 @@ class _HomePageWidgetState extends State<HomePageWidget> {
         _hasCheckedVersion = true;
         checkVersion();
       }
+      _maybeSignalHijack();
     });
+    // The companion config may land after this screen is built (first
+    // launch); try the intro again when it does.
+    ActiveEventService.instance.addListener(_maybeSignalHijack);
     // Subscribe this device to new-photo pushes for the event being viewed.
     // Topic is keyed on the app event id; fire-and-forget.
     if (kGalleryFeatureEnabled) {
       GalleryNotifications.subscribeForEvent(widget.eventID);
     }
   }
+  @override
+  void dispose() {
+    ActiveEventService.instance.removeListener(_maybeSignalHijack);
+    super.dispose();
+  }
+
+  /// ACLS day: play the Signal Hijack intro once, only on the active event's
+  /// home and only while it's the screen on top.
+  void _maybeSignalHijack() {
+    if (!mounted) return;
+    if (widget.eventID != ActiveEventService.instance.current.id) return;
+    if (!(ModalRoute.of(context)?.isCurrent ?? true)) return;
+    SignalHijackOverlay.maybeShow(context);
+  }
+
+  /// "CIO100 · DAY 3": the active event's day number today (Nairobi time).
+  String _mainEventDayLabel(ActiveEvent event) {
+    final now = DateTime.now().toUtc().add(const Duration(hours: 3));
+    final day = DateTime(now.year, now.month, now.day)
+            .difference(DateTime(
+                event.dateFrom.year, event.dateFrom.month, event.dateFrom.day))
+            .inDays +
+        1;
+    const name = 'CIO100';
+    return day >= 1 ? '$name · DAY $day' : name;
+  }
+
   Future<void> checkVersion() async {
     try {
       final newVersion = NewVersionPlus(
@@ -150,6 +184,20 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                   // Cover Image
                   // Directus artwork for the app's active event; any other
                   // event keeps the bundled cover.
+                  // On the companion (ACLS) day, CIO100 and ACLS share the
+                  // banner; every other day it's the usual cover.
+                  if (widget.eventID == activeEvent.id &&
+                      context.watch<ActiveEventService>().isCompanionDay)
+                    ShowdownHero(
+                      cio: EventImage(
+                        url: activeEvent.coverImageUrl,
+                        fallbackAsset: ActiveEvent.bundledCoverImage,
+                        fit: BoxFit.cover,
+                      ),
+                      cioLabel: _mainEventDayLabel(activeEvent),
+                      onAclsTap: () => openCompanionAgenda(context),
+                    )
+                  else
                   EventImage(
                     url: widget.eventID == activeEvent.id
                         ? activeEvent.coverImageUrl

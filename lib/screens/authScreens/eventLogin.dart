@@ -14,6 +14,7 @@ import '../../dioServices/dioFetchService.dart';
 import '../../dioServices/dioOTPService.dart';
 import '../../services/activity_logger.dart';
 import '../../widgets/app_sponsor.dart';
+import '../terms_of_use_screen.dart';
 import 'eventOTP.dart';
 
 class EventLogin extends StatefulWidget {
@@ -404,7 +405,30 @@ class _EventLoginState extends State<EventLogin> {
                       ),
                     ],
                   ),
-                  verticalSpace(height: 30),
+                  verticalSpace(height: 14),
+                  Center(
+                    child: TextButton(
+                      onPressed: () => TermsOfUseScreen.open(context),
+                      child: const Text.rich(
+                        TextSpan(
+                          text: 'By continuing you agree to our ',
+                          style: TextStyle(fontSize: 12.5, color: Colors.black54),
+                          children: [
+                            TextSpan(
+                              text: 'Terms of Use',
+                              style: TextStyle(
+                                color: kCIOPurple,
+                                fontWeight: FontWeight.w600,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  verticalSpace(height: 16),
                   const Center(child: AppSponsorBadge(placement: 'login')),
                   verticalSpace(height: 24),
                 ]),

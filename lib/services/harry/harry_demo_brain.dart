@@ -66,6 +66,17 @@ class HarryDemoBrain implements HarryBrain {
     }
 
     // --- Live event data ---
+    if (_containsAny(q, ['acls', 'channel leaders', 'channel summit'])) {
+      onToolUse?.call('get_agenda');
+      await executeTool('get_agenda', {'event': 'acls'});
+      await _stream(
+        "The Africa Channel Leaders Summit (ACLS) runs alongside CIO100 on "
+        "its final day. Tap the ACLS strip on the Agenda screen for its full "
+        "line-up.",
+        onTextDelta,
+      );
+      return;
+    }
     if (_containsAny(q,
         ['agenda', 'schedule', 'session', 'happening', 'today', 'programme'])) {
       onToolUse?.call('get_agenda');

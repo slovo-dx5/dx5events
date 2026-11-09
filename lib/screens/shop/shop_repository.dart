@@ -4,6 +4,31 @@ import 'package:intl/intl.dart';
 
 import '../../services/payments/payment_config.dart';
 
+/// A scarcity label chosen per product in Directus (`shop_products.stock_badge`).
+/// Marketing only: "Sold out" is never a hype label, it comes from real stock,
+/// so an item can't look gone while it is still for sale or vice versa.
+enum StockHype {
+  limited('Limited stock'),
+  sellingFast('Selling fast'),
+  lastFew('Last few');
+
+  const StockHype(this.label);
+  final String label;
+
+  /// Directus value (`limited`, `selling_fast`, `last_few`), or null.
+  static StockHype? parse(Object? raw) {
+    switch ('$raw'.trim().toLowerCase()) {
+      case 'limited':
+        return StockHype.limited;
+      case 'selling_fast':
+        return StockHype.sellingFast;
+      case 'last_few':
+        return StockHype.lastFew;
+    }
+    return null;
+  }
+}
+
 /// A merchandise product.
 ///
 /// The photo comes from the backend (`product_image` uploaded in Directus,
@@ -21,6 +46,7 @@ class Product {
     this.sizes = const [],
     this.imageUrl,
     this.available,
+    this.hype,
   });
 
   final String id;
@@ -40,6 +66,10 @@ class Product {
   /// no limit — including whenever the catalogue came from the bundled
   /// fallback. Display only: Flow 1 enforces stock at checkout regardless.
   final Map<String, int>? available;
+
+  /// Scarcity label set in Directus, or null. Shown only while the item is in
+  /// stock, and real low stock ("Only 3 left") takes precedence over it.
+  final StockHype? hype;
 
   /// Units left in [size], or null when unlimited.
   int? unitsLeft(String size) => available == null ? null : available![size] ?? 0;
@@ -69,6 +99,7 @@ class Product {
       sizes: (json['sizes'] as List?)?.map((s) => '$s').toList() ?? const [],
       imageUrl: remote ? image : null,
       available: _available(json['available']),
+      hype: StockHype.parse(json['badge']),
     );
   }
 
