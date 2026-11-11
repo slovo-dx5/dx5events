@@ -25,7 +25,7 @@ class _AdminPanelHomeState extends State<AdminPanelHome> {
         CIOWidgets().adminWidget( actionTitle: 'Scan QR',
           actionDescription: 'Scan attendees badge to check them in', context: context, assetPath: "assets/icons/qr.png", screen: BroadCastMessageToAll(), widgetColor: kConnectedGreen,),
  CIOWidgets().adminWidget( actionTitle: 'Meetings Concierge',
-          actionDescription: 'Arrange Meetings between delegates', context: context, assetPath: "assets/icons/concierge.png", screen: ConciergeMeetingTabs(), widgetColor: kConnectedBlue,)
+          actionDescription: 'Arrange Meetings between delegates', context: context, assetPath: "assets/icons/concierge.png", screen: ConciergeMeetingTabs(adminName: widget.adminName), widgetColor: kConnectedBlue,)
 
 
     ],),),);

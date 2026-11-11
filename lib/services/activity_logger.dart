@@ -29,6 +29,10 @@ class ActivityAction {
   static const meetingDeclined = 'meeting_declined';
   static const meetingCancelled = 'meeting_cancelled';
 
+  // Concierge desk (admin) actions.
+  static const conciergeMeetingHandled = 'concierge_meeting_handled';
+  static const conciergeReminderSent = 'concierge_reminder_sent';
+
   static const sponsorImpression = 'sponsor_impression';
   static const sponsorTap = 'sponsor_tap';
   static const sponsorBoothScan = 'sponsor_booth_scan';

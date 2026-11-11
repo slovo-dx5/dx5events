@@ -270,15 +270,23 @@ chatInitials({required String name}) {
     ]),
   );
 }
-openWhatsapp({required String contactNumber, required BuildContext context}) async {
+openWhatsapp({
+  required String contactNumber,
+  required BuildContext context,
+  String? message,
+}) async {
   // Replace starting 0 with 254
   String contact = contactNumber.startsWith('0')
       ? '254${contactNumber.substring(1)}'
       : contactNumber;
 
-  var message = "Hello, this is the CIO Africa Concierge service. I'm messaging you regarding a pending meeting.";
-  var androidUrl = "whatsapp://send?phone=$contact&text=$message";
-  var iosUrl = "https://wa.me/$contact?text=${Uri.encodeComponent(message)}";
+  final body = message ??
+      "Hello, this is the CIO Africa Concierge service. I'm messaging you regarding a pending meeting.";
+  // Encode on both platforms — an unencoded text breaks the deep link on the
+  // first space/punctuation.
+  final encoded = Uri.encodeComponent(body);
+  var androidUrl = "whatsapp://send?phone=$contact&text=$encoded";
+  var iosUrl = "https://wa.me/$contact?text=$encoded";
 
   try {
     if (Platform.isIOS) {

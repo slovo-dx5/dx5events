@@ -38,7 +38,7 @@ class ActiveEventService extends ChangeNotifier {
   /// Demo switch: true makes every build (release too) treat today as ACLS
   /// day and replay the Signal Hijack intro on every launch. Keep false in
   /// release builds; the takeover then opens by itself on the ACLS date.
-  static const bool kAclsDemoMode = false;
+  static const bool kAclsDemoMode = true;
 
   static const String _companionDisabledKey = 'companion_disabled';
 
