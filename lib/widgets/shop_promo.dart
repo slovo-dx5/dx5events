@@ -11,6 +11,7 @@ import '../screens/shop/shop_repository.dart';
 import '../screens/shop/shop_screen.dart';
 import '../screens/shop/shop_theme.dart';
 import '../services/activity_logger.dart';
+import '../services/weather_pick_service.dart';
 
 /// Every place the shop is promoted outside the shop itself: the home page
 /// rail, cart reminder and store card, and the bottom-nav tab. All of them
@@ -149,15 +150,7 @@ class ShopHomeCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      'Official event merchandise · pay in the app',
-                      maxLines: compact ? 2 : 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.75),
-                        fontSize: compact ? 11.5 : 12.5,
-                      ),
-                    ),
+                    _ShopCardSubtitle(compact: compact),
                   ],
                 ),
               ),
@@ -167,6 +160,77 @@ class ShopHomeCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// The store card's subtitle: a weather line ("29°C today · tees in the
+/// store") when [WeatherPickService] has a pick, else the usual tagline.
+/// Swaps in place, so the home page gains nothing new to look at.
+class _ShopCardSubtitle extends StatefulWidget {
+  const _ShopCardSubtitle({required this.compact});
+
+  final bool compact;
+
+  @override
+  State<_ShopCardSubtitle> createState() => _ShopCardSubtitleState();
+}
+
+class _ShopCardSubtitleState extends State<_ShopCardSubtitle> {
+  static const String _tagline = 'Official event merchandise · pay in the app';
+  String? _weatherLine;
+  WeatherMood? _mood;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    if (!WeatherPickService.instance.enabled) return;
+    final catalogue = await ShopRepository.load();
+    if (!catalogue.fromBackend) return;
+    final pick = await WeatherPickService.instance.pickFor(catalogue.products);
+    if (!mounted || pick == null) return;
+    final what = pick.mood == WeatherMood.cold ? 'blankets' : 'tees';
+    setState(() {
+      _mood = pick.mood;
+      _weatherLine = '${pick.headline} · $what in the store';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final line = _weatherLine;
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      child: Row(
+        key: ValueKey(line),
+        children: [
+          if (line != null) ...[
+            Icon(
+              _mood == WeatherMood.cold
+                  ? Icons.ac_unit_rounded
+                  : Icons.wb_sunny_rounded,
+              size: 13,
+              color: ShopColors.accent,
+            ),
+            const SizedBox(width: 4),
+          ],
+          Flexible(
+            child: Text(
+              line ?? _tagline,
+              maxLines: widget.compact ? 2 : 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.75),
+                fontSize: widget.compact ? 11.5 : 12.5,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

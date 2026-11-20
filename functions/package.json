@@ -2,7 +2,7 @@
   "name": "dx5ve-functions",
   "description": "Cloud Functions for dx5ve events — gallery photo notifications",
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "main": "index.js",
   "scripts": {

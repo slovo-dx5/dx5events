@@ -145,6 +145,22 @@ function badge(row) {
   return BADGES.indexOf(value) === -1 ? null : value;
 }
 
+/**
+ * `shop_products.compare_at_price`: the "was" price shown struck through next
+ * to `price`. Display only. Flow 1 always charges `price`, so a discount is
+ * made by lowering `price` and putting the old figure here. Published only
+ * when it is a real number above `price`; a stale or mistyped value (equal,
+ * lower, blank) is dropped, so the app can never show a discount the buyer
+ * is not actually getting.
+ */
+function compareAtPrice(row) {
+  const raw = row.compare_at_price;
+  if (raw === null || raw === undefined || raw === '') return null;
+  const was = Number(raw);
+  const now = Number(row.price);
+  return Number.isFinite(was) && was > now ? was : null;
+}
+
 /** Fields the app is allowed to see. Anything else stays server-side. */
 function publicProduct(row, held) {
   const sizes = Array.isArray(row.sizes) ? row.sizes.map(String) : [];
@@ -153,6 +169,7 @@ function publicProduct(row, held) {
     name: String(row.name || ''),
     category: String(row.category || ''),
     price: Number(row.price),
+    compare_at_price: compareAtPrice(row),
     sizes: sizes,
     // `product_description` is the column in Directus; `description` is the
     // name the app has always read, kept as a fallback.

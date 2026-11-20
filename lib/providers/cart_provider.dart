@@ -15,6 +15,9 @@ class CartItem {
 
   double get lineTotal => product.price * qty;
 
+  /// What this line saves against the struck-through price; 0 when not on sale.
+  double get lineSavings => product.savings * qty;
+
   /// Same product + size collapses into one line.
   String get key => '${product.id}|$size';
 }
@@ -42,6 +45,10 @@ class CartProvider extends ChangeNotifier {
   int get count => _items.values.fold(0, (sum, i) => sum + i.qty);
 
   double get total => _items.values.fold(0.0, (sum, i) => sum + i.lineTotal);
+
+  /// Total saved across discounted lines, for the "You save" row.
+  double get savings =>
+      _items.values.fold(0.0, (sum, i) => sum + i.lineSavings);
 
   bool get isEmpty => _items.isEmpty;
 

@@ -426,6 +426,73 @@ class StockBadge extends StatelessWidget {
   }
 }
 
+/// A product's price, and when it's on sale the old price struck through
+/// beside it plus an optional "-40%" pill: **KES 300** ~~KES 500~~.
+///
+/// [style] is the current price's style, so each screen keeps its own size
+/// and colour; the old price is drawn smaller and muted from it. The figure
+/// in bold is always [Product.price], which is what Flow 1 charges.
+class PriceTag extends StatelessWidget {
+  const PriceTag({
+    Key? key,
+    required this.product,
+    required this.style,
+    this.wasColor = ShopColors.inkSoft,
+    this.showPercent = false,
+  }) : super(key: key);
+
+  final Product product;
+  final TextStyle style;
+  final Color wasColor;
+  final bool showPercent;
+
+  @override
+  Widget build(BuildContext context) {
+    final now = Text(formatPrice(product.price), style: style);
+    final was = product.compareAtPrice;
+    if (was == null) return now;
+    final size = (style.fontSize ?? 15) * 0.72;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        now,
+        SizedBox(width: size * 0.5),
+        Text(
+          formatPrice(was),
+          semanticsLabel: 'was ${formatPrice(was)}',
+          style: TextStyle(
+            color: wasColor,
+            fontSize: size,
+            fontWeight: FontWeight.w600,
+            decoration: TextDecoration.lineThrough,
+            decorationColor: wasColor,
+            decorationThickness: 2,
+          ),
+        ),
+        if (showPercent && product.discountPercent > 0) ...[
+          SizedBox(width: size * 0.5),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+            decoration: BoxDecoration(
+              color: ShopColors.danger,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              '-${product.discountPercent}%',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: size * 0.85,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
 /// Fades and rises into place, staggered by [index] — the grid assembles
 /// itself instead of popping in all at once.
 class FadeSlideIn extends StatelessWidget {

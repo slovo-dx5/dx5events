@@ -6,6 +6,7 @@ import '../../providers.dart';
 import '../../providers/cart_provider.dart';
 import '../../services/payments/payment_config.dart';
 import '../../services/payments/payment_models.dart';
+import '../../services/battery_nudge_service.dart';
 import '../../services/payments/payment_service.dart';
 import 'order_status_screen.dart';
 import '../terms_of_use_screen.dart';
@@ -45,6 +46,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void initState() {
     super.initState();
+    // No low-battery nudge over checkout, Pesapal or the status screen, which
+    // are all pushed on top of this one.
+    BatteryNudgeService.instance.mute();
     final profile = context.read<ProfileProvider>();
     _firstName.text = profile.firstName;
     _lastName.text = profile.lastName;
@@ -54,6 +58,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   @override
   void dispose() {
+    BatteryNudgeService.instance.unmute();
     _firstName.dispose();
     _lastName.dispose();
     _email.dispose();
@@ -297,6 +302,27 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
             ),
           const Divider(height: 20, color: ShopColors.line),
+          if (cart.savings > 0) ...[
+            Row(
+              children: [
+                const Icon(Icons.local_offer_rounded,
+                    size: 15, color: ShopColors.success),
+                const SizedBox(width: 6),
+                const Text('You save',
+                    style: TextStyle(
+                        fontSize: 13.5,
+                        color: ShopColors.success,
+                        fontWeight: FontWeight.w600)),
+                const Spacer(),
+                Text(formatPrice(cart.savings),
+                    style: const TextStyle(
+                        fontSize: 13.5,
+                        color: ShopColors.success,
+                        fontWeight: FontWeight.w800)),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
           Row(
             children: [
               const Text('Total',

@@ -33,7 +33,7 @@ const MAILER_URL = "https://mailer.cioafrica.co/api/email/send";
 const MEETING_DOC = "users/{uid}/meetings/{meetingId}";
 
 const BANNER_URL =
-  "https://subscriptions.cioafrica.co/assets/923024d9-53c8-459a-942a-1d487e0099f9?banner.jpg";
+  "https://subscriptions.cioafrica.co/assets/0d1e6f06-4b27-4d67-aa52-3925058a378b?width=1200";
 const MEETINGS_URL = "https://cioafrica.co/meetings";
 const PLAY_URL =
   "https://play.google.com/store/apps/details?id=com.cioafrica.dx5veevents&hl=en";

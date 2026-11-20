@@ -1,4 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The app is locked to portrait (MainActivity, UCropActivity), which Play
+         reads as REQUIRING a portrait screen and so hides the app from devices
+         without one (some tablets, Chromebooks, Android XR). Portrait is
+         preferred, not required: those devices letterbox it instead. -->
+    <uses-feature android:name="android.hardware.screen.portrait" android:required="false"/>
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_CONTACTS" />

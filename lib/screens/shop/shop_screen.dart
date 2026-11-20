@@ -7,7 +7,11 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../constants.dart';
 import '../../providers/cart_provider.dart';
+import '../../services/battery_nudge_service.dart';
+import '../../widgets/shop_promo.dart';
+import '../../widgets/weather_pick.dart';
 import '../../services/payments/payment_config.dart';
 import 'cart_screen.dart';
 import 'order_history_screen.dart';
@@ -39,12 +43,41 @@ class _ShopScreenState extends State<ShopScreen> {
   void initState() {
     super.initState();
     _load();
+    BatteryNudgeService.instance.lowBattery.addListener(_onBattery);
+    BatteryNudgeService.instance.refreshLowBattery();
   }
 
   @override
   void dispose() {
+    BatteryNudgeService.instance.lowBattery.removeListener(_onBattery);
     _search.dispose();
     super.dispose();
+  }
+
+  void _onBattery() {
+    if (mounted) setState(() {});
+  }
+
+  bool _isPowerBank(Product p) =>
+      p.category.trim().toLowerCase() == kPowerBankCategory.toLowerCase();
+
+  /// Low battery and the shop has a power bank in stock: pin them first and
+  /// show the chip. Passive, so no cooldown, unlike the nudge card.
+  bool get _batteryBoost =>
+      BatteryNudgeService.instance.lowBattery.value &&
+      (_catalogue?.products ?? const <Product>[])
+          .any((p) => _isPowerBank(p) && !p.soldOut);
+
+  /// Stable sort that moves in-stock power banks to the front.
+  List<Product> _powerBanksFirst(List<Product> list) {
+    if (!_batteryBoost) return list;
+    int rank(Product p) => _isPowerBank(p) && !p.soldOut ? 0 : 1;
+    final indexed = list.asMap().entries.toList()
+      ..sort((a, b) {
+        final r = rank(a.value) - rank(b.value);
+        return r != 0 ? r : a.key - b.key;
+      });
+    return indexed.map((e) => e.value).toList();
   }
 
   Future<void> _load({bool forceRefresh = false}) async {
@@ -63,13 +96,14 @@ class _ShopScreenState extends State<ShopScreen> {
   List<Product> get _visible {
     final all = _catalogue?.products ?? const <Product>[];
     final q = _query.trim().toLowerCase();
-    return all.where((p) {
+    final matches = all.where((p) {
       if (_category != 'All' && p.category != _category) return false;
       if (q.isEmpty) return true;
       return p.name.toLowerCase().contains(q) ||
           p.category.toLowerCase().contains(q) ||
           p.description.toLowerCase().contains(q);
     }).toList();
+    return _category == 'All' && q.isEmpty ? _powerBanksFirst(matches) : matches;
   }
 
   /// Up to three in-stock items for the carousel, uploaded photos first.
@@ -77,7 +111,7 @@ class _ShopScreenState extends State<ShopScreen> {
     final all = _catalogue?.products ?? const <Product>[];
     final candidates = all.where((p) => !p.soldOut).toList()
       ..sort((a, b) => (b.imageUrl != null ? 1 : 0) - (a.imageUrl != null ? 1 : 0));
-    return candidates.take(3).toList();
+    return _powerBanksFirst(candidates).take(3).toList();
   }
 
   void _open(Product p) {
@@ -146,6 +180,15 @@ class _ShopScreenState extends State<ShopScreen> {
                   SliverToBoxAdapter(child: _header(context)),
                   if (catalogue != null && !catalogue.fromBackend)
                     SliverToBoxAdapter(child: _offlineBanner()),
+                  if (_batteryBoost && _category != kPowerBankCategory)
+                    SliverToBoxAdapter(child: _lowBatteryChip(catalogue)),
+                  if (browsing && catalogue != null && catalogue.fromBackend)
+                    SliverToBoxAdapter(
+                      child: WeatherPickBanner(
+                        products: catalogue.products,
+                        onOpen: _open,
+                      ),
+                    ),
                   if (spotlight.isNotEmpty)
                     SliverToBoxAdapter(
                       child: _Spotlight(products: spotlight, onOpen: _open),
@@ -408,6 +451,52 @@ class _ShopScreenState extends State<ShopScreen> {
     );
   }
 
+  /// "Low battery? See power banks" — jumps to the Power Banks pill.
+  Widget _lowBatteryChip(Catalogue? catalogue) {
+    final hasPill = catalogue?.categories.contains(kPowerBankCategory) ?? false;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: PressableScale(
+          onTap: () {
+            ShopPromo.tap('battery_chip');
+            setState(() {
+              _query = '';
+              _search.clear();
+              _category = hasPill ? kPowerBankCategory : 'All';
+            });
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: ShopColors.warning.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(20),
+              border:
+                  Border.all(color: ShopColors.warning.withValues(alpha: 0.35)),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.battery_alert_rounded,
+                    size: 16, color: ShopColors.warning),
+                SizedBox(width: 6),
+                Text('Low battery? See power banks',
+                    style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color: ShopColors.ink)),
+                SizedBox(width: 2),
+                Icon(Icons.chevron_right_rounded,
+                    size: 16, color: ShopColors.ink),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _sectionTitle(int count) {
     final title = _query.trim().isNotEmpty
         ? 'Results'
@@ -629,11 +718,21 @@ class _SpotlightState extends State<_Spotlight> {
                         const Spacer(),
                         Row(
                           children: [
-                            Text(formatPrice(p.price),
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w800)),
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: PriceTag(
+                                  product: p,
+                                  wasColor: Colors.white70,
+                                  showPercent: true,
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w800),
+                                ),
+                              ),
+                            ),
                             const SizedBox(width: 10),
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -885,14 +984,30 @@ class _ProductCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Text(
-                        soldOut ? 'Sold out' : formatPrice(p.price),
-                        style: TextStyle(
-                          color: soldOut ? ShopColors.inkSoft : ShopColors.brandDeep,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 15,
+                      if (soldOut)
+                        const Text(
+                          'Sold out',
+                          style: TextStyle(
+                            color: ShopColors.inkSoft,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 15,
+                          ),
+                        )
+                      else
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: PriceTag(
+                              product: p,
+                              style: const TextStyle(
+                                color: ShopColors.brandDeep,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
                       if (p.sizes.isNotEmpty && !soldOut) ...[
                         const Spacer(),
                         Text('${p.sizes.length} sizes',

@@ -403,6 +403,27 @@ await test('passes only known stock badges through', async () => {
   assert.deepEqual(byId, { a: 'selling_fast', b: 'limited', c: null, d: null });
 });
 
+await test('publishes compare_at_price only when it is above price', async () => {
+  const row = (id, price, compare_at_price) => ({ id, name: id, category: 'C', price, sizes: [], compare_at_price });
+  const r = await flow4Catalogue({
+    products: [
+      row('sale', 300, 500),
+      row('sale_str', 300, '500'),
+      row('equal', 300, 300),
+      row('lower', 300, 200),
+      row('blank', 300, ''),
+      row('missing', 300, undefined),
+      row('junk', 300, 'abc'),
+    ],
+  });
+  const byId = Object.fromEntries(r.products.map((p) => [p.id, p.compare_at_price]));
+  assert.deepEqual(byId, {
+    sale: 500, sale_str: 500, equal: null, lower: null, blank: null, missing: null, junk: null,
+  });
+  // The charged price is untouched by a discount.
+  assert.equal(r.products.find((p) => p.id === 'sale').price, 300);
+});
+
 await test('an empty catalogue errors so the app keeps its bundled list', async () => {
   assert.ok((await flow4Catalogue({ products: [] })).error);
 });

@@ -20,6 +20,8 @@ import 'gallery_screen.dart';
 import 'homeScreen.dart';
 import 'meetings/meeting_tabs.dart';
 import 'screens/shop/shop_screen.dart';
+import 'services/battery_nudge_service.dart';
+import 'widgets/battery_nudge.dart';
 import 'widgets/shop_promo.dart';
 
 _MainNavigationPageState mainNavigationPageState = _MainNavigationPageState();
@@ -65,6 +67,9 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
     getFirebaseMessagingToken();
     fetchAndStoreSponsorPhone();
+    // Low-battery power bank suggestion; started here so it only runs once
+    // the attendee is inside an event, never on login or onboarding.
+    BatteryNudgeService.instance.init();
 
     // Show the Harry assistant while inside the event, and give it this
     // event's context (covers every entry path, incl. notification cold-start).
@@ -229,7 +234,8 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     }
 
     return Scaffold(
-      body: PersistentTabView(
+      body: BatteryNudgeHost(
+        child: PersistentTabView(
         context,
         controller: controller,
         screens: _buildScreens(),
@@ -252,7 +258,8 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
         navBarStyle:
         NavBarStyle.style8, // Choose the nav bar style with this property.
-      )
+      ),
+      ),
     );
 
   }

@@ -178,11 +178,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             fontWeight: FontWeight.w800,
                             color: ShopColors.ink)),
                     const SizedBox(height: 8),
-                    Text(formatPrice(p.price),
+                    PriceTag(
+                        product: p,
+                        showPercent: true,
                         style: const TextStyle(
                             fontSize: 22,
                             color: ShopColors.brandDeep,
                             fontWeight: FontWeight.w800)),
+                    if (p.onSale) ...[
+                      const SizedBox(height: 4),
+                      Text('You save ${formatPrice(p.savings)}',
+                          style: const TextStyle(
+                              fontSize: 13,
+                              color: ShopColors.success,
+                              fontWeight: FontWeight.w700)),
+                    ],
                     if (p.sizes.isNotEmpty) ...[
                       const SizedBox(height: 26),
                       Row(

@@ -47,12 +47,34 @@ class Product {
     this.imageUrl,
     this.available,
     this.hype,
-  });
+    double? compareAtPrice,
+  }) : _compareAtPrice = compareAtPrice;
 
   final String id;
   final String name;
   final String category;
+  /// What the buyer is charged. Always the backend's `price`.
   final double price;
+
+  final double? _compareAtPrice;
+
+  /// The struck-through "was" price, or null when the item isn't on sale.
+  /// Display only: Flow 1 charges [price] whatever this says. Ignored unless
+  /// it is above [price], so a stale value can't fake a discount.
+  double? get compareAtPrice {
+    final was = _compareAtPrice;
+    return was != null && was > price ? was : null;
+  }
+
+  bool get onSale => compareAtPrice != null;
+
+  /// Amount saved per unit; 0 when not on sale.
+  double get savings => onSale ? compareAtPrice! - price : 0;
+
+  /// Whole-number discount for a "-40%" pill; 0 when not on sale.
+  int get discountPercent =>
+      onSale ? ((savings / compareAtPrice!) * 100).round() : 0;
+
   final String imageAsset;
   final String description;
 
@@ -88,6 +110,9 @@ class Product {
       name: json['name'] as String? ?? '',
       category: json['category'] as String? ?? '',
       price: _toDouble(json['price']),
+      compareAtPrice: json['compare_at_price'] == null
+          ? null
+          : _toDouble(json['compare_at_price']),
       imageAsset: ShopRepository.assetFor(id),
       // Falls back to the bundled copy the same way the image does. The
       // backend is authoritative for anything that affects what the buyer is

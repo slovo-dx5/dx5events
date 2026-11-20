@@ -5,11 +5,27 @@ import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:dx5veevents/services/active_event/active_event_service.dart';
 
 
 // Temporary feature flags — flip back to true to re-enable.
 const bool kGalleryFeatureEnabled = true;
 const bool kShopFeatureEnabled = true;
+
+/// Low-battery power bank suggestion (lib/services/battery_nudge_service.dart).
+/// Off also hides the shop's low-battery chip. Needs [kShopFeatureEnabled].
+const bool kBatteryNudgeEnabled = true;
+
+/// `shop_products.category` that holds power banks. The battery nudge suggests
+/// in-stock products from this category only.
+const String kPowerBankCategory = 'Power Banks';
+
+/// Battery percentage below which the nudge may appear.
+const int kBatteryNudgeThreshold = 30;
+
+/// Weather-based picks in the shop (tees when warm, blankets when it's about
+/// to get cold). See lib/services/weather_pick_service.dart.
+const bool kWeatherPickEnabled = true;
 
 /// 3D venue map (Mapbox). The screen also shows a "not set up" message when
 /// MAPBOX_ACCESS_TOKEN is missing from assets/.env (see VenueMapConfig).
@@ -147,10 +163,12 @@ final kCISOFirstDay =
 final kCISOLastDay =
     DateTime(kCISOToday.year, kCISOToday.month + 30, kCISOToday.day);
 
-/// The current event's date span. Update these two dates per event — every
-/// calendar day in the inclusive range is offered when requesting a meeting.
-final DateTime kEventStart = DateTime(2026, 7, 22);
-final DateTime kEventEnd = DateTime(2026, 7, 24);
+/// The current event's date span, taken from the active event in Directus
+/// (app_config.active_event, cached on device; falls back to the bundled
+/// event). Every calendar day in the inclusive range is offered when
+/// requesting a meeting.
+DateTime get kEventStart => ActiveEventService.instance.current.dateFrom;
+DateTime get kEventEnd => ActiveEventService.instance.current.dateTo;
 
 /// Every day the event runs (inclusive), midnight-normalised. Used to populate
 /// the meeting-request date picker so a user can book a meeting on any event

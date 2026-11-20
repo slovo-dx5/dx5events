@@ -107,6 +107,10 @@ class CartScreen extends StatelessWidget {
           children: [
             _row('Subtotal · ${cart.count} item${cart.count == 1 ? '' : 's'}',
                 formatPrice(cart.total)),
+            if (cart.savings > 0) ...[
+              const SizedBox(height: 6),
+              _savingsRow(cart.savings),
+            ],
             const SizedBox(height: 8),
             Row(
               children: [
@@ -156,6 +160,27 @@ class CartScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _savingsRow(double savings) {
+    return Row(
+      children: [
+        const Icon(Icons.local_offer_rounded,
+            size: 15, color: ShopColors.success),
+        const SizedBox(width: 6),
+        const Text('You save',
+            style: TextStyle(
+                fontSize: 14,
+                color: ShopColors.success,
+                fontWeight: FontWeight.w600)),
+        const Spacer(),
+        Text(formatPrice(savings),
+            style: const TextStyle(
+                fontSize: 14,
+                color: ShopColors.success,
+                fontWeight: FontWeight.w800)),
+      ],
     );
   }
 
