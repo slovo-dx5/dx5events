@@ -29,9 +29,75 @@
  *        {"email":{"_eq":"{{$trigger.body.email}}"}}]},
  *      "sort":["-date_created"],"limit":50}
  *
+ *   vouchers — Read Data on shop_vouchers, permissions $full, query:
+ *     {"filter":{"_and":[
+ *        {"attendee_id":{"_eq":"{{$trigger.body.attendee_id}}"}},
+ *        {"status":{"_eq":"active"}}]},"limit":5}
+ *   voucher_use — Read Data on shop_orders, permissions $full, query:
+ *     {"filter":{"_and":[
+ *        {"attendee_id":{"_eq":"{{$trigger.body.attendee_id}}"}},
+ *        {"voucher_id":{"_nnull":true}},
+ *        {"status":{"_in":["pending","completed"]}}]},
+ *      "fields":["status","voucher_id","credit_applied","date_created"],"limit":-1}
+ *   (both optional: without them the reply simply has `credit: null`)
+ *
  * Note the app lowercases `email` before sending, and Flow 1 lowercases it
  * before storing, so `_eq` is safe on both sides.
  */
+
+// Same hold as Flow 1's stock and credit rules.
+const HOLD_MINUTES = 30;
+
+// ── Prize credit ─────────────────────────────────────────────────────────────
+// Identical in flow1_plan.js and flow5_orders.js; test_flows.mjs checks the two
+// copies agree.
+//
+// A `shop_vouchers` row is a prize (leaderboard top 3) worth `amount` KES. The
+// balance is never stored: it is the amount minus `credit_applied` on the
+// winner's orders that hold it — completed ones for good, pending ones for
+// HOLD_MINUTES (the same rule as stock) — so a failed or abandoned payment
+// hands its credit back on its own.
+//
+// A voucher only counts when it is `active`, not expired, and belongs to BOTH
+// the attendee id and the signed-in email the request carries.
+function activeVoucher(vouchers, attendeeId, email, now) {
+  const id = String(attendeeId || '').trim();
+  const mail = String(email || '').trim().toLowerCase();
+  if (!id || !mail) return null;
+  const rows = Array.isArray(vouchers) ? vouchers : (vouchers ? [vouchers] : []);
+  for (const v of rows) {
+    if (!v || String(v.status) !== 'active') continue;
+    if (String(v.attendee_id) !== id) continue;
+    if (String(v.email || '').trim().toLowerCase() !== mail) continue;
+    const expires = Date.parse(v.expires_at);
+    if (!Number.isFinite(expires) || expires <= now) continue;
+    const amount = Number(v.amount);
+    if (!Number.isFinite(amount) || amount <= 0) continue;
+    return v;
+  }
+  return null;
+}
+
+/** KES left on `voucher` after the orders in `uses` that still hold credit. */
+function creditBalance(voucher, uses, now) {
+  if (!voucher) return 0;
+  const cutoff = now - HOLD_MINUTES * 60 * 1000;
+  let spent = 0;
+  for (const order of Array.isArray(uses) ? uses : []) {
+    if (!order || String(order.voucher_id) !== String(voucher.id)) continue;
+    const status = String(order.status || '');
+    if (status === 'pending') {
+      const at = Date.parse(order.date_created);
+      if (!Number.isFinite(at) || at < cutoff) continue;
+    } else if (status !== 'completed') {
+      continue;
+    }
+    const used = Number(order.credit_applied);
+    if (Number.isFinite(used) && used > 0) spent += used;
+  }
+  return Math.max(0, Math.round(Number(voucher.amount) - spent));
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 /** Fields the app is allowed to see. Deliberately excludes `billing`. */
 function publicOrder(row) {
@@ -43,6 +109,7 @@ function publicOrder(row) {
     currency: row.currency || 'KES',
     order_tracking_id: row.order_tracking_id || null,
     payment_method: row.payment_method || null,
+    credit_applied: Number(row.credit_applied) > 0 ? Number(row.credit_applied) : 0,
     confirmation_code: row.confirmation_code || null,
     paid_at: row.paid_at || null,
     created_at: row.date_created || null,
@@ -80,5 +147,18 @@ module.exports = async function (data) {
       String(row.email || '').toLowerCase() === email;
   });
 
-  return { orders: mine.map(publicOrder) };
+  // Prize credit, if this buyer won one. Only reported when the spending read
+  // is present too, so the app never shows a balance that ignores past orders.
+  const now = Date.now();
+  const voucher = activeVoucher(data.vouchers, attendeeId, email, now);
+  const credit = voucher && Array.isArray(data.voucher_use)
+    ? {
+        amount: Math.round(Number(voucher.amount)),
+        balance: creditBalance(voucher, data.voucher_use, now),
+        rank: Number(voucher.rank) || null,
+        expires_at: voucher.expires_at,
+      }
+    : null;
+
+  return { orders: mine.map(publicOrder), credit };
 };

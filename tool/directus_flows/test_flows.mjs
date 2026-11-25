@@ -616,5 +616,180 @@ await test('withholds the billing block', async () => {
   assert.equal(JSON.stringify(r).includes('254700000000'), false);
 });
 
+// ── Prize credit (leaderboard vouchers) ─────────────────────────────────────
+console.log('\nPrize credit');
+
+const inDays = (d) => new Date(NOW + d * 86400000).toISOString();
+const VOUCHER = {
+  id: 7, attendee_id: '501', email: 'jane@example.com', rank: 1,
+  amount: 7500, status: 'active', expires_at: inDays(30),
+};
+const WINNER = { ...ORDER_REQUEST, attendee_id: '501', attendee_email: 'Jane@Example.com' };
+const credited = (items, { vouchers = [VOUCHER], use = [], body = {} } = {}) => flow1Plan({
+  products: PRODUCTS, existing: [], sales: [],
+  vouchers, voucher_use: use,
+  $trigger: { body: { ...WINNER, items, ...body } },
+});
+const spent = (credit, status = 'completed', age = 1) =>
+  ({ voucher_id: 7, status, credit_applied: credit, date_created: minsAgo(age) });
+
+await test('the credit logic is identical in Flow 1 and Flow 5', async () => {
+  const { readFileSync } = await import('node:fs');
+  const block = (f) => readFileSync(join(here, f), 'utf8').replace(/\r\n/g, '\n')
+    .match(/^\/\/ ── Prize credit ─+\n[\s\S]*?^\/\/ ─{20,}$/m)?.[0];
+  assert.ok(block('flow1_plan.js'), 'block not found in flow1_plan.js');
+  assert.equal(block('flow1_plan.js'), block('flow5_orders.js'));
+});
+
+await test('credit covering the whole order makes it free and completed', async () => {
+  const r = await credited([{ product_id: 'ts1', qty: 2, size: 'L' }]); // 5000
+  assert.equal(r.mode, 'new');
+  assert.equal(r.free, true);
+  assert.equal(r.amount, 0);
+  assert.equal(r.credit_applied, 5000);
+  assert.equal(r.order_row.status, 'completed');
+  assert.equal(r.order_row.payment_method, 'prize_credit');
+  assert.equal(r.order_row.voucher_id, 7);
+  assert.equal(r.order_row.credit_applied, 5000);
+  assert.equal(r.response.credit_applied, 5000);
+  assert.equal(r.gateway_body, null);
+});
+
+await test('partial cover sends only the remainder to the gateway', async () => {
+  const r = await credited([{ product_id: 'bp1', qty: 2 }]); // 9600
+  assert.equal(r.free, false);
+  assert.equal(r.credit_applied, 7500);
+  assert.equal(r.amount, 2100);
+  assert.equal(r.gateway_body.order.amount, 2100);
+  assert.equal(r.order_row.status, 'pending');
+  assert.equal(r.order_row.credit_applied, 7500);
+});
+
+await test('balance carries across orders', async () => {
+  const r = await credited([{ product_id: 'bp1', qty: 1 }], { use: [spent(5000)] }); // 4800, 2500 left
+  assert.equal(r.credit_applied, 2500);
+  assert.equal(r.amount, 2300);
+});
+
+await test('a spent voucher gives nothing more', async () => {
+  const r = await credited([{ product_id: 'ts1', qty: 1, size: 'S' }], { use: [spent(5000), spent(2500)] });
+  assert.equal(r.credit_applied, 0);
+  assert.equal(r.amount, 2500);
+  assert.equal(r.order_row.voucher_id, null);
+});
+
+await test('a fresh pending order holds credit; a stale or failed one releases it', async () => {
+  const held = await credited([{ product_id: 'bp1', qty: 1 }], { use: [spent(7500, 'pending', 5)] });
+  assert.equal(held.credit_applied, 0);
+  const stale = await credited([{ product_id: 'bp1', qty: 1 }], { use: [spent(7500, 'pending', 45)] });
+  assert.equal(stale.credit_applied, 4800);
+  const failedUse = await credited([{ product_id: 'bp1', qty: 1 }], { use: [spent(7500, 'failed')] });
+  assert.equal(failedUse.credit_applied, 4800);
+});
+
+await test('spending on another voucher does not count against this one', async () => {
+  const r = await credited([{ product_id: 'bp1', qty: 1 }], { use: [{ ...spent(7500), voucher_id: 99 }] });
+  assert.equal(r.credit_applied, 4800);
+});
+
+await test('expired, unapproved, void or someone else\'s voucher is ignored', async () => {
+  for (const v of [
+    { ...VOUCHER, expires_at: inDays(-1) },
+    { ...VOUCHER, expires_at: null },
+    { ...VOUCHER, status: 'draft' },
+    { ...VOUCHER, status: 'approved' },
+    { ...VOUCHER, status: 'void' },
+    { ...VOUCHER, attendee_id: '502' },
+    { ...VOUCHER, email: 'someone@else.com' },
+  ]) {
+    const r = await credited([{ product_id: 'bp1', qty: 1 }], { vouchers: [v] });
+    assert.equal(r.credit_applied, 0, JSON.stringify(v));
+    assert.equal(r.amount, 4800);
+  }
+});
+
+await test('needs the signed-in email, not just the billing one', async () => {
+  const r = await credited([{ product_id: 'bp1', qty: 1 }], { body: { attendee_email: '' } });
+  assert.equal(r.credit_applied, 0);
+});
+
+await test('a client cannot claim credit it was not given', async () => {
+  const r = await credited([{ product_id: 'bp1', qty: 1 }], {
+    vouchers: [],
+    body: { credit_applied: 4800, voucher_id: 7, amount: 0 },
+  });
+  assert.equal(r.credit_applied, 0);
+  assert.equal(r.amount, 4800);
+  assert.equal(r.free, false);
+});
+
+await test('no voucher read at all behaves exactly as before', async () => {
+  const r = await flow1Plan({ products: PRODUCTS, existing: [], sales: [], $trigger: { body: WINNER } });
+  assert.equal(r.credit_applied, 0);
+  assert.equal(r.amount, 5000);
+  assert.equal(r.order_row.voucher_id, null);
+});
+
+await test('refuses rather than double-spends when the spending read is missing', async () => {
+  const r = await flow1Plan({
+    products: PRODUCTS, existing: [], sales: [], vouchers: [VOUCHER],
+    $trigger: { body: WINNER },
+  });
+  assert.equal(r.mode, 'error');
+});
+
+await test('a retry of a credited order does not take credit again', async () => {
+  const r = await flow1Plan({
+    products: PRODUCTS, sales: [], vouchers: [VOUCHER], voucher_use: [],
+    existing: [{ id: 'shop-1', status: 'completed', amount: 0, currency: 'KES' }],
+    $trigger: { body: WINNER },
+  });
+  assert.equal(r.mode, 'existing');
+  assert.equal(r.response.status, 'completed');
+});
+
+await test('Flow 5 reports the balance and each order\'s credit', async () => {
+  const r = await flow5Orders({
+    $trigger: { body: { attendee_id: '501', email: 'jane@example.com' } },
+    orders: [{ id: 'o1', attendee_id: '501', email: 'jane@example.com', status: 'completed', amount: 0, credit_applied: 5000, items: [] }],
+    vouchers: [VOUCHER],
+    voucher_use: [spent(5000)],
+  });
+  assert.deepEqual(r.credit, { amount: 7500, balance: 2500, rank: 1, expires_at: VOUCHER.expires_at });
+  assert.equal(r.orders[0].credit_applied, 5000);
+});
+
+await test('Flow 5 reports no credit without a voucher or without the spending read', async () => {
+  const base = { $trigger: { body: { attendee_id: '501', email: 'jane@example.com' } }, orders: [] };
+  assert.equal((await flow5Orders(base)).credit, null);
+  assert.equal((await flow5Orders({ ...base, vouchers: [VOUCHER] })).credit, null);
+  assert.equal((await flow5Orders({ ...base, vouchers: [{ ...VOUCHER, email: 'x@y.z' }], voucher_use: [] })).credit, null);
+});
+
+await test('receipt shows the prize credit line', async () => {
+  const r = await flow3Receipt({
+    plan: {
+      order_row: {
+        id: 'shop-9', status: 'completed', amount: 0, credit_applied: 5000, currency: 'KES',
+        payment_method: 'prize_credit', items: [{ name: 'Tee', qty: 2, line_total: 5000 }],
+        billing: { first_name: 'Jane', email_address: 'jane@example.com' },
+      },
+    },
+  });
+  assert.match(r.body, /Prize credit/);
+  assert.match(r.body, /KES 5,000/);
+  assert.equal(r.body.includes('prize_credit'), false);
+});
+
+await test('G5 gives no purchase points for a fully prize-paid order', async () => {
+  const g5 = load('gamification_shop.js');
+  const r = await g5({ order: [
+    { id: 'a', status: 'completed', attendee_id: '501', amount: 0, credit_applied: 5000 },
+    { id: 'b', status: 'completed', attendee_id: '501', amount: 2100, credit_applied: 7500 },
+    { id: 'c', status: 'completed', attendee_id: '501', amount: 0 },
+  ] });
+  assert.deepEqual(r.rows.map((x) => x.target_id), ['b', 'c']);
+});
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed === 0 ? 0 : 1);

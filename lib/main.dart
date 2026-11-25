@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dx5veevents/constants.dart';
+import 'package:dx5veevents/screens/shop/shop_screen.dart';
 
 import 'package:dx5veevents/providers.dart';
 import 'package:dx5veevents/providers/themeProvider.dart';
@@ -249,6 +250,14 @@ final router = GoRouter(
           ActiveEventService.instance.companion == null ? '/notifications' : null,
       builder: (context, state) =>
           companionAgendaScreen(ActiveEventService.instance.companion!),
+    ),
+    GoRoute(
+      // Opened by tapping a leaderboard-prize push (functions/
+      // leaderboard_prizes.js): the shop, where the credit banner shows.
+      path: '/shop',
+      redirect: (context, state) =>
+          kShopFeatureEnabled ? null : '/notifications',
+      builder: (context, state) => const ShopScreen(),
     ),
     GoRoute(
       path: '/test-contact',
@@ -509,6 +518,9 @@ if(Platform.isIOS){
         Uri(path: '/gallery', queryParameters: query.isEmpty ? null : query)
             .toString(),
       );
+    } else if (targetPage == 'shop') {
+      // Leaderboard prize: "you won shop credit".
+      router.push('/shop');
     } else if (targetPage == 'acls') {
       // ACLS hype push (Firebase Console, custom data targetPage=acls).
       router.push('/acls');

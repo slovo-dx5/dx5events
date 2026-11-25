@@ -7,7 +7,11 @@
  *
  * Expects:
  *   order — Read Data on shop_orders, keys {{$trigger.keys}} (update) or
- *           {{$trigger.key}} (create), fields id,status,attendee_id,paid_at,date_created
+ *           {{$trigger.key}} (create), fields
+ *           id,status,attendee_id,paid_at,date_created,amount,credit_applied
+ *
+ * An order paid entirely with leaderboard prize credit earns nothing: prizes
+ * are handed out after awards close, and must not feed back into the board.
  *
  * Returns { rows: [...] } for a Create Data operation on app_activity_logs
  * (Emit Events: ON — G1 must see it). client_event_id is fixed per order, so a
@@ -19,6 +23,7 @@ module.exports = async function (data) {
   const rows = [];
   for (const order of orders) {
     if (!order || order.status !== 'completed') continue;
+    if (Number(order.credit_applied) > 0 && !(Number(order.amount) > 0)) continue;
     const userId = Number(order.attendee_id);
     if (!Number.isFinite(userId) || userId <= 0) continue;
     rows.push({

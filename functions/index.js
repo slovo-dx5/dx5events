@@ -245,3 +245,10 @@ exports.meetingAcceptedEmail = meetingEmails.meetingAcceptedEmail;
 // Chat summary, legacy contacts and push, done here instead of on the device.
 const chatMessages = require("./chat_messages");
 exports.onChatMessageCreated = chatMessages.onChatMessageCreated;
+
+// -------------------------------------------------------- leaderboard prizes
+
+// Top-3 shop credit after the event: drafts winners for admin approval, then
+// notifies the approved ones. Deploy by name: functions:leaderboardPrizes.
+const leaderboardPrizes = require("./leaderboard_prizes");
+exports.leaderboardPrizes = leaderboardPrizes.leaderboardPrizes;

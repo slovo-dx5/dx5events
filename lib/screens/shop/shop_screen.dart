@@ -8,11 +8,14 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../constants.dart';
+import '../../providers.dart';
 import '../../providers/cart_provider.dart';
 import '../../services/battery_nudge_service.dart';
 import '../../widgets/shop_promo.dart';
 import '../../widgets/weather_pick.dart';
 import '../../services/payments/payment_config.dart';
+import '../../services/payments/payment_models.dart';
+import '../../services/payments/shop_credit_store.dart';
 import 'cart_screen.dart';
 import 'order_history_screen.dart';
 import 'product_detail_screen.dart';
@@ -82,6 +85,10 @@ class _ShopScreenState extends State<ShopScreen> {
 
   Future<void> _load({bool forceRefresh = false}) async {
     setState(() => _loading = true);
+    final profile = context.read<ProfileProvider>();
+    // Leaderboard prize credit for the banner; runs alongside the catalogue.
+    unawaited(ShopCreditStore.instance
+        .refresh(attendeeId: profile.userID?.toString(), email: profile.email));
     final catalogue = await ShopRepository.load(forceRefresh: forceRefresh);
     if (!mounted) return;
     setState(() {
@@ -178,6 +185,7 @@ class _ShopScreenState extends State<ShopScreen> {
                     parent: BouncingScrollPhysics()),
                 slivers: [
                   SliverToBoxAdapter(child: _header(context)),
+                  const SliverToBoxAdapter(child: _PrizeCreditBanner()),
                   if (catalogue != null && !catalogue.fromBackend)
                     SliverToBoxAdapter(child: _offlineBanner()),
                   if (_batteryBoost && _category != kPowerBankCategory)
@@ -582,6 +590,81 @@ class _ShopScreenState extends State<ShopScreen> {
 }
 
 /// Auto-advancing carousel of featured products.
+/// "You won KES 7,500" — shown to leaderboard prize winners with credit left.
+class _PrizeCreditBanner extends StatelessWidget {
+  const _PrizeCreditBanner();
+
+  static const _months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  ];
+
+  static String _place(int? rank) => switch (rank) {
+        1 => '1st place',
+        2 => '2nd place',
+        3 => '3rd place',
+        _ => 'a top spot',
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<ShopCredit?>(
+      valueListenable: ShopCreditStore.instance.credit,
+      builder: (context, credit, _) {
+        if (credit == null || !credit.hasBalance) {
+          return const SizedBox.shrink();
+        }
+        final expires = credit.expiresAt;
+        final left = credit.balance < credit.amount
+            ? '${formatPrice(credit.balance)} left'
+            : 'Taken off at checkout';
+        return Container(
+          margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: ShopColors.accent.withValues(alpha: 0.14),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: ShopColors.accent.withValues(alpha: 0.45)),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.emoji_events_rounded,
+                  size: 30, color: ShopColors.accent),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'You won ${formatPrice(credit.amount)} for '
+                      '${_place(credit.rank)}!',
+                      style: const TextStyle(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w800,
+                          color: ShopColors.ink),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      expires == null
+                          ? left
+                          : '$left · use by ${expires.day} '
+                              '${_months[expires.month - 1]}',
+                      style: const TextStyle(
+                          fontSize: 12.5,
+                          color: ShopColors.inkSoft,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _Spotlight extends StatefulWidget {
   const _Spotlight({required this.products, required this.onOpen});
   final List<Product> products;

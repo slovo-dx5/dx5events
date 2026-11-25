@@ -368,7 +368,9 @@ value (a real NULL, a real timestamp, an object). **Leave none out:** a missing
   "event_id": "{{plan.order_row.event_id}}",
   "email": "{{plan.order_row.email}}",
   "paid_at": "{{plan.order_row.paid_at}}",
-  "payment_method": "{{plan.order_row.payment_method}}"
+  "payment_method": "{{plan.order_row.payment_method}}",
+  "voucher_id": "{{plan.order_row.voucher_id}}",
+  "credit_applied": "{{plan.order_row.credit_applied}}"
 }
 ```
 
@@ -655,6 +657,8 @@ operation*.
 | # | Type | Key | Config |
 |---|---|---|---|
 | 1 | Read Data | `orders` | `shop_orders`, **$full**, query below |
+| 1b | Read Data | `vouchers` | prize credit — see *Leaderboard prize credit* below |
+| 1c | Read Data | `voucher_use` | prize credit — see *Leaderboard prize credit* below |
 | 2 | Run Script | `respond` | `flow5_orders.js` |
 
 ```json
@@ -694,6 +698,99 @@ Then put the id in `assets/.env` as `PAYMENTS_ORDER_HISTORY_FLOW_ID`. Until it i
 set, the app hides the "My orders" button rather than showing one that errors.
 
 ---
+
+## Leaderboard prize credit (top 3 → shop vouchers)
+
+The top 3 on the gamification leaderboard win shop credit (KES 7,500 / 5,000 /
+3,500 by default). The Cloud Function `functions/leaderboard_prizes.js` drafts
+the winners after `awards_close_at`, an admin approves them in Directus, and the
+function then pushes + emails each winner and sets their voucher `active`.
+Flow 1 takes the credit off their orders; Flow 5 reports the balance.
+
+### Schema
+
+**New collection `shop_vouchers`** (id: auto-increment integer). Admin-only; the
+flows read it with **Full Access**.
+
+| Field | Type | Notes |
+|---|---|---|
+| `event_id` | string | `gamification_settings.event_id` |
+| `attendee_id` | string | `event_registrations.attendeeId` |
+| `email` | string | `work_email`, lowercased. Must match the app's signed-in email |
+| `name` | string | |
+| `rank` | integer | 1, 2, 3 |
+| `points` | integer | at close |
+| `amount` | integer | KES |
+| `status` | string, dropdown | `draft` · `approved` · `active` · `void` |
+| `expires_at` | timestamp | set when activated |
+| `notified_at` | timestamp | set when activated |
+| `date_created` | timestamp | special: date-created |
+
+**`shop_orders`:** add `voucher_id` (integer, nullable) and `credit_applied`
+(integer, default 0).
+
+**`gamification_settings`:** add `prizes` (JSON, `[7500,5000,3500]`),
+`prize_expiry_days` (integer, `30`), `prize_admin_email` (string — who gets the
+"approve the winners" email), `prize_event_name` (string, `CIO100`).
+
+### Flow 1 — two more reads, two more fields
+
+Add before `plan` (both **Full Access**, Query form):
+
+| # | Type | Key | Collection / query |
+|---|---|---|---|
+| 3b | Read Data | `vouchers` | `shop_vouchers` — `{"filter":{"_and":[{"attendee_id":{"_eq":"{{$trigger.body.attendee_id}}"}},{"status":{"_eq":"active"}}]},"limit":5}` |
+| 3c | Read Data | `voucher_use` | `shop_orders` — `{"filter":{"_and":[{"attendee_id":{"_eq":"{{$trigger.body.attendee_id}}"}},{"voucher_id":{"_nnull":true}},{"status":{"_in":["pending","completed"]}}]},"fields":["status","voucher_id","credit_applied","date_created"],"limit":-1}` |
+
+Re-paste `flow1_plan.js` into `plan`, and add to the `create` payload:
+
+```json
+  "voucher_id": "{{plan.order_row.voucher_id}}",
+  "credit_applied": "{{plan.order_row.credit_applied}}"
+```
+
+Order matters only one way: with `vouchers` but no `voucher_use`, `plan`
+refuses a winner's checkout rather than letting the full prize be spent again.
+With neither, everything behaves exactly as before.
+
+A fully covered order takes the existing free branch (`payment_method:
+"prize_credit"`, receipt sent); a partly covered one sends only the remainder to
+Pesapal.
+
+### Flow 5 — same two reads
+
+Add `vouchers` and `voucher_use` (same queries as above) before `respond`, then
+re-paste `flow5_orders.js`. The reply gains `credit: {amount, balance, rank,
+expires_at}` (null for everyone else), which drives the shop banner and checkout.
+
+### Receipt and G5
+
+Re-paste `flow3_receipt.js` in all three flows (Flow 1 free branch, Flow 2
+recovery, Flow 3) so receipts show a "Prize credit" line. In G5 add `amount` and
+`credit_applied` to the `order` read's fields and re-paste
+`gamification_shop.js` — a fully prize-paid order earns no purchase points.
+
+### The Cloud Function
+
+```
+firebase functions:secrets:set DIRECTUS_TOKEN   # the Directus admin token
+firebase deploy --only functions:leaderboardPrizes
+```
+
+Deploy **by name only** (the project has functions whose source is not in this
+repo). It runs every 5 minutes and does nothing until `awards_close_at`.
+
+### Admin, after the event
+
+1. Within 5 min of close, the three `draft` rows appear in `shop_vouchers` and
+   `prize_admin_email` gets the list.
+2. Set anyone who must not win (staff, cheating) to `void`. Until something is
+   approved, everyone below moves up on the next run.
+3. Set the winners to `approved`. Within 5 min each gets a push ("tap to
+   redeem", opens the shop) and an email; the row becomes `active`.
+
+The credit is spendable only while `active` and before `expires_at` (30 days
+after close by default). To withdraw it later, set the row to `void`.
 
 ## Wiring it back to the app
 

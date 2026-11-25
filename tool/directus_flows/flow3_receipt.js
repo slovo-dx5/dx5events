@@ -91,6 +91,9 @@ module.exports = async function (data) {
   const currency = order.currency || 'KES';
   const items = Array.isArray(order.items) ? order.items : [];
   const free = !(Number(order.amount) > 0);
+  // Leaderboard prize credit spent on this order (flow1_plan.js); `amount` is
+  // what was left to pay after it.
+  const credit = Number(order.credit_applied) > 0 ? Number(order.credit_applied) : 0;
   const firstName = String((order.billing || {}).first_name || '').trim();
 
   const lines = items
@@ -106,8 +109,10 @@ module.exports = async function (data) {
     })
     .join('');
 
-  // "free" is how Flow 1 marks a zero-amount order, not a way anyone paid.
-  const method = update.payment_method && update.payment_method !== 'free'
+  // "free" / "prize_credit" are how Flow 1 marks an order with nothing left to
+  // pay, not a way anyone paid at the gateway.
+  const method = update.payment_method &&
+    update.payment_method !== 'free' && update.payment_method !== 'prize_credit'
     ? update.payment_method
     : null;
 
@@ -142,10 +147,15 @@ module.exports = async function (data) {
       '<th style="' + CELL + 'text-align:right;">Total</th>' +
       '</tr>',
     lines,
+    credit > 0
+      ? '<tr><td colspan="2" style="padding:10px 6px;">Prize credit</td>' +
+        '<td style="padding:10px 6px;text-align:right;">−' +
+        esc(money(currency, credit)) + '</td></tr>'
+      : '',
     '<tr><td colspan="2" style="padding:10px 6px;"><strong>' +
       (free ? 'Total' : 'Total paid') + '</strong></td>' +
       '<td style="padding:10px 6px;text-align:right;"><strong>' +
-      (free ? 'Free' : esc(money(currency, order.amount))) +
+      (free ? (credit > 0 ? esc(money(currency, 0)) : 'Free') : esc(money(currency, order.amount))) +
       '</strong></td></tr>',
     '</table>',
     '<p>' + details + '</p>',

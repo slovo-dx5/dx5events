@@ -13,6 +13,18 @@
  *   sales     — Read Data on shop_orders, for the stock check,
  *               query {"filter":{"status":{"_in":["pending","completed"]}},
  *                      "fields":["status","items","date_created"],"limit":-1}
+ *   vouchers  — Read Data on shop_vouchers (Full Access), prize credit,
+ *               query {"filter":{"_and":[
+ *                        {"attendee_id":{"_eq":"{{$trigger.body.attendee_id}}"}},
+ *                        {"status":{"_eq":"active"}}]},"limit":5}
+ *   voucher_use — Read Data on shop_orders, credit already spent,
+ *               query {"filter":{"_and":[
+ *                        {"attendee_id":{"_eq":"{{$trigger.body.attendee_id}}"}},
+ *                        {"voucher_id":{"_nnull":true}},
+ *                        {"status":{"_in":["pending","completed"]}}]},
+ *                      "fields":["status","voucher_id","credit_applied","date_created"],
+ *                      "limit":-1}
+ *   Both are optional until a prize exists: no `vouchers` read means no credit.
  *
  * Returns `mode`:
  *   "existing" — do not touch the gateway; `response` is ready to return.
@@ -116,6 +128,57 @@ function stockKey(product, size) {
   return typeof parseStock(product.stock) === 'number'
     ? String(product.id)
     : String(product.id) + '|' + size;
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Prize credit ─────────────────────────────────────────────────────────────
+// Identical in flow1_plan.js and flow5_orders.js; test_flows.mjs checks the two
+// copies agree.
+//
+// A `shop_vouchers` row is a prize (leaderboard top 3) worth `amount` KES. The
+// balance is never stored: it is the amount minus `credit_applied` on the
+// winner's orders that hold it — completed ones for good, pending ones for
+// HOLD_MINUTES (the same rule as stock) — so a failed or abandoned payment
+// hands its credit back on its own.
+//
+// A voucher only counts when it is `active`, not expired, and belongs to BOTH
+// the attendee id and the signed-in email the request carries.
+function activeVoucher(vouchers, attendeeId, email, now) {
+  const id = String(attendeeId || '').trim();
+  const mail = String(email || '').trim().toLowerCase();
+  if (!id || !mail) return null;
+  const rows = Array.isArray(vouchers) ? vouchers : (vouchers ? [vouchers] : []);
+  for (const v of rows) {
+    if (!v || String(v.status) !== 'active') continue;
+    if (String(v.attendee_id) !== id) continue;
+    if (String(v.email || '').trim().toLowerCase() !== mail) continue;
+    const expires = Date.parse(v.expires_at);
+    if (!Number.isFinite(expires) || expires <= now) continue;
+    const amount = Number(v.amount);
+    if (!Number.isFinite(amount) || amount <= 0) continue;
+    return v;
+  }
+  return null;
+}
+
+/** KES left on `voucher` after the orders in `uses` that still hold credit. */
+function creditBalance(voucher, uses, now) {
+  if (!voucher) return 0;
+  const cutoff = now - HOLD_MINUTES * 60 * 1000;
+  let spent = 0;
+  for (const order of Array.isArray(uses) ? uses : []) {
+    if (!order || String(order.voucher_id) !== String(voucher.id)) continue;
+    const status = String(order.status || '');
+    if (status === 'pending') {
+      const at = Date.parse(order.date_created);
+      if (!Number.isFinite(at) || at < cutoff) continue;
+    } else if (status !== 'completed') {
+      continue;
+    }
+    const used = Number(order.credit_applied);
+    if (Number.isFinite(used) && used > 0) spent += used;
+  }
+  return Math.max(0, Math.round(Number(voucher.amount) - spent));
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -274,10 +337,31 @@ module.exports = async function (data) {
   const currency = String(body.currency || 'KES').toUpperCase();
   amount = currency === 'KES' ? Math.round(amount) : Math.round(amount * 100) / 100;
 
-  // Only reachable when every line is priced 0 in shop_products — the amount
-  // comes from the catalogue, so a client cannot talk its way onto this branch.
+  // ── Prize credit ───────────────────────────────────────────────────────────
+  // Taken off the catalogue total, never from anything the client claims: the
+  // voucher and its spending come from the `vouchers` / `voucher_use` reads.
+  const attendeeEmail = String(body.attendee_email || '').trim().toLowerCase();
+  const now = Date.now();
+  const voucher = currency === 'KES'
+    ? activeVoucher(data.vouchers, body.attendee_id, attendeeEmail, now)
+    : null;
+  let creditApplied = 0;
+  if (voucher && amount > 0) {
+    // Without the spending read every order would see the full prize again.
+    if (!Array.isArray(data.voucher_use)) {
+      return fail('Your prize credit could not be checked. Please try again shortly.');
+    }
+    creditApplied = Math.min(creditBalance(voucher, data.voucher_use, now), amount);
+    amount -= creditApplied;
+  }
+  const subtotal = amount + creditApplied;
+
+  // Reachable when every line is priced 0 in shop_products, or when prize
+  // credit covers the whole order. Both come from the server's own reads, so a
+  // client cannot talk its way onto this branch.
   const free = amount <= 0;
-  const paidAt = free ? new Date().toISOString() : null;
+  const paidAt = free ? new Date(now).toISOString() : null;
+  const paymentMethod = free ? (creditApplied > 0 ? 'prize_credit' : 'free') : null;
 
   return {
     mode: 'new',
@@ -285,6 +369,8 @@ module.exports = async function (data) {
     order_id: orderId,
     amount,
     currency,
+    credit_applied: creditApplied,
+    subtotal,
 
     // Ready-made reply for the free branch, same shape as flow1_respond.js.
     // A null redirect_url is what tells the app to skip the webview.
@@ -293,6 +379,7 @@ module.exports = async function (data) {
           order_id: orderId,
           status: 'completed',
           amount,
+          credit_applied: creditApplied,
           currency,
           order_tracking_id: null,
           redirect_url: null,
@@ -307,10 +394,14 @@ module.exports = async function (data) {
       // alone, and Flow 1 treats a retry of it as already settled.
       status: free ? 'completed' : 'pending',
       paid_at: paidAt,
-      payment_method: free ? 'free' : null,
+      payment_method: paymentMethod,
       amount,
       currency,
       items: priced,
+
+      // Prize credit spent on this order; `amount` is what is left to pay.
+      voucher_id: creditApplied > 0 ? voucher.id : null,
+      credit_applied: creditApplied,
 
       // Who this order belongs to, for the order-history flow and reporting.
       //

@@ -299,12 +299,25 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                           Text(
                             order.amount > 0
                                 ? '${order.currency} ${money.format(order.amount)}'
-                                : 'Free',
+                                : order.creditApplied > 0
+                                    ? '${order.currency} 0'
+                                    : 'Free',
                             style: const TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w800,
                                 color: ShopColors.ink),
                           ),
+                          if (order.creditApplied > 0)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: Text(
+                                '+ ${money.format(order.creditApplied)} prize credit',
+                                style: const TextStyle(
+                                    fontSize: 12,
+                                    color: ShopColors.success,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                            ),
                           const Spacer(),
                           if (order.confirmationCode?.isNotEmpty ?? false)
                             Flexible(

@@ -115,6 +115,43 @@ class PaymentService {
     required String attendeeId,
     required String email,
   }) async {
+    final json = await _history(attendeeId: attendeeId, email: email);
+    final rows = json['orders'];
+    if (rows is! List) return const [];
+    return rows
+        .whereType<Map>()
+        .map((row) => ShopOrder.fromJson(Map<String, dynamic>.from(row)))
+        .where((o) => o.id.isNotEmpty)
+        .toList();
+  }
+
+  /// The buyer's leaderboard prize credit, or null when they have none.
+  ///
+  /// Comes from the same order-history flow (same attendee id + email pair).
+  /// Never throws: a credit that can't be loaded just isn't shown, and the
+  /// backend still applies it at checkout.
+  Future<ShopCredit?> fetchCredit({
+    required String attendeeId,
+    required String email,
+  }) async {
+    if (!PaymentConfig.hasOrderHistory ||
+        attendeeId.isEmpty ||
+        email.isEmpty) {
+      return null;
+    }
+    try {
+      final json = await _history(attendeeId: attendeeId, email: email);
+      return ShopCredit.fromJson(json['credit']);
+    } catch (e) {
+      debugPrint('PaymentService.fetchCredit failed: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>> _history({
+    required String attendeeId,
+    required String email,
+  }) async {
     if (!PaymentConfig.hasOrderHistory) {
       throw const PaymentException(
           'Order history is not available in this build.');
@@ -123,7 +160,7 @@ class PaymentService {
       throw const PaymentException('Sign in to see your orders.');
     }
 
-    final json = await _post(
+    return _post(
       PaymentConfig.orderHistoryEndpoint,
       {
         'attendee_id': attendeeId,
@@ -132,14 +169,6 @@ class PaymentService {
       },
       what: 'load your orders',
     );
-
-    final rows = json['orders'];
-    if (rows is! List) return const [];
-    return rows
-        .whereType<Map>()
-        .map((row) => ShopOrder.fromJson(Map<String, dynamic>.from(row)))
-        .where((o) => o.id.isNotEmpty)
-        .toList();
   }
 
   /// Polls [fetchStatus] until the order reaches a terminal state or [timeout]

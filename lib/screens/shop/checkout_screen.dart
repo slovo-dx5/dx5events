@@ -8,6 +8,7 @@ import '../../services/payments/payment_config.dart';
 import '../../services/payments/payment_models.dart';
 import '../../services/battery_nudge_service.dart';
 import '../../services/payments/payment_service.dart';
+import '../../services/payments/shop_credit_store.dart';
 import 'order_status_screen.dart';
 import '../terms_of_use_screen.dart';
 import 'pesapal_checkout_screen.dart';
@@ -54,6 +55,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     _lastName.text = profile.lastName;
     _email.text = profile.email;
     _phone.text = profile.phone;
+    // Leaderboard prize credit, if any. Shown only; Flow 1 applies it.
+    ShopCreditStore.instance
+        .refresh(attendeeId: profile.userID?.toString(), email: profile.email);
   }
 
   @override
@@ -108,7 +112,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       _orderId = order.id;
       if (!mounted) return;
 
-      // Nothing payable (a fully-discounted order): the gateway is never
+      // Nothing payable (free, or covered by prize credit): the gateway is never
       // called and no webhook will fire, so go straight to confirmation.
       if (order.isFree) {
         await _showResult(order.id, cancelledByBuyer: false);
@@ -163,6 +167,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       // Only a confirmed payment empties the cart — an abandoned checkout
       // should leave it intact so the buyer can retry.
       context.read<CartProvider>().clear();
+      final profile = context.read<ProfileProvider>();
+      ShopCreditStore.instance.refresh(
+          attendeeId: profile.userID?.toString(), email: profile.email);
       _orderId = null;
       Navigator.of(context).pop(true);
       return;
@@ -174,6 +181,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget build(BuildContext context) {
     final cart = context.watch<CartProvider>();
 
+    return ValueListenableBuilder<ShopCredit?>(
+      valueListenable: ShopCreditStore.instance.credit,
+      builder: (context, credit, _) => _scaffold(cart, credit),
+    );
+  }
+
+  Widget _scaffold(CartProvider cart, ShopCredit? credit) {
     return Scaffold(
       backgroundColor: ShopColors.canvas,
       appBar: shopAppBar(context, title: 'Checkout'),
@@ -186,7 +200,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               children: [
                 const _Steps(),
                 const SizedBox(height: 18),
-                _orderSummary(cart),
+                _orderSummary(cart, credit),
                 const SizedBox(height: 14),
                 _billingForm(),
                 AnimatedSize(
@@ -201,7 +215,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ],
             ),
           ),
-          _payBar(cart),
+          _payBar(cart, credit),
         ],
       ),
     );
@@ -229,7 +243,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _orderSummary(CartProvider cart) {
+  Widget _orderSummary(CartProvider cart, ShopCredit? credit) {
+    final applied =
+        credit != null && credit.hasBalance ? credit.appliedTo(cart.total) : 0.0;
+    final payable = cart.total - applied;
     return ShopCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,6 +340,27 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
             const SizedBox(height: 8),
           ],
+          if (applied > 0) ...[
+            Row(
+              children: [
+                const Icon(Icons.emoji_events_rounded,
+                    size: 15, color: ShopColors.success),
+                const SizedBox(width: 6),
+                const Text('Prize credit',
+                    style: TextStyle(
+                        fontSize: 13.5,
+                        color: ShopColors.success,
+                        fontWeight: FontWeight.w600)),
+                const Spacer(),
+                Text('−${formatPrice(applied)}',
+                    style: const TextStyle(
+                        fontSize: 13.5,
+                        color: ShopColors.success,
+                        fontWeight: FontWeight.w800)),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
           Row(
             children: [
               const Text('Total',
@@ -331,7 +369,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       fontWeight: FontWeight.w800,
                       color: ShopColors.ink)),
               const Spacer(),
-              Text(formatPrice(cart.total),
+              Text(formatPrice(payable),
                   style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
@@ -339,9 +377,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ],
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Final total is confirmed by our payment service before you pay.',
-            style: TextStyle(fontSize: 11.5, color: ShopColors.inkSoft),
+          Text(
+            applied > 0
+                ? '${credit!.balance - applied > 0 ? '${formatPrice(credit.balance - applied)} of prize credit left after this order.' : 'This uses the last of your prize credit.'} '
+                    'Final total is confirmed by our payment service.'
+                : 'Final total is confirmed by our payment service before you pay.',
+            style: const TextStyle(fontSize: 11.5, color: ShopColors.inkSoft),
           ),
         ],
       ),
@@ -474,8 +515,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _payBar(CartProvider cart) {
+  Widget _payBar(CartProvider cart, ShopCredit? credit) {
     final configured = PaymentConfig.isConfigured;
+    final payable = credit != null && credit.hasBalance
+        ? credit.payable(cart.total)
+        : cart.total;
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
       decoration: BoxDecoration(
@@ -500,10 +544,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
             ShopPrimaryButton(
               busy: _busy,
-              icon: cart.total <= 0 ? Icons.check_rounded : Icons.lock_rounded,
-              label: cart.total <= 0
+              icon: payable <= 0 ? Icons.check_rounded : Icons.lock_rounded,
+              label: payable <= 0
                   ? 'Place order'
-                  : 'Pay ${formatPrice(cart.total)}',
+                  : 'Pay ${formatPrice(payable)}',
               onPressed: (cart.isEmpty || !configured) ? null : _pay,
             ),
             const SizedBox(height: 10),

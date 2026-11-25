@@ -156,6 +156,7 @@ class ShopOrder {
     this.paidAt,
     this.createdAt,
     this.items = const [],
+    this.creditApplied = 0,
   });
 
   /// Our own order id (`merchant_reference` at the gateway) — the id to look
@@ -186,6 +187,10 @@ class ShopOrder {
   /// The priced lines. Empty outside the order-history flow.
   final List<OrderItem> items;
 
+  /// Leaderboard prize credit spent on this order. [amount] is what was left
+  /// to pay after it.
+  final double creditApplied;
+
   /// True when there is nothing to pay — skip the webview entirely.
   bool get isFree => amount <= 0 || (redirectUrl?.isEmpty ?? true);
 
@@ -207,12 +212,54 @@ class ShopOrder {
               .map((row) => OrderItem.fromJson(Map<String, dynamic>.from(row)))
               .toList() ??
           const [],
+      creditApplied: _toDouble(json['credit_applied']),
     );
   }
 
   static double _toDouble(Object? value) {
     if (value is num) return value.toDouble();
     return double.tryParse('$value') ?? 0;
+  }
+}
+
+/// Shop credit won on the gamification leaderboard (see
+/// `functions/leaderboard_prizes.js`). The backend takes it off orders on its
+/// own; the app only shows it.
+class ShopCredit {
+  const ShopCredit({
+    required this.amount,
+    required this.balance,
+    this.rank,
+    this.expiresAt,
+  });
+
+  /// The prize as won, in KES.
+  final double amount;
+
+  /// What is left to spend.
+  final double balance;
+
+  /// Leaderboard position (1, 2, 3).
+  final int? rank;
+  final DateTime? expiresAt;
+
+  bool get hasBalance => balance > 0;
+
+  /// What [total] comes to once the credit is taken off.
+  double payable(double total) => (total - balance).clamp(0, double.infinity);
+
+  /// The part of [total] the credit covers.
+  double appliedTo(double total) => total < balance ? total : balance;
+
+  static ShopCredit? fromJson(Object? json) {
+    if (json is! Map) return null;
+    final credit = ShopCredit(
+      amount: ShopOrder._toDouble(json['amount']),
+      balance: ShopOrder._toDouble(json['balance']),
+      rank: (json['rank'] as num?)?.toInt(),
+      expiresAt: DateTime.tryParse('${json['expires_at'] ?? ''}')?.toLocal(),
+    );
+    return credit.amount > 0 ? credit : null;
   }
 }
 
