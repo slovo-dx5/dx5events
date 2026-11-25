@@ -157,8 +157,10 @@ action awards whatever is missing.
 |---|---|---|---|
 | 1 | `settings` | Read Data, gamification_settings | |
 | 2 | `totals` | Read Data, points_ledger | `{"aggregate":{"sum":["points"]},"groupBy":["user_id"],"limit":-1}` |
-| 3 | `people` | Read Data, event_registrations | `{"filter":{"eventId":{"_eq":"{{settings.event_id}}"}},"fields":["attendeeId","first_name","last_name","company","role","profile_photo"],"limit":-1}` |
+| 3 | `people` | Read Data, event_registrations | `{"filter":{"eventId":{"_eq":"{{settings[0].event_id}}"}},"fields":["attendeeId","first_name","last_name","company","role","profile_photo"],"limit":-1}` |
 | 4 | `board` | Run Script | `gamification_leaderboard.js` |
+
+`settings[0]`: this Directus version returns the singleton read as a one-item list, so `{{settings.event_id}}` renders as `undefined` and the board comes back empty (seen 2026-11-25).
 
 **Freezing for prize-giving:** set `leaderboard_freeze_at` (the app then
 shows "Final standings"). Also add
