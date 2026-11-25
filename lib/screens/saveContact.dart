@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:dx5veevents/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../models/contactModel.dart';
@@ -28,6 +31,8 @@ class SaveContact extends StatefulWidget {
   @override
   State<SaveContact> createState() => _SaveContactState();
 }
+const _androidContacts = MethodChannel('dx5ve/contacts');
+
 Future<bool> saveContactToDevice({
   required String firstName,
   required String lastName,
@@ -36,6 +41,29 @@ Future<bool> saveContactToDevice({
   required String phoneNumber,
   required String email,
 }) async {
+  // flutter_contacts' insert throws on a native background thread on Android
+  // 16+: the app crashes, or the contact lands on the phone but the call never
+  // returns. Hand the contact to the phone's Contacts app instead (no
+  // permission needed); the user taps Save there.
+  if (Platform.isAndroid) {
+    try {
+      final opened = await _androidContacts.invokeMethod<bool>(
+        'insertViaContactsApp',
+        {
+          'firstName': firstName,
+          'lastName': lastName,
+          'phone': phoneNumber,
+          'email': email,
+          'company': company,
+          'role': role,
+        },
+      );
+      return opened ?? false;
+    } catch (e) {
+      print("Error opening Contacts app: $e");
+      return false;
+    }
+  }
   try {
     // Request permission using flutter_contacts
     final permission = await FlutterContacts.requestPermission();
@@ -64,11 +92,8 @@ Future<bool> saveContactToDevice({
     print("Contact saved successfully: $firstName $lastName");
     return true;
   } catch (e) {
+    // The caller tells the user the contact is in their scan history.
     print("Error saving contact: $e");
-    Fluttertoast.showToast(
-      msg: "Failed to save contact: ${e.toString()}",
-      toastLength: Toast.LENGTH_LONG,
-    );
     return false;
   }
 }
@@ -134,20 +159,9 @@ class _SaveContactState extends State<SaveContact> {
       return;
     }
 
-    final contactSaved = await saveContactToDevice(
-      firstName: widget.firstName,
-      lastName: widget.lastName,
-      email: widget.email,
-      company: widget.company,
-      role: widget.role,
-      phoneNumber: widget.phone,
-    );
-
-    if (!contactSaved) {
-      if (mounted) setState(() => _isSaving = false);
-      return;
-    }
-
+    // Scan history and the Networker log come first and never depend on the
+    // phone's address book: on Android 16+ that save crashed the app or never
+    // returned, and gating on it silently dropped the scan (and its points).
     try {
       final scannedContact = ScannedContact(
         firstName: widget.firstName,
@@ -171,20 +185,32 @@ class _SaveContactState extends State<SaveContact> {
         );
       }
 
-      Fluttertoast.showToast(
-        msg: "$_contactName saved to your contacts",
-        toastLength: Toast.LENGTH_SHORT,
-      );
-
-      if (context.mounted) Navigator.of(context).pop();
     } catch (e) {
       print("Error saving to database: $e");
       Fluttertoast.showToast(
-        msg: "Contact saved to device but database error occurred",
+        msg: "Couldn't save $_contactName. Please try again.",
         toastLength: Toast.LENGTH_LONG,
       );
       if (mounted) setState(() => _isSaving = false);
+      return;
     }
+
+    // Best effort: also add them to the phone's address book.
+    final onDevice = await saveContactToDevice(
+      firstName: widget.firstName,
+      lastName: widget.lastName,
+      email: widget.email,
+      company: widget.company,
+      role: widget.role,
+      phoneNumber: widget.phone,
+    );
+    Fluttertoast.showToast(
+      msg: onDevice && !Platform.isAndroid
+          ? "$_contactName saved to your contacts"
+          : "$_contactName saved to your scan history",
+      toastLength: Toast.LENGTH_SHORT,
+    );
+    if (mounted) Navigator.of(context).pop();
   }
 
   @override

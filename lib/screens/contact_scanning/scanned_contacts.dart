@@ -196,7 +196,7 @@ class _ScannedContactsScreenState extends State<ScannedContactsScreen> {
                 ),
                 child: Center(
                   child: Text(
-                    '${contact.firstName[0]}${contact.lastName[0]}'.toUpperCase(),
+                    _initials(contact),
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -282,7 +282,7 @@ class _ScannedContactsScreenState extends State<ScannedContactsScreen> {
                     ),
                     child: Center(
                       child: Text(
-                        '${contact.firstName[0]}${contact.lastName[0]}'.toUpperCase(),
+                        _initials(contact),
                         style: const TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.w600,
@@ -415,4 +415,12 @@ class _ScannedContactsScreenState extends State<ScannedContactsScreen> {
       ],
     );
   }
+}
+
+// Blank names happen (badge data is incomplete); indexing [0] on them threw
+// and blanked the whole history list.
+String _initials(ScannedContact c) {
+  String first(String s) => s.trim().isEmpty ? '' : s.trim()[0];
+  final i = '${first(c.firstName)}${first(c.lastName)}'.toUpperCase();
+  return i.isEmpty ? '?' : i;
 }
