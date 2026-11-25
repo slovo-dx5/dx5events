@@ -252,3 +252,13 @@ exports.onChatMessageCreated = chatMessages.onChatMessageCreated;
 // notifies the approved ones. Deploy by name: functions:leaderboardPrizes.
 const leaderboardPrizes = require("./leaderboard_prizes");
 exports.leaderboardPrizes = leaderboardPrizes.leaderboardPrizes;
+
+// ---------------------------------------------------------- meeting records
+
+// Accepted meetings copied to Directus meeting_records for analytics. Deploy by
+// name: functions:meetingRecordOnAccept,functions:meetingRecordOnDelete,
+// functions:meetingRecordConcierge.
+const meetingRecords = require("./meeting_records");
+exports.meetingRecordOnAccept = meetingRecords.meetingRecordOnAccept;
+exports.meetingRecordOnDelete = meetingRecords.meetingRecordOnDelete;
+exports.meetingRecordConcierge = meetingRecords.meetingRecordConcierge;
