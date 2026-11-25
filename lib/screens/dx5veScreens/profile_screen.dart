@@ -16,6 +16,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 
 import 'package:dio/dio.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../landingPage2.dart';
@@ -189,8 +190,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         // Add other key-value pairs as needed
       };
 
-      ///Update user data
-      ///
+      // Attach the photo to this event's registration: that is what the
+      // networking page and leaderboard read. Without it other delegates only
+      // ever see initials (this call went missing in 6c988aa).
+      if (recordId == null && ownerID is int) {
+        await fetchSingleAtendee(userid: ownerID);
+      }
+      if (recordId == null) {
+        throw Exception('no event registration found for $ownerID');
+      }
+      await DioFetchService().updateUserData(
+          body: imageidDAta, eventId: widget.eventId, recordid: recordId!);
       print("owner id is $ownerID");
 
       print("image ID is $imageID");
@@ -202,6 +212,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
       // Handle errors
       print('Error: $e');
+      // Don't show the photo on this phone if nobody else can see it.
+      if (mounted) setState(() => imageID = null);
+      Fluttertoast.showToast(
+          msg: 'Could not save your photo. Please try again.');
     }
   }
 
@@ -268,9 +282,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             alignment: Alignment.bottomRight,
                             child: IconButton(
                                 onPressed: () async {
+                                  imageID = null;
                                   await uploadImage(profileProvider.firstName,
                                     profileProvider.userID,);
-                                  profileProvider.editProfile(newProfileId: imageID!);
+                                  // Null when the picker was cancelled or the
+                                  // save failed.
+                                  if (imageID != null) {
+                                    profileProvider.editProfile(newProfileId: imageID!);
+                                  }
                                 },
                                 icon: const Icon(
                                   Icons.camera_alt,
