@@ -56,10 +56,14 @@ class AppSponsor {
   /// records the lead in `sponsordata`.
   static const String boothCode = 'sponsor-mbcom';
 
-  /// Shown in the booth copy. Must match the "MBCOM booth" rule's points in
-  /// `point_actions` (trigger sponsor_booth_scan, match target_type
-  /// app_sponsor) — the server awards it, this is only the label.
-  static const int boothPoints = 100;
+  /// Shown in the copy. Must match the "Spot MBCOM" rule's points in
+  /// `point_actions` (id 45: trigger sponsor_tap, quest of 3 distinct
+  /// placements, match target_type app_sponsor) — the server awards it, this
+  /// is only the label. The booth rule (id 21) was archived: no physical booth.
+  static const int spotPoints = 100;
+
+  /// How many different placements the "Spot MBCOM" challenge needs.
+  static const int spotPlacements = 3;
 
   /// Where to find the booth, shown on the venue map. Null leaves the chip as
   /// a plain invitation.
@@ -187,8 +191,9 @@ Future<void> showAppSponsorSheet(BuildContext context,
             ),
             const SizedBox(height: 12),
             Text(
-              'Visit their booth and scan the QR code with Get Contact for '
-              '${AppSponsor.boothPoints} reward points.',
+              'Spot ${AppSponsor.shortName} in ${AppSponsor.spotPlacements} '
+              'different places in the app and tap it for '
+              '${AppSponsor.spotPoints} reward points.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12.5, height: 1.4, color: Colors.grey[600]),
             ),
@@ -252,7 +257,7 @@ Future<void> showAppSponsorBoothReward(BuildContext context) {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: const Text(
-                '+${AppSponsor.boothPoints} reward points',
+                '+${AppSponsor.spotPoints} reward points',
                 style: TextStyle(
                   color: AppSponsor.brand,
                   fontWeight: FontWeight.w700,
@@ -673,8 +678,9 @@ class AppSponsorFeedPost extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Welcome! ${AppSponsor.pitch} Find us at our booth and scan the '
-                'QR code for ${AppSponsor.boothPoints} reward points.',
+                'Welcome! ${AppSponsor.pitch} Spot us in '
+                '${AppSponsor.spotPlacements} different places in the app and '
+                'tap for ${AppSponsor.spotPoints} reward points.',
                 style: const TextStyle(fontSize: 14, height: 1.45),
               ),
               const SizedBox(height: 12),
@@ -746,7 +752,7 @@ class AppSponsorMapChip extends StatelessWidget {
                 Flexible(
                   child: Text(
                     where == null
-                        ? 'Visit ${AppSponsor.shortName} at their booth'
+                        ? 'Meet ${AppSponsor.shortName}, our app sponsor'
                         : 'Visit ${AppSponsor.shortName} · $where',
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
