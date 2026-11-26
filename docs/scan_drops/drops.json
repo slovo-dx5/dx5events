@@ -1,0 +1,72 @@
+[
+ {
+  "n": 1,
+  "drop_id": 1,
+  "rule_id": 49,
+  "code": "drop-01-53d656",
+  "slide": "scan_drop_01.png"
+ },
+ {
+  "n": 2,
+  "drop_id": 2,
+  "rule_id": 50,
+  "code": "drop-02-87ebc0",
+  "slide": "scan_drop_02.png"
+ },
+ {
+  "n": 3,
+  "drop_id": 3,
+  "rule_id": 51,
+  "code": "drop-03-118d0e",
+  "slide": "scan_drop_03.png"
+ },
+ {
+  "n": 4,
+  "drop_id": 4,
+  "rule_id": 52,
+  "code": "drop-04-ec2073",
+  "slide": "scan_drop_04.png"
+ },
+ {
+  "n": 5,
+  "drop_id": 5,
+  "rule_id": 53,
+  "code": "drop-05-b44222",
+  "slide": "scan_drop_05.png"
+ },
+ {
+  "n": 6,
+  "drop_id": 6,
+  "rule_id": 54,
+  "code": "drop-06-086f6b",
+  "slide": "scan_drop_06.png"
+ },
+ {
+  "n": 7,
+  "drop_id": 7,
+  "rule_id": 55,
+  "code": "drop-07-f4ec74",
+  "slide": "scan_drop_07.png"
+ },
+ {
+  "n": 8,
+  "drop_id": 8,
+  "rule_id": 56,
+  "code": "drop-08-640081",
+  "slide": "scan_drop_08.png"
+ },
+ {
+  "n": 9,
+  "drop_id": 9,
+  "rule_id": 57,
+  "code": "drop-09-e2e15a",
+  "slide": "scan_drop_09.png"
+ },
+ {
+  "n": 10,
+  "drop_id": 10,
+  "rule_id": 58,
+  "code": "drop-10-f54d44",
+  "slide": "scan_drop_10.png"
+ }
+]
