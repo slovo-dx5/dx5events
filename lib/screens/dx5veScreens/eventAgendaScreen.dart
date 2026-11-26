@@ -17,8 +17,10 @@ import '../../repositories/agenda_repository.dart';
 import '../../repositories/speakers_repository.dart';
 import '../../services/activity_logger.dart';
 import '../../services/agenda_bookmarks.dart';
+import '../../services/session_ratings.dart';
 import '../../widgets/acls/acls_links.dart';
 import '../../widgets/app_sponsor.dart';
+import '../../widgets/ratingWidget.dart';
 
 class EventAgendaScreen extends StatefulWidget {
   String eventID;
@@ -59,6 +61,10 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
   List<String> _availableStages = [];
   final Set<int> _expandedSessions = {};
   final AgendaBookmarkService _bookmarks = AgendaBookmarkService.instance;
+  final SessionRatingService _ratings = SessionRatingService.instance;
+
+  /// The post-session rating prompt is offered at most once per visit.
+  bool _ratingPromptChecked = false;
 
   /// "My agenda": show only bookmarked sessions.
   bool _myAgendaOnly = false;
@@ -72,6 +78,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
     debugPrint("Event dat is ${widget.eventDay}");
     super.initState();
     _bookmarks.addListener(_onBookmarksChanged);
+    _ratings.addListener(_onBookmarksChanged);
     getAttendeeID();
     setState(() {
       _selectedDate = _dateOnly(
@@ -87,6 +94,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
   @override
   void dispose() {
     _bookmarks.removeListener(_onBookmarksChanged);
+    _ratings.removeListener(_onBookmarksChanged);
     super.dispose();
   }
 
@@ -174,6 +182,224 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
     } catch (e) {
       debugPrint('Error loading bookmarks: $e');
     }
+    await _loadRatingsAndPrompt();
+  }
+
+  // ── Session ratings ───────────────────────────────────────────────────────
+
+  Future<void> _loadRatingsAndPrompt() async {
+    if (attendeeID == 0) return;
+    try {
+      await _ratings.load(eventId: widget.eventID, attendeeId: attendeeID);
+    } catch (e) {
+      debugPrint('Error loading ratings: $e');
+    }
+    if (!mounted || _ratingPromptChecked) return;
+    _ratingPromptChecked = true;
+    _maybePromptRating();
+  }
+
+  String _speakerNames(Iterable<dynamic> keys) => keys
+      .map((k) => _speakerMap[k])
+      .whereType<IndividualSpeaker>()
+      .map((s) => '${s.firstName} ${s.lastName}'.trim())
+      .where((n) => n.isNotEmpty)
+      .join(', ');
+
+  /// The slot's end, or start + 30 min when the agenda's end time is missing
+  /// or earlier than its start.
+  DateTime _endOf(DateTime start, DateTime day, Session s) {
+    final end = SessionRatingService.timeOn(day, s.endTime);
+    return (end == null || !end.isAfter(start))
+        ? start.add(const Duration(minutes: 30))
+        : end;
+  }
+
+  /// A plenary session people can rate: it has at least one speaker.
+  RateableItem? _rateableSession(DateTime day, Session s) {
+    if (s.speakers == null || s.speakers!.isEmpty) return null;
+    final start = SessionRatingService.timeOn(day, s.startTime);
+    if (start == null) return null;
+    return RateableItem(
+      key: SessionRatingService.keyFor(day, s),
+      title: (s.title ?? '').toString(),
+      speakerNames: _speakerNames(s.speakers!.map((a) => a.speaker.key)),
+      start: start,
+      end: _endOf(start, day, s),
+    );
+  }
+
+  /// A breakout people can rate: it has a title and at least one speaker.
+  RateableItem? _rateableBreakout(DateTime day, Session s, BreakoutSession b) {
+    final title = (b.title ?? '').toString().trim();
+    if (title.isEmpty || b.speakers == null || b.speakers!.isEmpty) return null;
+    final start = SessionRatingService.timeOn(day, s.startTime);
+    if (start == null) return null;
+    return RateableItem(
+      key: SessionRatingService.keyFor(day, s, breakout: b),
+      title: title,
+      speakerNames: _speakerNames(b.speakers!.map((x) => x.key)),
+      start: start,
+      end: _endOf(start, day, s),
+    );
+  }
+
+  Future<void> _rate(RateableItem item) async {
+    if (attendeeID == 0) {
+      Fluttertoast.showToast(msg: 'Sign in to rate sessions');
+      return;
+    }
+    await RatingDialog.show(context, attendeeID: attendeeID, item: item);
+  }
+
+  /// "Rate" once the session has started; "Rated" after; nothing before.
+  Widget _buildRateButton(RateableItem? item) {
+    if (item == null || DateTime.now().isBefore(item.start)) {
+      return const SizedBox.shrink();
+    }
+    if (_ratings.isRated(item)) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: Row(
+          children: [
+            Icon(Icons.check_circle, size: 16, color: Colors.green[700]),
+            const SizedBox(width: 4),
+            Text('Rated — thank you',
+                style: TextStyle(fontSize: 12.5, color: Colors.green[800])),
+          ],
+        ),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: OutlinedButton.icon(
+        onPressed: () => _rate(item),
+        icon: const Icon(Icons.star_border, size: 18, color: kCIOPink),
+        label: const Text('Rate this session',
+            style: TextStyle(color: kCIOPink, fontWeight: FontWeight.w600)),
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: kCIOPink),
+          visualDensity: VisualDensity.compact,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        ),
+      ),
+    );
+  }
+
+  /// After a session ends, offer to rate it the next time the agenda opens
+  /// (within [SessionRatingService.promptWindow]). Bookmarked sessions win;
+  /// otherwise the one that ended most recently. Each slot is offered once.
+  void _maybePromptRating() {
+    final now = DateTime.now();
+    final today = _dayToAgendaMap[_dateOnly(now)];
+    if (today == null) return;
+    final day = today.date as DateTime;
+
+    String? slotKey;
+    String? heading;
+    List<RateableItem> items = const [];
+    DateTime? bestEnd;
+    bool bestSaved = false;
+
+    for (final s in today.sessions) {
+      final breakouts = (s.breakoutSessions ?? const <BreakoutSession>[])
+          .map((b) => _rateableBreakout(day, s, b))
+          .whereType<RateableItem>()
+          .toList();
+      final plenary = _rateableSession(day, s);
+      final candidates = breakouts.isNotEmpty
+          ? breakouts
+          : (plenary == null ? <RateableItem>[] : [plenary]);
+      if (candidates.isEmpty) continue;
+
+      final end = candidates.first.end!;
+      if (end.isAfter(now) || now.difference(end) > SessionRatingService.promptWindow) {
+        continue;
+      }
+      final key = SessionRatingService.keyFor(day, s);
+      if (_ratings.wasPrompted(key)) continue;
+      // Skip the slot once anything in it is rated: a delegate attends one
+      // breakout per block, so rating one means they're done with it.
+      if (candidates.any(_ratings.isRated)) continue;
+      final open = candidates;
+
+      final saved = _bookmarks.isBookmarked(AgendaBookmarkService.keyFor(day, s));
+      final better = bestEnd == null ||
+          (saved && !bestSaved) ||
+          (saved == bestSaved && end.isAfter(bestEnd));
+      if (better) {
+        slotKey = key;
+        heading = breakouts.isNotEmpty
+            ? 'Which breakout did you attend?'
+            : 'How was "${(s.title ?? '').toString().trim()}"?';
+        items = open;
+        bestEnd = end;
+        bestSaved = saved;
+      }
+    }
+
+    if (slotKey == null) return;
+    _ratings.markPrompted(slotKey);
+    ActivityLogger.instance.log(
+      action: ActivityAction.sessionRatingPrompted,
+      eventId: widget.eventID,
+      targetType: 'session',
+      targetId: slotKey,
+    );
+    _showRatingPrompt(heading!, items);
+  }
+
+  void _showRatingPrompt(String heading, List<RateableItem> items) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      builder: (sheet) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                const Icon(Icons.star_rounded, color: kCIOPink),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(heading,
+                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+                ),
+              ]),
+              const SizedBox(height: 6),
+              Text('Your rating takes 10 seconds and helps shape next year\'s agenda.',
+                  style: TextStyle(fontSize: 13, color: Colors.grey[700])),
+              const SizedBox(height: 12),
+              ...items.map((item) => ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(item.title,
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                    subtitle: item.speakerNames.isEmpty ? null : Text(item.speakerNames),
+                    trailing: TextButton(
+                      child: const Text('Rate', style: TextStyle(color: kCIOPink)),
+                      onPressed: () async {
+                        final ok = await RatingDialog.show(context,
+                            attendeeID: attendeeID, item: item);
+                        if (ok && sheet.mounted) Navigator.of(sheet).pop();
+                      },
+                    ),
+                  )),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () => Navigator.of(sheet).pop(),
+                  child: Text('Not now', style: TextStyle(color: Colors.grey[700])),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _toggleBookmark(DateTime day, Session session) async {
@@ -494,9 +720,13 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
                         ),
                       ),
 
+                    // Rating (plenary sessions with speakers, once started)
+                    if (!hasBreakouts) _buildRateButton(_rateableSession(day, session)),
+
                     // Breakout / concurrent sessions (expandable)
                     if (hasBreakouts && isExpanded)
-                      _buildBreakoutSessions(session.breakoutSessions!, sessionColor),
+                      _buildBreakoutSessions(
+                          session.breakoutSessions!, sessionColor, day, session),
                               ],
                             ),
                           ),
@@ -604,8 +834,8 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
     );
   }
 
-  Widget _buildBreakoutSessions(
-      List<BreakoutSession> breakouts, Color sessionColor) {
+  Widget _buildBreakoutSessions(List<BreakoutSession> breakouts,
+      Color sessionColor, DateTime day, Session parent) {
     return Padding(
       padding: const EdgeInsets.only(top: 14),
       child: Column(
@@ -627,13 +857,15 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
             ],
           ),
           const SizedBox(height: 10),
-          ...breakouts.map((breakout) => _buildBreakoutItem(breakout, sessionColor)),
+          ...breakouts.map((breakout) => _buildBreakoutItem(
+              breakout, sessionColor, _rateableBreakout(day, parent, breakout))),
         ],
       ),
     );
   }
 
-  Widget _buildBreakoutItem(BreakoutSession breakout, Color sessionColor) {
+  Widget _buildBreakoutItem(
+      BreakoutSession breakout, Color sessionColor, RateableItem? rateable) {
     final title = breakout.title?.toString().trim() ?? '';
     final type = breakout.type?.toString().trim() ?? '';
     final summary = breakout.summary?.toString().trim() ?? '';
@@ -706,6 +938,7 @@ class _EventAgendaScreenState extends State<EventAgendaScreen> {
             const SizedBox(height: 12),
             ...speakers.map((speaker) => _buildSpeakerItem(speaker, false)),
           ],
+          _buildRateButton(rateable),
         ],
       ),
     );

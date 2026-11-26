@@ -48,6 +48,8 @@ class ActivityAction {
   static const agendaBookmarkAdded = 'agenda_bookmark_added';
   static const contactScanned = 'contact_scanned';
   static const sessionRated = 'session_rated';
+  // The post-session "rate it" sheet was shown (not a gamification signal).
+  static const sessionRatingPrompted = 'session_rating_prompted';
   static const socialPostCreated = 'social_post_created';
   static const socialReaction = 'social_reaction';
   static const socialComment = 'social_comment';
