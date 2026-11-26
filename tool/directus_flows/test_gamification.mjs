@@ -258,6 +258,7 @@ test('seed rules all parse and score a busy three-day delegate', async () => {
   // Daily 30 + hat-trick 30 + on-site 60 + present 50 + daily review 45 + critic 40
   // + keynote critic 50 + session critic 30 + speaker spotter 60 + first post 20
   // + streak 50 + networker (18 contacts: tiers 5 and 15) 150 + early bird 20 = 635
-  assert.equal(total, 635);
+  // + super connector (18 contacts x 3) 54 + session by session (3 x 7) 21 = 710
+  assert.equal(total, 710);
   assert.equal(new Set(ledger.map((r) => r.award_key)).size, ledger.length);
 });
