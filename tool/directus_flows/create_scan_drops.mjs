@@ -120,8 +120,9 @@ const togglePlan = `module.exports = async function (data) {
       drop: { started_at: now, ended_at: null },
     };
   }
-  // Closed: no new scans count; only people who earned it still see the card.
-  return { rule_id: d.rule_id, drop_id: d.id, rule: { active_to: now, hidden: true }, drop: { ended_at: now } };
+  // Closed: no new scans count. The card stays visible: dimmed and "Closed" with
+  // this message for anyone who missed it, completed for those who scanned.
+  return { rule_id: d.rule_id, drop_id: d.id, rule: { active_to: now, hidden: false, action_description: "This challenge expired." }, drop: { ended_at: now } };
 };`;
 
 const toggleId = await flow(
@@ -157,7 +158,7 @@ const stopPlan = `module.exports = async function (data) {
     any: due.length > 0,
     drop_ids: due.map((r) => r.id),
     rule_ids: due.map((r) => r.rule_id),
-    rule: { active_to: now, hidden: true },
+    rule: { active_to: now, hidden: false, action_description: "This challenge expired." },
     drop: { live: false, ended_at: now },
   };
 };`;
