@@ -6,6 +6,7 @@ import '../../constants.dart';
 import '../../database/scanned_contacts_db.dart';
 import '../../providers.dart';
 import '../../widgets/profile_initials_widget.dart';
+import '../saveContact.dart';
 
 class ScannedContactsScreen extends StatefulWidget {
   final int ownerID;
@@ -375,6 +376,19 @@ class _ScannedContactsScreenState extends State<ScannedContactsScreen> {
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton.icon(
+                    onPressed: () => addScannedContactToPhone(contact),
+                    icon: const Icon(Icons.person_add_alt_1),
+                    label: const Text('Add to phone contacts'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: kConnectedBlue,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
                 ),
               ],
             ),

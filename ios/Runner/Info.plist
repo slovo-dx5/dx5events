@@ -35,7 +35,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>The camera is used to scan QR codes and to take photos you send in chat.</string>
 	<key>NSContactsUsageDescription</key>
-	<string>This app requires contacts access to function properly.</string>
+	<string>Lets you save delegates you scan at the event to your phone's contacts.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Harry, your in-app assistant, uses the microphone so you can talk to it instead of typing.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>

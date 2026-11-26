@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dx5veevents/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,7 +5,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import '../models/contactModel.dart';
 import '../widgets/cool_background.dart';
-import 'package:flutter_contacts/flutter_contacts.dart';
 
 import '../widgets/textStyles.dart';
 import '../database/scanned_contacts_db.dart';
@@ -31,8 +28,18 @@ class SaveContact extends StatefulWidget {
   @override
   State<SaveContact> createState() => _SaveContactState();
 }
-const _androidContacts = MethodChannel('dx5ve/contacts');
+const _contactsChannel = MethodChannel('dx5ve/contacts');
 
+/// Opens the phone's own "new contact" screen pre-filled with this delegate;
+/// the user confirms with Save (Android) or Done (iOS). Returns whether the
+/// screen opened. Never waits on the user, and needs no contacts permission
+/// to open.
+///
+/// Both platforms used to insert through flutter_contacts, which does its work
+/// on a native background thread and replies from there: on Android 16+ that
+/// crashed or never returned (fixed in 8f819f2), and on iOS it left the Save
+/// button stuck with no message. Native code is in MainActivity.kt and
+/// AppDelegate.swift.
 Future<bool> saveContactToDevice({
   required String firstName,
   required String lastName,
@@ -41,60 +48,41 @@ Future<bool> saveContactToDevice({
   required String phoneNumber,
   required String email,
 }) async {
-  // flutter_contacts' insert throws on a native background thread on Android
-  // 16+: the app crashes, or the contact lands on the phone but the call never
-  // returns. Hand the contact to the phone's Contacts app instead (no
-  // permission needed); the user taps Save there.
-  if (Platform.isAndroid) {
-    try {
-      final opened = await _androidContacts.invokeMethod<bool>(
-        'insertViaContactsApp',
-        {
-          'firstName': firstName,
-          'lastName': lastName,
-          'phone': phoneNumber,
-          'email': email,
-          'company': company,
-          'role': role,
-        },
-      );
-      return opened ?? false;
-    } catch (e) {
-      print("Error opening Contacts app: $e");
-      return false;
-    }
-  }
   try {
-    // Request permission using flutter_contacts
-    final permission = await FlutterContacts.requestPermission();
-
-    if (!permission) {
-      print('Contacts permission denied');
-      Fluttertoast.showToast(
-        msg: "Please enable contacts permission in Settings",
-        toastLength: Toast.LENGTH_LONG,
-      );
-      return false;
-    }
-
-    // Create contact with all fields properly set
-    final newContact = Contact(
-      name: Name(first: firstName, last: lastName),
-      phones: phoneNumber.isNotEmpty ? [Phone(phoneNumber)] : [],
-      emails: email.isNotEmpty ? [Email(email)] : [],
-      organizations: company.isNotEmpty || role.isNotEmpty
-        ? [Organization(company: company, title: role)]
-        : [],
-    );
-
-    // Insert the contact
-    await newContact.insert();
-    print("Contact saved successfully: $firstName $lastName");
-    return true;
+    final opened = await _contactsChannel.invokeMethod<bool>(
+      'insertViaContactsApp',
+      {
+        'firstName': firstName,
+        'lastName': lastName,
+        'phone': phoneNumber,
+        'email': email,
+        'company': company,
+        'role': role,
+      },
+    ).timeout(const Duration(seconds: 5));
+    return opened ?? false;
   } catch (e) {
-    // The caller tells the user the contact is in their scan history.
-    print("Error saving contact: $e");
+    debugPrint("Error opening the phone's Contacts screen: $e");
     return false;
+  }
+}
+
+/// Opens the phone's Contacts screen for a contact from scan history and tells
+/// the user if that failed. Used for contacts that never reached the phone.
+Future<void> addScannedContactToPhone(ScannedContact c) async {
+  final opened = await saveContactToDevice(
+    firstName: c.firstName,
+    lastName: c.lastName,
+    role: c.role,
+    company: c.company,
+    phoneNumber: c.phone,
+    email: c.email,
+  );
+  if (!opened) {
+    Fluttertoast.showToast(
+      msg: "Couldn't open your phone's Contacts. The contact is still in your scan history.",
+      toastLength: Toast.LENGTH_LONG,
+    );
   }
 }
 class _SaveContactState extends State<SaveContact> {
@@ -205,10 +193,10 @@ class _SaveContactState extends State<SaveContact> {
       phoneNumber: widget.phone,
     );
     Fluttertoast.showToast(
-      msg: onDevice && !Platform.isAndroid
-          ? "$_contactName saved to your contacts"
+      msg: onDevice
+          ? "$_contactName saved to your scan history. Tap Save on the next screen to add them to your phone too."
           : "$_contactName saved to your scan history",
-      toastLength: Toast.LENGTH_SHORT,
+      toastLength: Toast.LENGTH_LONG,
     );
     if (mounted) Navigator.of(context).pop();
   }
@@ -462,6 +450,17 @@ class _SaveContactState extends State<SaveContact> {
                             : "Update Note",
                         backgroundColor: Colors.grey,
                       ),
+                      if (_existingContact != null) ...[
+                        verticalSpace(height: 8),
+                        Center(
+                          child: TextButton.icon(
+                            onPressed: () =>
+                                addScannedContactToPhone(_existingContact!),
+                            icon: const Icon(Icons.person_add_alt_1),
+                            label: const Text("Add to phone contacts"),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
