@@ -233,7 +233,7 @@ The script archives the v1 rows, fills in the quest dates and sets
 with no app release needed. Things to check before the event:
 
 - **Booth crawl:** set the last tier's `count` to the number of sponsor booths.
-- **Session critic:** only past *keynotes* show a rating button (`lib/widgets/agendaWidget.dart`), so size the tiers to the number of keynotes.
+- **Session critic:** every session and breakout with speakers shows "Rate this session" once it starts, and the agenda prompts after each one ends (`lib/screens/dx5veScreens/eventAgendaScreen.dart`).
 - **On site / Present all three days:** print one code per day, with QR content `hunt:entrance-day1`, `hunt:entrance-day2` and `hunt:entrance-day3`. Show only that day's code, at the registration desk.
 - **Treasure hunter:** draft by default. Print `hunt:<id>` codes (lower-case ids), put the ids in `match`, then publish.
 - **MBCOM booth:** keep its points equal to `AppSponsor.boothPoints` (100), which the booth copy shows.

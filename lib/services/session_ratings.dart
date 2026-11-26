@@ -177,6 +177,8 @@ class SessionRatingService extends ChangeNotifier {
       // Same shape the gamification rules expect: day|title.
       targetId: '${item.key.split('|').first}|${item.title.trim().toLowerCase()}',
       metadata: {
+        // "Speaker spotter" counts distinct metadata.speaker values.
+        if (item.speakerNames.isNotEmpty) 'speaker': item.speakerNames,
         'rating': sessionRating,
         if (speakerRating > 0) 'speaker_rating': speakerRating,
         'date': item.key.split('|').first,
