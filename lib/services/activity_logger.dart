@@ -55,6 +55,8 @@ class ActivityAction {
   static const socialComment = 'social_comment';
   static const harryQuestion = 'harry_question';
   static const galleryFaceSearch = 'gallery_face_search';
+  /// A gallery photo saved to the phone; target_id is the photo id.
+  static const galleryPhotoDownloaded = 'gallery_photo_downloaded';
   static const feedbackSubmitted = 'feedback_submitted';
   // Also used for the daily entrance check-in codes (rules match on target_id).
   static const huntCodeFound = 'hunt_code_found';

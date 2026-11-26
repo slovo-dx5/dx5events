@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../services/activity_logger.dart';
 import 'caption_overlay.dart';
 import 'gallery_repository.dart';
 
@@ -166,6 +167,13 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
       await tmp.writeAsBytes(bytes);
 
       final ok = await copyFileIntoDownloadFolder(tmp.path, fileName);
+      if (ok == true) {
+        ActivityLogger.instance.log(
+          action: ActivityAction.galleryPhotoDownloaded,
+          targetType: 'gallery_photo',
+          targetId: photo.id,
+        );
+      }
       messenger.showSnackBar(SnackBar(
         content: Text(ok == true
             ? 'Saved "$fileName" to Downloads'

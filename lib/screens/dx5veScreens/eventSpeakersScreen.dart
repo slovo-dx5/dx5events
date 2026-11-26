@@ -10,6 +10,7 @@ import '../../repositories/agenda_repository.dart';
 import '../../repositories/event_repository.dart';
 import '../../services/activity_logger.dart';
 import '../../widgets/speakerWidget.dart';
+import 'dx5veIndividualSpeaker.dart';
 
 class EventSpeakersScreen extends StatefulWidget {
   String eventID;
@@ -206,6 +207,21 @@ class _EventSpeakersScreenState extends State<EventSpeakersScreen> {
                             linkedinurl:
                                 speaker.linkedinProfile ?? "linkedin.com",
                             sessions: _getTopicsForSpeaker(speaker.id),
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => IndividualSpeakerScreen(
+                                  speakerId: speaker.id,
+                                  imageUrl: speaker.photo,
+                                  speakerName:
+                                      "${speaker.firstName} ${speaker.lastName}",
+                                  title:
+                                      "${speaker.role} at ${speaker.company}",
+                                  linkedinurl: speaker.linkedinProfile ??
+                                      "linkedin.com",
+                                  Bio: speaker.bio ?? "",
+                                ),
+                              ),
+                            ),
                           ),
                           const Divider(color: Colors.green),
                           verticalSpace(height: 10),

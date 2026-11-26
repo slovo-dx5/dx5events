@@ -17,13 +17,19 @@ speakerWidget({
   required String linkedinurl,
   required String imageURL,
   List<SpeakerSession>? sessions,
+  /// Opens the speaker's profile. The LinkedIn button and "show more" keep
+  /// their own taps.
+  VoidCallback? onTap,
   // required List<String> interests,
 }) {
   final themeProvider = Provider.of<ThemeProvider>(context);
 
   return Padding(
       padding: const EdgeInsets.only(left: 1.0, right: 1.0),
-      child: Container(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10), ),
@@ -134,7 +140,7 @@ speakerWidget({
             ],
           ],
         ),
-      ));
+      )));
 }
 
 speakerShimmerWidget({

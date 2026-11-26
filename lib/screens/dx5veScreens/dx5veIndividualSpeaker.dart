@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../constants.dart';
 import '../../helpers/helper_functions.dart';
 import '../../helpers/helper_widgets.dart';
+import '../../services/activity_logger.dart';
 
 class IndividualSpeakerScreen extends StatefulWidget {
   String imageUrl;
@@ -11,10 +12,14 @@ class IndividualSpeakerScreen extends StatefulWidget {
   String title;
   String linkedinurl;
   String Bio;
+  /// Logged as the target of `view_speaker_detail`, so the Speaker scout
+  /// challenge counts different speakers, not repeat visits.
+  final int? speakerId;
 
 
   IndividualSpeakerScreen(
       {super.key,
+        this.speakerId,
         required this.imageUrl,
         required this.speakerName,
         required this.title,
@@ -31,6 +36,17 @@ class IndividualSpeakerScreen extends StatefulWidget {
 }
 
 class _IndividualSpeakerScreenState extends State<IndividualSpeakerScreen> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.speakerId != null) {
+      ActivityLogger.instance.log(
+        action: ActivityAction.viewSpeakerDetail,
+        targetType: 'speaker',
+        targetId: widget.speakerId.toString(),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
