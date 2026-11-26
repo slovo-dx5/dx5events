@@ -149,7 +149,6 @@ flutter:
     - assets/images/
     - assets/images/backgrounds/
     - assets/images/sponsors/
-    - assets/images/gallery/
     - assets/images/shop/
     - assets/venue_map/
     - assets/serviceacc.json
